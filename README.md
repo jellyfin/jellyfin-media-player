@@ -39,3 +39,10 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 * mkdir build ; cd build
 * cmake -GXcode -DQTROOT=/path/to/qt ..
+
+## License
+
+Plex Media Player is licensed under GPL v2. See the ``LICENSE`` file.
+Licenses of dependencies are summarized under ``resources/misc/licenses.txt``.
+This file can also be printed at runtime when using the ``--licenses`` option.
+

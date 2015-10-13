@@ -146,6 +146,16 @@ int main(int argc, char *argv[])
 {
   try
   {
+    for (int n = 1; n < argc; n++) {
+      if (strcmp(argv[n], "--licenses") == 0) {
+        QFile licenses(":/misc/licenses.txt");
+        licenses.open(QIODevice::ReadOnly | QIODevice::Text);
+        QByteArray contents = licenses.readAll();
+        printf("%.*s\n", (int)contents.size(), contents.data());
+        return 0;
+      }
+    }
+
     int newArgc = argc;
     char **newArgv = appendCommandLineArguments(&newArgc, argv);
 

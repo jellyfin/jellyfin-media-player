@@ -39,14 +39,3 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 * mkdir build ; cd build
 * cmake -GXcode -DQTROOT=/path/to/qt ..
-
-
-### Debugging Web Client
-
-You can run a locally hosted development version of the web app within the Konvergo application. If the main app window is open you can also run Chrome side by side to debug.
-
-* Run the `grunt server:konvergo` from the `web-client` submodule. This will run a dev version of the web client
-* Update the `starturl` in `~/Library/Application Support/Plex Media Player/Plex Media Player.conf` to point to `http://localhost:3333/app/dev-konvergo.html`
-* Run the `Plex Media Player.app`
-* Tail the `~/Library/Logs/Plex Media Player/Plex Media Player.log`, optionally grepped with `WebClient` to see `console.log`s
-* Open Chrome and point to `http://localhost:3333/app/dev-konvergo.html`. This should open a Qt channel to the main `Plex Media Player.app` and function as normal - but with the ability to add breakpoints and inspect code

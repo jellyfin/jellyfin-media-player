@@ -28,14 +28,12 @@ LIB /def:%DEPS%\bin\mpv-1.def /out:%DEPS%\lib\mpv.lib /MACHINE:X64  || exit /b
 
 cd %BUILD_DIR%  || exit /b
 
-%CMAKE_DIR%\cmake -DQTROOT=%QTROOT% -DCMAKE_INSTALL_PREFIX=output -DDEPENDENCY_ROOT=%DEPS% -DBREAKPAD_LIBRARY=%DEPS%\lib\breakpad.lib -DMPV_INCLUDE_DIR=%DEPS%\include -DMPV_LIBRARY=%DEPS%\lib\mpv.lib -DSDL2_LIBRARY=%DEPS%\lib\sdl2.lib -DSDL2_INCLUDE_DIR=%DEPS%\include -DCEC_LIBRARY=%DEPS%\lib\libcec.lib -DCEC_INCLUDE_DIR=%DEPS%\include .. -G "Visual Studio 12 2013 Win64" -DENABLE_DUMP_SYMBOLS=off -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo  -DCODE_SIGN=ON || exit /b
+%CMAKE_DIR%\cmake -DQTROOT=%QTROOT% -DCMAKE_INSTALL_PREFIX=output -DDEPENDENCY_ROOT=%DEPS% -DBREAKPAD_LIBRARY=%DEPS%\lib\breakpad.lib -DMPV_INCLUDE_DIR=%DEPS%\include -DMPV_LIBRARY=%DEPS%\lib\mpv.lib -DSDL2_LIBRARY=%DEPS%\lib\sdl2.lib -DSDL2_INCLUDE_DIR=%DEPS%\include -DCEC_LIBRARY=%DEPS%\lib\libcec.lib -DCEC_INCLUDE_DIR=%DEPS%\include .. -G Ninja -DGENERATE_SYMBOLS=off -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo -DCODE_SIGN=ON || exit /b
 
-msbuild PlexMediaPlayer.sln /p:configuration=RelWithDebInfo  || exit /b
-
-mkdir output
-
-%CMAKE_DIR%\cmake  -P cmake_install.cmake || exit /b
-
-%CMAKE_DIR%\cpack   || exit /b
+ninja || exit /b
+ninja package || exit /b
 
 ..\scripts\WindowsSign.cmd PlexMediaPlayer-*.exe
+
+REM Dump symbols
+%DEPS%\lib\dump_syms.exe src\RelWithDebInfo\PlexMediaPlayer.pdb | c:\mingw\bin\xz > PlexMediaPlayer.symbols.xz || exit /b

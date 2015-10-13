@@ -1,0 +1,44 @@
+rom e62ab19d897155bb10f4c7a2a99b901b458361b5 Mon Sep 17 00:00:00 2001
+From: Jocelyn Turcotte <jturcotte@woboq.com>
+Date: Mon, 20 Jul 2015 12:06:59 +0200
+Subject: [PATCH] Fix a crash on new windows
+
+Fixes a regression of 99e98f7bf6aec78fe0d647fb898e65d13ff522e4
+by delaying applying the background color if the client hasn't
+been set on the WebContentsViewQt yet.
+
+Task-number: QTBUG-41960
+Change-Id: I1c138777f616541179976570d8c29f8f4d49ecbf
+---
+ qtwebengine/src/core/web_contents_view_qt.cpp | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/qtwebengine/src/core/web_contents_view_qt.cpp b/src/core/web_contents_view_qt.cpp
+index aad44c1..c327534 100644
+--- a/qtwebengine/src/core/web_contents_view_qt.cpp
++++ b/qtwebengine/src/core/web_contents_view_qt.cpp
+@@ -53,8 +53,10 @@ void WebContentsViewQt::initialize(WebContentsAdapterClient* client)
+     m_factoryClient = client;
+
+     // Check if a RWHV was created before the initialization.
+-    if (m_webContents->GetRenderWidgetHostView())
+-        static_cast<RenderWidgetHostViewQt *>(m_webContents->GetRenderWidgetHostView())->setAdapterClient(client);
++    if (auto rwhv = static_cast<RenderWidgetHostViewQt *>(m_webContents->GetRenderWidgetHostView())) {
++        rwhv->setAdapterClient(client);
++        rwhv->SetBackgroundColor(toSk(client->backgroundColor()));
++    }
+ }
+
+ content::RenderWidgetHostViewBase* WebContentsViewQt::CreateViewForWidget(content::RenderWidgetHost* render_widget_host, bool is_guest_view_hack)
+@@ -86,7 +88,8 @@ void WebContentsViewQt::RenderViewCreated(content::RenderViewHost* host)
+ {
+     // The render process is done creating the RenderView and it's ready to be routed
+     // messages at this point.
+-    host->GetView()->SetBackgroundColor(toSk(m_client->backgroundColor()));
++    if (m_client)
++        host->GetView()->SetBackgroundColor(toSk(m_client->backgroundColor()));
+ }
+
+ void WebContentsViewQt::CreateView(const gfx::Size& initial_size, gfx::NativeView context)
+--
+2.3.3

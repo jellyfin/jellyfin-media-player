@@ -1,0 +1,105 @@
+/**
+
+@mainpage %QHttpServer Documentation
+
+@section introduction Introduction
+
+%QHttpServer is a easy to use, fast and light-weight
+HTTP Server suitable for C++ web applications backed
+by Qt. Since C++ web applications are pretty uncommon
+the market for this project is pretty low.
+
+But integrating this with a module like QtScript and using it to write
+JavaScript web applications is a tempting possibility, and something that
+I demonstrated at <a href="http://conf.kde.in">conf.kde.in 2011</a>. The slides
+can be found on <a href="https://github.com/nikhilm/confkdein11">Github</a>.
+
+%QHttpServer uses a signal-slots based mechanism
+for all communication, so no inheritance is required.
+It tries to be as asynchronous as possible, to the
+extent that request body data is also delivered as and
+when it is received over the socket via signals. This
+kind of programming may take some getting used to.
+
+%QHttpServer is backed by <a href="http://github.com/ry/http-parser">Ryan
+Dahl's secure and fast http parser</a> which makes it streaming
+till the lowest level.
+
+@section usage Usage
+
+Using %QHttpServer is very simple. Simply create a QHttpServer,
+connect a slot to the newRequest() signal and use the request and
+response objects.
+See the QHttpServer class documentation for an example.
+
+@section memorymanagement Memory Management
+
+The QHttpRequest and QHttpResponse deletion policies
+are such.
+
+QHttpRequest is <b>never</b> deleted by %QHttpServer.
+Since it is not possible to determine till what point the application
+may want access to its data, it is up to the application to delete it.
+A recommended way to handle this is to create a new responder object for
+every request and to delete the request in that object's destructor. The
+object itself can be deleted by connecting to QHttpResponse's done()
+slot as explained below.
+
+You should <b>not</b> delete the QHttpRequest object until it
+has emitted an QHttpRequest::end() signal.
+
+QHttpResponse queues itself up for auto-deletion once the application
+calls its end() method. Once the data has been flushed to the underlying
+socket, the object will emit a QHttpResponse::done() signal before queueing itself up
+for deletion. You should <b>not</b> interact with the response
+object once it has emitted QHttpResponse::done() although actual deletion does not
+happen until QHttpResponse::destroyed() is emitted.
+QHttpResponse::done() serves as a useful way to handle memory management of the
+application itself. For example:
+
+@code
+
+MyApp::MyApp() : QObject()
+{
+    QHttpServer *server = new QHttpServer(this);
+    connect(server, SIGNAL(newRequest(...)), this, SLOT(handle(...)));
+    s.listen(8080);
+}
+
+void MyApp::handle(QHttpRequest *request, QHttpResponse *response)
+{
+    if (request->path() == x) // Match a route
+        new Responder(request, response);
+    else
+        new PageNotFound(request, response);
+}
+
+...
+
+Responder::Responder(QHttpRequest *request, QHttpResponse *response)
+{
+    m_request = request;
+
+    connect(request, SIGNAL(end()), response, SLOT(end()));
+  
+    // Once the request is complete, the response is sent.
+    // When the response ends, it deletes itself
+    // the Responder object connects to done()
+    // which will lead to it being deleted
+    // and this will delete the request.
+    // So all 3 are properly deleted.
+    connect(response, SIGNAL(done()), this, SLOT(deleteLater()));
+
+    response->writeHead(200);
+    response->write("Quitting soon");
+}
+
+Responder::~Responder()
+{
+    delete m_request;
+    m_request = 0;
+}
+
+@endcode
+
+*/

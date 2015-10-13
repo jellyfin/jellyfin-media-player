@@ -1,0 +1,10 @@
+execute_process(COMMAND @QTROOT@/bin/windeployqt.exe --qmldir @SOURCE_ROOT@/src/ui ${CMAKE_INSTALL_PREFIX}/PlexMediaPlayer.exe)
+
+if(@DO_SIGN@)
+  file(GLOB_RECURSE EXES ${CMAKE_INSTALL_PREFIX}/*.exe ${CMAKE_INSTALL_PREFIX}/*.dll)
+  set(ENV{errorlevel} 1)
+  foreach(e ${EXES})
+    message("-- Signing: ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd ${e}")
+    execute_process(COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd "${e}" RESULT_VARIABLE RES)
+  endforeach()
+endif()

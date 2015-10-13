@@ -1,0 +1,1 @@
+add_sources(DisplayManagerDummy.cpp DisplayManagerDummy.h)

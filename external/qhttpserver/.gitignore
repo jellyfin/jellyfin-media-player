@@ -1,0 +1,30 @@
+# Folders
+build
+lib
+
+# Generated
+Makefile
+*.o
+moc_*
+
+# Docs
+docs/html
+
+# Build folders
+*/debug
+*/release
+*/*/debug
+*/*/release
+
+# Visual studio
+*.suo
+*.ncb
+*.user
+*.pdb
+*.idb
+*.vcproj
+*.vcxproj
+*.vcxproj.filters
+*.lib
+*.sln
+*.rc

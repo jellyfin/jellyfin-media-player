@@ -1,0 +1,19 @@
+{
+  "name": "Apple Remote",
+  "idmatcher": "AppleRemote.*",
+  "mapping": 
+  {
+      "KEY_LEFT": "left",
+      "KEY_LEFT_LONG": "cycle_subtitles_back",
+      "KEY_RIGHT": "right",
+      "KEY_RIGHT_LONG": "cycle_subtitles",
+      "KEY_UP": "up",
+      "KEY_UP_LONG": "cycle_audio",
+      "KEY_DOWN": "down",
+      "KEY_DOWN_LONG": "cycle_audio_back",
+      "KEY_SELECT": "enter",
+      "KEY_SELECT_LONG": "host:toggleDebug",
+      "KEY_MENU": "back",
+      "KEY_MENU_LONG": "home"
+  }
+}

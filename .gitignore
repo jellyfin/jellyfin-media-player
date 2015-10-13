@@ -1,0 +1,11 @@
+*.pro.user*
+dependencies/*
+CMakeLists.txt.user
+CMakeLists.txt.user.*
+build/*
+.idea
+.install_pkg
+.openelec-unpack
+QtCreatorDeployment.txt
+vagrant/ubuntu-x86_64/.vagrant
+vagrant/windows-x86_64/.vagrant

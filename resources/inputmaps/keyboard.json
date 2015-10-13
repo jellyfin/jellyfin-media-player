@@ -1,0 +1,44 @@
+{
+  "name": "Keyboard Generic",
+  "idmatcher": "Keyboard.*",
+  "mapping":
+  {
+    // standard navigation, we allow num and shift modifiers
+    "(Num\\+|Shift\\+)?Left": "left",
+    "(Num\\+|Shift\\+)?Right": "right",
+    "(Num\\+|Shift\\+)?Up": "up",
+    "(Num\\+|Shift\\+)?Down": "down",
+    "(Num\\+)?(Return|Enter|Space)": "enter",
+    "(Esc|Backspace)": "back",
+
+    // map Num+X and Shift+X to X. This allows normal number input
+    "(?:Num\\+|Shift\\+)?([0-9])": "%1",
+
+    // map Shift+Letter to action jump+letter
+    "Shift\\+([A-Z])": "jump+%1",
+
+    "P": "play_pause",
+    "Ctrl\\+P": "pause",
+    "X": "stop",
+    "B": "back",
+    "H": "home",
+    "A": "cycle_audio",
+    "Ctrl\\+A": "cycle_audio_back",
+    "L": "cycle_subtitles",
+    "Ctrl\\+L": "cycle_subtitles_back",
+    "S": "toggle_subtitles",
+    "Alt\\+A": "increase_audio_delay",
+    "Alt+Shift\\+A": "decrease_audio_delay",
+    "Alt\\+S": "increase_subtitles_delay",
+    "Alt\\+Shift\\+S": "decrease_subtitles_delay",
+
+    // application shortcuts
+    "Ctrl\\+F": "host:fullscreen",
+    "Ctrl\\+Q": "host:close",
+    "Ctrl\\+Shift\\+R": "host:reload",
+    "Ctrl\\+Shift\\+D": "host:toggleDebug",
+
+    // debug command to crash the host. for testing
+    "Ctrl\\+Alt\\+Shift\\+F1": "host:crash!"
+  }
+}

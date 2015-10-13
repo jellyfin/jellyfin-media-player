@@ -1,0 +1,69 @@
+set(app "@EXE@")
+
+list(APPEND BINS "Contents/Resources/updater")
+list(APPEND BINS "Contents/Resources/@HELPER_NAME@")
+
+set(args ${app})
+list(APPEND args "-verbose=2")
+list(APPEND args "-qmldir=@SOURCE_ROOT@/src/ui")
+foreach(BIN ${BINS})
+  list(APPEND args "-executable=${app}/${BIN}")
+endforeach(BIN ${BINS})
+
+execute_process(
+  COMMAND @QTROOT@/bin/macdeployqt ${args}
+  WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+)
+
+#set(ENTITLEMENTS --entitlements @SOURCE_ROOT@/bundle/osx/Konvergo.entitlements)
+set(CODESIGN codesign ${ENTITLEMENTS} --force --sign "Developer ID Application: Plex Inc.")
+
+macro(sign_binary BIN)
+  message(STATUS "Signing: ${BIN}")
+  execute_process(
+    COMMAND ${CODESIGN} "${BIN}"
+    RESULT_VARIABLE result
+  )
+  if(NOT ${result} EQUAL 0)
+    message(FATAL_ERROR "Failed to sign ${BIN}")
+  endif(NOT ${result} EQUAL 0)
+endmacro(sign_binary BIN)
+
+if(@DO_SIGN@)
+
+  # we need to sign the webengine helper before the framework
+  # add --entitlements @SOURCE_ROOT@/bundle/osx/WebEngine.entitlements when we want to sandbox
+  set(WEB_PROC "${CMAKE_INSTALL_PREFIX}/${app}/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
+  sign_binary(${WEB_PROC})
+
+  file(GLOB_RECURSE LIBS
+    FOLLOW_SYMLINKS
+    "${CMAKE_INSTALL_PREFIX}/${app}/*.dylib"
+  )
+  file(GLOB FRAMEWORKS FOLLOW_SYMLINKS LIST_DIRECTORIES true "${CMAKE_INSTALL_PREFIX}/${app}/Contents/Frameworks/*")
+  foreach(LIB ${LIBS} ${FRAMEWORKS})
+    sign_binary(${LIB})
+  endforeach(LIB ${LIBS})
+
+  foreach(BIN ${BINS})
+    sign_binary(${CMAKE_INSTALL_PREFIX}/${app}/${BIN})
+  endforeach(BIN ${BINS})
+
+  sign_binary(${CMAKE_INSTALL_PREFIX}/${app})
+
+  message("Verifing signature")
+  execute_process(
+    COMMAND codesign --verbose=4 --verify "${CMAKE_INSTALL_PREFIX}/@EXE@"
+    RESULT_VARIABLE result
+  )
+  if(NOT ${result} EQUAL 0)
+    message(FATAL_ERROR "Failed to verify binary!")
+  endif(NOT ${result} EQUAL 0)
+  execute_process(
+    COMMAND spctl --verbose=4 --assess --type execute "${CMAKE_INSTALL_PREFIX}/@EXE@"
+    RESULT_VARIABLE result
+  )
+  if(NOT ${result} EQUAL 0)
+    message(FATAL_ERROR "Failed to verify binary!")
+  endif(NOT ${result} EQUAL 0)
+endif(@DO_SIGN@)

@@ -1,0 +1,12 @@
+{
+  "name": "Apple Media Keys",
+  "idmatcher": "AppleMediaKeys.*",
+  "mapping":
+  {
+    "KEY_PLAY": "play_pause",
+    "KEY_NEXT": "step_forward",
+    "KEY_PREV": "step_backward",
+    "KEY_FAST": "step_forward",
+    "KEY_REWIND": "step_backward"
+  }
+}

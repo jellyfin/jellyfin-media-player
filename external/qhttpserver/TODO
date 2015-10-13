@@ -1,0 +1,7 @@
+* Expect & Continue stuff
+* Chunked encoding support
+* Only copy over public headers etc.
+* connection object should connect to QHttpResponse::destroyed()
+and stop pushing data into it or whatever if the object is destroyed.
+* response object should keep track of emitting done() and not accept writes after that
+* handle encoding in response write and end

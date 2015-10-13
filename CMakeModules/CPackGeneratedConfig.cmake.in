@@ -1,0 +1,3 @@
+if(CPACK_GENERATOR MATCHES "IFW")
+  set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+endif()

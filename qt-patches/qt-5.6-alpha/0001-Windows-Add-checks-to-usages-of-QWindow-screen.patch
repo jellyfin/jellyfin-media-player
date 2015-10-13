@@ -1,0 +1,120 @@
+From 78b2719b04f1177b5af0f52fce98316505f9000b Mon Sep 17 00:00:00 2001
+From: Friedemann Kleint <Friedemann.Kleint@theqtcompany.com>
+Date: Tue, 22 Sep 2015 12:21:29 +0200
+Subject: [PATCH] Windows: Add checks to usages of QWindow::screen().
+
+Default to primary screen and handle situations where the screen
+is null consistently. Remove unused QWindowsScreen::screenOf() method.
+
+Task-number: QTBUG-48288
+Change-Id: I91b3c2331521d9d3be8ac77606ee820cd35ebb0f
+Reviewed-by: Joerg Bornemann <joerg.bornemann@theqtcompany.com>
+---
+ src/plugins/platforms/windows/qwindowsmousehandler.cpp | 14 ++++++++++++--
+ src/plugins/platforms/windows/qwindowsscreen.cpp       | 12 ------------
+ src/plugins/platforms/windows/qwindowsscreen.h         |  2 --
+ src/plugins/platforms/windows/qwindowswindow.cpp       | 12 +++++++++---
+ 4 files changed, 21 insertions(+), 19 deletions(-)
+
+diff --git a/src/plugins/platforms/windows/qwindowsmousehandler.cpp b/src/plugins/platforms/windows/qwindowsmousehandler.cpp
+index 4ab861a..90cb6fe 100644
+--- a/src/plugins/platforms/windows/qwindowsmousehandler.cpp
++++ b/src/plugins/platforms/windows/qwindowsmousehandler.cpp
+@@ -477,7 +477,12 @@ bool QWindowsMouseHandler::translateTouchEvent(QWindow *window, HWND,
+     typedef QList<QWindowSystemInterface::TouchPoint> QTouchPointList;
+ 
+     Q_ASSERT(m_touchDevice);
+-    const QRect screenGeometry = window->screen()->geometry();
++    const QScreen *screen = window->screen();
++    if (!screen)
++        screen = QGuiApplication::primaryScreen();
++    if (!screen)
++        return true;
++    const QRect screenGeometry = screen->geometry();
+ 
+     const int winTouchPointCount = msg.wParam;
+     QScopedArrayPointer<TOUCHINPUT> winTouchInputs(new TOUCHINPUT[winTouchPointCount]);
+@@ -569,7 +574,12 @@ bool QWindowsMouseHandler::translateGestureEvent(QWindow *window, HWND hwnd,
+     if (gi.dwID != GID_DIRECTMANIPULATION)
+         return true;
+     static QPoint lastTouchPos;
+-    const QRect screenGeometry = window->screen()->geometry();
++    const QScreen *screen = window->screen();
++    if (!screen)
++        screen = QGuiApplication::primaryScreen();
++    if (!screen)
++        return true;
++    const QRect screenGeometry = screen->geometry();
+     QWindowSystemInterface::TouchPoint touchPoint;
+     static QWindowSystemInterface::TouchPoint touchPoint2;
+     touchPoint.id = 0;//gi.dwInstanceID;
+diff --git a/src/plugins/platforms/windows/qwindowsscreen.cpp b/src/plugins/platforms/windows/qwindowsscreen.cpp
+index 391735a..e6abfb2 100644
+--- a/src/plugins/platforms/windows/qwindowsscreen.cpp
++++ b/src/plugins/platforms/windows/qwindowsscreen.cpp
+@@ -276,18 +276,6 @@ QWindow *QWindowsScreen::windowAt(const QPoint &screenPoint, unsigned flags)
+     return result;
+ }
+ 
+-QWindowsScreen *QWindowsScreen::screenOf(const QWindow *w)
+-{
+-    if (w)
+-        if (const QScreen *s = w->screen())
+-            if (QPlatformScreen *pscr = s->handle())
+-                return static_cast<QWindowsScreen *>(pscr);
+-    if (const QScreen *ps = QGuiApplication::primaryScreen())
+-        if (QPlatformScreen *ppscr = ps->handle())
+-            return static_cast<QWindowsScreen *>(ppscr);
+-    return 0;
+-}
+-
+ qreal QWindowsScreen::pixelDensity() const
+ {
+     const qreal physicalDpi = m_data.geometry.width() / m_data.physicalSizeMM.width() * qreal(25.4);
+diff --git a/src/plugins/platforms/windows/qwindowsscreen.h b/src/plugins/platforms/windows/qwindowsscreen.h
+index 67e7ff6..bc8fbf5 100644
+--- a/src/plugins/platforms/windows/qwindowsscreen.h
++++ b/src/plugins/platforms/windows/qwindowsscreen.h
+@@ -79,8 +79,6 @@ public:
+ 
+     explicit QWindowsScreen(const QWindowsScreenData &data);
+ 
+-    static QWindowsScreen *screenOf(const QWindow *w = 0);
+-
+     QRect geometry() const Q_DECL_OVERRIDE { return m_data.geometry; }
+     QRect availableGeometry() const Q_DECL_OVERRIDE { return m_data.availableGeometry; }
+     int depth() const Q_DECL_OVERRIDE { return m_data.depth; }
+diff --git a/src/plugins/platforms/windows/qwindowswindow.cpp b/src/plugins/platforms/windows/qwindowswindow.cpp
+index 5318360..abfddcf 100644
+--- a/src/plugins/platforms/windows/qwindowswindow.cpp
++++ b/src/plugins/platforms/windows/qwindowswindow.cpp
+@@ -1637,8 +1637,12 @@ void QWindowsWindow::setWindowState(Qt::WindowState state)
+ bool QWindowsWindow::isFullScreen_sys() const
+ {
+     const QWindow *w = window();
+-    return w->isTopLevel()
+-        && geometry_sys() == QHighDpi::toNativePixels(w->screen()->geometry(), w);
++    if (!w->isTopLevel())
++        return false;
++    const QScreen *screen = w->screen();
++    if (!screen)
++        screen = QGuiApplication::primaryScreen();
++    return screen && geometry_sys() == QHighDpi::toNativePixels(screen->geometry(), w);
+ }
+ 
+ /*!
+@@ -1708,7 +1712,9 @@ void QWindowsWindow::setWindowState_sys(Qt::WindowState newState)
+             // Use geometry of QWindow::screen() within creation or the virtual screen the
+             // window is in (QTBUG-31166, QTBUG-30724).
+             const QScreen *screen = window()->screen();
+-            const QRect r = QHighDpi::toNativePixels(screen->geometry(), window());
++            if (!screen)
++                screen = QGuiApplication::primaryScreen();
++            const QRect r = screen ? QHighDpi::toNativePixels(screen->geometry(), window()) : m_savedFrameGeometry;
+             const UINT swpf = SWP_FRAMECHANGED | SWP_NOACTIVATE;
+             const bool wasSync = testFlag(SynchronousGeometryChangeEvent);
+             setFlag(SynchronousGeometryChangeEvent);
+-- 
+2.5.1
+
+

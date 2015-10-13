@@ -1,0 +1,27 @@
+From d04cee1adfd944d724c4b8777638c9319f53f443 Mon Sep 17 00:00:00 2001
+From: Jocelyn Turcotte <jturcotte@woboq.com>
+Date: Thu, 23 Jul 2015 11:56:37 +0200
+Subject: [PATCH] Don't show the menu bar at all in lion-style fullscreen
+
+This works around a bug in OSX where the menubar could
+appear and not go away when losing the connection to a
+single main display, which triggers the menu bar to be resized.
+---
+ qtbase/src/plugins/platforms/cocoa/qnswindowdelegate.mm | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/qtbase/src/plugins/platforms/cocoa/qnswindowdelegate.mm b/qtbase/src/plugins/platforms/cocoa/qnswindowdelegate.mm
+index 015274c..37a481a 100644
+--- a/qtbase/src/plugins/platforms/cocoa/qnswindowdelegate.mm
++++ b/qtbase/src/plugins/platforms/cocoa/qnswindowdelegate.mm
+@@ -109,4 +109,7 @@
+     return YES;
+ }
+ 
++- (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions {
++    return NSApplicationPresentationFullScreen | NSApplicationPresentationHideMenuBar | NSApplicationPresentationHideDock;
++}
+ @end
+-- 
+2.3.3
+

@@ -1,0 +1,14 @@
+{
+  "name": "Xbox Controller",
+  "idmatcher": "Xbox.*",
+  "mapping": 
+  {
+      "KEY_BUTTON_13": "left",
+      "KEY_BUTTON_14": "right",
+      "KEY_BUTTON_11": "up",
+      "KEY_BUTTON_12": "down",
+      "KEY_BUTTON_0": "enter",
+      "KEY_BUTTON_1": "back",
+      "KEY_BUTTON_3": "info"
+  }
+}

@@ -1,0 +1,85 @@
+From 42c6ea4f6c29845d68e865b19a73a09cc6d0bdbe Mon Sep 17 00:00:00 2001
+From: Friedemann Kleint <Friedemann.Kleint@theqtcompany.com>
+Date: Tue, 15 Sep 2015 12:12:51 +0200
+Subject: [PATCH] QPlatformWindow: Extract static method for
+ closestAcceptableGeometry().
+
+On Windows, some messages occur before a QPlatformWindow is actually
+created, for example WM_WINDOWPOSCHANGING, which is handled in
+QWindowsWindow::handleGeometryChangingMessage().
+
+Extract a static function QPlatformWindow::closestAcceptableGeometry()
+from QPlatformWindow::windowClosestAcceptableGeometry() and use
+that in QWindowsWindow::handleGeometryChangingMessage().
+
+This fixes a regression crash occurring in Qt 5.6 when running
+the example from QTBUG-48201.
+
+Task-number: QTBUG-36220
+Task-number: QTBUG-48201
+Task-number: QTBUG-46615
+Change-Id: I86b8f923447c8e447382427cf5795628ef1c9717
+Reviewed-by: Joerg Bornemann <joerg.bornemann@theqtcompany.com>
+---
+ src/gui/kernel/qplatformwindow.cpp               | 11 ++++++++---
+ src/gui/kernel/qplatformwindow.h                 |  1 +
+ src/plugins/platforms/windows/qwindowswindow.cpp |  2 +-
+ 3 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/src/gui/kernel/qplatformwindow.cpp b/src/gui/kernel/qplatformwindow.cpp
+index 0430d5a..ea3b75c 100644
+--- a/src/gui/kernel/qplatformwindow.cpp
++++ b/src/gui/kernel/qplatformwindow.cpp
+@@ -702,15 +702,20 @@ QRect QPlatformWindow::windowFrameGeometry() const
+     a resize/move event for platforms that support it, for example to
+     implement heightForWidth().
+ */
+-QRectF QPlatformWindow::windowClosestAcceptableGeometry(const QRectF &nativeRect) const
++
++QRectF QPlatformWindow::closestAcceptableGeometry(const QWindow *qWindow, const QRectF &nativeRect)
+ {
+-    QWindow *qWindow = window();
+     const QRectF rectF = QHighDpi::fromNativePixels(nativeRect, qWindow);
+-    const QRectF correctedGeometryF = qt_window_private(qWindow)->closestAcceptableGeometry(rectF);
++    const QRectF correctedGeometryF = qt_window_private(const_cast<QWindow *>(qWindow))->closestAcceptableGeometry(rectF);
+     return !correctedGeometryF.isEmpty() && rectF != correctedGeometryF
+         ? QHighDpi::toNativePixels(correctedGeometryF, qWindow) : nativeRect;
+ }
+ 
++QRectF QPlatformWindow::windowClosestAcceptableGeometry(const QRectF &nativeRect) const
++{
++    return QPlatformWindow::closestAcceptableGeometry(window(), nativeRect);
++}
++
+ /*!
+     \class QPlatformWindow
+     \since 4.8
+diff --git a/src/gui/kernel/qplatformwindow.h b/src/gui/kernel/qplatformwindow.h
+index 1b283db..9c28179 100644
+--- a/src/gui/kernel/qplatformwindow.h
++++ b/src/gui/kernel/qplatformwindow.h
+@@ -140,6 +140,7 @@ public:
+     QRect windowGeometry() const;
+     QRect windowFrameGeometry() const;
+     QRectF windowClosestAcceptableGeometry(const QRectF &nativeRect) const;
++    static QRectF closestAcceptableGeometry(const QWindow *w, const QRectF &nativeRect);
+ 
+ protected:
+     static QString formatWindowTitle(const QString &title, const QString &separator);
+diff --git a/src/plugins/platforms/windows/qwindowswindow.cpp b/src/plugins/platforms/windows/qwindowswindow.cpp
+index f9b3433..5318360 100644
+--- a/src/plugins/platforms/windows/qwindowswindow.cpp
++++ b/src/plugins/platforms/windows/qwindowswindow.cpp
+@@ -1825,7 +1825,7 @@ bool QWindowsWindow::handleGeometryChangingMessage(MSG *message, const QWindow *
+     const QRect suggestedFrameGeometry(windowPos->x, windowPos->y,
+                                        windowPos->cx, windowPos->cy);
+     const QRect suggestedGeometry = suggestedFrameGeometry - margins;
+-    const QRectF correctedGeometryF = qWindow->handle()->windowClosestAcceptableGeometry(suggestedGeometry);
++    const QRectF correctedGeometryF = QPlatformWindow::closestAcceptableGeometry(qWindow, suggestedGeometry);
+     if (!correctedGeometryF.isValid())
+         return false;
+     const QRect correctedFrameGeometry = correctedGeometryF.toRect() + margins;
+-- 
+2.5.1
+
+

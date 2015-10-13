@@ -1,0 +1,13 @@
+{
+  "name": "Wiimote",
+  "idmatcher": "Wiimote.*",
+  "mapping": 
+  {
+      "KEY_BUTTON_1": "up",
+      "KEY_BUTTON_3": "right",
+      "KEY_BUTTON_0": "down",
+      "KEY_BUTTON_2": "left",
+      "KEY_BUTTON_10": "enter",
+      "KEY_BUTTON_9": "back"
+  }
+}

@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+  config.vm.box = "win8-konvergo"
+  config.vm.guest = :windows
+  config.vm.communicator = :winrm
+  config.winrm.timeout = 500
+  config.winrm.host = "127.0.0.1"
+  config.winrm.port = 55985
+  config.vm.synced_folder "../..", "/c/source/konvergo",
+    create: true,
+    type: "rsync",
+    rsync__exclude: ["dependencies", "vagrant", ".git"],
+    rsync__args: ["--verbose", "--archive", "--delete", "-zz"]
+  config.vm.synced_folder "../../../plex-dependency-builder", "/c/source/dep-builder",
+    create: true,
+    type: "rsync",
+    rsync__exclude: ["build", "output", ".git", "*.pyc"],
+    rsync__args: ["--verbose", "--archive", "--delete", "-zz"]
+  config.vm.network "forwarded_port", host: 33389, guest: 3389
+  config.ssh.private_key_path = "vagrant_insecure_key"
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 4096
+    v.cpus = 4
+    v.gui = true
+  end
+
+  #config.vm.provision :shell, path: "bootstrap.sh"
+
+end

@@ -1,0 +1,29 @@
+From 6ca3c5f3430043074f7299cb1c3ba7f453ff7b5f Mon Sep 17 00:00:00 2001
+From: Vincent Lang <vincent@plexapp.com>
+Date: Wed, 29 Jul 2015 21:27:34 +0200
+Subject: [PATCH] Always enable viewport stuff
+
+Normally, applications can configure this by changing the command
+line passed to QApplication/QtWebEngine, but this doesn't work on
+Windows. So we change these directly.
+---
+ src/core/web_engine_context.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/qtwebengine/src/core/web_engine_context.cpp b/qtwebengine/src/core/web_engine_context.cpp
+index 8bc0473..88b6245 100644
+--- a/qtwebengine/src/core/web_engine_context.cpp
++++ b/qtwebengine/src/core/web_engine_context.cpp
+@@ -231,6 +231,9 @@ WebEngineContext::WebEngineContext()
+     parsedCommandLine->AppendSwitchASCII(switches::kProfilerTiming, switches::kProfilerTimingDisabledValue);
+ #endif
+ 
++    parsedCommandLine->AppendSwitch(switches::kEnableViewport);
++    parsedCommandLine->AppendSwitch(switches::kEnableViewportMeta);
++
+     GLContextHelper::initialize();
+ 
+     if (usingANGLE() || usingSoftwareDynamicGL() || usingQtQuick2DRenderer()) {
+-- 
+2.4.6
+

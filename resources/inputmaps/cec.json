@@ -1,0 +1,30 @@
+{
+ "name": "HDMI CEC",
+ "idmatcher": "CEC.*",
+ "mapping": 
+ {
+     "KEY_LEFT": "left",
+     "KEY_RIGHT": "right",
+     "KEY_UP": "up",
+     "KEY_DOWN": "down",
+     "KEY_MENU": "unknown",
+     "KEY_SELECT": "enter",
+     "KEY_BACK": "back",
+     "KEY_RED": "red",
+     "KEY_GREEN": "green",
+     "KEY_YELLOW": "yellow",
+     "KEY_BLUE": "blue",
+     "KEY_PLAY": "play",
+     "KEY_STOP": "stop",
+     "KEY_PAUSE": "pause",
+     "KEY_SEEKFWD": "seek_forward",
+     "KEY_SEEKBCK": "seek_backward",
+     "KEY_SUBTITLES": "cycle_subtitles",
+     "KEY_INFO": "unknown",
+     "KEY_NEXT": "step_forward",
+     "KEY_PREV": "step_backward",
+     "KEY_HOME": "home",
+     "KEY_NUMERIC_([0-9])": "%1",
+     "KEY_GUIDE": "guide"
+ }
+} 

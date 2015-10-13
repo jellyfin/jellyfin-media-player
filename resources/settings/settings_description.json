@@ -1,0 +1,279 @@
+[
+  {
+    "section": "__meta__",
+    "version": 3
+  },
+  {
+    "section": "state",
+    "hidden": true,
+    "storage": true,
+    "values":[
+      {
+        "value": "geometry",
+        "default": "",
+        "hidden": true
+      }
+    ]
+  },
+  {
+    "section": "main",
+    "values": [
+      {
+        "value": "remoteInspector",
+        "default": false,
+        "hidden": true
+      },
+      {
+        "value": "fullscreen",
+        "default": false,
+        "platforms_excluded": "oe"
+      },
+      {
+        "value": "webserverport",
+        "default": 32433,
+        "hidden": true
+      },
+      {
+        "value": "updateChannel",
+        "default": 4,
+        "possible_values": [
+          [ 0, "Stable" ],
+          [ 8, "PlexPass" ],
+          [ 4, "Ninja" ],
+          [ 2, "Employee" ]
+        ]
+      }
+    ]
+  },
+  {
+    "section": "audio",
+    "values": [
+      {
+        "value": "devicetype",
+        "default": "basic",
+        "possible_values": [
+          [ "basic", "Basic" ],
+          [ "spdif", "Optical (S/PDIF)" ],
+          [ "hdmi", "HDMI" ]
+        ]
+      },
+      {
+        "value": "channels",
+        "default": "2.0",
+        "possible_values": [
+          [ "auto", "Auto Select Channels" ],
+          [ "1.0", "Mono" ],
+          [ "2.0", "Stereo" ],
+          [ "2.1", "2.1" ],
+          [ "3.0", "3.0" ],
+          [ "3.1", "3.1" ],
+          [ "5.1", "5.1" ],
+          [ "7.1", "7.1" ]
+        ]
+      },
+      {
+        "value": "device",
+        "default": "auto"
+      },
+      {
+        "value": "normalize",
+        "default": true
+      },
+      {
+        "value": "advanced",
+        "default": false
+      },
+      {
+        "value": "exclusive",
+        "default": false,
+        "hidden": true,
+        "platforms": [ "osx", "windows" ]
+      },
+      {
+        "value": "passthrough.ac3",
+        "default": false
+      },
+      {
+        "value": "passthrough.dts",
+        "default": false
+      },
+      {
+        "value": "passthrough.eac3",
+        "default": false,
+        "platforms_excluded": [ "osx", "oe_rpi" ]
+      },
+      {
+        "value": "passthrough.dts-hd",
+        "default": false,
+        "platforms_excluded": [ "osx", "oe_rpi" ]
+      },
+      {
+        "value": "passthrough.truehd",
+        "default": false,
+        "platforms_excluded": [ "osx", "oe_rpi" ]
+      }
+    ]
+  },
+  {
+    "section": "video",
+    "values": [
+      {
+        "value": "debug.force_vo",
+        "default": "",
+        "hidden": true
+      },
+      {
+        "value": "refreshrate.auto_switch",
+        "default": false
+      },
+      {
+        "value": "refreshrate.delay",
+        "default": 3,
+        "hidden": true
+      },
+      {
+        "value": "hardware_decoding",
+        "default": true,
+        "platforms_excluded": "oe_rpi"
+      },
+      {
+        "value": "deinterlace",
+        "default": false,
+        "platforms_excluded": "oe_rpi"
+      },
+      {
+        "value": "directPlay",
+        "default": true
+      },
+      {
+        "value": "directStream",
+        "default": true
+      },
+      {
+        "value": "sync_mode",
+        "default": "audio",
+        "possible_values": [
+          [ "audio", "Audio" ],
+          [ "display-resample", "Display" ]
+        ]
+      },
+      {
+        "value": "audio_delay.normal",
+        "default": 0,
+        "hidden": true,
+        "possible_range": {
+          "min": -300,
+          "max": 300,
+          "step": 50
+        }
+      },
+      {
+        "value": "audio_delay.24hz",
+        "default": 0,
+        "hidden": true,
+        "possible_range": {
+          "min": -300,
+          "max": 300,
+          "step": 50
+        }
+      },
+      {
+        "value": "cache",
+        "default": 75,
+        "possible_values": [
+          [ 10, "Tiny (10 MB)" ],
+          [ 75, "Default (75 MB)" ],
+          [ 150, "Large (150 MB)", { "platforms_excluded": "oe_rpi" } ],
+          [ 500, "Very Large (500 MB)", { "platforms_excluded": "oe_rpi" } ]
+        ]
+      }
+    ]
+  },
+  {
+    "section": "subtitles",
+    "values": [
+      {
+        "value": "placement",
+        "default": "center,bottom",
+        "possible_values": [
+          [ "left,bottom", "Lower left" ],
+          [ "right,bottom", "Lower right" ],
+          [ "center,bottom", "Lower middle" ],
+          [ "left,top", "Upper left" ],
+          [ "right,top", "Upper right" ],
+          [ "center,top", "Upper middle" ]
+        ]
+      },
+      {
+        "value": "color",
+        "default": "#EEEEEE,#000000",
+        "possible_values": [
+          [ "#EEEEEE,#000000", "Light grey" ],
+          [ "#CCCCCC,#000000", "Blended light grey" ],
+          [ "#FBF93E,#000000", "Yellow" ],
+          [ "#FFFFCC,#000000", "Light yellow" ],
+          [ "#EEEDB8,#000000", "Blended light yellow" ]
+        ]
+      },
+      {
+        "value": "size",
+        "default": 32,
+        "possible_values": [
+          [ 18, "Tiny" ],
+          [ 24, "Small" ],
+          [ 32, "Normal" ],
+          [ 42, "Large" ],
+          [ 60, "Huge" ]
+        ]
+      }
+    ]
+  },
+  {
+    "section": "path",
+    "hidden": true,
+    "values": [
+      {
+        "value": "startupurl",
+        "default": "qrc:/konvergo/index.html"
+      },
+      {
+        "value": "helperprogram",
+        "default": ""
+      }
+    ]
+  },
+  {
+    "section": "cec",
+    "hidden": true,
+    "values": [
+      {
+        "value": "hdmiport",
+        "default": 0
+      },
+      {
+        "value": "verbose_logging",
+        "default": false
+      },
+      {
+        "value": "enable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "section": "webclient",
+    "hidden": true,
+    "storage": true,
+    "values": []
+  },
+  {
+    "section": "openelec",
+    "hidden": true,
+    "values": [
+        {
+          "value": "systemname",
+          "default": "PlexMediaPlayer"
+        }
+    ]
+  }
+]

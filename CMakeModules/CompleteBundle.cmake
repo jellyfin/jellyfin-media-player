@@ -1,0 +1,17 @@
+if(APPLE)
+  set(SCRIPT CompleteBundleOSX)
+elseif(WIN32)
+  set(SCRIPT CompleteBundleWin)
+endif(APPLE)
+
+option(CODE_SIGN "code sign the app" OFF)
+if(CODE_SIGN)
+  set(DO_SIGN 1)
+else(CODE_SIGN)
+  set(DO_SIGN 0)
+endif(CODE_SIGN)
+
+if(SCRIPT)
+  configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/${SCRIPT}.cmake.in ${SCRIPT}.cmake @ONLY)
+  install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${SCRIPT}.cmake)
+endif(SCRIPT)

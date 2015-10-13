@@ -1,0 +1,15 @@
+//
+// Created by Tobias Hieta on 11/09/15.
+//
+
+#include "Names.h"
+
+QString Names::MainName()
+{
+  return QString("@MAIN_NAME@");
+}
+
+QString Names::HelperName()
+{
+  return QString("@HELPER_NAME@");
+}

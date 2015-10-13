@@ -23,7 +23,7 @@ public:
 private:
   Q_SLOT void uploadCrashDump(const QString& version, const QString& path);
 
-  QString incomingCurrentVersion() { return m_incoming + "/" + Version::GetVersionString(); }
+  QString incomingCurrentVersion() { return m_incoming + "/" + Version::GetCanonicalVersionString(); }
   void deleteOldCrashDumps();
   void addFormField(QHttpMultiPart* multipart, const QString& name, const QString& value);
   void uploadAndDeleteCrashDumps();

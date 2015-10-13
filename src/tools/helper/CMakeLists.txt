@@ -1,9 +1,13 @@
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
+if(ENABLE_CRASHDUMP)
+  set(CRASHDUMP_SRCS CrashUploader.cpp CrashUploader.h)
+  add_definitions(-DENABLE_CRASHDUMP -DCRASHDUMP_SECRET="${CRASHDUMP_SECRET}")
+endif(ENABLE_CRASHDUMP)
+
 add_executable(${HELPER_TARGET} WIN32
+  ${CRASHDUMP_SRCS}
   HelperMain.cpp
-  CrashUploader.cpp
-  CrashUploader.h
   HelperSocket.cpp
   HelperSocket.h
 )

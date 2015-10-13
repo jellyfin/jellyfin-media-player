@@ -1,4 +1,16 @@
-OPTION(GENERATE_SYMBOLS "Should we generate symbols for binaries?" ON)
+include(CmakeDependentOption)
+
+set(ENABLE_CRASHDUMP ON)
+set(CRASHDUMP_SECRET "" CACHE STRING "Secret for the crashdump uploader")
+if (NOT CRASHDUMP_SECRET)
+  message(STATUS "Crashdump secret not supplied, disabling crashdump uploading")
+  set(ENABLE_CRASHDUMP OFF)
+else(NOT CRASHDUMP_SECRET)
+  message(STATUS "Enabling crashdump uploader")
+endif(NOT CRASHDUMP_SECRET)
+
+cmake_dependent_option(GENERATE_SYMBOLS "Should we generate symbols for binaries?" ON "ENABLE_CRASHDUMP" OFF)
+
 function(dumpsyms target symfile)
   find_program(DUMP_SYMS dump_syms HINTS /usr/bin/ ${DEPENDENCY_ROOT}/bin)
   if(GENERATE_SYMBOLS AND NOT DUMP_SYMS)

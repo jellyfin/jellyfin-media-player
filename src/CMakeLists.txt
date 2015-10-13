@@ -161,8 +161,6 @@ set(EXE "${MAIN_NAME}.app")
 set(LIBPATH ${CMAKE_FIND_ROOT_PATH})
 set(SOURCE_ROOT ${CMAKE_SOURCE_DIR})
 
-if(ENABLE_DUMP_SYMBOLS)
-  dumpsyms(${MAIN_TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${MAIN_TARGET}.symbols)
-endif()
+dumpsyms(${MAIN_TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${MAIN_TARGET}.symbols)
 
 include(CompleteBundle)

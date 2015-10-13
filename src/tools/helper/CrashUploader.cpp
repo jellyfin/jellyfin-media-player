@@ -80,6 +80,7 @@ void CrashUploader::uploadCrashDump(const QString& version, const QString& path)
   QLOG_INFO() << "Uploading crashdump:" << inProgressPath;
 
   QNetworkRequest req(QUrl(UPLOAD_URL));
+  req.setRawHeader("X-Plex-Secret", CRASHDUMP_SECRET);
 
   QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 

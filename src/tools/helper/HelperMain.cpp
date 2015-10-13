@@ -7,10 +7,13 @@
 #include "QsLog.h"
 #include "utils/Utils.h"
 #include "Version.h"
-#include "CrashUploader.h"
 #include "HelperSocket.h"
 #include "UniqueApplication.h"
 #include "Names.h"
+
+#ifdef ENABLE_CRASHDUMP
+#include "CrashUploader.h"
+#endif
 
 using namespace QsLogging;
 
@@ -50,7 +53,9 @@ int main(int argc, char** argv)
 
   try
   {
+#ifdef ENABLE_CRASHDUMP
     new CrashUploader(helperObject);
+#endif
     new HelperSocket(helperObject);
   }
   catch (FatalException& e)

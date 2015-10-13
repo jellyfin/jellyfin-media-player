@@ -1,4 +1,4 @@
-include(CmakeDependentOption)
+include(CMakeDependentOption)
 
 set(ENABLE_CRASHDUMP ON)
 set(CRASHDUMP_SECRET "" CACHE STRING "Secret for the crashdump uploader")

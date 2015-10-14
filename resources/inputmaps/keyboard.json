@@ -8,7 +8,8 @@
     "(Num\\+|Shift\\+)?Right": "right",
     "(Num\\+|Shift\\+)?Up": "up",
     "(Num\\+|Shift\\+)?Down": "down",
-    "(Num\\+)?(Return|Enter|Space)": "enter",
+    "(Num\\+)?(Return|Enter)": "enter",
+    "Space": "space",
     "(Esc|Backspace)": "back",
 
     // map Num+X and Shift+X to X. This allows normal number input

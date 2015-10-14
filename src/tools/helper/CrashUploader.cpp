@@ -104,11 +104,13 @@ void CrashUploader::uploadCrashDump(const QString& version, const QString& path)
   {
     QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-    // if we get a 503 code it means that we are either sending crashes to quickly or that
-    // the server doesn't want these any more. In any case we can just discard it and move
-    // forward with our lives.
+    // The only situation in which we retry a failed crash dump upload is when
+    // we get a 503 http status code (we got throttled because we are sending
+    // crashes to quickly), or if the network was unavailable (no status code).
+    // If the server returns any other error, it doesn't want the crash report,
+    // and we just drop it.
     //
-    if (!statusCode.isValid() || (statusCode.toInt() != 200 && statusCode.toInt() != 503))
+    if (!statusCode.isValid() || statusCode.toInt() == 503)
     {
       QLOG_WARN() << "Failed to submit report with uuid:" << uuid << "will try again later";
       moveFileBackToIncoming(version, inProgressPath);

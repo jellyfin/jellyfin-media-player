@@ -657,12 +657,6 @@ void PlayerComponent::setAudioConfiguration()
   QString resampleOpts = "";
   bool normalize = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "normalize").toBool();
   resampleOpts += QString(":normalize=") + (normalize ? "yes" : "no");
-
-#ifdef TARGET_RPI
-  // Low-quality resampling options on RPI for better display-sync behavior.
-  resampleOpts += ":o=[filter_type=cubic,filter_size=8,phase_shift=6]";
-#endif
-
   mpv::qt::set_option_variant(m_mpv, "af-defaults", "lavrresample" + resampleOpts);
 
   QString passthroughCodecs;

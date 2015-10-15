@@ -78,6 +78,9 @@ bool PlayerComponent::componentInitialize()
   // aborting playback immediately).
   mpv_set_option_string(m_mpv, "audio-fallback-to-null", "yes");
 
+  // Do not let the decoder downmix (better customization for us).
+  mpv::qt::set_option_variant(m_mpv, "ad-lavc-downmix", false);
+
   // Make it load the hwdec interop, so hwdec can be enabled at runtime.
   mpv::qt::set_option_variant(m_mpv, "hwdec-preload", "auto");
 
@@ -657,6 +660,10 @@ void PlayerComponent::setAudioConfiguration()
   QString resampleOpts = "";
   bool normalize = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "normalize").toBool();
   resampleOpts += QString(":normalize=") + (normalize ? "yes" : "no");
+
+  // Make downmix more similar to PHT.
+  resampleOpts += ":o=[surround_mix_level=1,lfe_mix_level=1]";
+
   mpv::qt::set_option_variant(m_mpv, "af-defaults", "lavrresample" + resampleOpts);
 
   QString passthroughCodecs;

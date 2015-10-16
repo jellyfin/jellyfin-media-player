@@ -46,6 +46,7 @@ void DisplayManagerRPI::handleTvChange(uint32_t reason)
   {
     // Plugged in, but is in standby mode. May happen when reconnecting a monitor via HDMI.
     QLOG_INFO() << "Powering on screen.";
+    initialize();
     DisplayComponent::Get().switchToBestOverallVideoMode(0);
   }
   else if (reason & VC_HDMI_UNPLUGGED)

@@ -99,7 +99,7 @@ QVariantMap RemoteComponent::GDMInformation()
     {"Protocol", "plex"},
     {"Protocol-Version", "1"},
     {"Protocol-Capabilities", "navigation,playback,timeline,mirror,playqueues"},
-    {"Device-Class", "PC"},
+    {"Device-Class", "pc"},
     {"Resource-Identifier", SettingsComponent::Get().value(SETTINGS_SECTION_WEBCLIENT, "clientID")}
   };
 

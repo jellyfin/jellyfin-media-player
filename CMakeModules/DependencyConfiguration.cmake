@@ -19,10 +19,10 @@ endif(DEPENDENCY_ROOT)
 
 find_package(Threads)
 
-# on windows we need to download the updater binary seperately
+# on windows we need to download the updater binary seperately - this is such a hack and needs to be fixed
 if(WIN32)
-  file(DOWNLOAD https://nightlies.plex.tv/directdl/plex-dependencies/konvergo-qt/updater.exe ${CMAKE_BINARY_DIR}/updater.exe
+  file(DOWNLOAD https://nightlies.plex.tv/directdl/plex-dependencies/konvergo-qt/updater-2015-10-19.exe ${CMAKE_BINARY_DIR}/updater.exe
        SHOW_PROGRESS
-       EXPECTED_HASH SHA1=d3b4f70d6542fa42c8edd2b9b93fd0916bf20f07
+       EXPECTED_HASH SHA1=dff5230da59bb23498157f02e4807b18c8dc78a4
        TLS_VERIFY OFF)
 endif(WIN32)

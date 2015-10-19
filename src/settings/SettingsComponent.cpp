@@ -72,8 +72,6 @@ static QByteArray loadFile(const QString& filename)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void writeFile(const QString& filename, const QByteArray& data)
 {
-  QLOG_DEBUG() << "Writing:" << filename;
-
   QSaveFile file(filename);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
   file.write(data);
@@ -299,9 +297,6 @@ QVariantList SettingsComponent::settingDescriptions()
       desc.push_back(QJsonValue::fromVariant(section->descriptions()));
   }
 
-  QJsonDocument doc = QJsonDocument(desc);
-  QLOG_DEBUG() << "Settings description:\n" << qPrintable(doc.toJson());
-
   return desc.toVariantList();
 }
 
@@ -407,7 +402,6 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
   }
 
   m_sections.insert(sectionName, section);
-  QLOG_DEBUG() << "Added section:" << sectionName;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

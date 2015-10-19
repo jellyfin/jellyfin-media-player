@@ -2,6 +2,7 @@
 #include "QsLog.h"
 #include "DisplayComponent.h"
 #include "DisplayManager.h"
+#include "settings/SettingsComponent.h"
 #include <QGuiApplication>
 #include <QWindow>
 
@@ -142,6 +143,12 @@ bool DisplayComponent::switchToBestOverallVideoMode(int display)
 {
   if (!m_displayManager || !m_displayManager->isValidDisplay(display))
     return false;
+
+  if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "hdmi_poweron").toBool())
+  {
+    QLOG_INFO() << "Switching to best mode disabled.";
+    return false;
+  }
 
   int bestmode = m_displayManager->findBestMode(display);
   if (bestmode < 0)

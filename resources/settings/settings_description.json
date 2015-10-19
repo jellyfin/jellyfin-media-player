@@ -46,6 +46,12 @@
           [ 4, "Ninja" ],
           [ 2, "Employee" ]
         ]
+      },
+      {
+        "value": "hdmi_poweron",
+        "default": true,
+        "hidden": true,
+        "platforms": [ "oe_rpi" ]
       }
     ]
   },

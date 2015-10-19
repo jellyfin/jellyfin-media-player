@@ -34,6 +34,10 @@
         "hidden": true
       },
       {
+        "value": "automaticUpdates",
+        "default": true
+      },
+      {
         "value": "updateChannel",
         "default": 4,
         "possible_values": [

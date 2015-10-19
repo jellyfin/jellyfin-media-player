@@ -14,6 +14,7 @@
       "KEY_SELECT": "enter",
       "KEY_SELECT_LONG": "host:toggleDebug",
       "KEY_MENU": "back",
-      "KEY_MENU_LONG": "home"
+      "KEY_MENU_LONG": "home",
+      "KEY_PLAY": "play_pause"
   }
 }

@@ -117,6 +117,11 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
       QLOG_ERROR() << "Could not read config file.";
     else
       QLOG_ERROR() << "Config version is" << version << "but" << m_settingsVersion << "expected. Moving old config to" << backup;
+    // Overwrite/create it with the defaults.
+    if (storage)
+      saveStorage();
+    else
+      saveSettings();
     return;
   }
 

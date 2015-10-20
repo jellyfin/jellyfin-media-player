@@ -129,7 +129,7 @@ void CrashUploader::uploadCrashDump(const QString& version, const QString& path)
     }
     else
     {
-      QLOG_INFO() << "Server didn't want our crash report with uuid:" << uuid << "saving it in old for now";
+      QLOG_INFO() << "Server didn't want our crash report with uuid:" << uuid << "giving HTTP status" << statusCode.toInt() << "- saving it in old for now";
     }
   });
 }

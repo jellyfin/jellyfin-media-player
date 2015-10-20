@@ -256,8 +256,15 @@ QStringList SystemComponent::networkAddresses() const
 /////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::userInformation(const QVariantMap& userModel)
 {
-  QString username = userModel["username"].toString();
-  QLOG_DEBUG() << "Change user to " << username;
+  QStringList roleList;
+  auto roles = userModel.value("roles").toMap();
+  foreach (const QString& key, roles.keys())
+  {
+    if (roles.value(key).toBool())
+      roleList << key;
+  }
+
+  SettingsComponent::Get().setUserRoleList(roleList);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

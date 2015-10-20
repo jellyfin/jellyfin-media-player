@@ -513,3 +513,47 @@ bool SettingsComponent::componentInitialize()
 
   return true;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::setUserRoleList(const QStringList& userRoles)
+{
+  QVariantList values;
+
+  // stable is always available
+  QVariantMap stable;
+  stable.insert("value", 0);
+  stable.insert("title", "Stable");
+
+  values << stable;
+
+  foreach(const QString& role, userRoles)
+  {
+    QVariantMap channel;
+    int value = 0;
+    QString title;
+
+    if (role == "ninja")
+    {
+      value = 4;
+      title = "Ninja";
+    }
+    else if (role == "plexpass")
+    {
+      value = 8;
+      title = "PlexPass";
+    }
+    else if (role == "employee")
+    {
+      value = 2;
+      title = "Employee";
+    }
+
+    channel.insert("value", value);
+    channel.insert("title", title);
+
+    values << channel;
+  }
+
+  updatePossibleValues(SETTINGS_SECTION_MAIN, "updateChannel", values);
+
+}

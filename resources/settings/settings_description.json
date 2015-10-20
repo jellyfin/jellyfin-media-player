@@ -39,12 +39,9 @@
       },
       {
         "value": "updateChannel",
-        "default": 4,
+        "default": 0,
         "possible_values": [
-          [ 0, "Stable" ],
-          [ 8, "PlexPass" ],
-          [ 4, "Ninja" ],
-          [ 2, "Employee" ]
+          [ 0, "Stable" ]
         ]
       },
       {

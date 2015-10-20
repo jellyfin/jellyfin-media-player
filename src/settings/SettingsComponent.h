@@ -61,6 +61,8 @@ public:
 
   Q_SIGNAL void groupUpdate(const QString& section, const QVariant& description);
 
+  void setUserRoleList(const QStringList& userRoles);
+
 private:
   explicit SettingsComponent(QObject *parent = 0);
   bool loadDescription();

@@ -19,7 +19,7 @@
 #include "QsLog.h"
 #include "HelperSettings.h"
 
-#define UPLOAD_URL "http://64.71.188.207:443/"
+#define UPLOAD_URL "https://crashdump.plex.tv"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Delete crash dumps that are not from the current version. They are most likely useless.

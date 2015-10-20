@@ -1,0 +1,2 @@
+NEW:
+  - Inital release of Plex Media Player

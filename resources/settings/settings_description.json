@@ -49,7 +49,7 @@
       },
       {
         "value": "hdmi_poweron",
-        "default": true,
+        "default": false,
         "hidden": true,
         "platforms": [ "oe_rpi" ]
       }

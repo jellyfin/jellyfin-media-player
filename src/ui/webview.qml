@@ -68,8 +68,8 @@ KonvergoWindow
       components.system.info(message)
     }
 
-    onCertificateError: {
-      error.ignoreCertificateError()
+    onCertificateError:
+    {
       console.log(error.url + " :" + error.description + error.error)
     }
   }

@@ -146,31 +146,46 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void SettingsComponent::save(bool justStorage)
+void SettingsComponent::saveSettings()
 {
   QVariantMap sections;
+
+  foreach(SettingsSection* section, m_sections.values())
+  {
+    if (!section->isStorage())
+      sections.insert(section->sectionName(), section->allValues());
+  }
+
+  QJsonObject json;
+  json.insert("sections", QJsonValue::fromVariant(sections));
+  json.insert("version", m_settingsVersion);
+  writeJson(Paths::dataDir("plexmediaplayer.conf"), json);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::saveStorage()
+{
   QVariantMap storage;
 
   foreach(SettingsSection* section, m_sections.values())
   {
     if (section->isStorage())
       storage.insert(section->sectionName(), section->allValues());
-    else
-      sections.insert(section->sectionName(), section->allValues());
-  }
-
-  if (!justStorage)
-  {
-    QJsonObject json;
-    json.insert("sections", QJsonValue::fromVariant(sections));
-    json.insert("version", m_settingsVersion);
-    writeJson(Paths::dataDir("plexmediaplayer.conf"), json);
   }
 
   QJsonObject storagejson;
   storagejson.insert("sections", QJsonValue::fromVariant(storage));
   storagejson.insert("version", m_settingsVersion);
   writeJson(Paths::dataDir("storage.json"), storagejson, false);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::saveSection(SettingsSection* section)
+{
+  if (section && section->isStorage())
+    saveStorage();
+  else
+    saveSettings();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +210,7 @@ void SettingsComponent::setValue(const QString& sectionID, const QString &key, c
     return;
   }
   section->setValue(key, value);
-  save(false);
+  saveSection(section);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,8 +221,6 @@ void SettingsComponent::setValues(const QVariantMap& options)
 
   QString key = options["key"].toString();
   QVariant values = options["value"];
-
-  bool updatedStorageOnly = true;
 
   if (values.type() == QVariant::Map || values.isNull())
   {
@@ -226,7 +239,7 @@ void SettingsComponent::setValues(const QVariantMap& options)
     else
       section->setValues(values);
 
-    updatedStorageOnly = section->isStorage();
+    saveSection(section);
   }
   else if (values.type() == QVariant::String)
   {
@@ -239,8 +252,6 @@ void SettingsComponent::setValues(const QVariantMap& options)
     // return so we don't call save()
     return;
   }
-
-  save(updatedStorageOnly);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +264,7 @@ void SettingsComponent::removeValue(const QString &sectionOrKey)
     // we want to remove a full section
     // dont remove the section, but remove all keys
     section->removeValues();
-    save(false);
+    saveSection(section);
   }
   else
   {
@@ -261,7 +272,7 @@ void SettingsComponent::removeValue(const QString &sectionOrKey)
     // which is stored in webclient section
     section = m_sections[SETTINGS_SECTION_WEBCLIENT];
     section->removeValue(sectionOrKey);
-    save(false);
+    saveSection(section);
   }
 }
 

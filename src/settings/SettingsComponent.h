@@ -55,7 +55,8 @@ public:
 
   void updatePossibleValues(const QString& sectionID, const QString& key, const QVariantList& possibleValues);
 
-  void save(bool justStorage);
+  void saveSettings();
+  void saveStorage();
   void load();
 
   Q_SIGNAL void groupUpdate(const QString& section, const QVariant& description);
@@ -66,6 +67,7 @@ private:
   void parseSection(const QJsonObject& sectionObject);
   int platformMaskFromObject(const QJsonObject& object);
   Platform platformFromString(const QString& platformString);
+  void saveSection(SettingsSection* section);
 
   QMap<QString, SettingsSection*> m_sections;
 

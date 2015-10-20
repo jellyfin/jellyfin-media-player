@@ -100,6 +100,11 @@ void CrashUploader::uploadCrashDump(const QString& version, const QString& path)
   QNetworkReply* reply = m_manager->post(req, multiPart);
   multiPart->setParent(reply);
 
+  connect(reply, &QNetworkReply::sslErrors, [=](const QList<QSslError> & errors)
+  {
+    QLOG_WARN() << "SSL errors:" << errors;
+  });
+
   connect(reply, static_cast<void (QNetworkReply::*)()>(&QNetworkReply::finished), [=]()
   {
     QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);

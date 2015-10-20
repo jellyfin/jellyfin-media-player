@@ -100,6 +100,10 @@ void CrashUploader::uploadCrashDump(const QString& version, const QString& path)
   QNetworkReply* reply = m_manager->post(req, multiPart);
   multiPart->setParent(reply);
 
+#ifdef KONVERGO_OPENELEC
+  reply->ignoreSslErrors();
+#endif
+
   connect(reply, static_cast<void (QNetworkReply::*)()>(&QNetworkReply::finished), [=]()
   {
     QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);

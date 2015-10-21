@@ -19,6 +19,8 @@ Special Qt requirements:
 
   Without them, video playback will not work.
 
+## Building on Mac OS X
+
 Get dependencies:
 
 * ``scripts/fetch-binaries.py -p darwin-x86_64``
@@ -40,6 +42,55 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 * ``mkdir build ; cd build``
 * ``cmake -GXcode -DQTROOT=/path/to/qt ..``
+
+## Building on Linux
+
+### Building Qt 5.6.0 alpha
+
+You'll want to grab one of the Qt 5.6.0 alpha packages from http://download.qt.io/development_releases/qt/5.6/5.6.0-alpha/single/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
+
+``sudo dnf install libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel libcap-devel snappy-devel libsrtp-devel nss-devel pciutils-devel gperf``
+
+(The majority of the packages on this list came from http://code.qt.io/cgit/qt/qtbase.git/tree/src/plugins/platforms/xcb/README, but everything after xcb-util-keysyms-devel was trial-and-error in attempts build QtWebEngine; this list of packages may not be complete, but hopefully it provides a useful starting point.)
+
+Once you've unpacked the Qt 5.6.0 alpha package:
+
+* ``cd qt-everywhere-opensource-src-5.6.0-alpha``
+* ``./configure -confirm-license -opensource``
+* ``make``
+* ``sudo make install``
+* ``cd qtwebengine``
+* ``qmake``
+* ``make``
+* ``sudo make install``
+
+That should do it for Qt. It's worth noting that, on a Core i7-950 with 24GB of RAM, this took more than three hours to build.
+
+### Building mpv
+
+mpv is a bit easier to build than Qt, and compiles much faster.
+
+Before you attempt to build mpv, make sure you have either ffmpeg 2.4.0 (and related development packages) or libav11 (and related devel packages) installed.
+
+* ``git clone git://github.com/mpv-player/mpv``
+* ``cd mpv``
+* ``./bootstrap.py``
+* ``./waf configure --enable-libmpv-shared``
+* ``./waf build``
+* ``sudo ./waf install``
+
+### Finally! Building plex-media-player
+
+Assuming that everything else has installed correctly, building Plex Media Player should now be fairly straightforward:
+
+* ``git clone git://github.com/plexinc/plex-media-player``
+* ``cd plex-media-player``
+* ``mkdir build``
+* ``cd build``
+* ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/usr/local/Qt-5.6.0 -DMPV_INCLUDE_DIR=/usr/local/include/mpv -DMPV_LIBRARY=/usr/local/lib/libmpv.so.1 -DCMAKE_INSTALL_PREFIX=output ..``
+* ``ninja-build``
+
+Once ninja-build completes successfully, you should have a usable ``./src/plexmediaplayer`` binary. Run it and test it out! If it works as you expect, you should be able to run ``sudo install ./src/plexmediaplayer ./src/pmphelper /usr/local/bin`` so that the program is usable from anywhere on the system.
 
 ## License
 

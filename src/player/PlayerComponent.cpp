@@ -816,8 +816,18 @@ QString PlayerComponent::videoInformation() const
   info << "Codec: " << MPV_PROPERTY("audio-codec") << endl;
   info << "Bitrate: " << MPV_PROPERTY("audio-bitrate") << endl;
   info << "Channels (input): " << MPV_PROPERTY("audio-params/channels") << endl;
-  info << "Channels (output): " << MPV_PROPERTY("audio-out-params/hr-channels")
-                                << " (" << MPV_PROPERTY("audio-out-params/channels") << ")" << endl;
+  // Guess if it's a passthrough format. Don't show the channel layout in this
+  // case, because it's confusing.
+  QString audio_format = MPV_PROPERTY("audio-out-params/format");
+  if (audio_format.startsWith("spdif-"))
+  {
+    info << "Channels (output): passthrough (" << audio_format << ")";
+  }
+  else
+  {
+    info << "Channels (output): " << MPV_PROPERTY("audio-out-params/hr-channels")
+                                  << " (" << MPV_PROPERTY("audio-out-params/channels") << ")" << endl;
+  }
   info << endl;
   info << "Performance: " << endl;
   info << "A/V: " << MPV_PROPERTY("avsync") << endl;

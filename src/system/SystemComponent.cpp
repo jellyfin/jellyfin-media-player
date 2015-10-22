@@ -23,12 +23,13 @@ QMap<SystemComponent::PlatformType, QString> platformTypeNames = { \
   { SystemComponent::platformTypeOsx, "macosx" }, \
   { SystemComponent::platformTypeWindows, "windows" },
   { SystemComponent::platformTypeLinux, "linux" },
+  { SystemComponent::platformTypeOpenELEC, "openelec" },
   { SystemComponent::platformTypeUnknown, "unknown" },
 };
 
 // platform Archictecture map
 QMap<SystemComponent::PlatformArch, QString> platformArchNames = { \
-  { SystemComponent::platformArchX86, "x86" }, \
+  { SystemComponent::platformArchX86_64, "x86_64" }, \
   { SystemComponent::platformArchRpi2, "rpi2" },
   { SystemComponent::platformArchUnknown, "unknown" }
 };
@@ -48,6 +49,8 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
   m_platformType = platformTypeOsx;
 #elif defined(Q_OS_WIN)
   m_platformType = platformTypeWindows;
+#elif defined(KONVERGO_OPENELEC)
+  m_platformType = platformTypeOpenELEC;
 #elif defined(Q_OS_LINUX)
   m_platformType = platformTypeLinux;
 #endif
@@ -55,12 +58,10 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 // define target type
 #if TARGET_RPI
   m_platformArch = platformArchRpi2;
-#else
-  m_platformArch = platformArchX86;
-#endif
-
-#if KONVERGO_OPENELEC
-  m_platformModfiers << SYSTEM_MODIFIER_OPENELEC;
+#elif defined(Q_PROCESSOR_X86_32)
+  m_platformArch = platformArchX86_32;
+#elif defined(Q_PROCESSOR_X86_64)
+  m_platformArch = platformArchX86_64;
 #endif
 }
 
@@ -86,7 +87,7 @@ QVariantMap SystemComponent::systemInformation() const
   int productid = KONVERGO_PRODUCTID_DEFAULT;
 
 #ifdef Q_OS_WIN
-  arch = "x86";
+  arch = "x86_64";
 #else
   arch = QSysInfo::currentCpuArchitecture();
 #endif
@@ -169,12 +170,8 @@ void SystemComponent::setCursorVisibility(bool visible)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QString SystemComponent::getUserAgent()
 {
-  QString userAgent = QString("Konvergo-%1-%2 %3").arg(getPlatformTypeString())
-                                                       .arg(getPlatformArchString())
-                                                       .arg(Version::GetVersionString());
-  if (m_platformModfiers.size())
-    userAgent += QString(" (%1)").arg(m_platformModfiers.join(','));
-
+  QString osVersion = QSysInfo::productVersion();
+  QString userAgent = QString("PlexMediaPlayer %1 (%2-%3 %4)").arg(Version::GetVersionString()).arg(getPlatformTypeString()).arg(getPlatformArchString()).arg(osVersion);
   return userAgent;
 }
 
@@ -215,6 +212,7 @@ QString SystemComponent::debugInformation()
   stream << "  Version: " << Version::GetVersionString() << " built: " << Version::GetBuildDate() << endl;
   stream << "  Web Client Version: " << Version::GetWebVersion() << endl;
   stream << "  Platform: " << getPlatformTypeString() << "-" << getPlatformArchString() << endl;
+  stream << "  User-Agent: " << getUserAgent() << endl;
   stream << "  Qt version: " << qVersion() << endl;
   stream << endl;
 

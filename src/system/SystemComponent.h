@@ -47,14 +47,16 @@ public:
     platformTypeUnknown,
     platformTypeOsx,
     platformTypeWindows,
-    platformTypeLinux
+    platformTypeLinux,
+    platformTypeOpenELEC
   };
 
   // possible values for target types
   enum PlatformArch
   {
     platformArchUnknown,
-    platformArchX86,
+    platformArchX86_32,
+    platformArchX86_64,
     platformArchRpi2
   };
 
@@ -64,7 +66,7 @@ public:
   QString getPlatformTypeString() const;
   QString getPlatformArchString() const;
 
-  inline bool isOpenELEC() { return m_platformModfiers.contains(SYSTEM_MODIFIER_OPENELEC); }
+  inline bool isOpenELEC() { return m_platformType == platformTypeOpenELEC; }
 
 private:
   SystemComponent(QObject* parent = 0);
@@ -74,7 +76,7 @@ private:
   QTimer* m_mouseOutTimer;
   PlatformType m_platformType;
   PlatformArch m_platformArch;
-  QStringList m_platformModfiers;
+  QString m_overridePlatform;
   bool m_doLogMessages;
 };
 

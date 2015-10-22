@@ -16,7 +16,7 @@ import glob
 
 # Edit these to set a new default dependencies build
 default_tag = "auto"
-default_release_build_number = "99"
+default_release_build_number = "100"
 default_release_dir = "plexmediaplayer-dependencies"
 default_branch = "master"
 

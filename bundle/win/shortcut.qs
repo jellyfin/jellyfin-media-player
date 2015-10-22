@@ -40,20 +40,6 @@ function isVersionNewer(version, version2) {
 
 function Component()
 {
-  //
-  // Check whether OS is supported.
-  //
-  // For Windows and OS X we check the kernel version:
-  //  - Require at least Windows Vista (winnt kernel version 6.0.x)
-  //  - Require at least OS X 10.7 (Lion) (darwin kernel version 11.x)
-  //
-  // If the kernel version is older we move directly
-  // to the final page & show an error.
-  //
-  // For Linux, we check the distribution and version, but only
-  // show a warning if it does not match our preferred distribution.
-  //
-
   // start installer with -v to see debug output
   console.log("OS: " + systemInfo.productType);
   console.log("Kernel: " + systemInfo.kernelType + "/" + systemInfo.kernelVersion);
@@ -62,7 +48,9 @@ function Component()
   var validArch = false;
 
   if (systemInfo.kernelType === "winnt") {
-    if (isVersionNewer(systemInfo.kernelVersion, "6.1.0"))
+
+    // check for windows 7 or newer
+    if (isVersionNewer("6.1.0", systemInfo.kernelVersion))
       validOs = true;
 
     if (systemInfo.currentCpuArchitecture === "x86_64")

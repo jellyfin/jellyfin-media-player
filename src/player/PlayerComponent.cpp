@@ -806,6 +806,9 @@ QString PlayerComponent::videoInformation() const
   info << "Aspect: " << MPV_PROPERTY("video-aspect") << endl;
   info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << endl;
   info << "Display Sync: " << MPV_PROPERTY("display-sync-active") << endl;
+  double display_fps = DisplayComponent::Get().currentRefreshRate();
+  info << "Display FPS: " << MPV_PROPERTY("display-fps")
+                          << " (" << display_fps << ")" << endl;
   info << "Hardware Decoding: " << MPV_PROPERTY("hwdec-active")
                                 << " (" << MPV_PROPERTY("hwdec-detected") << ")" << endl;
   info << endl;

@@ -214,11 +214,6 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
       extraArgs.insert("ff-sid", subtitleStream.mid(1));
     else
       extraArgs.insert("sub-file", subtitleStream);
-
-    // try guessing the codepage. We could pass a country code to enca to help
-    // it detect the correct one, but we don't get that from the server right now
-    //
-    extraArgs.insert("sub-codepage", "enca");
   }
   else
   {

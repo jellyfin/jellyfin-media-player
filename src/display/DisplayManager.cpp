@@ -61,13 +61,13 @@ DMVideoModePtr DisplayManager::getCurrentVideoMode(int display)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool DisplayManager::isValidDisplay(int display) { return display < displays.size(); }
+bool DisplayManager::isValidDisplay(int display) { return display >= 0 && display < displays.size(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManager::isValidDisplayMode(int display, int mode)
 {
-  if (display < displays.size())
-    if (displays[display]->videoModes.size() > mode)
+  if (isValidDisplay(display))
+    if (mode >= 0 && mode < displays[display]->videoModes.size())
       return true;
 
   return false;

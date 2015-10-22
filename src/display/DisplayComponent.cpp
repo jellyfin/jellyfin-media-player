@@ -193,7 +193,7 @@ bool DisplayComponent::restorePreviousVideoMode()
   if (!m_displayManager)
     return false;
 
-  if (m_lastVideoMode < 0 || m_lastDisplay < 0)
+  if (!m_displayManager->isValidDisplayMode(m_lastDisplay, m_lastVideoMode))
     return false;
 
   bool ret = true;

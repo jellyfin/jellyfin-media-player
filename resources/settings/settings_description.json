@@ -92,7 +92,15 @@
       },
       {
         "value": "exclusive",
-        "default": false,
+        "default": [
+          {
+            "value": true,
+            "platforms": [ "osx" ]
+          },
+          {
+            "value": false
+          }
+        ],
         "hidden": true,
         "platforms": [ "osx", "windows" ]
       },

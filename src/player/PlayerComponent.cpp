@@ -634,10 +634,6 @@ void PlayerComponent::updateAudioDeviceList()
 void PlayerComponent::setAudioConfiguration()
 {
   QStringList ao_defaults;
-  // On OSX, ask mpv to change the audio format system-wide. This is needed
-  // at least to get multichannel PCM running, if the user didn't already
-  // select multichannel output in "Audio MIDI Setup".
-  ao_defaults << "coreaudio:change-physical-format=yes";
 
   QString deviceType = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
 

@@ -140,7 +140,15 @@
       },
       {
         "value": "hardware_decoding",
-        "default": true,
+        "default": [
+          {
+            "value": true,
+            "platforms": [ "oe" ]
+          },
+          {
+            "value": false
+          }
+        ],
         "platforms_excluded": "oe_rpi"
       },
       {

@@ -49,6 +49,9 @@ Q_SIGNALS:
   void debugInfoChanged();
   void reloadWebClient();
 
+protected:
+  virtual void focusOutEvent(QFocusEvent * ev);
+
 private slots:
   void closingWindow();
   void enableVideoWindow();

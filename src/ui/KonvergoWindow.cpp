@@ -256,6 +256,17 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
+{
+#ifdef Q_OS_WIN32
+  // Do this to workaround DWM compositor bugs with fullscreened OpenGL applications.
+  // The compositor will not properly redraw anything when focusing other windows.
+  if (visibility() == QWindow::FullScreen)
+    showMinimized();
+#endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::playerPlaybackStarting()
 {
 #if defined(Q_OS_MAC)

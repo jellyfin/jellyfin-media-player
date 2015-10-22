@@ -386,8 +386,26 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     if (!valobj.contains("value") || !valobj.contains("default") || valobj.value("value").isNull())
       continue;
 
+    QJsonValue defaults = valobj.value("default");
+    QVariant defaultval = defaults.toVariant();
+    if (defaults.isArray())
+    {
+      defaultval = QVariant();
+      // Whichever default matches the current platform first is used.
+      foreach(const auto& v, defaults.toArray())
+      {
+        auto vobj = v.toObject();
+        int defPlatformMask = platformMaskFromObject(vobj);
+        if ((defPlatformMask & Utils::CurrentPlatform()) == Utils::CurrentPlatform())
+        {
+          defaultval = vobj.value("value").toVariant();
+          break;
+        }
+      }
+    }
+
     int vPlatformMask = platformMaskFromObject(valobj);
-    SettingsValue* setting = new SettingsValue(valobj.value("value").toString(), valobj.value("default").toVariant(), (quint8)vPlatformMask, this);
+    SettingsValue* setting = new SettingsValue(valobj.value("value").toString(), defaultval, (quint8)vPlatformMask, this);
     setting->setHidden(valobj.value("hidden").toBool(false));
     setting->setIndexOrder(order ++);
 

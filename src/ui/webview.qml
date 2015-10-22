@@ -118,9 +118,10 @@ KonvergoWindow
       width: (parent.width - 50) / 2
       height: parent.height - 25
       anchors.left: parent.left
-      anchors.leftMargin: 25
+      anchors.leftMargin: 64
       anchors.top: parent.top
-      anchors.topMargin: 10
+      anchors.topMargin: 54
+      anchors.bottomMargin: 54
       color: "white"
       font.pixelSize: width / 45
 
@@ -133,9 +134,10 @@ KonvergoWindow
       width: (parent.width - 50) / 2
       height: parent.height - 25
       anchors.right: parent.right
-      anchors.rightMargin: 25
+      anchors.rightMargin: 64
       anchors.top: parent.top
-      anchors.topMargin: 10
+      anchors.topMargin: 54
+      anchors.bottomMargin: 54
       color: "white"
       font.pixelSize: width / 45
 

@@ -13,7 +13,7 @@ class HttpServer : public QObject
   Q_OBJECT
 public:
   HttpServer(QObject* parent);
-  void start();
+  bool start();
 
 private slots:
   void handleRequest(QHttpRequest *request, QHttpResponse *response);

@@ -55,10 +55,6 @@ void ComponentManager::initialize()
   // might have some settings
   //
   registerComponent(&SettingsComponent::Get());
-
-  m_server = new HttpServer(this);
-  m_server->start();
-
   registerComponent(&SystemComponent::Get());
   registerComponent(&InputComponent::Get());
   registerComponent(&DisplayComponent::Get());

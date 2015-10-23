@@ -20,11 +20,17 @@ HttpServer::HttpServer(QObject* parent) : QObject(parent)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void HttpServer::start()
+bool HttpServer::start()
 {
   connect(m_server, &QHttpServer::newRequest, this, &HttpServer::handleRequest);
   if (!m_server->listen(QHostAddress::AnyIPv4, m_port))
-    throw FatalException(tr("Could not start local web server:") + "<br>" + m_server->errorString());
+  {
+    QLOG_WARN() << "Failed to listen to remote control web server. Remote controlling from apps disabled.";
+    return false;
+  }
+
+  QLOG_DEBUG() << "Listening to port:" << m_port;
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -39,6 +39,10 @@ RemoteComponent::RemoteComponent(QObject* parent) : ComponentBase(parent), m_com
 /////////////////////////////////////////////////////////////////////////////////////////
 bool RemoteComponent::componentInitialize()
 {
+  m_server = new HttpServer(this);
+  if (!m_server->start())
+    return false;
+
   m_gdmManager->startAnnouncing();
 
   // check for timed out subscribers

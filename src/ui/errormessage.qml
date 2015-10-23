@@ -14,7 +14,7 @@ MessageDialog {
   }
 
   onHelp: {
-    Qt.openUrlExternally("https://forums.plex.tv")
+    Qt.openUrlExternally("https://forums.plex.tv/categories/plex-media-player")
     Qt.quit()
   }
 

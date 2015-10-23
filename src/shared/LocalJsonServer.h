@@ -19,6 +19,7 @@ public:
   bool listen();
   static bool sendMessage(const QVariantMap& message, QLocalSocket* socket);
   static QVariantList readFromSocket(QLocalSocket* socket);
+  QString errorString() const { return m_server->errorString(); }
 
 Q_SIGNALS:
   void clientConnected(QLocalSocket* socket);

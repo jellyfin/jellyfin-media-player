@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
     QString text = e.message() + "<br>" + QObject::tr("Please visit Plex support forums for support.");
 
     QQmlApplicationEngine* engine = new QQmlApplicationEngine(NULL);
-    engine->rootContext()->setContextProperty("errorTitle", QObject::tr("A critical error happened!"));
+    engine->rootContext()->setContextProperty("errorTitle", QObject::tr("A critical error occurred."));
     engine->rootContext()->setContextProperty("errorText", text);
     engine->load(QUrl(QStringLiteral("qrc:/ui/errormessage.qml")));
 

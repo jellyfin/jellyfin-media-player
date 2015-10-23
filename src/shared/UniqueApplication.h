@@ -33,8 +33,8 @@ public:
         emit otherApplicationStarted();
     });
 
-    if (!m_server->listen())
-      throw FatalException("Failed to listen to uniqueApp socket!");
+    if (m_server->listen())
+      throw FatalException("Failed to listen to uniqueApp socket: " + m_server->errorString());
   }
 
   bool ensureUnique()

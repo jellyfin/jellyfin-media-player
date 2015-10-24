@@ -151,9 +151,6 @@ void InputCEC::closeAdapter()
 {
   m_lock.lock();
 
-  if (m_adapter)
-    m_adapter->Close();
-
   m_adapterPort = "";
   m_lock.unlock();
 }
@@ -168,7 +165,10 @@ void InputCEC::reopenAdapter()
 void InputCEC::checkAdapter()
 {
   if (m_adapterPort.isEmpty())
-  {
+  {    
+    if (m_adapter)
+      m_adapter->Close();
+
     openAdapter();
   }
 }
@@ -328,6 +328,7 @@ int InputCEC::CecAlert(void *cbParam, const libcec_alert type, const libcec_para
 
     case CEC_ALERT_CONNECTION_LOST:
       QLOG_ERROR() << "libCEC : Alert CEC_ALERT_CONNECTION_LOST";
+      reopen = true;
       break;
 
     case CEC_ALERT_PERMISSION_ERROR:

@@ -21,6 +21,16 @@ bool MouseEventFilter::eventFilter(QObject* watched, QEvent* event)
 {
   SystemComponent& system = SystemComponent::Get();
 
+  // ignore mouse events if mouse is disabled
+  if  (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool() &&
+       ((event->type() == QEvent::MouseMove) ||
+        (event->type() == QEvent::MouseButtonPress) ||
+        (event->type() == QEvent::MouseButtonRelease) ||
+        (event->type() == QEvent::MouseButtonDblClick)))
+  {
+    return true;
+  }
+
   if (event->type() == QEvent::KeyPress)
   {
     // In konvergo we intercept all keyboard events and translate them
@@ -83,7 +93,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   loadGeometry();
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
-          this, &KonvergoWindow::updateFullscreenSetting);
+          this, &KonvergoWindow::updateMainSectionSettings);
 
   connect(this, &KonvergoWindow::visibilityChanged,
           this, &KonvergoWindow::onVisibilityChanged);
@@ -214,8 +224,14 @@ void KonvergoWindow::playerWindowVisible(bool visible)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::updateFullscreenSetting(const QVariantMap& values)
+void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
+  // update mouse visibility if needed
+  if (values.find("disablemouse") != values.end())
+  {
+    SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
+  }
+
   if (values.find("fullscreen") == values.end())
     return;
 

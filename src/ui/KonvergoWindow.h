@@ -56,7 +56,7 @@ private slots:
   void closingWindow();
   void enableVideoWindow();
   void onVisibilityChanged(QWindow::Visibility visibility);
-  void updateFullscreenSetting(const QVariantMap& values);
+  void updateMainSectionSettings(const QVariantMap& values);
   void updateFullscreenState();
   void onScreenCountChanged(int newCount);
   void handleHostCommand(QString hostCommand);

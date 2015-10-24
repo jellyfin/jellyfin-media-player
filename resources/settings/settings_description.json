@@ -49,6 +49,10 @@
         "default": false,
         "hidden": true,
         "platforms": [ "oe_rpi" ]
+      },
+      {
+        "value": "disablemouse",
+        "default": false
       }
     ]
   },

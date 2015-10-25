@@ -231,13 +231,15 @@ int InputCEC::CecLogMessage(void* cbParam, const cec_log_message message)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
 {
+  static int lastKeyPressed = -1;
+
   InputCEC *cec = (InputCEC*)cbParam;
   if (cec->m_verboseLogging)
   {
-    QLOG_DEBUG() << "CecKeyPress : Got key" << key.keycode;
+    QLOG_DEBUG() << QString("CecKeyPress : Got key %1 (%2), last was %3").arg(key.keycode).arg(key.duration).arg(lastKeyPressed);
   }
 
-  if (cec)
+  if (cec && lastKeyPressed != key.keycode)
   {
     QString cmdString = cec->getCommandString(key.keycode, key.duration);
 
@@ -245,7 +247,13 @@ int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
       cec->sendReceivedInput(CEC_INPUT_NAME, cmdString);
     else
       QLOG_DEBUG() << "Unknown keycode in keypress" << key.keycode;
+
+    lastKeyPressed = key.keycode;
   }
+
+  // reset the last key on a up info (duration > 0)
+  if (key.duration)
+    lastKeyPressed = -1;
 
   return 0;
 }

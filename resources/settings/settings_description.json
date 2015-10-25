@@ -280,6 +280,18 @@
       {
         "value": "enable",
         "default": true
+      },
+      {
+        "value": "suspendonstandby",
+        "default": false
+      },
+      {
+        "value": "poweroffonstandby",
+        "default": false
+      },
+      {
+        "value": "activatesource",
+        "default": true
       }
     ]
   },

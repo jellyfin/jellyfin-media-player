@@ -2,6 +2,7 @@
 #include "QsLog.h"
 #include "InputCEC.h"
 #include "settings/SettingsComponent.h"
+#include "power/PowerComponent.h"
 
 static QMap<int, QString> cecKeyMap   { \
                                       { CEC_USER_CONTROL_CODE_SELECT , INPUT_KEY_SELECT } , \
@@ -73,7 +74,7 @@ bool InputCEC::initInput()
   m_configuration.bAutodetectAddress =  CEC_DEFAULT_SETTING_AUTODETECT_ADDRESS;
   m_configuration.iPhysicalAddress = CEC_PHYSICAL_ADDRESS_TV;
   m_configuration.baseDevice = CECDEVICE_AUDIOSYSTEM;
-  m_configuration.bActivateSource = 1;
+  m_configuration.bActivateSource = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool();
 
   m_configuration.iHDMIPort = (quint8)SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "hdmiport").toInt();
 
@@ -231,21 +232,47 @@ int InputCEC::CecLogMessage(void* cbParam, const cec_log_message message)
 int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
 {
   InputCEC *cec = (InputCEC*)cbParam;
-  if (cec && key.duration == 0)
+  if (cec->m_verboseLogging)
+  {
+    QLOG_DEBUG() << "CecKeyPress : Got key" << key.keycode;
+  }
+
+  if (cec)
   {
     QString cmdString = cec->getCommandString(key.keycode, key.duration);
 
     if (!cmdString.isEmpty())
       cec->sendReceivedInput(CEC_INPUT_NAME, cmdString);
+    else
+      QLOG_DEBUG() << "Unknown keycode in keypress" << key.keycode;
   }
 
   return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+QString InputCEC::getCommandParamsList(cec_command command)
+{
+  QString output = QString("%1 parameter(s) :").arg(command.parameters.size);
+
+  if (command.parameters.size)
+  {
+    for (int i=0; i<command.parameters.size; i++)
+      output += QString("[%1]=%2 ").arg(i).arg(command.parameters[i]);
+  }
+
+  return output;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 int InputCEC::CecCommand(void *cbParam, const cec_command command)
 {
   InputCEC *cec = (InputCEC*)cbParam;
+
+  if (cec->m_verboseLogging)
+  {
+    QLOG_DEBUG() << "CecCommand received " << cec->getCommandParamsList(command);
+  }
 
   switch(command.opcode)
   {
@@ -284,6 +311,7 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
           // samsung Return key
           case CEC_USER_CONTROL_CODE_AN_RETURN:
             cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_BACK);
+            return 1;
             break;
 
           default:
@@ -292,23 +320,27 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
       }
       break;
 
-    case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP:
+    case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP: // ignore those commands as they are handled in CecKeypress
     case CEC_OPCODE_USER_CONTROL_PRESSED:
-      // ignore those commands as they are handled in CecKeypress
+    case CEC_OPCODE_USER_CONTROL_RELEASE:
+    case CEC_OPCODE_GIVE_OSD_NAME:          // ignore those known commands (only pollng from TV)
+    case CEC_OPCODE_GIVE_PHYSICAL_ADDRESS:
       break;
 
-    case CEC_OPCODE_GIVE_OSD_NAME:
-    case CEC_OPCODE_GIVE_PHYSICAL_ADDRESS:
-      // ignore those known commands (only pollng from TV)
+    case CEC_OPCODE_STANDBY:
+      QLOG_DEBUG() << "CecCommand : Got a standby Request";
+      if ((SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "suspendonstandby").toBool()) && PowerComponent::Get().canSuspend())
+      {
+        PowerComponent::Get().Suspend();
+      }
+      else if ((SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "poweroffonstandby").toBool()) && PowerComponent::Get().canPowerOff())
+      {
+        PowerComponent::Get().PowerOff();
+      }
       break;
 
     default:
-      QLOG_DEBUG() << "Unhandled CEC command " << command.opcode;
-      if (command.parameters.size)
-      {
-        for (int i=0; i<command.parameters.size; i++)
-          QLOG_DEBUG() << command.parameters.size << QString("parameters -> [%1]= %2").arg(i).arg(command.parameters[i]);
-      }
+      QLOG_DEBUG() << "Unhandled CEC command " << command.opcode << ", " << cec->getCommandParamsList(command);
       break;
   }
 

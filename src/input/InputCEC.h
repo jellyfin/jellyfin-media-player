@@ -36,6 +36,7 @@ private:
   void closeAdapter();
   QString getCommandString(cec_user_control_code code, unsigned int duration);
   void sendReceivedInput(const QString& source, const QString& keycode, float amount = 1.0);
+  QString getCommandParamsList(cec_command command);
 
 
   // libcec callbacks

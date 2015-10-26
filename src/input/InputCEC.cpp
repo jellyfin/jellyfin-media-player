@@ -4,40 +4,47 @@
 #include "settings/SettingsComponent.h"
 #include "power/PowerComponent.h"
 
-static QMap<int, QString> cecKeyMap   { \
-                                      { CEC_USER_CONTROL_CODE_SELECT , INPUT_KEY_SELECT } , \
-                                      { CEC_USER_CONTROL_CODE_UP , INPUT_KEY_UP } , \
-                                      { CEC_USER_CONTROL_CODE_DOWN , INPUT_KEY_DOWN } , \
-                                      { CEC_USER_CONTROL_CODE_LEFT , INPUT_KEY_LEFT } , \
-                                      { CEC_USER_CONTROL_CODE_RIGHT , INPUT_KEY_RIGHT } , \
-                                      { CEC_USER_CONTROL_CODE_SETUP_MENU , INPUT_KEY_MENU } , \
-                                      { CEC_USER_CONTROL_CODE_PLAY , INPUT_KEY_PLAY } , \
-                                      { CEC_USER_CONTROL_CODE_PAUSE , INPUT_KEY_PAUSE } , \
-                                      { CEC_USER_CONTROL_CODE_STOP , INPUT_KEY_STOP } , \
-                                      { CEC_USER_CONTROL_CODE_EXIT , INPUT_KEY_BACK } , \
-                                      { CEC_USER_CONTROL_CODE_FAST_FORWARD , INPUT_KEY_SEEKFWD } , \
-                                      { CEC_USER_CONTROL_CODE_REWIND , INPUT_KEY_SEEKBCK } , \
-                                      { CEC_USER_CONTROL_CODE_DISPLAY_INFORMATION , INPUT_KEY_INFO } , \
-                                      { CEC_USER_CONTROL_CODE_FORWARD , INPUT_KEY_NEXT } , \
-                                      { CEC_USER_CONTROL_CODE_BACKWARD , INPUT_KEY_PREV } , \
-                                      { CEC_USER_CONTROL_CODE_F1_BLUE , INPUT_KEY_BLUE } , \
-                                      { CEC_USER_CONTROL_CODE_F2_RED , INPUT_KEY_RED } , \
-                                      { CEC_USER_CONTROL_CODE_F3_GREEN , INPUT_KEY_GREEN } , \
-                                      { CEC_USER_CONTROL_CODE_F4_YELLOW , INPUT_KEY_YELLOW } , \
-                                      { CEC_USER_CONTROL_CODE_SUB_PICTURE, INPUT_KEY_SUBTITLES } , \
-                                      { CEC_USER_CONTROL_CODE_ROOT_MENU, INPUT_KEY_HOME }, \
-                                      { CEC_USER_CONTROL_CODE_NUMBER0, INPUT_KEY_0 } ,  \
-                                      { CEC_USER_CONTROL_CODE_NUMBER1, INPUT_KEY_1 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER2, INPUT_KEY_2 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER3, INPUT_KEY_3 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER4, INPUT_KEY_4 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER5, INPUT_KEY_5 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER6, INPUT_KEY_6 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER7, INPUT_KEY_7 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER8, INPUT_KEY_8 } , \
-                                      { CEC_USER_CONTROL_CODE_NUMBER9, INPUT_KEY_9 } , \
-                                      { CEC_USER_CONTROL_CODE_ELECTRONIC_PROGRAM_GUIDE, INPUT_KEY_GUIDE } , \
-                                      };
+class KeyAction
+{
+public:
+  QString action;
+  bool hasLongPress;
+};
+
+static QMap<int, KeyAction> cecKeyMap   { \
+                                        { CEC_USER_CONTROL_CODE_SELECT , { INPUT_KEY_SELECT , false } } , \
+                                        { CEC_USER_CONTROL_CODE_UP , { INPUT_KEY_UP , false } } , \
+                                        { CEC_USER_CONTROL_CODE_DOWN , { INPUT_KEY_DOWN , false } } , \
+                                        { CEC_USER_CONTROL_CODE_LEFT , { INPUT_KEY_LEFT , false } } , \
+                                        { CEC_USER_CONTROL_CODE_RIGHT , { INPUT_KEY_RIGHT , false } } , \
+                                        { CEC_USER_CONTROL_CODE_SETUP_MENU , { INPUT_KEY_MENU , false } } , \
+                                        { CEC_USER_CONTROL_CODE_PLAY , { INPUT_KEY_PLAY , false } } , \
+                                        { CEC_USER_CONTROL_CODE_PAUSE , { INPUT_KEY_PAUSE , false } } , \
+                                        { CEC_USER_CONTROL_CODE_STOP , { INPUT_KEY_STOP , false } } , \
+                                        { CEC_USER_CONTROL_CODE_EXIT , { INPUT_KEY_BACK , false } } , \
+                                        { CEC_USER_CONTROL_CODE_FAST_FORWARD , { INPUT_KEY_SEEKFWD , false } } , \
+                                        { CEC_USER_CONTROL_CODE_REWIND , { INPUT_KEY_SEEKBCK , false } } , \
+                                        { CEC_USER_CONTROL_CODE_DISPLAY_INFORMATION , { INPUT_KEY_INFO , false } } , \
+                                        { CEC_USER_CONTROL_CODE_FORWARD , { INPUT_KEY_NEXT , false } } , \
+                                        { CEC_USER_CONTROL_CODE_BACKWARD , { INPUT_KEY_PREV , false } } , \
+                                        { CEC_USER_CONTROL_CODE_F1_BLUE , { INPUT_KEY_BLUE , false } } , \
+                                        { CEC_USER_CONTROL_CODE_F2_RED , { INPUT_KEY_RED , false } } , \
+                                        { CEC_USER_CONTROL_CODE_F3_GREEN , { INPUT_KEY_GREEN , false } } , \
+                                        { CEC_USER_CONTROL_CODE_F4_YELLOW , { INPUT_KEY_YELLOW , false } } , \
+                                        { CEC_USER_CONTROL_CODE_SUB_PICTURE, { INPUT_KEY_SUBTITLES , false } } , \
+                                        { CEC_USER_CONTROL_CODE_ROOT_MENU, { INPUT_KEY_HOME , false } }, \
+                                        { CEC_USER_CONTROL_CODE_NUMBER0, { INPUT_KEY_0 , false } } ,  \
+                                        { CEC_USER_CONTROL_CODE_NUMBER1, { INPUT_KEY_1 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER2, { INPUT_KEY_2 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER3, { INPUT_KEY_3 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER4, { INPUT_KEY_4 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER5, { INPUT_KEY_5 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER6, { INPUT_KEY_6 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER7, { INPUT_KEY_7 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER8, { INPUT_KEY_8 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_NUMBER9, { INPUT_KEY_9 , false } } , \
+                                        { CEC_USER_CONTROL_CODE_ELECTRONIC_PROGRAM_GUIDE, { INPUT_KEY_GUIDE , false } } \
+                                        };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 InputCEC::InputCEC(QObject *parent) : InputBase(parent)
@@ -183,11 +190,17 @@ void InputCEC::sendReceivedInput(const QString &source, const QString &keycode, 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QString InputCEC::getCommandString(cec_user_control_code code, unsigned int duration)
 {
-  QString key = cecKeyMap[code];
+  QString key;
 
-  if (!key.isEmpty() && (duration > CEC_LONGPRESS_DURATION))
+  if (cecKeyMap.contains(code))
   {
-    key += "_LONG";
+    KeyAction keyaction = cecKeyMap[code];
+    key = keyaction.action;
+
+    if ((duration > CEC_LONGPRESS_DURATION) && keyaction.hasLongPress)
+    {
+      key += "_LONG";
+    }
   }
 
   return key;

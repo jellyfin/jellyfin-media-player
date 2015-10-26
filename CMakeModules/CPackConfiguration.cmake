@@ -32,7 +32,6 @@ set(CPACK_IFW_PACKAGE_PUBLISHER "Plex")
 set(CPACK_IFW_PRODUCT_URL "https://plex.tv")
 set(CPACK_IFW_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/bundle/win/Plex.ico)
 set(CPACK_IFW_PACKAGE_WINDOW_ICON ${CMAKE_SOURCE_DIR}/resources/images/icon.png)
-set(CPACK_IFW_TARGET_DIRECTORY "C:\\Program Files\\Plex Media Player")
 
 if(APPLE)
   set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)

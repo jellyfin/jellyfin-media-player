@@ -3,7 +3,7 @@
 You need:
 
 * Qt 5.6 alpha
-* cmake 3.0 or newer
+* cmake 3.1 or newer
 * ninja is recommended for building
 
 Special Qt requirements:

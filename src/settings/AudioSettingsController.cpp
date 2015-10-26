@@ -31,6 +31,8 @@ void AudioSettingsController::valuesUpdated(const QVariantMap& values)
   bool advanced = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "advanced").toBool();
   QString type = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
 
+  audioSection->setValueHidden("channels", false);
+
   if (type == AUDIO_DEVICE_TYPE_BASIC)
   {
     setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), true);
@@ -43,6 +45,7 @@ void AudioSettingsController::valuesUpdated(const QVariantMap& values)
   {
     setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), true);
     setHiddenPassthrough(PlayerComponent::AudioCodecsSPDIF(), false);
+    audioSection->setValueHidden("channels", true);
   }
 
   audioSection->setValueHidden("exclusive", !advanced);

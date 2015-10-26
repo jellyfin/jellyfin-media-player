@@ -649,10 +649,6 @@ void PlayerComponent::setAudioConfiguration()
   QVariant device = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device");
   mpv::qt::set_property_variant(m_mpv, "audio-device", device);
 
-  // set the channel layout
-  QVariant layout = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "channels");
-  mpv::qt::set_option_variant(m_mpv, "audio-channels", layout);
-
   QString resampleOpts = "";
   bool normalize = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "normalize").toBool();
   resampleOpts += QString(":normalize=") + (normalize ? "yes" : "no");
@@ -704,6 +700,13 @@ void PlayerComponent::setAudioConfiguration()
     mpv::qt::set_option_variant(m_mpv, "af", "lavcac3enc");
     doAc3Transcoding = true;
   }
+
+
+  // set the channel layout
+  QVariant layout = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "channels");
+  if (doAc3Transcoding)
+    layout = "stereo"; // AC3 spdif always uses 2 physical channels
+  mpv::qt::set_option_variant(m_mpv, "audio-channels", layout);
 
   // Make a informational log message.
   QString audioConfig = QString(QString("Audio Config - device: %1, ") +

@@ -39,6 +39,9 @@
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",
 
+    // media keys from the FLIRC and on Linux keyboards
+    "Toggle Media Play\\/Pause": "play_pause",
+
     // debug command to crash the host. for testing
     "Ctrl\\+Alt\\+Shift\\+F1": "host:crash!"
   }

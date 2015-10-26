@@ -32,6 +32,8 @@
     "Alt\\+Shift\\+A": "decrease_audio_delay",
     "Alt\\+S": "increase_subtitles_delay",
     "Alt\\+Shift\\+S": "decrease_subtitles_delay",
+    "PgUp": "step_forward",
+    "PgDown": "step_backward",
 
     // application shortcuts
     "Ctrl\\+F": "host:fullscreen",

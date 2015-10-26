@@ -25,37 +25,29 @@ void AudioSettingsController::setHiddenPassthrough(const QStringList& codecs, bo
 /////////////////////////////////////////////////////////////////////////////////////////
 void AudioSettingsController::valuesUpdated(const QVariantMap& values)
 {
-  bool advanced = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "advanced").toBool();
   SettingsSection* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO);
+  auto prevDescriptions = audioSection->descriptions();
 
-  if (values.contains("devicetype"))
+  bool advanced = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "advanced").toBool();
+  QString type = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
+
+  if (type == AUDIO_DEVICE_TYPE_BASIC)
   {
-    QString type = values.value("devicetype").toString();
-    if (type == AUDIO_DEVICE_TYPE_BASIC)
-    {
-      setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), true);
-    }
-    else if (type == AUDIO_DEVICE_TYPE_HDMI)
-    {
-      setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), !advanced);
-    }
-    else if (type == AUDIO_DEVICE_TYPE_SPDIF)
-    {
-      setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), true);
-      setHiddenPassthrough(PlayerComponent::AudioCodecsSPDIF(), false);
-    }
-
-    emit settingsUpdated(SETTINGS_SECTION_AUDIO, audioSection->descriptions());
+    setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), true);
+  }
+  else if (type == AUDIO_DEVICE_TYPE_HDMI)
+  {
+    setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), !advanced);
+  }
+  else if (type == AUDIO_DEVICE_TYPE_SPDIF)
+  {
+    setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), true);
+    setHiddenPassthrough(PlayerComponent::AudioCodecsSPDIF(), false);
   }
 
-  if (values.contains("advanced"))
-  {
-    advanced = values.value("advanced").toBool();
-    if (audioSection->value("devicetype") == AUDIO_DEVICE_TYPE_HDMI)
-      setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), !advanced);
+  audioSection->setValueHidden("exclusive", !advanced);
 
-    audioSection->setValueHidden("exclusive", !advanced);
-
-    emit settingsUpdated(SETTINGS_SECTION_AUDIO, audioSection->descriptions());
-  }
+  auto newDescriptions = audioSection->descriptions();
+  if (prevDescriptions != newDescriptions)
+    emit settingsUpdated(SETTINGS_SECTION_AUDIO, newDescriptions);
 }

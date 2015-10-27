@@ -105,7 +105,10 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
 
   int currentDisplay = getApplicationDisplay();
   if (currentDisplay < 0)
+  {
+    QLOG_INFO() << "Not switching rate - current display not found.";
     return false;
+  }
 
   int currentMode = m_displayManager->getCurrentDisplayMode(currentDisplay);
   if (m_lastVideoMode < 0)
@@ -113,6 +116,8 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
     m_lastVideoMode = currentMode;
     m_lastDisplay = currentDisplay;
   }
+
+  QLOG_DEBUG() << "Current display:" << currentDisplay << "mode:" << currentMode;
 
   DMMatchMediaInfo matchInfo(frameRate, false);
   int bestmode = m_displayManager->findBestMatch(currentDisplay, matchInfo);

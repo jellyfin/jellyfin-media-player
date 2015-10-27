@@ -55,6 +55,7 @@ if(WIN32)
   endif()
   install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/qt.conf DESTINATION .)
   install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/PlexMediaPlayer-angle.bat DESTINATION .)
+  install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/PlexMediaPlayer-NoChromiumGPU.bat DESTINATION .)
   #add_custom_command(TARGET package POST_BUILD COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd  ${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}.exe WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
   # group/component configuration
   message(STATUS configure IFW)

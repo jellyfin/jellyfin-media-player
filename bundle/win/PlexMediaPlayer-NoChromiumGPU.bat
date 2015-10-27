@@ -1,0 +1,1 @@
+start "" "PlexMediaPlayer.exe" "--disable-gpu"

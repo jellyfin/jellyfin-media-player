@@ -177,6 +177,6 @@ QString HelperLauncher::HelperPath()
 void HelperLauncher::stop()
 {
   // this method needs to disconnect all signals from the helper as well, so it doesn't start up again.
-  disconnect(m_jsonClient);
+  m_jsonClient->disconnect();
   killHelper();
 }

@@ -23,7 +23,8 @@ typedef QMap<int, QElapsedTimer*> SDLTimeStampMap;
 typedef QMap<int, QElapsedTimer*>::const_iterator SDLTimeStampMapIterator;
 
 #define SDL_POLL_TIME 50
-#define SDL_BUTTON_LONGPRESS_DELAY 500
+#define SDL_BUTTON_REPEAT_DELAY 500
+#define SDL_BUTTON_REPEAT_RATE 100
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class InputSDLWorker : public QObject

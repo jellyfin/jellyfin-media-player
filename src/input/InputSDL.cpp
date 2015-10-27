@@ -64,6 +64,8 @@ void InputSDLWorker::run()
 {
   QElapsedTimer polltimer;
 
+  QHash<int,int> repeats;
+
   while (true)
   {
     SDL_Event event;
@@ -82,21 +84,30 @@ void InputSDLWorker::run()
         case SDL_JOYBUTTONDOWN:
         {
           QLOG_DEBUG() << "SDL Got button down for button #" << event.jbutton.button
-                      << " on Joystick #" << event.jbutton.which;
-          QElapsedTimer* timer = new QElapsedTimer();
-          m_buttonTimestamps[event.jbutton.button] = timer;
-          timer->start();
+                       << " on Joystick #" << event.jbutton.which;
+          // emit that the button has gone down
+          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button));
+          
+          // set up the repeat timer for this button
+          QElapsedTimer* repeatTimer = new QElapsedTimer();
+          m_buttonTimestamps[event.jbutton.button] = repeatTimer;
+          repeatTimer->start();
+          // reset the repeat count for this button
+          repeats[event.jbutton.button] = 0;
           break;
         }
 
         case SDL_JOYBUTTONUP:
         {
           if (m_buttonTimestamps[event.jbutton.button])
-          {
-            emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button));
+          {          
+            // remove the repeat timer for this button
             delete m_buttonTimestamps[event.jbutton.button];
             m_buttonTimestamps.remove(event.jbutton.button);
           }
+
+          // reset the repeat count
+          repeats[event.jbutton.button] = 0;
 
           break;
         }
@@ -117,10 +128,10 @@ void InputSDLWorker::run()
 
         case SDL_JOYAXISMOTION:
         {
-          int deadband = 32768 *0.05;
+          int deadband = 32768 * 0.15;
 
           // handle the analog value push
-          // keep a dead band of 5%
+          // keep a dead band of 15%
           if (std::abs(event.jaxis.value) > deadband)
           {
             // normalize the value
@@ -162,27 +173,34 @@ void InputSDLWorker::run()
       }
     }
 
-    // check for longpresses
+    // check for long press and repeats
     SDLTimeStampMapIterator it = m_buttonTimestamps.constBegin();
     while (it != m_buttonTimestamps.constEnd())
     {
       if (it.value())
       {
-        if (m_buttonTimestamps[it.key()]->elapsed() > SDL_BUTTON_LONGPRESS_DELAY)
+        // repeat at a rate of SDL_BUTTON_REPEAT_RATE
+        if (repeats[it.key()] > 0 && m_buttonTimestamps[it.key()]->elapsed() > SDL_BUTTON_REPEAT_RATE)
         {
-          QLOG_DEBUG() << "SDL Got button longpress for button #" << event.jbutton.button
-                      << " on Joystick #" << event.jbutton.which;
-          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1_LONG").arg(it.key()));
-          delete it.value();
-          m_buttonTimestamps.remove(it.key());
+          QLOG_DEBUG() << QString("SDL Got button repeat(%1) for button #").arg(repeats[it.key()]) << event.jbutton.button
+                       << " on Joystick #" << event.jbutton.which;
+          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(it.key()));
+
+          m_buttonTimestamps[it.key()]->restart();
           it = m_buttonTimestamps.constBegin();
+
+          repeats[it.key()]++;
           continue;
+        }
+        else
+        {
+          // only start repeating if SDL_BUTTON_REPEAT_DELAY time has passed
+          if (m_buttonTimestamps[it.key()]->elapsed() > SDL_BUTTON_REPEAT_DELAY)
+            repeats[it.key()]++;
         }
       }
       else
       {
-        m_buttonTimestamps.remove(it.key());
-        it = m_buttonTimestamps.constBegin();
         continue;
       }
 

@@ -409,6 +409,9 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     setting->setHidden(valobj.value("hidden").toBool(false));
     setting->setIndexOrder(order ++);
 
+    if (valobj.contains("input_type"))
+      setting->setInputType(valobj.value("input_type").toString());
+
     if (valobj.contains("possible_values") && valobj.value("possible_values").isArray())
     {
       auto list = valobj.value("possible_values").toArray();

@@ -83,6 +83,11 @@ public:
     return (m_hidden || !correctPlatform);
   }
 
+  void setInputType(const QString& inputType)
+  {
+    m_inputType = inputType;
+  }
+
   void addPossibleValue(const QString& key, const QVariant& value)
   {
     QVariantMap entry;
@@ -112,6 +117,9 @@ public:
     if (!m_possibleValues.isEmpty())
       ret.insert("options", m_possibleValues);
 
+    if (m_inputType.size())
+      ret.insert("input_type", m_inputType);
+
     return ret;
   }
 
@@ -129,6 +137,7 @@ private:
   QVariantList m_possibleValues;
   quint8 m_platform;
   bool m_hidden;
+  QString m_inputType;
 
   int m_indexOrder;
 };

@@ -1,0 +1,21 @@
+NEW:
+  * New setting to completely disable mouse input
+  * PageUp / PageDown is now bound to actions that let you advance to the next epsiode in the pre-play screen
+  * Linux build instructions thanks to Chris Lee 
+  * New Library icons and style
+
+FIXES:
+  * Windows binary rename to x86_64 to reflect reality
+  * Windows installer now installs to C:\Program Files by default
+  * Windows installer is now 64bit and will warn when trying to install on Windows versions older than windows 7.
+  * Debug overlay now have safe overscan margins
+  * Failed to start web server is no longer treated as a fatal error
+  * Remove channel count from passthrough audio (they where lying!)
+  * Disable hardware decoding by default (creates problems on some GPU's)
+  * Use exclusive audio setting on OSX by default (should fix USB audio cards problem, you need to reset settings or
+    enable exclusive mode under advanced).
+  * Experimental better alt+tab handling on windows.
+  * Fix issues with optical audio out
+  * Fixed issue where the remote controllers might not find PMP
+  * Fixed issue with playback on some channels
+  * Raspberry fixes for 10bit and high h264 level video content

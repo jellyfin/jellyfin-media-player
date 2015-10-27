@@ -7,7 +7,7 @@ NEW:
 FIXES:
   * Windows binary rename to x86_64 to reflect reality
   * Windows installer now installs to C:\Program Files by default
-  * Windows installer is now 64bit and will warn when trying to install on Windows versions older than windows 7.
+  * Windows installer will warn when trying to install on Windows versions older than windows 7.
   * Debug overlay now have safe overscan margins
   * Failed to start web server is no longer treated as a fatal error
   * Remove misleading channel count from passthrough audio on debug overlay

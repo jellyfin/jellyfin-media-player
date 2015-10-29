@@ -206,6 +206,7 @@ void PlayerQuickItem::onSynchronize()
     if (!m_renderer->init())
     {
       delete m_renderer;
+      m_renderer = NULL;
       emit onFatalError(tr("Could not initialize OpenGL."));
       return;
     }

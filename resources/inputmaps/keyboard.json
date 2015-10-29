@@ -41,8 +41,31 @@
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",
 
+    // also use I for debug emulating old PHT behaviour
+    "I": "host:toggleDebug",
+
     // media keys from the FLIRC and on Linux keyboards
     "Toggle Media Play\\/Pause": "play_pause",
+
+    // Microsoft Windows Media Center SE; Logitech Harmony device
+    "Media Pause": "pause",
+    "Media Play": "play_pause",
+    "Media Stop": "stop",
+    "Media Rewind": "seek_backward",
+    "Media Fast Forward": "seek_forward",
+    "Media Previous": "step_backward",
+    "Media Next": "step_forward",
+    "Back": "back",
+
+    // Windows Media Center keyboard shortcuts
+    "Alt\\+(Return|Enter)": "host:fullscreen",
+    "Ctrl\\+P": "pause",
+    "Ctrl\\+Shift\\+P": "play_pause",
+    "Ctrl\\+Shift\\+S": "stop",
+    "Ctrl\\+Shift\\+B": "seek_backward",
+    "Ctrl\\+Shift\\+F": "seek_forward",
+    "Ctrl\\+B": "step_backward",
+    "Ctrl\\+F": "step_forward",
 
     // debug command to crash the host. for testing
     "Ctrl\\+Alt\\+Shift\\+F1": "host:crash!"

@@ -697,8 +697,12 @@ void PlayerComponent::setAudioConfiguration()
       SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool())
   {
     QLOG_INFO() << "Enabling audio AC3 transcoding (if needed)";
-    mpv::qt::set_option_variant(m_mpv, "af", "lavcac3enc");
+    mpv::qt::command_variant(m_mpv, QStringList() << "af" << "add" << "@ac3:lavcac3enc");
     doAc3Transcoding = true;
+  }
+  else
+  {
+    mpv::qt::command_variant(m_mpv, QStringList() << "af" << "del" << "@ac3");
   }
 
 

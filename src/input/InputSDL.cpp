@@ -199,10 +199,6 @@ void InputSDLWorker::run()
             repeats[it.key()]++;
         }
       }
-      else
-      {
-        continue;
-      }
 
       it++;
     }

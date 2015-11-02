@@ -277,7 +277,7 @@ void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
 #ifdef Q_OS_WIN32
   // Do this to workaround DWM compositor bugs with fullscreened OpenGL applications.
   // The compositor will not properly redraw anything when focusing other windows.
-  if (visibility() == QWindow::FullScreen)
+  if (visibility() == QWindow::FullScreen && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "minimizeOnDefocus").toBool())
     showMinimized();
 #endif
 }

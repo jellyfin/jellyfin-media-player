@@ -29,6 +29,12 @@
         "platforms_excluded": "oe"
       },
       {
+        "value": "minimizeOnDefocus",
+        "default": true,
+        "platforms": [ "windows" ],
+        "hidden": true
+      },
+      {
         "value": "webserverport",
         "default": 32433,
         "hidden": true

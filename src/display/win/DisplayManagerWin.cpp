@@ -150,7 +150,7 @@ DisplayManagerWin::~DisplayManagerWin()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerWin::getDisplayFromPoint(int x, int y)
 {
-  for (int displayId = 0; displayId < displays.size(); displayId++)
+  foreach (int displayId, displays.keys())
   {
     int currentMode = getCurrentDisplayMode(displayId);
     if (currentMode > 0)

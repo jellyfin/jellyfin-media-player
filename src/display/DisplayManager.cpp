@@ -61,7 +61,7 @@ DMVideoModePtr DisplayManager::getCurrentVideoMode(int display)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool DisplayManager::isValidDisplay(int display) { return display >= 0 && display < displays.size(); }
+bool DisplayManager::isValidDisplay(int display) { return displays.contains(display); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManager::isValidDisplayMode(int display, int mode)

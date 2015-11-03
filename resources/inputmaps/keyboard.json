@@ -66,9 +66,9 @@
     "Ctrl\\+Shift\\+P": "play_pause",
     "Ctrl\\+Shift\\+S": "stop",
     "Ctrl\\+Shift\\+B": "seek_backward",
-    "Ctrl\\+Shift\\+F": "seek_forward",
+    "Ctrl\\+Shift\\+G": "seek_forward",
     "Ctrl\\+B": "step_backward",
-    "Ctrl\\+F": "step_forward",
+    "Ctrl\\+G": "step_forward",
 
     // debug command to crash the host. for testing
     "Ctrl\\+Alt\\+Shift\\+F1": "host:crash!"

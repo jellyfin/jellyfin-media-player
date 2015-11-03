@@ -227,11 +227,19 @@ int DisplayComponent::getApplicationDisplay()
 
   int display = -1;
   if (activeWindow && m_displayManager)
+  {
+    QLOG_DEBUG() << "Looking for a display at:" << activeWindow->geometry()
+                 << "(center:" << activeWindow->geometry().center() << ")";
     display = m_displayManager->getDisplayFromPoint(activeWindow->geometry().center());
+  }
 
   if (display < 0)
   {
     QLOG_WARN() << "Unable to locate current display.";
+  }
+  else
+  {
+    QLOG_DEBUG() << "Display found:" << display;
   }
   return display;
 }

@@ -160,6 +160,8 @@ int DisplayManagerWin::getDisplayFromPoint(int x, int y)
       {
         QRect displayRect(modeInfo.dmPosition.x, modeInfo.dmPosition.y, modeInfo.dmPelsWidth,
                           modeInfo.dmPelsHeight);
+        QLOG_DEBUG() << "Looking at display" << displayId << "mode" << currentMode
+                     << "at" << displayRect;
 
         if (displayRect.contains(x, y))
           return displayId;

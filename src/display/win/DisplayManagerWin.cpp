@@ -153,7 +153,7 @@ int DisplayManagerWin::getDisplayFromPoint(int x, int y)
   foreach (int displayId, displays.keys())
   {
     int currentMode = getCurrentDisplayMode(displayId);
-    if (currentMode > 0)
+    if (currentMode >= 0)
     {
       DEVMODEW modeInfo;
       if (getModeInfo(displayId, currentMode, modeInfo))

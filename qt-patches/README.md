@@ -12,3 +12,7 @@ In this directory we store all patches against Qt that is required by konvergo. 
   upstream since it enables a feature that was intentionally disabled in desktop versions of Qt.
 * 0004-qtwebengine-transparency-window-creation.patch - Fixes a bug in patch 0001. Will be included at the same
   time as patch 0001.
+* 0005-qtwebengine-increase-tiles-buffer.patch - Fixes a bug on Retina mac's that could cause redraw issues.
+  The problem here was that Chromium falls back to shared memory for texture transfer because we are using 
+  incompatible OpenGL contexts between Qt and Chromium. That caused the shared memory buffer count for textures
+  to overflow. This patch increases that buffer count.

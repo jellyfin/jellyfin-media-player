@@ -183,7 +183,8 @@
         "default": "audio",
         "possible_values": [
           [ "audio", "Audio" ],
-          [ "display-resample", "Display" ]
+          [ "display-resample", "Display (resample audio)" ],
+          [ "display-adrop", "Display (drop/duplicate audio)" ]
         ]
       },
       {

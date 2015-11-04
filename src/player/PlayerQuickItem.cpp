@@ -105,15 +105,11 @@ static void* get_proc_address(void* ctx, const char* name)
   // builtin functions with all drivers (only extensions). Qt compensates this
   // for a degree, but does this only for functions Qt happens to need. So
   // we need our own falback as well.
-  // Warning: this might break if using ANGLE.
   if (!res)
   {
-    HMODULE handle = LoadLibrary("opengl32.dll");
+    HMODULE handle = (HMODULE)QOpenGLContext::openGLModuleHandle();
     if (handle)
-    {
       res = (void *)GetProcAddress(handle, name);
-      FreeLibrary(handle);
-    }
   }
 #endif
   return res;

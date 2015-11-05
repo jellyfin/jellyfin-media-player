@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_MAC
     engine->rootContext()->setContextProperty("webMaxHeight", 1080);
 #else
-    engine->rootContext()->setContextProperty("webMaxHeight", 0);
+    engine->rootContext()->setContextProperty("webMaxHeight", 0.0);
 #endif
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see

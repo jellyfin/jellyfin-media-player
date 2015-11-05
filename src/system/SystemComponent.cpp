@@ -175,33 +175,6 @@ QString SystemComponent::getUserAgent()
   return userAgent;
 }
 
-#ifdef Q_OS_UNIX
-/////////////////////////////////////////////////////////////////////////////////////////
-QMap<QString, QString> SystemComponent::networkInterfaces()
-{
-  QMap<QString, QString> info;
-
-  foreach(const QNetworkInterface& interface, QNetworkInterface::allInterfaces())
-  {
-    if (interface.isValid() == false || (interface.hardwareAddress().isEmpty() == true) || interface.IsLoopBack == false)
-      continue;
-
-    QString interfaceName = QString("Interface%1 ").arg(interface.index());
-    info[interfaceName + "Name"] = interface.humanReadableName();
-    info[interfaceName + "HW address"] = interface.hardwareAddress();
-    info[interfaceName + "Status"] = (interface.flags() & QNetworkInterface::IsUp) ? "Up" : "Down";
-
-    int i = 0;
-    foreach(const QNetworkAddressEntry& address, interface.addressEntries())
-    {
-      info[interfaceName + QString("Address%1").arg(i)] = QString("%1/%2").arg(address.ip().toString()).arg(address.netmask().toString());
-      i++;
-    }
-  }
-  return info;
-}
-#endif
-
 /////////////////////////////////////////////////////////////////////////////////////////
 QString SystemComponent::debugInformation()
 {
@@ -221,12 +194,12 @@ QString SystemComponent::debugInformation()
   stream << "  Config file: " << Paths::dataDir(Names::MainName() + ".conf") << endl;
   stream << endl;
 
-#ifdef Q_OS_UNIX
-  stream << "Network" << endl;
-  QMap<QString, QString> networks = networkInterfaces();
-  foreach(const QString& net, networks.keys())
-    stream << "  " << net << ": " << networks[net] << endl;
-#endif
+  stream << "Network Addresses" << endl;
+  foreach (const QString& addr, networkAddresses())
+  {
+    stream << "  " << addr << endl;
+  }
+  stream << endl;
 
   stream << flush;
   return debugInfo;

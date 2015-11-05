@@ -12,6 +12,13 @@ KonvergoWindow
   minimumHeight: 720
   minimumWidth: 1280
 
+  function getMaxHeightArg()
+  {
+    if (webMaxHeight > 0)
+      return "?maxHeight=" + webMaxHeight
+    return ""
+  }
+
   MpvVideo
   {
     id: video
@@ -26,13 +33,27 @@ KonvergoWindow
   {
     id: web
     objectName: "web"
-    width: Math.min((parent.height * 16) / 9, parent.width)
-    height: Math.min((parent.width * 9) / 16, parent.height)
-    anchors.centerIn: parent
+    anchors.fill: parent
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
-    url: components.settings.value("path", "startupurl")
+    url: components.settings.value("path", "startupurl") + getMaxHeightArg()
+    transformOrigin: Item.TopLeft
+    scale:
+    {
+      if (webMaxHeight == 0)
+        return 1;
+
+      if (height > webMaxHeight)
+      {
+        return height / webMaxHeight;
+      }
+      else
+      {
+        return 1;
+      }
+    }
+    smooth: true
 
     Component.onCompleted:
     {
@@ -101,6 +122,7 @@ KonvergoWindow
     }
   }
 
+
   Rectangle
   {
     id: debug
@@ -125,7 +147,17 @@ KonvergoWindow
       color: "white"
       font.pixelSize: width / 45
 
-      text: mainWindow.debugInfo
+      function windowDebug()
+      {
+        var dbg = mainWindow.debugInfo + "Window and web\n";
+        dbg += "  Window size: " + parent.width + "x" + parent.height + "\n";
+        dbg += "  Web Max Height: " + webMaxHeight + "\n";
+        dbg += "  Web scale: " + Math.round(web.scale * 100) / 100;
+
+        return dbg;
+      }
+
+      text: windowDebug()
     }
 
     Text

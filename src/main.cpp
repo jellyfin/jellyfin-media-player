@@ -236,6 +236,17 @@ int main(int argc, char *argv[])
     KonvergoWindow::RegisterClass();
     engine->rootContext()->setContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
 
+    // This controls how big the web view will zoom using semantic zoom
+    // over a specific number of pixels and we run out of space for on screen
+    // tiles in chromium. This only happens on OSX since on other platforms
+    // we can use the GPU to transfer tiles directly.
+    // See more discussion in: https://github.com/plexinc/plex-media-player/issues/10
+#ifdef Q_OS_MAC
+    engine->rootContext()->setContextProperty("webMaxHeight", 1080);
+#else
+    engine->rootContext()->setContextProperty("webMaxHeight", 0);
+#endif
+
     // the only way to detect if QML parsing fails is to hook to this signal and then see
     // if we get a valid object passed to it. Any error messages will be reported on stderr
     // but since no normal user should ever see this it should be fine

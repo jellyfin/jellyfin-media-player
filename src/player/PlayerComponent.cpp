@@ -788,6 +788,7 @@ static QString get_mpv_osd(mpv_handle *ctx, const char *property)
 }
 
 #define MPV_PROPERTY(p) get_mpv_osd(m_mpv, p)
+#define MPV_PROPERTY_BOOL(p) (mpv::qt::get_property_variant(m_mpv, p).toBool())
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QString PlayerComponent::videoInformation() const
@@ -802,6 +803,9 @@ QString PlayerComponent::videoInformation() const
   info << "File:" << endl;
   info << "URL: " << MPV_PROPERTY("path") << endl;
   info << "Container: " << MPV_PROPERTY("file-format") << endl;
+  info << "Native seeking: " << ((MPV_PROPERTY_BOOL("seekable") &&
+                                  !MPV_PROPERTY_BOOL("partially-seekable"))
+                                 ? "yes" : "no") << endl;
   info << endl;
   info << "Video:" << endl;
   info << "Codec: " << MPV_PROPERTY("video-codec") << endl;
@@ -836,9 +840,7 @@ QString PlayerComponent::videoInformation() const
   info << endl;
   info << "Performance: " << endl;
   info << "A/V: " << MPV_PROPERTY("avsync") << endl;
-  info << "Change: " << MPV_PROPERTY("total-avsync-change") << endl;
   info << "Dropped frames: " << MPV_PROPERTY("vo-drop-frame-count") << endl;
-  info << "Missed frames: " << MPV_PROPERTY("vo-missed-frame-count") << endl;
   info << endl;
   info << "Cache:" << endl;
   info << "Seconds: " << MPV_PROPERTY("demuxer-cache-duration") << endl;
@@ -849,12 +851,11 @@ QString PlayerComponent::videoInformation() const
   info << "Time: " << MPV_PROPERTY("playback-time") << " / "
                    << MPV_PROPERTY("duration")
                    << " (" << MPV_PROPERTY("percent-pos") << "%)" << endl;
-  info << "Pause state: " << MPV_PROPERTY("pause") << " / "
-                          << MPV_PROPERTY("paused-for-cache") << " / "
-                          << MPV_PROPERTY("core-idle") << endl;
-  info << "Seeking: " << MPV_PROPERTY("seeking") << endl;
-  info << "Seekable: " << MPV_PROPERTY("seekable") << " / "
-                       << MPV_PROPERTY("partially-seekable") << endl;
+  info << "State: " << (MPV_PROPERTY_BOOL("pause") ? "paused " : "")
+                    << (MPV_PROPERTY_BOOL("paused-for-cache") ? "buffering " : "")
+                    << (MPV_PROPERTY_BOOL("core-idle") ? "waiting " : "playing ")
+                    << (MPV_PROPERTY_BOOL("seeking") ? "seeking " : "")
+                    << endl;
 
   info << flush;
   return infoStr;

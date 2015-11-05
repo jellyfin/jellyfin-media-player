@@ -150,7 +150,7 @@ bool InputCECWorker::openAdapter()
     QLOG_INFO() << "libCEC found" << devicesCount << "CEC adapters.";
 
     // open first adapter
-    m_adapterPort = devices[0].strComPath;
+    m_adapterPort = devices[0].strComName;
     if (m_adapter->Open(m_adapterPort.toStdString().c_str()))
     {
       QLOG_INFO() << "Device " << devices[0].strComName << "was successfully openned";

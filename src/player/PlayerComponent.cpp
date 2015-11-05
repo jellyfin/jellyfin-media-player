@@ -412,6 +412,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
         QString resume_id = QString::fromUtf8(msg->args[2]);
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
+          QLOG_INFO() << "resuming loading";
           mpv::qt::command_variant(m_mpv, QStringList() << "hook-ack" << resume_id);
         };
         if (switchDisplayFrameRate())
@@ -421,6 +422,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
           // to various strange OS-related reasons.
           // (Better hope the user doesn't try to exit Konvergo during mode change.)
           int pause = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "refreshrate.delay").toInt() * 1000;
+          QLOG_INFO() << "waiting" << pause << "msec after rate switch before loading";
           QTimer::singleShot(pause, resume);
         }
         else

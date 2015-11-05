@@ -12,45 +12,63 @@ using namespace CEC;
 
 #define CEC_INPUT_NAME "CEC"
 
+class InputCECWorker;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class InputCEC : public InputBase
 {
 public:
   InputCEC(QObject* parent);
-  ~InputCEC();
 
-  virtual const char* inputName() { return CEC_INPUT_NAME; }
+  virtual const char* inputName()
+  { return CEC_INPUT_NAME; }
+
   virtual bool initInput();
-  void close();
 
 private:
-  libcec_configuration m_configuration;
-  ICECCallbacks m_callbacks;
-  ICECAdapter*  m_adapter;
-  QString m_adapterPort;
-  QMutex m_lock;
-  QTimer m_timer;
-  bool m_verboseLogging;
+  QThread* m_cecThread;
+  InputCECWorker* m_cecWorker;
+};
 
-  bool openAdapter();
-  void closeAdapter();
-  QString getCommandString(cec_user_control_code code, unsigned int duration);
-  void sendReceivedInput(const QString& source, const QString& keycode, float amount = 1.0);
-  QString getCommandParamsList(cec_command command);
-
-
-  // libcec callbacks
-  static int CecLogMessage(void *cbParam, const cec_log_message message);
-  static int CecKeyPress(void *cbParam, const cec_keypress key);
-  static int CecCommand(void *cbParam, const cec_command command);
-  static int CecAlert(void *cbParam, const libcec_alert type, const libcec_parameter param);
-
+/////////////////////////////////////////////////////////////////////////////////////////
+class InputCECWorker : public QObject
+{
+Q_OBJECT
 public:
-  void reopenAdapter();
+  InputCECWorker(QObject* parent = 0) : QObject(parent), m_adapter(0), m_adapterPort("")
+  {
+  }
+
+  ~InputCECWorker();
+
+  Q_SLOT bool init();
+  Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, float amount);
 
 public slots:
   void checkAdapter();
 
+private:
+  void closeCec();
+
+  bool openAdapter();
+  void closeAdapter();
+
+  QString getCommandString(cec_user_control_code code, unsigned int duration);
+  void sendReceivedInput(const QString& source, const QString& keycode, float amount = 1.0);
+  QString getCommandParamsList(cec_command command);
+
+  // libcec callbacks
+  static int CecLogMessage(void* cbParam, const cec_log_message message);
+  static int CecKeyPress(void* cbParam, const cec_keypress key);
+  static int CecCommand(void* cbParam, const cec_command command);
+  static int CecAlert(void* cbParam, const libcec_alert type, const libcec_parameter param);
+
+  libcec_configuration m_configuration;
+  ICECCallbacks m_callbacks;
+  ICECAdapter* m_adapter;
+  QString m_adapterPort;
+  QTimer* m_timer;
+  bool m_verboseLogging;
 };
 
 #endif // INPUTCEC_H

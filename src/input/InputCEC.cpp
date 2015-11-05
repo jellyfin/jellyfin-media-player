@@ -49,19 +49,27 @@ static QMap<int, KeyAction> cecKeyMap   { \
 //////////////////////////////////////////////////////////////////////////////////////////////////
 InputCEC::InputCEC(QObject *parent) : InputBase(parent)
 {
-  m_configuration.Clear();
-  m_callbacks.Clear();
-  m_adapter = NULL;
-  m_verboseLogging = false;
+  m_cecThread = new QThread(this);
+  m_cecThread->setObjectName("InputCEC");
 
-  // setup adapter check timer
-  m_timer.setInterval(1000);
-  m_timer.setSingleShot(false);
-  connect(&m_timer, &QTimer::timeout, this, &InputCEC::checkAdapter);
+  m_cecWorker = new InputCECWorker(NULL);
+  m_cecWorker->moveToThread(m_cecThread);
+
+  m_cecThread->start(QThread::LowPriority);
+  connect(m_cecWorker, &InputCECWorker::receivedInput, this, &InputCEC::receivedInput);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 bool InputCEC::initInput()
+{
+  bool retVal;
+  QMetaObject::invokeMethod(m_cecWorker, "init", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, retVal));
+
+  return retVal;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool InputCECWorker::init()
 {
   m_configuration.Clear();
   m_callbacks.Clear();
@@ -81,8 +89,7 @@ bool InputCEC::initInput()
   m_configuration.bAutodetectAddress =  CEC_DEFAULT_SETTING_AUTODETECT_ADDRESS;
   m_configuration.iPhysicalAddress = CEC_PHYSICAL_ADDRESS_TV;
   m_configuration.baseDevice = CECDEVICE_AUDIOSYSTEM;
-  m_configuration.bActivateSource = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool();
-
+  m_configuration.bActivateSource = (uint8_t)SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool();
   m_configuration.iHDMIPort = (quint8)SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "hdmiport").toInt();
 
   // open libcec
@@ -99,20 +106,27 @@ bool InputCEC::initInput()
   // init video on targets that need this
   m_adapter->InitVideoStandalone();
 
-  // start the adapter check timer
-  m_timer.start();
+  // check for attached adapters
+  checkAdapter();
+
+  // Start a timer to keep track of attached/removed adapters
+  m_timer = new QTimer(this);
+  m_timer->setInterval(10 * 1000);
+  connect(m_timer, &QTimer::timeout, this, &InputCECWorker::checkAdapter);
+  m_timer->start();
+
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InputCEC::~InputCEC()
+InputCECWorker::~InputCECWorker()
 {
-  m_timer.stop();
-  close();
+  m_timer->stop();
+  closeCec();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCEC::close()
+void InputCECWorker::closeCec()
 {
   if (m_adapter)
   {
@@ -123,54 +137,43 @@ void InputCEC::close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-bool InputCEC::openAdapter()
+bool InputCECWorker::openAdapter()
 {
   bool ret = false;
-  m_lock.lock();
 
   // try to find devices
-  cec_adapter devices[10];
-  int devicesCount = m_adapter->FindAdapters(devices, 10, NULL);
+  cec_adapter_descriptor devices[10];
+  int devicesCount = m_adapter->DetectAdapters(devices, 10, NULL, false);
   if (devicesCount > 0)
   {
     // list devices
     QLOG_INFO() << "libCEC found" << devicesCount << "CEC adapters.";
 
     // open first adapter
-    m_adapterPort = devices[0].comm;
+    m_adapterPort = devices[0].strComPath;
     if (m_adapter->Open(m_adapterPort.toStdString().c_str()))
     {
-      QLOG_INFO() << "Device " << devices[0].path << "was successfully openned";
+      QLOG_INFO() << "Device " << devices[0].strComName << "was successfully openned";
       ret = true;
     }
     else
     {
-      QLOG_ERROR() << "Opening device" << devices[0].path << "failed";
+      QLOG_ERROR() << "Opening device" << devices[0].strComName << "failed";
       ret = false;
     }
   }
 
-  m_lock.unlock();
   return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCEC::closeAdapter()
+void InputCECWorker::closeAdapter()
 {
-  m_lock.lock();
-
-  m_adapterPort = "";
-  m_lock.unlock();
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCEC::reopenAdapter()
-{
-  closeAdapter();
+  m_adapterPort.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCEC::checkAdapter()
+void InputCECWorker::checkAdapter()
 {
   if (m_adapterPort.isEmpty())
   {    
@@ -182,13 +185,13 @@ void InputCEC::checkAdapter()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCEC::sendReceivedInput(const QString &source, const QString &keycode, float amount)
+void InputCECWorker::sendReceivedInput(const QString &source, const QString &keycode, float amount)
 {
   emit receivedInput(source, keycode, amount);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-QString InputCEC::getCommandString(cec_user_control_code code, unsigned int duration)
+QString InputCECWorker::getCommandString(cec_user_control_code code, unsigned int duration)
 {
   QString key;
 
@@ -207,9 +210,12 @@ QString InputCEC::getCommandString(cec_user_control_code code, unsigned int dura
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int InputCEC::CecLogMessage(void* cbParam, const cec_log_message message)
+int InputCECWorker::CecLogMessage(void* cbParam, const cec_log_message message)
 {
-  InputCEC *cec = (InputCEC*)cbParam;
+  auto *cec = static_cast<InputCECWorker*>(cbParam);
+
+  Q_ASSERT(cec);
+
   switch (message.level)
   {
     case CEC_LOG_ERROR:
@@ -242,11 +248,14 @@ int InputCEC::CecLogMessage(void* cbParam, const cec_log_message message)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
+int InputCECWorker::CecKeyPress(void *cbParam, const cec_keypress key)
 {
   static int lastKeyPressed = -1;
 
-  InputCEC *cec = (InputCEC*)cbParam;
+  auto *cec = static_cast<InputCECWorker*>(cbParam);
+
+  Q_ASSERT(cec);
+
   if (cec->m_verboseLogging)
   {
     QLOG_DEBUG() << QString("CecKeyPress : Got key %1 (%2), last was %3").arg(key.keycode).arg(key.duration).arg(lastKeyPressed);
@@ -272,7 +281,7 @@ int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-QString InputCEC::getCommandParamsList(cec_command command)
+QString InputCECWorker::getCommandParamsList(cec_command command)
 {
   QString output = QString("%1 parameter(s) :").arg(command.parameters.size);
 
@@ -286,9 +295,10 @@ QString InputCEC::getCommandParamsList(cec_command command)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int InputCEC::CecCommand(void *cbParam, const cec_command command)
+int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
 {
-  InputCEC *cec = (InputCEC*)cbParam;
+  auto cec = static_cast<InputCECWorker*>(cbParam);
+  Q_ASSERT(cec);
 
   if (cec->m_verboseLogging)
   {
@@ -369,7 +379,7 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int InputCEC::CecAlert(void *cbParam, const libcec_alert type, const libcec_parameter param)
+int InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libcec_parameter param)
 {
   bool reopen = false;
 
@@ -401,15 +411,10 @@ int InputCEC::CecAlert(void *cbParam, const libcec_alert type, const libcec_para
   if (reopen)
   {
     QLOG_DEBUG() << "libCEC : Reopenning adapter";
-    InputCEC *cec = (InputCEC*)cbParam;
+    auto cec = static_cast<InputCECWorker*>(cbParam);
     if (cec)
-      cec->reopenAdapter();
+      cec->closeAdapter();
   }
 
   return 0;
 }
-
-
-
-
-

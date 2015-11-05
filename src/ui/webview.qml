@@ -146,6 +146,7 @@ KonvergoWindow
       anchors.bottomMargin: 54
       color: "white"
       font.pixelSize: width / 45
+      wrapMode: Text.WrapAnywhere
 
       function windowDebug()
       {
@@ -166,12 +167,14 @@ KonvergoWindow
       width: (parent.width - 50) / 2
       height: parent.height - 25
       anchors.right: parent.right
+      anchors.left: debugLabel.right
       anchors.rightMargin: 64
       anchors.top: parent.top
       anchors.topMargin: 54
       anchors.bottomMargin: 54
       color: "white"
       font.pixelSize: width / 45
+      wrapMode: Text.NoWrap
 
       text: mainWindow.videoInfo
     }

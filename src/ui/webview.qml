@@ -2,6 +2,7 @@ import QtQuick 2.4
 import Konvergo 1.0
 import QtWebEngine 1.1
 import QtWebChannel 1.0
+import QtQuick.Window 2.2
 
 KonvergoWindow
 {
@@ -34,6 +35,7 @@ KonvergoWindow
     id: web
     objectName: "web"
     anchors.fill: parent
+    anchors.horizontalCenter: parent.horizontalCenter
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
@@ -41,19 +43,20 @@ KonvergoWindow
     transformOrigin: Item.TopLeft
     scale:
     {
+      var aheight = (width * 9) / 16;
+
       if (webMaxHeight == 0)
         return 1;
 
-      if (height > webMaxHeight)
+      if (aheight > webMaxHeight)
       {
-        return height / webMaxHeight;
+        return aheight / webMaxHeight;
       }
       else
       {
         return 1;
       }
     }
-    smooth: true
 
     Component.onCompleted:
     {
@@ -152,6 +155,7 @@ KonvergoWindow
       {
         var dbg = mainWindow.debugInfo + "Window and web\n";
         dbg += "  Window size: " + parent.width + "x" + parent.height + "\n";
+        dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
         dbg += "  Web Max Height: " + webMaxHeight + "\n";
         dbg += "  Web scale: " + Math.round(web.scale * 100) / 100;
 

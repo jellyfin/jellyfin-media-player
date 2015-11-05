@@ -184,6 +184,7 @@ QString SystemComponent::debugInformation()
   stream << "Plex Media Player" << endl;
   stream << "  Version: " << Version::GetVersionString() << " built: " << Version::GetBuildDate() << endl;
   stream << "  Web Client Version: " << Version::GetWebVersion() << endl;
+  stream << "  Web Client URL: " << SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString() << endl;
   stream << "  Platform: " << getPlatformTypeString() << "-" << getPlatformArchString() << endl;
   stream << "  User-Agent: " << getUserAgent() << endl;
   stream << "  Qt version: " << qVersion() << endl;

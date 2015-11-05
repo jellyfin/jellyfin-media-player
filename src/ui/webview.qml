@@ -10,8 +10,10 @@ KonvergoWindow
   title: "Plex Media Player"
   objectName: "mainWindow"
   visible: true
-  minimumHeight: 720
-  minimumWidth: 1280
+  minimumHeight: 240
+  minimumWidth: 426
+  height: 720
+  width: 1280
 
   function getMaxHeightArg()
   {
@@ -44,6 +46,12 @@ KonvergoWindow
     scale:
     {
       var aheight = (width * 9) / 16;
+
+      // handle underscale, 720 is the minimum scale of the webclient.
+      if (aheight < 720)
+      {
+        return aheight / 720;
+      }
 
       if (webMaxHeight == 0)
         return 1;

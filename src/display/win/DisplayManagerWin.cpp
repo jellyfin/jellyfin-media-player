@@ -17,6 +17,9 @@ bool DisplayManagerWin::initialize()
   DISPLAY_DEVICEW displayInfo;
   int displayId = 0;
 
+  m_displayAdapters.clear();
+  displays.clear();
+
   while (getDisplayInfo(displayId, displayInfo))
   {
     if (displayInfo.StateFlags & (DISPLAY_DEVICE_ACTIVE | DISPLAY_DEVICE_ATTACHED))

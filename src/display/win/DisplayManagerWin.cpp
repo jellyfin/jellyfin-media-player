@@ -206,7 +206,7 @@ bool DisplayManagerWin::isModeMatching(DEVMODEW& modeInfo, DMVideoModePtr videoM
     return false;
   if (videoMode->width != modeInfo.dmPelsWidth)
     return false;
-  if (videoMode->refreshRate != modeInfo.dmDisplayFrequency)
+  if ((int)(videoMode->refreshRate + 0.5f) != modeInfo.dmDisplayFrequency)
     return false;
   if (videoMode->bitsPerPixel != modeInfo.dmBitsPerPel)
     return false;

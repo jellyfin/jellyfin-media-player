@@ -87,7 +87,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   // will be visible on top of the video as part of the Konvergo window.
   setColor(QColor("transparent"));
 #else
-  setColor(QColor("black"));
+  setColor(QColor("#111111"));
 #endif
 
   loadGeometry();

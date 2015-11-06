@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
     // we can use the GPU to transfer tiles directly.
     // See more discussion in: https://github.com/plexinc/plex-media-player/issues/10
 #ifdef Q_OS_MAC
-    engine->rootContext()->setContextProperty("webMaxHeight", 1080);
+    engine->rootContext()->setContextProperty("webMaxHeight", 720);
 #else
     engine->rootContext()->setContextProperty("webMaxHeight", 0.0);
 #endif

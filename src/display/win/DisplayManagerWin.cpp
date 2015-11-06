@@ -210,7 +210,7 @@ bool DisplayManagerWin::isModeMatching(DEVMODEW& modeInfo, DMVideoModePtr videoM
     return false;
   if (videoMode->bitsPerPixel != modeInfo.dmBitsPerPel)
     return false;
-  if (videoMode->interlaced != (modeInfo.dmDisplayFlags & DM_INTERLACED) ? true : false)
+  if (videoMode->interlaced != ((modeInfo.dmDisplayFlags & DM_INTERLACED) ? true : false))
     return false;
 
   return true;

@@ -36,31 +36,46 @@ KonvergoWindow
   {
     id: web
     objectName: "web"
-    anchors.fill: parent
-    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.centerIn: parent
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
     url: components.settings.value("path", "startupurl") + getMaxHeightArg()
     transformOrigin: Item.TopLeft
-    scale:
+
+    width: Math.min((parent.height * 16) / 9, parent.width)
+    height: Math.min((parent.width * 9) / 16, parent.height)
+
+    function getDesiredScale()
     {
       var verticalScale = height / 720;
       var horizontalScale = width / 1280;
 
-      var desiredScale = Math.min(verticalScale, horizontalScale);
+      return Math.min(verticalScale, horizontalScale);
+    }
+
+    scale:
+    {
+      var desiredScale = getDesiredScale();
       var maximumScale = webMaxHeight ? ((webMaxHeight / Screen.devicePixelRatio) / 720) : 10;
 
-      if (desiredScale < 1) {
-        // Web renders at 1:1, so scale down
-        return desiredScale;
-      } else if (desiredScale < maximumScale) {
+      if (desiredScale < maximumScale) {
         // Web renders at windows scale, no scaling
         return 1;
       } else {
         // Web should max out at maximum scaling
         return desiredScale / maximumScale;
       }
+    }
+
+    zoomFactor:
+    {
+      var desiredScale = getDesiredScale();
+
+      if (desiredScale < 1)
+        return desiredScale;
+      else
+       return 1;
     }
 
     Component.onCompleted:
@@ -162,7 +177,9 @@ KonvergoWindow
         dbg += "  Window size: " + parent.width + "x" + parent.height + "\n";
         dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
         dbg += "  Web Max Height: " + (webMaxHeight / Screen.devicePixelRatio) + "\n";
-        dbg += "  Web scale: " + Math.round(web.scale * 100) / 100;
+        dbg += "  Web scale: " + Math.round(web.scale * 100) / 100 + "\n";
+        dbg += "  Desired Scale: " + Math.round(web.getDesiredScale() * 100) / 100 + "\n";
+        dbg += "  Zoom Factor: " + Math.round(web.zoomFactor * 100) / 100 + "\n";
 
         return dbg;
       }

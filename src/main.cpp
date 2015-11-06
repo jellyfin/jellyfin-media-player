@@ -239,16 +239,14 @@ int main(int argc, char *argv[])
     // This controls how big the web view will zoom using semantic zoom
     // over a specific number of pixels and we run out of space for on screen
     // tiles in chromium. This only happens on OSX since on other platforms
-    // we can use the GPU to transfer tiles directly.
+    // we can use the GPU to transfer tiles directly but we set the limit on all platforms
+    // to keep it consistent.
+    //
     // See more discussion in: https://github.com/plexinc/plex-media-player/issues/10
     // The number of pixels here are REAL pixels, the code in webview.qml will compensate
     // for a higher DevicePixelRatio
     //
-#ifdef Q_OS_MAC
     engine->rootContext()->setContextProperty("webMaxHeight", 1440);
-#else
-    engine->rootContext()->setContextProperty("webMaxHeight", 0.0);
-#endif
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see
     // if we get a valid object passed to it. Any error messages will be reported on stderr

@@ -46,10 +46,10 @@ KonvergoWindow
     scale:
     {
       var verticalScale = height / 720;
-      var horizontalScale = height / 1280;
+      var horizontalScale = width / 1280;
 
       var desiredScale = Math.min(verticalScale, horizontalScale);
-      var maximumScale = webMaxHeight ? (webMaxHeight / 720) : 10;
+      var maximumScale = webMaxHeight ? ((webMaxHeight / Screen.devicePixelRatio) / 720) : 10;
 
       if (desiredScale < 1) {
         // Web renders at 1:1, so scale down
@@ -161,7 +161,7 @@ KonvergoWindow
         var dbg = mainWindow.debugInfo + "Window and web\n";
         dbg += "  Window size: " + parent.width + "x" + parent.height + "\n";
         dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
-        dbg += "  Web Max Height: " + webMaxHeight + "\n";
+        dbg += "  Web Max Height: " + (webMaxHeight / Screen.devicePixelRatio) + "\n";
         dbg += "  Web scale: " + Math.round(web.scale * 100) / 100;
 
         return dbg;

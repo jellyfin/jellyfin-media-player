@@ -241,8 +241,11 @@ int main(int argc, char *argv[])
     // tiles in chromium. This only happens on OSX since on other platforms
     // we can use the GPU to transfer tiles directly.
     // See more discussion in: https://github.com/plexinc/plex-media-player/issues/10
+    // The number of pixels here are REAL pixels, the code in webview.qml will compensate
+    // for a higher DevicePixelRatio
+    //
 #ifdef Q_OS_MAC
-    engine->rootContext()->setContextProperty("webMaxHeight", 720);
+    engine->rootContext()->setContextProperty("webMaxHeight", 1440);
 #else
     engine->rootContext()->setContextProperty("webMaxHeight", 0.0);
 #endif

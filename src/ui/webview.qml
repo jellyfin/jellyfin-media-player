@@ -18,7 +18,7 @@ KonvergoWindow
   function getMaxHeightArg()
   {
     if (webMaxHeight > 0)
-      return "?maxHeight=" + webMaxHeight
+      return "?maxHeight=" + (webMaxHeight / Screen.devicePixelRatio);
     return ""
   }
 
@@ -45,8 +45,8 @@ KonvergoWindow
     transformOrigin: Item.TopLeft
     scale:
     {
-      var verticalScale = ((height * 2) / Screen.devicePixelRatio) / 720;
-      var horizontalScale = ((width * 2) / Screen.devicePixelRatio) / 1280;
+      var verticalScale = height / 720;
+      var horizontalScale = height / 1280;
 
       var desiredScale = Math.min(verticalScale, horizontalScale);
       var maximumScale = webMaxHeight ? (webMaxHeight / 720) : 10;

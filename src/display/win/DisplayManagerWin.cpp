@@ -186,8 +186,6 @@ bool DisplayManagerWin::getDisplayInfo(int display, DISPLAY_DEVICEW& info)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerWin::getModeInfo(int display, int mode, DEVMODEW& info)
 {
-  DISPLAY_DEVICEW displayInfo;
-
   if (m_displayAdapters.contains(display))
   {
     ZeroMemory(&info, sizeof(info));

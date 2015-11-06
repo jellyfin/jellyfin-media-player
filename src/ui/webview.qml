@@ -45,24 +45,21 @@ KonvergoWindow
     transformOrigin: Item.TopLeft
     scale:
     {
-      var aheight = (width * 9) / 16;
+      var verticalScale = height / 720;
+      var horizontalScale = width / 1280;
 
-      // handle underscale, 720 is the minimum scale of the webclient.
-      if (aheight < 720)
-      {
-        return aheight / 720;
-      }
+      var desiredScale = Math.min(verticalScale, horizontalScale);
+      var maximumScale = webMaxHeight ? (webMaxHeight / 720) : 10;
 
-      if (webMaxHeight == 0)
+      if (desiredScale < 1) {
+        // Web renders at 1:1, so scale down
+        return desiredScale;
+      } else if (desiredScale < maximumScale) {
+        // Web renders at windows scale, no scaling
         return 1;
-
-      if (aheight > webMaxHeight)
-      {
-        return aheight / webMaxHeight;
-      }
-      else
-      {
-        return 1;
+      } else {
+        // Web should max out at maximum scaling
+        return desiredScale / maximumScale;
       }
     }
 

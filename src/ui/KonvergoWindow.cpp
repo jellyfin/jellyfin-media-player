@@ -374,6 +374,18 @@ void KonvergoWindow::handleHostCommand(QString hostCommand)
   {
     *(volatile int*)0=0;
   }
+  else if (hostCommand == "poweroff")
+  {
+    PowerComponent::Get().PowerOff();
+  }
+  else if (hostCommand == "suspend")
+  {
+    PowerComponent::Get().Suspend();
+  }
+  else if (hostCommand == "reboot")
+  {
+    PowerComponent::Get().Reboot();
+  }
   else
   {
     QLOG_WARN() << "unknown host command" << hostCommand;

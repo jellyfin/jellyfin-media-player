@@ -656,7 +656,7 @@ void PlayerComponent::setAudioConfiguration()
   resampleOpts += QString(":normalize=") + (normalize ? "yes" : "no");
 
   // Make downmix more similar to PHT.
-  resampleOpts += ":o=[surround_mix_level=1,lfe_mix_level=1]";
+  resampleOpts += ":o=[surround_mix_level=1]";
 
   mpv::qt::set_option_variant(m_mpv, "af-defaults", "lavrresample" + resampleOpts);
 

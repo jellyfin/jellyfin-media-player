@@ -31,10 +31,10 @@ function(dumpsyms target symfile)
     find_program(COMPRESS_BZ bzip2 HINTS c:/mingw /usr/local/bin)
     if(COMPRESS_XZ)
       set(COMPRESS_EXT xz)
-      set(COMPRESS ${COMPRESS_XZ})
+      file(TO_NATIVE_PATH ${COMPRESS_XZ} COMPRESS)
     elseif(COMPRESS_BZ)
       set(COMPRESS_EXT bz2)
-      set(COMPRESS ${COMPRESS_BZ})
+      file(TO_NATIVE_PATH ${COMPRESS_BZ} COMPRESS)
     endif(COMPRESS_XZ)
     
     set(TARGET_FILE $<TARGET_FILE:${target}>)
@@ -45,7 +45,7 @@ function(dumpsyms target symfile)
     add_custom_command(
       TARGET ${target} POST_BUILD
       BYPRODUCTS ${symfile}.${COMPRESS_EXT}
-      COMMAND "${DUMP_SYMS}" ${EXTRA_DUMPSYMS_ARGS} "${TARGET_FILE}" | "${COMPRESS}" > "${symfile}.${COMPRESS_EXT}"
+      COMMAND ${DUMP_SYMS} ${EXTRA_DUMPSYMS_ARGS} ${TARGET_FILE} | ${COMPRESS} > ${symfile}.${COMPRESS_EXT}
       COMMENT Generating symbols
     )
     install(FILES ${symfile}.${COMPRESS_EXT} DESTINATION ${CMAKE_BINARY_DIR})

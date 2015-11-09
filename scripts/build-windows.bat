@@ -34,6 +34,3 @@ ninja || exit /b
 ninja package || exit /b
 
 ..\scripts\WindowsSign.cmd PlexMediaPlayer-*.exe
-
-REM Dump symbols
-%DEPS%\lib\dump_syms.exe src\PlexMediaPlayer.pdb | c:\mingw\bin\xz > PlexMediaPlayer.symbols.xz || exit /b

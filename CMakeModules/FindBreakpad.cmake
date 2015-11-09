@@ -44,7 +44,7 @@ set(BREAKPAD_INCLUDE_DIRS ${BREAKPAD_INCLUDE_DIR})
 #
 find_library(
     BREAKPAD_LIBRARY
-    NAMES breakpad_client
+    NAMES breakpad_client breakpad
     HINTS
         ${PC_BREAKPAD_LIBDIR}
         ${PC_BREAKPAD_LIBRARY_DIRS} # Unused for BREAKPAD but anyway

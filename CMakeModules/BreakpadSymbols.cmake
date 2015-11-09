@@ -23,6 +23,7 @@ function(dumpsyms target symfile)
         COMMENT Generating ${MAIN_NAME}.dSYM
         BYPRODUCTS ${MAIN_NAME}.dSYM/Contents/Resources/DWARF/${target} ${MAIN_NAME}.dSYM/Contents/Info.plist
       )
+      set(EXTRA_DUMPSYMS_ARGS -g "${CMAKE_CURRENT_BINARY_DIR}/${MAIN_NAME}.dSYM")
     endif(APPLE)
 
     unset(COMPRESS)
@@ -44,7 +45,7 @@ function(dumpsyms target symfile)
     add_custom_command(
       TARGET ${target} POST_BUILD
       BYPRODUCTS ${symfile}.${COMPRESS_EXT}
-      COMMAND "${DUMP_SYMS}" "${TARGET_FILE}" | "${COMPRESS}" > "${symfile}.${COMPRESS_EXT}"
+      COMMAND "${DUMP_SYMS}" ${EXTRA_DUMPSYMS_ARGS} "${TARGET_FILE}" | "${COMPRESS}" > "${symfile}.${COMPRESS_EXT}"
       COMMENT Generating symbols
     )
     install(FILES ${symfile}.${COMPRESS_EXT} DESTINATION ${CMAKE_BINARY_DIR})

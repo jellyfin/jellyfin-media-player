@@ -48,6 +48,5 @@ function(dumpsyms target symfile)
       COMMAND ${DUMP_SYMS} ${EXTRA_DUMPSYMS_ARGS} ${TARGET_FILE} | ${COMPRESS} > ${symfile}.${COMPRESS_EXT}
       COMMENT Generating symbols
     )
-    install(FILES ${symfile}.${COMPRESS_EXT} DESTINATION ${CMAKE_BINARY_DIR})
   endif(GENERATE_SYMBOLS AND DUMP_SYMS)
 endfunction()

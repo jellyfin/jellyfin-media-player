@@ -27,6 +27,9 @@ foreach(COMP ${components})
 endforeach(COMP ${components})
 
 list(REMOVE_DUPLICATES QT5_CFLAGS)
+if(WIN32)
+  list(REMOVE_ITEM QT5_CFLAGS -fPIC)
+endif(WIN32)
 
 message(STATUS "Qt version: ${Qt5Core_VERSION_STRING}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${QT5_CFLAGS}")

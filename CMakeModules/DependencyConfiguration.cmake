@@ -3,19 +3,24 @@ option(DISABLE_BUNDLED_DEPS "Disable the bundled deps on certain platforms" OFF)
 
 if(APPLE AND NOT DISABLE_BUNDLED_DEPS)
   set(DEFAULT_ROOT "${CMAKE_SOURCE_DIR}/dependencies/konvergo-depends-darwin-x86_64-release")
-  set(DEPENDENCY_ROOT ${DEFAULT_ROOT} CACHE PATH "Path where the deps are located")
 endif(APPLE AND NOT DISABLE_BUNDLED_DEPS)
 
-if(DEPENDENCY_ROOT)
+if(WIN32)
+  set(DEFAULT_ROOT "${CMAKE_SOURCE_DIR}/dependencies/all-deps")
+endif(WIN32)
+
+set(DEPENDENCY_ROOT ${DEFAULT_ROOT} CACHE PATH "Path where the deps are located")
+
+if(IS_DIRECTORY ${DEPENDENCY_ROOT})
   message(STATUS "Going to use bundled deps in directory: ${DEPENDENCY_ROOT}")
   set(CMAKE_FIND_ROOT_PATH ${DEPENDENCY_ROOT})
   set(CMAKE_PREFIX_PATH ${DEPENDENCY_ROOT})
   set(ENV{PKG_CONFIG_LIBDIR} ${CMAKE_FIND_ROOT_PATH}/lib/pkgconfig)
   set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH TRUE)
   include_directories(${CMAKE_FIND_ROOT_PATH}/include)
-else(DEPENDENCY_ROOT)
+else(IS_DIRECTORY ${DEPENDENCY_ROOT})
   message(STATUS "Not using bundled deps")
-endif(DEPENDENCY_ROOT)
+endif(IS_DIRECTORY ${DEPENDENCY_ROOT})
 
 find_package(Threads)
 

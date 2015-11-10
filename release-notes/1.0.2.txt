@@ -1,0 +1,23 @@
+NEW:
+- Allow window sizes smaller than 720p
+- Audio drop/duplicate display sync mode.
+- Support for manual IP addresses of Plex Media Servers
+- Adding setting to disable minimize-on-defocus on Windows.
+- Added additions to keyboard mapping to better suite MCE remotes.
+- Updated web-client to version 2.4.36
+- Windows installer is now 64-bit
+- Embedded image support for Legacy NVIDIA systems
+
+FIXES:
+- Fix redrawing errors on high resolution displays
+- Fix crash in DisplayManager when connected to multiple displays on multiple GPUs
+- Fix 7.1 audio output on Linux
+- Windows installer should now work even if you have OpenSSL installed on your
+  system
+- Refresh rate switching fixes on Windows
+- Wrap long lines on the left part of the debug overly.
+- Fix infinite loop in InputSDL [Cory Parsons]
+- Properly remove AC3 transcoding filter when it is to be disabled.
+- Improve InputCEC to not block the main thread.
+- Make CEC handle properly longpress
+- Improve CEC ability to recover to connection loss.

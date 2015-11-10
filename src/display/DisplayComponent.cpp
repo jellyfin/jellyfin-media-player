@@ -24,6 +24,7 @@ DisplayComponent::DisplayComponent(QObject* parent) : ComponentBase(parent), m_i
   m_displayManager = NULL;
   m_lastVideoMode = -1;
   m_lastDisplay = -1;
+  m_applicationWindow = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +224,7 @@ bool DisplayComponent::restorePreviousVideoMode()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayComponent::getApplicationDisplay()
 {
-  QWindow* activeWindow = QGuiApplication::focusWindow();
+  QWindow* activeWindow = m_applicationWindow;
 
   int display = -1;
   if (activeWindow && m_displayManager)

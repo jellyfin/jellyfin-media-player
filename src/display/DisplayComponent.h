@@ -21,6 +21,8 @@ public:
   inline DisplayManager* getDisplayManager() { return m_displayManager; }
   int getApplicationDisplay();
 
+  void setApplicationWindow(QWindow* window) { m_applicationWindow = window; }
+
   // Switch to the best video mode for the given video framerate. Return true only if the actual
   // mode was switched. If a good match was found, but the current video mode didn't have to be
   // changed, return false. Return false on failure too.
@@ -38,6 +40,7 @@ private:
   int m_lastVideoMode;
   int m_lastDisplay;
   QTimer m_initTimer;
+  QWindow* m_applicationWindow;
 
 public Q_SLOTS:
   void  monitorChange();

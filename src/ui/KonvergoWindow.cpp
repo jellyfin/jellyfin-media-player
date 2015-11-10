@@ -149,6 +149,7 @@ void KonvergoWindow::closingWindow()
 KonvergoWindow::~KonvergoWindow()
 {
   removeEventFilter(m_eventFilter);
+  DisplayComponent::Get().setApplicationWindow(0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +205,7 @@ QRect KonvergoWindow::loadGeometryRect()
 void KonvergoWindow::enableVideoWindow()
 {
   PlayerComponent::Get().setWindow(this);
+  DisplayComponent::Get().setApplicationWindow(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

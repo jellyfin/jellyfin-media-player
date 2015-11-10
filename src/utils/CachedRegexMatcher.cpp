@@ -16,7 +16,6 @@ bool CachedRegexMatcher::addMatcher(const QString& pattern, const QVariant& resu
   }
 
   m_matcherList.push_back(qMakePair(matcher, result));
-  QLOG_DEBUG() << "Added pattern:" << matcher;
   return true;
 }
 

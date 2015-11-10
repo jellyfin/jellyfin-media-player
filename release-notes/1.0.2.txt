@@ -15,7 +15,7 @@ FIXES:
 - Windows installer should now work even if you have OpenSSL installed on your
   system
 - Refresh rate switching fixes on Windows
-- Wrap long lines on the left part of the debug overly.
+- Wrap long lines on the left part of the debug overlay.
 - Fix infinite loop in InputSDL [Cory Parsons]
 - Properly remove AC3 transcoding filter when it is to be disabled.
 - Improve InputCEC to not block the main thread.

@@ -63,9 +63,9 @@ void UpdaterComponent::dlComplete(QNetworkReply* reply)
     emit downloadError(reply->errorString());
 
     if (m_hasManifest)
-      m_manifest->m_reply->abort();
+      m_manifest->abort();
 
-    m_file->m_reply->abort();
+    m_file->abort();
   }
 }
 

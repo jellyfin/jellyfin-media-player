@@ -145,7 +145,8 @@
       },
       {
         "value": "refreshrate.auto_switch",
-        "default": false
+        "default": false,
+        "platforms_excluded": "oe_rpi"
       },
       {
         "value": "refreshrate.delay",

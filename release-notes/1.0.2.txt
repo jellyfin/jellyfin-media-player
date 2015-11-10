@@ -21,3 +21,7 @@ FIXES:
 - Improve InputCEC to not block the main thread.
 - Make CEC handle properly longpress
 - Improve CEC ability to recover to connection loss.
+
+KNOWN BUGS:
+- Refresh rate auto switching is disabled on the RPI for now due to reliability
+  problems

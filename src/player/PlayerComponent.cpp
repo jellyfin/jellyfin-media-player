@@ -247,8 +247,10 @@ bool PlayerComponent::switchDisplayFrameRate()
     return false;
   }
 
+#ifdef TARGET_RPI
   QLOG_DEBUG() << "Refresh-rate auto switching is disabled on the RPI in this version.";
   return false;
+#endif
 
   bool fs = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
 #if KONVERGO_OPENELEC

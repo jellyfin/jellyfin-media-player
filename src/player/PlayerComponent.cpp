@@ -693,17 +693,20 @@ void PlayerComponent::setAudioConfiguration()
 
   mpv::qt::set_option_variant(m_mpv, "audio-spdif", passthroughCodecs);
 
-  // if the user has indicated that we have a optical spdif connection
-  // we need to set this extra option that allows us to transcode
+  // set the channel layout
+  QVariant layout = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "channels");
+  mpv::qt::set_option_variant(m_mpv, "audio-channels", layout);
+
+  // if the user has indicated that PCM only works for stereo, and that
+  // the receiver supports AC3, set this extra option that allows us to transcode
   // 5.1 audio into a usable format, note that we only support AC3
   // here for now. We might need to add support for DTS transcoding
   // if we see user requests for it.
   //
   bool doAc3Transcoding = false;
-  if (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
+  if (layout == "2.0" &&
       SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool())
   {
-    QLOG_INFO() << "Enabling audio AC3 transcoding (if needed)";
     mpv::qt::command_variant(m_mpv, QStringList() << "af" << "add" << "@ac3:lavcac3enc");
     doAc3Transcoding = true;
   }
@@ -711,13 +714,6 @@ void PlayerComponent::setAudioConfiguration()
   {
     mpv::qt::command_variant(m_mpv, QStringList() << "af" << "del" << "@ac3");
   }
-
-
-  // set the channel layout
-  QVariant layout = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "channels");
-  if (doAc3Transcoding)
-    layout = "stereo"; // AC3 spdif always uses 2 physical channels
-  mpv::qt::set_option_variant(m_mpv, "audio-channels", layout);
 
   // Make a informational log message.
   QString audioConfig = QString(QString("Audio Config - device: %1, ") +

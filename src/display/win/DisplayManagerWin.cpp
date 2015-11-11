@@ -98,6 +98,8 @@ bool DisplayManagerWin::setDisplayMode(int display, int mode)
 
   if (getModeInfo(display, mode, modeInfo))
   {
+    QLOG_DEBUG() << "Switching to mode" << mode << "on display" << display << ":" << displays[display]->videoModes[mode]->getPrettyName();
+
     modeInfo.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY | DM_DISPLAYFLAGS;
 
     LONG rc = ChangeDisplaySettingsExW((LPCWSTR)m_displayAdapters[display].utf16(), &modeInfo, NULL,

@@ -12,7 +12,6 @@ class DisplayManagerWin : public DisplayManager
 private:
   bool getDisplayInfo(int display, DISPLAY_DEVICEW& info);
   bool getModeInfo(int display, int mode, DEVMODEW& info);
-  bool isModeMatching(DEVMODEW& modeInfo, DMVideoModePtr videoMode);
 
   QMap<int, QString> m_displayAdapters;
 

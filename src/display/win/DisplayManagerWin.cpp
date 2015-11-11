@@ -7,9 +7,39 @@
 //
 
 #include <QRect>
+#include <math.h>
 
 #include "QsLog.h"
 #include "DisplayManagerWin.h"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static DMVideoMode convertDevMode(const DEVMODEW& devmode)
+{
+  DMVideoMode mode = {};
+  mode.height = devmode.dmPelsHeight;
+  mode.width = devmode.dmPelsWidth;
+  mode.refreshRate = devmode.dmDisplayFrequency;
+  mode.bitsPerPixel = devmode.dmBitsPerPel;
+  mode.interlaced = !!(devmode.dmDisplayFlags & DM_INTERLACED);
+
+  // Windows just returns integer refresh rate so let's fudge it
+  if (mode.refreshRate == 59 ||
+      mode.refreshRate == 29 ||
+      mode.refreshRate == 23)
+      mode.refreshRate = (float)(mode.refreshRate + 1) / 1.001f;
+
+  return mode;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool modeEquals(const DMVideoMode& m1, const DMVideoMode& m2)
+{
+  return m1.height == m2.height &&
+         m1.width == m2.width &&
+         fabs(m1.refreshRate - m2.refreshRate) < 1e9 &&
+         m1.bitsPerPixel == m2.bitsPerPixel &&
+         m1.interlaced == m2.interlaced;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerWin::initialize()
@@ -38,22 +68,9 @@ bool DisplayManagerWin::initialize()
       {
         // add the videomode to the display
         DMVideoModePtr videoMode = DMVideoModePtr(new DMVideoMode);
+        *videoMode = convertDevMode(modeInfo);
         videoMode->id = modeId;
         display->videoModes[videoMode->id] = videoMode;
-
-        // setup mode information
-        videoMode->height = modeInfo.dmPelsHeight;
-        videoMode->width = modeInfo.dmPelsWidth;
-        videoMode->refreshRate = modeInfo.dmDisplayFrequency;
-        videoMode->bitsPerPixel = modeInfo.dmBitsPerPel;
-        videoMode->interlaced = (modeInfo.dmDisplayFlags & DM_INTERLACED) ? true : false;
-
-        // Windows just returns interger refresh rate so
-        // let's fudge it
-        if (videoMode->refreshRate == 59 ||
-            videoMode->refreshRate == 29 ||
-            videoMode->refreshRate == 23)
-           videoMode->refreshRate = (float)(videoMode->refreshRate + 1) / 1.001f;
 
         modeId++;
       }
@@ -119,10 +136,12 @@ int DisplayManagerWin::getCurrentDisplayMode(int display)
     return -1;
   }
 
+  DMVideoMode mode = convertDevMode(modeInfo);
+
   // check if current mode info matches on of our modes
   for (int modeId = 0; modeId < displays[display]->videoModes.size(); modeId++)
   {
-    if (isModeMatching(modeInfo, displays[display]->videoModes[modeId]))
+    if (modeEquals(mode, *displays[display]->videoModes[modeId]))
       return modeId;
   }
 
@@ -195,21 +214,4 @@ bool DisplayManagerWin::getModeInfo(int display, int mode, DEVMODEW& info)
   }
 
   return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-bool DisplayManagerWin::isModeMatching(DEVMODEW& modeInfo, DMVideoModePtr videoMode)
-{
-  if (videoMode->height != modeInfo.dmPelsHeight)
-    return false;
-  if (videoMode->width != modeInfo.dmPelsWidth)
-    return false;
-  if ((int)(videoMode->refreshRate + 0.5f) != modeInfo.dmDisplayFrequency)
-    return false;
-  if (videoMode->bitsPerPixel != modeInfo.dmBitsPerPel)
-    return false;
-  if (videoMode->interlaced != ((modeInfo.dmDisplayFlags & DM_INTERLACED) ? true : false))
-    return false;
-
-  return true;
 }

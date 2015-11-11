@@ -131,8 +131,7 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
       << m_displayManager->displays[currentDisplay]->videoModes[bestmode]->getPrettyName()
       << "on display" << currentDisplay;
 
-      m_displayManager->setDisplayMode(currentDisplay, bestmode);
-      return true;
+      return m_displayManager->setDisplayMode(currentDisplay, bestmode);
     }
     QLOG_INFO() << "No better video mode than the currently active one found.";
   }

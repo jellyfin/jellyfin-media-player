@@ -59,6 +59,20 @@
       {
         "value": "disablemouse",
         "default": false
+      },
+      {
+        "value": "logLevel",
+        "default": "debug",
+        "hidden": true,
+        "possible_values": [
+          [ "trace", "trace" ],
+          [ "debug", "debug" ],
+          [ "info", "info" ],
+          [ "warn", "warn" ],
+          [ "error", "error" ],
+          [ "fatal", "fatal" ],
+          [ "disable", "disable" ]
+        ]
       }
     ]
   },

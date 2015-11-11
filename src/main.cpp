@@ -83,6 +83,7 @@ static void elidePattern(QString& msg, const QString& substring, int chars)
 static void processLog(QString& msg)
 {
   elidePattern(msg, "X-Plex-Token=", 20);
+  elidePattern(msg, "X-Plex-Token%3D", 20);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -131,7 +131,7 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
       weights[candidate->id]->weight += MATCH_WEIGHT_REFRESH_RATE_MULTIPLE;
 
     // close refresh match (less than 1 hz diff to match all 23.xxx modes to 24p)
-    if (fabs(candidate->refreshRate - matchInfo.refreshRate) <= 1)
+    if (fabs(candidate->refreshRate - matchInfo.refreshRate) <= 0.5)
     {
       weights[candidate->id]->weight += MATCH_WEIGHT_REFRESH_RATE_CLOSE;
     }

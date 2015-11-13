@@ -298,3 +298,90 @@ QString DisplayComponent::debugInformation()
   return debugInfo;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool modeEqualsFuzzy(const DMVideoMode& m1, const DMVideoMode& m2, float tolerance)
+{
+  return m1.height == m2.height &&
+         m1.width == m2.width &&
+         fabs(m1.refreshRate - m2.refreshRate) < tolerance &&
+         m1.bitsPerPixel == m2.bitsPerPixel &&
+         m1.interlaced == m2.interlaced;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void DisplayComponent::switchCommand(QString command)
+{
+  if (!m_displayManager)
+    return;
+
+  int currentDisplay = getApplicationDisplay();
+  if (currentDisplay < 0)
+    return;
+  int id = m_displayManager->getCurrentDisplayMode(currentDisplay);
+  if (id < 0)
+    return;
+  DMVideoMode current_mode = *m_displayManager->displays[currentDisplay]->videoModes[id];
+  DMVideoMode mode = current_mode;
+
+  foreach (QString a, command.split(" "))
+  {
+    a = a.trimmed();
+    if (a == "p")
+    {
+      mode.interlaced = false;
+    }
+    else if (a == "i")
+    {
+      mode.interlaced = true;
+    }
+    else if (a.endsWith("hz"))
+    {
+      a = a.mid(0, a.size() - 2);
+      bool ok;
+      float rate = a.toFloat(&ok);
+      if (ok)
+        mode.refreshRate = rate;
+    }
+    else if (a.indexOf("x") >= 0)
+    {
+      QStringList sub = a.split("x");
+      if (sub.size() != 2)
+        continue;
+      bool ok;
+      int w = sub[0].toInt(&ok);
+      if (!ok)
+        continue;
+      int h = sub[1].toInt(&ok);
+      if (!ok)
+        continue;
+      mode.width = w;
+      mode.height = h;
+    }
+  }
+
+  QLOG_INFO() << "Current mode:" << current_mode.getPrettyName();
+  QLOG_INFO() << "Mode requestd by command:" << mode.getPrettyName();
+
+  foreach (auto cur, m_displayManager->displays[currentDisplay]->videoModes)
+  {
+    // Require matching one digit before the decimal point.
+    // This doesn't work if there are several modes that would match. To do
+    // this without requiring the user to give the refresh rate with full
+    // precision, we'd have to find a closest match instead.
+    if (modeEqualsFuzzy(*cur, mode, 0.1))
+    {
+      QLOG_INFO() << "Found mode to switch to:" << cur->getPrettyName();
+      if (m_displayManager->setDisplayMode(currentDisplay, cur->id))
+      {
+        m_lastDisplay = m_lastVideoMode = -1;
+      }
+      else
+      {
+        QLOG_INFO() << "Switching failed.";
+      }
+      return;
+    }
+  }
+
+  QLOG_INFO() << "Requested mode not found.";
+}

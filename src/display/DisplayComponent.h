@@ -31,6 +31,15 @@ public:
   // Switch to best overall video mode. This will also switch the resolution.
   bool switchToBestOverallVideoMode(int display);
 
+  // The syntax is as follows: the command string consists of multiple arguments separated
+  // by spaces. Each argument can be one of the following:
+  //    <N>hz (e.g.: "24hz"): change the refresh rate
+  //    <W>x<H> (e.g.: "1280x720"): change the resolution
+  //    i: change to interlaced
+  //    p: change to progressive ("not interlaced")
+  // Example: "123x456 p 45hz"
+  void switchCommand(QString command);
+
   double currentRefreshRate();
 
   QString debugInformation();

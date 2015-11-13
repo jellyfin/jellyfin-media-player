@@ -348,6 +348,10 @@ void KonvergoWindow::handleHostCommand(QString hostCommand)
   {
     PlayerComponent::Get().userCommand(arguments);
   }
+  else if (hostCommand == "switch")
+  {
+    DisplayComponent::Get().switchCommand(arguments);
+  }
   else if (hostCommand == "toggleDebug")
   {
     if (property("showDebugLayer").toBool())

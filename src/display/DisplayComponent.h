@@ -19,7 +19,7 @@ public:
   virtual bool componentInitialize();
 
   inline DisplayManager* getDisplayManager() { return m_displayManager; }
-  int getApplicationDisplay();
+  int getApplicationDisplay(bool silent = false);
 
   void setApplicationWindow(QWindow* window) { m_applicationWindow = window; }
 
@@ -33,8 +33,12 @@ public:
 
   double currentRefreshRate();
 
+  QString debugInformation();
+
 private:
   DisplayComponent(QObject *parent = 0);
+  QString displayName(int display);
+  QString modePretty(int display, int mode);
 
   DisplayManager  *m_displayManager;
   int m_lastVideoMode;

@@ -317,8 +317,10 @@ void KonvergoWindow::onScreenCountChanged(int newCount)
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateDebugInfo()
 {
-  if (m_debugInfo.size() == 0)
-    m_debugInfo = SystemComponent::Get().debugInformation();
+  if (m_systemDebugInfo.size() == 0)
+    m_systemDebugInfo = SystemComponent::Get().debugInformation();
+  m_debugInfo = m_systemDebugInfo;
+  m_debugInfo += DisplayComponent::Get().debugInformation();
   m_videoInfo = PlayerComponent::Get().videoInformation();
   emit debugInfoChanged();
 }

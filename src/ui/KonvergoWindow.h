@@ -73,7 +73,7 @@ private:
   bool m_debugLayer;
   MouseEventFilter* m_eventFilter;
   QTimer* m_infoTimer;
-  QString m_debugInfo, m_videoInfo;
+  QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
 };
 
 #endif // KONVERGOWINDOW_H

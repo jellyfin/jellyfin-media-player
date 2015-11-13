@@ -221,25 +221,80 @@ bool DisplayComponent::restorePreviousVideoMode()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-int DisplayComponent::getApplicationDisplay()
+int DisplayComponent::getApplicationDisplay(bool silent)
 {
   QWindow* activeWindow = m_applicationWindow;
 
   int display = -1;
   if (activeWindow && m_displayManager)
   {
-    QLOG_DEBUG() << "Looking for a display at:" << activeWindow->geometry()
-                 << "(center:" << activeWindow->geometry().center() << ")";
+    if (!silent)
+    {
+      QLOG_DEBUG() << "Looking for a display at:" << activeWindow->geometry()
+                   << "(center:" << activeWindow->geometry().center() << ")";
+    }
     display = m_displayManager->getDisplayFromPoint(activeWindow->geometry().center());
   }
 
-  if (display < 0)
+  if (!silent)
   {
-    QLOG_WARN() << "Unable to locate current display.";
-  }
-  else
-  {
-    QLOG_DEBUG() << "Display found:" << display;
+    QLOG_DEBUG() << "Display index:" << display;
   }
   return display;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString DisplayComponent::displayName(int display)
+{
+  if (display < 0)
+    return "(not found)";
+  QString id = QString("#%0 ").arg(display);
+  if (m_displayManager->isValidDisplay(display))
+    return id + m_displayManager->displays[display]->name;
+  else
+    return id + "(not valid)";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString DisplayComponent::modePretty(int display, int mode)
+{
+  if (mode < 0)
+    return "(not found)";
+  QString id = QString("#%0 ").arg(mode);
+  if (m_displayManager->isValidDisplayMode(display, mode))
+    return id + m_displayManager->displays[display]->videoModes[mode]->getPrettyName();
+  else
+    return id + "(not valid)";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString DisplayComponent::debugInformation()
+{
+  QString debugInfo;
+  QTextStream stream(&debugInfo);
+  stream << "Display" << endl;
+
+  if (!m_displayManager)
+  {
+    stream << "  (no DisplayManager initialized)" << endl;
+  }
+  else
+  {
+    int display = getApplicationDisplay(true);
+    int mode = display < 0 ? -1 : m_displayManager->getCurrentDisplayMode(display);
+
+    stream << "  Current screen: " << displayName(display) << endl;
+    if (display >= 0)
+      stream << "  Current mode: " << modePretty(display, mode) << endl;
+    if (m_displayManager->isValidDisplayMode(m_lastDisplay, m_lastVideoMode))
+    {
+      stream << "  Switch back on screen: " << displayName(m_lastDisplay) << endl;
+      stream << "  Switch back to mode: " << modePretty(m_lastDisplay, m_lastVideoMode) << endl;
+    }
+  }
+
+  stream << endl;
+  stream << flush;
+  return debugInfo;
+}
+

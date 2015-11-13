@@ -283,7 +283,7 @@
       },
       {
         "value": "port1",
-        "default": 32400,
+        "default": "32400",
         "input_type": "port"
       },
       {
@@ -293,7 +293,7 @@
       },
       {
         "value": "port2",
-        "default": 32400,
+        "default": "32400",
         "input_type": "port"
       }
     ]

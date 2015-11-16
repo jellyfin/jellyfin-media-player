@@ -360,7 +360,7 @@ void DisplayComponent::switchCommand(QString command)
   }
 
   QLOG_INFO() << "Current mode:" << current_mode.getPrettyName();
-  QLOG_INFO() << "Mode requestd by command:" << mode.getPrettyName();
+  QLOG_INFO() << "Mode requested by command:" << mode.getPrettyName();
 
   foreach (auto cur, m_displayManager->displays[currentDisplay]->videoModes)
   {

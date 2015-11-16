@@ -761,7 +761,7 @@ void PlayerComponent::updateVideoSettings()
 
 #ifndef TARGET_RPI
   double display_fps = DisplayComponent::Get().currentRefreshRate();
-  mpv::qt::set_option_variant(m_mpv, "display-fps", display_fps);
+  mpv::qt::set_property_variant(m_mpv, "display-fps", display_fps);
 #endif
 
   setAudioDelay(m_playbackAudioDelay);

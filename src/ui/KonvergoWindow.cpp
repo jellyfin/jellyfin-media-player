@@ -10,6 +10,7 @@
 #include "settings/SettingsSection.h"
 #include "system/SystemComponent.h"
 #include "player/PlayerComponent.h"
+#include "player/PlayerQuickItem.h"
 #include "display/DisplayComponent.h"
 #include "QsLog.h"
 #include "power/PowerComponent.h"
@@ -321,6 +322,9 @@ void KonvergoWindow::updateDebugInfo()
     m_systemDebugInfo = SystemComponent::Get().debugInformation();
   m_debugInfo = m_systemDebugInfo;
   m_debugInfo += DisplayComponent::Get().debugInformation();
+  PlayerQuickItem* video = findChild<PlayerQuickItem*>("video");
+  if (video)
+    m_debugInfo += video->debugInfo();
   m_videoInfo = PlayerComponent::Get().videoInformation();
   emit debugInfoChanged();
 }

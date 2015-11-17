@@ -36,6 +36,7 @@ public:
     PlayerQuickItem(QQuickItem* parent = 0);
     virtual ~PlayerQuickItem();
     void initMpv(PlayerComponent* player);
+    QString debugInfo() { return m_debugInfo; }
 
 signals:
     void onUpdate();
@@ -52,6 +53,7 @@ private:
     mpv::qt::Handle m_mpv;
     mpv_opengl_cb_context* m_mpvGL;
     PlayerRenderer* m_renderer;
+    QString m_debugInfo;
 };
 
 #endif

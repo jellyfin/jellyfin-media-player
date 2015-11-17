@@ -211,6 +211,20 @@ void PlayerQuickItem::onSynchronize()
     window()->setPersistentOpenGLContext(true);
     window()->setPersistentSceneGraph(true);
     window()->setClearBeforeRendering(false);
+    m_debugInfo = "";
+    QOpenGLContext* glctx = QOpenGLContext::currentContext();
+    if (glctx && glctx->isValid())
+    {
+      m_debugInfo += "\nOpenGL:\n";
+      int syms[4] = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_SHADING_LANGUAGE_VERSION};
+      for (auto sym : syms)
+      {
+        auto s = (char *)glctx->functions()->glGetString(sym);
+        if (s)
+          m_debugInfo += QString("  ") + QString::fromUtf8(s) + "\n";
+      }
+      m_debugInfo += "\n";
+    }
   }
   if (m_renderer)
     m_renderer->m_size = window()->size() * window()->devicePixelRatio();

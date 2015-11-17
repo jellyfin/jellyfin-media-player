@@ -42,6 +42,8 @@ public:
     raise();
   }
 
+  Q_SLOT void toggleDebug();
+
   void reloadWeb()
   {
     emit reloadWebClient();
@@ -78,8 +80,6 @@ private:
   MouseEventFilter* m_eventFilter;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
-
-  void toggleDebug();
 };
 
 #endif // KONVERGOWINDOW_H

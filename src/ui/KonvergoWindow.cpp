@@ -81,6 +81,10 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
   connect(m_infoTimer, &QTimer::timeout, this, &KonvergoWindow::updateDebugInfo);
 
+  InputComponent::Get().registerHostCommand("close", this, "close");
+  InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
+  InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
+
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
   // and during playback the Konvergo window is partially transparent. The OSD
@@ -112,10 +116,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
-
-  // make sure that we handle some of the host commands that can be emitted
-  connect(&InputComponent::Get(), &InputComponent::receivedHostCommand,
-          this, &KonvergoWindow::handleHostCommand);
 
   connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
 
@@ -326,74 +326,17 @@ void KonvergoWindow::updateDebugInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::handleHostCommand(QString hostCommand)
+void KonvergoWindow::toggleDebug()
 {
-  QLOG_DEBUG() << "Got command:" << hostCommand;
-  QString arguments = "";
-  int arguments_start = hostCommand.indexOf(":");
-  if (arguments_start > 0)
+  if (property("showDebugLayer").toBool())
   {
-    arguments = hostCommand.mid(arguments_start + 1);
-    hostCommand = hostCommand.mid(0, arguments_start);
-  }
-  if (hostCommand == "fullscreen")
-  {
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", !SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool());
-  }
-  else if (hostCommand == "close")
-  {
-    close();
-  }
-  else if (hostCommand == "player")
-  {
-    PlayerComponent::Get().userCommand(arguments);
-  }
-  else if (hostCommand == "switch")
-  {
-    DisplayComponent::Get().switchCommand(arguments);
-  }
-  else if (hostCommand == "toggleDebug")
-  {
-    if (property("showDebugLayer").toBool())
-    {
-      m_infoTimer->stop();
-      setProperty("showDebugLayer", false);
-    }
-    else
-    {
-      m_infoTimer->start();
-      updateDebugInfo();
-      setProperty("showDebugLayer", true);
-    }
-  }
-  else if (hostCommand == "recreateRpiUi")
-  {
-    DisplayManager* display_manager = DisplayComponent::Get().getDisplayManager();
-    if (display_manager)
-      display_manager->resetRendering();
-  }
-  else if (hostCommand == "reload")
-  {
-    emit reloadWebClient();
-  }
-  else if (hostCommand == "crash!")
-  {
-    *(volatile int*)0=0;
-  }
-  else if (hostCommand == "poweroff")
-  {
-    PowerComponent::Get().PowerOff();
-  }
-  else if (hostCommand == "suspend")
-  {
-    PowerComponent::Get().Suspend();
-  }
-  else if (hostCommand == "reboot")
-  {
-    PowerComponent::Get().Reboot();
+    m_infoTimer->stop();
+    setProperty("showDebugLayer", false);
   }
   else
   {
-    QLOG_WARN() << "unknown host command" << hostCommand;
+    m_infoTimer->start();
+    updateDebugInfo();
+    setProperty("showDebugLayer", true);
   }
 }

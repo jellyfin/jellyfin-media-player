@@ -17,6 +17,7 @@ public:
   virtual const char* componentName() { return "display"; }
   virtual bool componentExport() { return true; }
   virtual bool componentInitialize();
+  virtual void componentPostInitialize();
 
   inline DisplayManager* getDisplayManager() { return m_displayManager; }
   int getApplicationDisplay(bool silent = false);

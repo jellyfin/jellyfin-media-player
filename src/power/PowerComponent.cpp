@@ -4,6 +4,7 @@
 
 #include "PowerComponent.h"
 #include "player/PlayerComponent.h"
+#include "input/InputComponent.h"
 
 #ifdef Q_OS_MAC
 #include "PowerComponentMac.h"
@@ -94,4 +95,10 @@ void PowerComponent::playbackEnded()
   redecideScreeensaverState();
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+void PowerComponent::componentPostInitialize()
+{
+  InputComponent::Get().registerHostCommand("poweroff", this, "PowerOff");
+  InputComponent::Get().registerHostCommand("reboot", this, "Reboot");
+  InputComponent::Get().registerHostCommand("suspend", this, "Suspend");
+}

@@ -88,8 +88,40 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
   {
     if (action.startsWith("host:"))
     {
-      QLOG_DEBUG() << "Handling host command:" << action.mid(5);
-      emit receivedHostCommand(action.mid(5));
+      QStringList argList = action.mid(5).split(" ");
+      QString hostCommand = argList.value(0);
+      QString hostArguments;
+
+      if (argList.size() > 1)
+      {
+        argList.pop_front();
+        hostArguments = argList.join(" ");
+      }
+
+      QLOG_DEBUG() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
+      if (m_hostCommands.contains(hostCommand))
+      {
+        ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
+        if (recvSlot)
+        {
+          QString slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->slot));
+          QLOG_DEBUG() << "Looking for method:" << slotWithArgs;
+          if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithArgs.toLatin1().data()) != -1)
+          {
+            QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
+                                      Qt::AutoConnection, Q_ARG(const QString&, hostArguments));
+          }
+          else
+          {
+            QLOG_DEBUG() << "Method has no arguments:" << recvSlot->slot.data();
+            QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(), Qt::AutoConnection);
+          }
+        }
+      }
+      else
+      {
+        QLOG_WARN() << "No such host command:" << hostCommand;
+      }
     }
     else
     {
@@ -101,4 +133,16 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
   {
     QLOG_WARN() << "Could not map:" << source << keycode << "to any useful action";
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::registerHostCommand(const QString& command, QObject* receiver, const char* slot)
+{
+  ReceiverSlot* recvSlot = new ReceiverSlot;
+  recvSlot->receiver = receiver;
+  recvSlot->slot = QMetaObject::normalizedSignature(slot);
+
+  QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to" << qPrintable(QString(receiver->metaObject()->className()) + "::" + recvSlot->slot);
+
+  m_hostCommands.insert(command, recvSlot);
 }

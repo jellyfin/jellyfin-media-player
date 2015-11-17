@@ -18,12 +18,16 @@ public:
   virtual bool componentInitialize() = 0;
   virtual const char* componentName() = 0;
   virtual bool componentExport() = 0;
+
+  // executed after ALL components are initialized
+  virtual void componentPostInitialize() { }
 };
 
 class ComponentManager : public QObject
 {
   Q_OBJECT
   DEFINE_SINGLETON(ComponentManager);
+
 public:
   void initialize();
   inline QQmlPropertyMap &getQmlPropertyMap() { return m_qmlProperyMap; }

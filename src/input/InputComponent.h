@@ -66,6 +66,12 @@ signals:
 #define INPUT_KEY_DOWN_LONG    "KEY_DOWN_LONG"
 
 
+struct ReceiverSlot
+{
+  QObject* receiver;
+  QByteArray slot;
+};
+
 class InputComponent : public ComponentBase
 {
   Q_OBJECT
@@ -76,9 +82,10 @@ public:
   virtual bool componentExport() { return true; }
   virtual bool componentInitialize();
 
+  void registerHostCommand(const QString& command, QObject* receiver, const char* slot);
+
 signals:
   void receivedAction(const QString& action);
-  void receivedHostCommand(const QString& hostCommand);
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, float amount = 1.0);
@@ -87,6 +94,7 @@ private:
   InputComponent(QObject *parent = 0);
   bool addInput(InputBase* input);
 
+  QHash<QString, ReceiverSlot*> m_hostCommands;
   QList<InputBase*> m_inputs;
   InputMapping* m_mappings;
 };

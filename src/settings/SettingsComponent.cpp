@@ -11,10 +11,23 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QList>
+#include "input/InputComponent.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 SettingsComponent::SettingsComponent(QObject *parent) : ComponentBase(parent), m_settingsVersion(-1)
 {
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::componentPostInitalize()
+{
+  InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullScreen");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::toggleFullScreen(const QString& args)
+{
+  setValue(SETTINGS_SECTION_MAIN, "fullscreen", !value(SETTINGS_SECTION_MAIN, "fullscreen").toBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,7 @@ public:
   virtual bool componentExport() { return true; }
   virtual const char* componentName() { return "system"; }
   virtual bool componentInitialize() { return true; }
+  virtual void componentPostInitialize();
 
   Q_INVOKABLE QVariantMap systemInformation() const;
   Q_INVOKABLE void exit();
@@ -68,9 +69,10 @@ public:
 
   inline bool isOpenELEC() { return m_platformType == platformTypeOpenELEC; }
 
+  Q_INVOKABLE void crashApp();
+
 private:
   SystemComponent(QObject* parent = 0);
-
   static QMap<QString, QString> networkInterfaces();
 
   QTimer* m_mouseOutTimer;
@@ -78,6 +80,7 @@ private:
   PlatformArch m_platformArch;
   QString m_overridePlatform;
   bool m_doLogMessages;
+
 };
 
 #endif

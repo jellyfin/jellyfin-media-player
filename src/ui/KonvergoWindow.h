@@ -42,6 +42,11 @@ public:
     raise();
   }
 
+  void reloadWeb()
+  {
+    emit reloadWebClient();
+  }
+
 Q_SIGNALS:
   void fullScreenSwitched();
   void enableVideoWindowSignal();
@@ -59,7 +64,6 @@ private slots:
   void updateMainSectionSettings(const QVariantMap& values);
   void updateFullscreenState();
   void onScreenCountChanged(int newCount);
-  void handleHostCommand(QString hostCommand);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
   void playerPlaybackStarting();
@@ -74,6 +78,8 @@ private:
   MouseEventFilter* m_eventFilter;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
+
+  void toggleDebug();
 };
 
 #endif // KONVERGOWINDOW_H

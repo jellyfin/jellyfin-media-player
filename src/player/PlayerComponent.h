@@ -25,6 +25,7 @@ public:
   virtual const char* componentName() { return "player"; }
   virtual bool componentExport() { return true; }
   virtual bool componentInitialize();
+  virtual void componentPostInitialize();
   
   explicit PlayerComponent(QObject* parent = 0);
   virtual ~PlayerComponent();

@@ -17,6 +17,7 @@
 #endif
 
 #include "dummy/DisplayManagerDummy.h"
+#include "input/InputComponent.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DisplayComponent::DisplayComponent(QObject* parent) : ComponentBase(parent), m_initTimer(this)
@@ -384,4 +385,13 @@ void DisplayComponent::switchCommand(QString command)
   }
 
   QLOG_INFO() << "Requested mode not found.";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void DisplayComponent::componentPostInitialize()
+{
+  InputComponent::Get().registerHostCommand("switch", this, "switchCommand");
+
+  if (m_displayManager)
+    InputComponent::Get().registerHostCommand("recreateRpiUI", m_displayManager, "resetRendering");
 }

@@ -11,6 +11,7 @@
 #include "settings/SettingsSection.h"
 
 #include "PlayerQuickItem.h"
+#include "input/InputComponent.h"
 
 #include "QsLog.h"
 
@@ -41,6 +42,12 @@ PlayerComponent::PlayerComponent(QObject* parent)
 
   m_reloadAudioTimer.setSingleShot(true);
   connect(&m_reloadAudioTimer, &QTimer::timeout, this, &PlayerComponent::onReloadAudio);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::componentPostInitialize()
+{
+  InputComponent::Get().registerHostCommand("player", this, "userCommand");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -861,3 +868,4 @@ QString PlayerComponent::videoInformation() const
   info << flush;
   return infoStr;
 }
+

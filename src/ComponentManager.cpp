@@ -55,8 +55,8 @@ void ComponentManager::initialize()
   // might have some settings
   //
   registerComponent(&SettingsComponent::Get());
-  registerComponent(&SystemComponent::Get());
   registerComponent(&InputComponent::Get());
+  registerComponent(&SystemComponent::Get());
   registerComponent(&DisplayComponent::Get());
   registerComponent(&UpdaterComponent::Get());
   registerComponent(&RemoteComponent::Get());
@@ -66,6 +66,9 @@ void ComponentManager::initialize()
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());
 #endif
+
+  foreach(ComponentBase* component, m_components.values())
+    component->componentPostInitialize();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

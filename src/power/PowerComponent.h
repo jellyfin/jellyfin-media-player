@@ -20,6 +20,7 @@ public:
   virtual bool componentInitialize();
   virtual bool componentExport() { return true; }
   virtual const char* componentName() { return "power"; }
+  virtual void componentPostInitialize();
 
   void setFullscreenState(bool fullscreen);
 

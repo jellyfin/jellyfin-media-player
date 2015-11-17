@@ -4,6 +4,7 @@
 #include <QtNetwork/qnetworkinterface.h>
 #include <QGuiApplication>
 #include <QDesktopServices>
+#include <input/InputComponent.h>
 
 #include "SystemComponent.h"
 #include "Version.h"
@@ -63,6 +64,18 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 #elif defined(Q_PROCESSOR_X86_64)
   m_platformArch = platformArchX86_64;
 #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::crashApp()
+{
+  *(volatile int*)0=0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::componentPostInitialize()
+{
+  InputComponent::Get().registerHostCommand("crash!", this, "crashApp");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

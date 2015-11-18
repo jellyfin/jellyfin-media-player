@@ -838,7 +838,7 @@ QString PlayerComponent::videoInformation() const
   QString audio_format = MPV_PROPERTY("audio-out-params/format");
   if (audio_format.startsWith("spdif-"))
   {
-    info << "Channels (output): passthrough (" << audio_format << ")";
+    info << "Channels (output): passthrough (" << audio_format << ")" << endl;
   }
   else
   {

@@ -18,7 +18,7 @@ class SystemComponent : public ComponentBase
 public:
   virtual bool componentExport() { return true; }
   virtual const char* componentName() { return "system"; }
-  virtual bool componentInitialize() { return true; }
+  virtual bool componentInitialize();
   virtual void componentPostInitialize();
 
   Q_INVOKABLE QVariantMap systemInformation() const;
@@ -41,6 +41,8 @@ public:
   Q_INVOKABLE void userInformation(const QVariantMap& userModel);
 
   Q_INVOKABLE void openExternalUrl(const QString& url);
+
+  Q_INVOKABLE void runUserScript(const QString& script);
 
   // possible os types type enum
   enum PlatformType

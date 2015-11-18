@@ -4,8 +4,9 @@
 #include <QtNetwork/qnetworkinterface.h>
 #include <QGuiApplication>
 #include <QDesktopServices>
-#include <input/InputComponent.h>
+#include <QDir>
 
+#include "input/InputComponent.h"
 #include "SystemComponent.h"
 #include "Version.h"
 #include "QsLog.h"
@@ -67,6 +68,13 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+bool SystemComponent::componentInitialize()
+{
+  QDir().mkpath(Paths::dataDir("scripts"));
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::crashApp()
 {
   *(volatile int*)0=0;
@@ -76,6 +84,7 @@ void SystemComponent::crashApp()
 void SystemComponent::componentPostInitialize()
 {
   InputComponent::Get().registerHostCommand("crash!", this, "crashApp");
+  InputComponent::Get().registerHostCommand("script", this, "runUserScript");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,3 +266,38 @@ void SystemComponent::openExternalUrl(const QString& url)
 {
   QDesktopServices::openUrl(QUrl(url));
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::runUserScript(const QString& script)
+{
+  // We take the path the user supplied and run it through fileInfo and
+  // look for the fileName() part, this is to avoid people sharing keymaps
+  // that tries to execute things like ../../ etc. Note that this function
+  // is still not safe, people can do nasty things with it, so users needs
+  // to be careful with their keymaps.
+  //
+  QFileInfo fi(script);
+  QString scriptPath = Paths::dataDir("scripts/" + fi.fileName());
+
+  QFile scriptFile(scriptPath);
+  if (scriptFile.exists())
+  {
+    if (!QFileInfo(scriptFile).isExecutable())
+    {
+      QLOG_WARN() << "Script:" << script << "is not executable";
+      return;
+    }
+
+    QLOG_INFO() << "Running script:" << scriptPath;
+
+    if (QProcess::startDetached(scriptPath, QStringList()))
+      QLOG_DEBUG() << "Script started successfully";
+    else
+      QLOG_WARN() << "Error running script:" << scriptPath;
+  }
+  else
+  {
+    QLOG_WARN() << "Could not find script:" << scriptPath;
+  }
+}
+

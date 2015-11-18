@@ -150,6 +150,7 @@ private:
   // was actually changed.
   bool switchDisplayFrameRate();
   void checkCurrentAudioDevice(const QSet<QString>& old_devs, const QSet<QString>& new_devs);
+  void appendAudioFormat(QTextStream& info, const QString& property) const;
 
   mpv::qt::Handle m_mpv;
 

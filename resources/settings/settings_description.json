@@ -30,7 +30,7 @@
       },
       {
         "value": "minimizeOnDefocus",
-        "default": true,
+        "default": false,
         "platforms": [ "windows" ],
         "hidden": true
       },

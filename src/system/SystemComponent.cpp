@@ -240,7 +240,8 @@ QStringList SystemComponent::networkAddresses() const
   QStringList list;
   foreach(const QHostAddress& address, QNetworkInterface::allAddresses())
   {
-    if (! address.isLoopback() && (address.protocol() == QAbstractSocket::IPv4Protocol))
+    if (! address.isLoopback() && (address.protocol() == QAbstractSocket::IPv4Protocol ||
+                                   address.protocol() == QAbstractSocket::IPv6Protocol))
       list << address.toString();
   }
 

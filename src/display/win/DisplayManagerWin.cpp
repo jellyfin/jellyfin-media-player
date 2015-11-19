@@ -176,20 +176,26 @@ int DisplayManagerWin::getDisplayFromPoint(int x, int y)
 {
   foreach (int displayId, displays.keys())
   {
-    int currentMode = getCurrentDisplayMode(displayId);
-    if (currentMode >= 0)
-    {
-      DEVMODEW modeInfo;
-      if (getModeInfo(displayId, currentMode, modeInfo))
-      {
-        QRect displayRect(modeInfo.dmPosition.x, modeInfo.dmPosition.y, modeInfo.dmPelsWidth,
-                          modeInfo.dmPelsHeight);
-        QLOG_DEBUG() << "Looking at display" << displayId << "mode" << currentMode
-                     << "at" << displayRect;
+    QString dispName = m_displayAdapters[displayId];
 
-        if (displayRect.contains(x, y))
-          return displayId;
-      }
+    DEVMODEW modeInfo = {};
+    modeInfo.dmSize = sizeof(modeInfo);
+
+    QLOG_DEBUG() << "Looking at display" << displayId << dispName;
+
+    if (!EnumDisplaySettingsW((LPCWSTR)dispName.utf16(), ENUM_CURRENT_SETTINGS,
+                              &modeInfo))
+    {
+      QLOG_ERROR() << "Failed to retrieve current mode.";
+    }
+    else
+    {
+      QRect displayRect(modeInfo.dmPosition.x, modeInfo.dmPosition.y, modeInfo.dmPelsWidth,
+                        modeInfo.dmPelsHeight);
+      QLOG_DEBUG() << "Position on virtual desktop:" << displayRect;
+
+      if (displayRect.contains(x, y))
+        return displayId;
     }
   }
 

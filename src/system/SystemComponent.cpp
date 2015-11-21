@@ -242,7 +242,11 @@ QStringList SystemComponent::networkAddresses() const
   {
     if (! address.isLoopback() && (address.protocol() == QAbstractSocket::IPv4Protocol ||
                                    address.protocol() == QAbstractSocket::IPv6Protocol))
-      list << address.toString();
+    {
+      auto s = address.toString();
+      if (!s.startsWith("fe80::"))
+        list << s;
+    }
   }
 
   return list;

@@ -44,7 +44,12 @@ public:
 
   Q_SLOT void toggleDebug();
 
-  void reloadWeb()
+  Q_SLOT void toggleFullscreen()
+  {
+    setFullScreen(!isFullScreen());
+  }
+
+  Q_SLOT void reloadWeb()
   {
     emit reloadWebClient();
   }

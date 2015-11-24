@@ -862,6 +862,7 @@ QString PlayerComponent::videoInformation() const
   info << "Performance: " << endl;
   info << "A/V: " << MPV_PROPERTY("avsync") << endl;
   info << "Dropped frames: " << MPV_PROPERTY("vo-drop-frame-count") << endl;
+  info << "Vsync ratio: " << MPV_PROPERTY("vsync-ratio") << endl;
   info << endl;
   info << "Cache:" << endl;
   info << "Seconds: " << MPV_PROPERTY("demuxer-cache-duration") << endl;

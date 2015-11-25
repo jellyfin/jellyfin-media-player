@@ -1,4 +1,4 @@
-set(app "@EXE@")
+set(app "${CMAKE_INSTALL_PREFIX}/@EXE@")
 
 list(APPEND BINS "Contents/Resources/updater")
 list(APPEND BINS "Contents/Resources/@HELPER_NAME@")
@@ -10,9 +10,18 @@ foreach(BIN ${BINS})
   list(APPEND args "-executable=${app}/${BIN}")
 endforeach(BIN ${BINS})
 
+set(ENV{DYLD_LIBRARY_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
+set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
+
+set(QTCONFCONTENT "[Paths]
+Prefix=@QTROOT@
+")
+
+file(WRITE @QTROOT@/bin/qt.conf ${QTCONFCONTENT})
+
 execute_process(
   COMMAND @QTROOT@/bin/macdeployqt ${args}
-  WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+  WORKING_DIRECTORY @QTROOT@/bin
 )
 
 #set(ENTITLEMENTS --entitlements @SOURCE_ROOT@/bundle/osx/Konvergo.entitlements)

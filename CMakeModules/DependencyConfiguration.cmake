@@ -1,8 +1,12 @@
 find_package(PkgConfig)
 option(DISABLE_BUNDLED_DEPS "Disable the bundled deps on certain platforms" OFF)
 
-if(APPLE AND NOT DISABLE_BUNDLED_DEPS)
-  set(DEFAULT_ROOT "${CMAKE_SOURCE_DIR}/dependencies/konvergo-depends-darwin-x86_64-release")
+include(FetchDependencies)
+
+if(APPLE AND NOT DISABLE_BUNDLED_DEPS)  
+  download_deps("plexmediaplayer-dependencies" dir)
+  message("dependencies are: ${dir}")
+  set(DEFAULT_ROOT ${dir})
 endif(APPLE AND NOT DISABLE_BUNDLED_DEPS)
 
 if(WIN32)

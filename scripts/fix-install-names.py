@@ -9,6 +9,9 @@ import subprocess
 import sys
 import shutil
 
+exts = (".dylib", ".so")
+exes = ("fc-cache", "macdeployqt", "qmake", "moc", "rcc", "qmlimportscanner")
+
 def exec_cmd(args, env={}, supress_output=False):
     cmd = subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, env = env)
     output = ''
@@ -28,8 +31,8 @@ def fix_install_name(path):
   for root, dirs, files in os.walk(path):
     for f in files:
       fpath = os.path.join(root, f)
-      if (f.endswith(".dylib") or f in ['fc-cache'] or f.endswith(".so")) and not os.path.islink(fpath) and os.path.exists(fpath):
 
+      if (f.endswith(exts) or os.path.basename(f) in exes or (".framework/Versions/" in root and os.access(fpath, os.X_OK))) and not os.path.islink(fpath) and os.path.exists(fpath):
         # Fix permissions
         if not os.access(fpath, os.W_OK) or not os.access(fpath, os.R_OK) or not os.access(fpath, os.X_OK):
           os.chmod(fpath, 0o644)
@@ -51,6 +54,8 @@ def fix_install_name(path):
                 # look for it further up, like in the root path:
                 if os.path.exists(os.path.join(path, "lib", current_basename)):
                   correct_lib = os.path.join(path, "lib", current_basename)
+                elif os.path.exists(os.path.join(path, "lib", current_lib)):
+                  correct_lib = os.path.join(path, "lib", current_lib)
                 else:
                   print "Can't link %s" % current_lib
                   continue

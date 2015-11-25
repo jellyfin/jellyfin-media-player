@@ -42,23 +42,23 @@ if(@DO_SIGN@)
 
   # we need to sign the webengine helper before the framework
   # add --entitlements @SOURCE_ROOT@/bundle/osx/WebEngine.entitlements when we want to sandbox
-  set(WEB_PROC "${CMAKE_INSTALL_PREFIX}/${app}/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
+  set(WEB_PROC "${CMAKE_INSTALL_PREFIX}/@EXE@/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
   sign_binary(${WEB_PROC})
 
   file(GLOB_RECURSE LIBS
     FOLLOW_SYMLINKS
-    "${CMAKE_INSTALL_PREFIX}/${app}/*.dylib"
+    "${app}/*.dylib"
   )
-  file(GLOB FRAMEWORKS FOLLOW_SYMLINKS LIST_DIRECTORIES true "${CMAKE_INSTALL_PREFIX}/${app}/Contents/Frameworks/*")
+  file(GLOB FRAMEWORKS FOLLOW_SYMLINKS LIST_DIRECTORIES true "${app}/Contents/Frameworks/*")
   foreach(LIB ${LIBS} ${FRAMEWORKS})
     sign_binary(${LIB})
   endforeach(LIB ${LIBS})
 
   foreach(BIN ${BINS})
-    sign_binary(${CMAKE_INSTALL_PREFIX}/${app}/${BIN})
+    sign_binary(${app}/${BIN})
   endforeach(BIN ${BINS})
 
-  sign_binary(${CMAKE_INSTALL_PREFIX}/${app})
+  sign_binary(${app})
 
   message("Verifing signature")
   execute_process(

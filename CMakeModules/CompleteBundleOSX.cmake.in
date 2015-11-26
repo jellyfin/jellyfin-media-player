@@ -48,6 +48,7 @@ macro(sign_binary BIN)
 endmacro(sign_binary BIN)
 
 if(@DO_SIGN@)
+  sign_binary(${weprocess})
   file(GLOB_RECURSE LIBS
     FOLLOW_SYMLINKS
     "${app}/*.dylib"
@@ -61,7 +62,6 @@ if(@DO_SIGN@)
     sign_binary(${app}/${BIN})
   endforeach(BIN ${BINS})
 
-  sign_binary(${weprocess})
   sign_binary(${app})
 
   message("Verifing signature")

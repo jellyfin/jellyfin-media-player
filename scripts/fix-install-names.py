@@ -10,7 +10,7 @@ import sys
 import shutil
 
 exts = (".dylib", ".so")
-exes = ("fc-cache", "macdeployqt", "qmake", "moc", "rcc", "qmlimportscanner")
+exes = ("fc-cache", "macdeployqt", "qmake", "moc", "rcc", "qmlimportscanner", "QtWebEngineProcess")
 
 def exec_cmd(args, env={}, supress_output=False):
     cmd = subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, env = env)

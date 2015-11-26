@@ -1,4 +1,5 @@
 set(app "${CMAKE_INSTALL_PREFIX}/@EXE@")
+set(weprocess "${app}/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
 
 list(APPEND BINS "Contents/Resources/updater")
 list(APPEND BINS "Contents/Resources/@HELPER_NAME@")
@@ -13,6 +14,7 @@ endforeach(BIN ${BINS})
 set(ENV{DYLD_LIBRARY_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
 set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
 
+# Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
 set(QTCONFCONTENT "[Paths]
 Prefix=@QTROOT@
 ")
@@ -21,6 +23,13 @@ file(WRITE @QTROOT@/bin/qt.conf ${QTCONFCONTENT})
 
 execute_process(
   COMMAND @QTROOT@/bin/macdeployqt ${args}
+  WORKING_DIRECTORY @QTROOT@/bin
+)
+
+# Run the macdeploy command again to be able to fixup the linked paths for QtWebEngineProcess that
+# is deployed by the first run.
+execute_process(
+  COMMAND @QTROOT@/bin/macdeployqt ${app} -executable=${weprocess}/Contents/MacOS/QtWebEngineProcess
   WORKING_DIRECTORY @QTROOT@/bin
 )
 
@@ -39,12 +48,6 @@ macro(sign_binary BIN)
 endmacro(sign_binary BIN)
 
 if(@DO_SIGN@)
-
-  # we need to sign the webengine helper before the framework
-  # add --entitlements @SOURCE_ROOT@/bundle/osx/WebEngine.entitlements when we want to sandbox
-  set(WEB_PROC "${CMAKE_INSTALL_PREFIX}/@EXE@/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
-  sign_binary(${WEB_PROC})
-
   file(GLOB_RECURSE LIBS
     FOLLOW_SYMLINKS
     "${app}/*.dylib"
@@ -58,6 +61,7 @@ if(@DO_SIGN@)
     sign_binary(${app}/${BIN})
   endforeach(BIN ${BINS})
 
+  sign_binary(${weprocess})
   sign_binary(${app})
 
   message("Verifing signature")

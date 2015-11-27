@@ -55,7 +55,6 @@ if(WIN32 AND DEFINED DEPENDENCY_ROOT)
     install(FILES ${EXTRADLLS} DESTINATION .)
   endif()
   install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/qt.conf DESTINATION .)
-  install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/PlexMediaPlayer-angle.bat DESTINATION .)
   install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/PlexMediaPlayer-NoChromiumGPU.bat DESTINATION .)
   #add_custom_command(TARGET package POST_BUILD COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd  ${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}.exe WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
   # group/component configuration

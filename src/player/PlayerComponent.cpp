@@ -839,10 +839,10 @@ QString PlayerComponent::videoInformation() const
   info << "Codec: " << MPV_PROPERTY("video-codec") << endl;
   info << "Size: " << MPV_PROPERTY("video-params/dw") << "x"
                    << MPV_PROPERTY("video-params/dh") << endl;
-  info << "FPS: " << MPV_PROPERTY("fps") << endl;
+  info << "FPS (container): " << MPV_PROPERTY("fps") << endl;
+  info << "FPS (filters): " << MPV_PROPERTY("estimated-vf-fps") << endl;
   info << "Aspect: " << MPV_PROPERTY("video-aspect") << endl;
   info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << endl;
-  info << "Display Sync: " << MPV_PROPERTY("display-sync-active") << endl;
   double display_fps = DisplayComponent::Get().currentRefreshRate();
   info << "Display FPS: " << MPV_PROPERTY("display-fps")
                           << " (" << display_fps << ")" << endl;
@@ -862,7 +862,22 @@ QString PlayerComponent::videoInformation() const
   info << "Performance: " << endl;
   info << "A/V: " << MPV_PROPERTY("avsync") << endl;
   info << "Dropped frames: " << MPV_PROPERTY("vo-drop-frame-count") << endl;
-  info << "Vsync ratio: " << MPV_PROPERTY("vsync-ratio") << endl;
+  bool disp_sync = MPV_PROPERTY_BOOL("display-sync-active");
+  info << "Display Sync: ";
+  if (!disp_sync)
+  {
+     info << "no" << endl;
+  }
+  else
+  {
+    info << "yes (ratio " << MPV_PROPERTY("vsync-ratio") << ")" << endl;
+    info << "Mistimed frames: " << MPV_PROPERTY("mistimed-frame-count")
+                                << "/" << MPV_PROPERTY("vo-delayed-frame-count") << endl;
+    info << "Measured FPS: " << MPV_PROPERTY("estimated-display-fps")
+                             << " (" << MPV_PROPERTY("vsync-jitter") << ")" << endl;
+    info << "V. speed corr.: " << MPV_PROPERTY("video-speed-correction") << endl;
+    info << "A. speed corr.: " << MPV_PROPERTY("audio-speed-correction") << endl;
+  }
   info << endl;
   info << "Cache:" << endl;
   info << "Seconds: " << MPV_PROPERTY("demuxer-cache-duration") << endl;

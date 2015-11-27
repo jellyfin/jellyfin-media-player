@@ -77,7 +77,6 @@
       {
         "value": "useOpenGL",
         "default": false,
-        "hidden": true,
         "platforms": [ "windows" ]
       }
     ]

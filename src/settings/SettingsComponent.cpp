@@ -101,6 +101,13 @@ static void writeJson(const QString& filename, const QJsonObject& data, bool pre
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QVariant SettingsComponent::readPreinitValue(const QString& sectionID, const QString& key)
+{
+  QJsonObject json = loadJson(Paths::dataDir("plexmediaplayer.conf"));
+  return json["sections"].toObject()[sectionID].toObject()[key].toVariant();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::load()
 {
   loadConf(Paths::dataDir("plexmediaplayer.conf"), false);

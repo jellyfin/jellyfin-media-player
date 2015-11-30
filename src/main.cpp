@@ -35,25 +35,17 @@ static void preinitQt()
   QCoreApplication::setOrganizationDomain("plex.tv");
 
 #ifdef Q_OS_WIN32
-  if (QFile::exists(Paths::dataDir("use_opengl")))
+  QVariant useOpengl = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "useOpenGL");
+
+  // Warning: this must be the same as the default value as declared in
+  // the settings_description.json file, or confusion will result.
+  if (useOpengl.type() != QMetaType::Bool)
+    useOpengl = true;
+
+  if (useOpengl.toBool())
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
   else
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
-#endif
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-static void updateGL(const QVariantMap& values)
-{
-#ifdef Q_OS_WIN32
-  QString path = Paths::dataDir("use_opengl");
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useOpenGL").toBool())
-  {
-    QFile f(path);
-    f.open(QIODevice::WriteOnly);
-  }
-  else
-    QFile::remove(path);
 #endif
 }
 
@@ -261,11 +253,6 @@ int main(int argc, char *argv[])
     // early since most everything else relies on it
     //
     ComponentManager::Get().initialize();
-
-    auto mainSection = SettingsComponent::Get().getSection("main");
-    if (mainSection)
-      QObject::connect(mainSection, &SettingsSection::valuesUpdated, &updateGL);
-    updateGL(QVariantMap{});
 
     // enable remote inspection if we have the correct setting for it.
     if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "remoteInspector").toBool())

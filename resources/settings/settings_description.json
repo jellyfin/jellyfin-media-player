@@ -76,7 +76,8 @@
       },
       {
         "value": "useOpenGL",
-        "default": false,
+        // Warning: the default must be the same as the one in preinitQt().
+        "default": true,
         "platforms": [ "windows" ]
       }
     ]

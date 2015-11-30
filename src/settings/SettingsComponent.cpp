@@ -65,24 +65,6 @@ QVariant SettingsComponent::allValues(const QString& section)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static QByteArray loadFile(const QString& filename)
-{
-  QLOG_DEBUG() << "Opening:" << filename;
-
-  QFile file(filename);
-  // Checking existence before opening is technically a race condition, but
-  // it looks like Qt doesn't let us distinguish errors on opening.
-  if (!file.exists())
-    return "";
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    QLOG_ERROR() << "Could not open" << filename;
-    return "";
-  }
-  return file.readAll();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 static void writeFile(const QString& filename, const QByteArray& data)
 {
   QSaveFile file(filename);
@@ -97,7 +79,17 @@ static void writeFile(const QString& filename, const QByteArray& data)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QJsonObject loadJson(const QString& filename)
 {
-  QJsonDocument json = QJsonDocument::fromJson(loadFile(filename));
+  // Checking existence before opening is technically a race condition, but
+  // it looks like Qt doesn't let us distinguish errors on opening.
+  if (!QFile(filename).exists())
+    return QJsonObject();
+
+  QJsonParseError err;
+  QJsonDocument json = Utils::OpenJsonDocument(filename, &err);
+  if (json.isNull())
+  {
+    QLOG_ERROR() << "Could not open" << filename << "due to" << err.errorString();
+  }
   return json.object();
 }
 

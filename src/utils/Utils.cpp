@@ -32,7 +32,7 @@ QJsonDocument Utils::OpenJsonDocument(const QString& path, QJsonParseError* err)
 {
   QFile fp(path);
   QByteArray fdata;
-  QRegExp commentMatch("^\\s*(\\S+\\s*=([^\\//]|\\//?)*)?(//.*)?$");
+  QRegExp commentMatch("^\\s*//");
 
   if (fp.open(QFile::ReadOnly))
   {

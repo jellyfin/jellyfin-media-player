@@ -3,28 +3,23 @@ include(WebClientVariables)
 option(SKIP_WEB_CLIENT "Skip downloading the web client" OFF)
 
 if(NOT SKIP_WEB_CLIENT)
-  set(WEB_CLIENT_CPP web-client-${WEB_CLIENT_VERSION}.cpp)
-  set(WEB_CLIENT_URL https://nightlies.plex.tv/directdl/plex-web-client-plexmediaplayer/master/plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp.bz2)
+  set(WEB_CLIENT_CPP plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp)
+  set(WEB_CLIENT_URL https://nightlies.plex.tv/directdl/plex-dependencies/plex-web-client-plexmediaplayer/latest/plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp.tbz2)
 
   message(STATUS "web-client version: ${WEB_CLIENT_VERSION}")
 
   file(
-    DOWNLOAD ${WEB_CLIENT_URL} ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.bz2
+    DOWNLOAD ${WEB_CLIENT_URL} ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
     EXPECTED_HASH SHA1=${WEB_CLIENT_HASH}
     TIMEOUT 100
     SHOW_PROGRESS
     TLS_VERIFY ON
   )
 
-  find_program(BUNZIP2 bunzip2${CMAKE_EXECUTABLE_SUFFIX})
-  if(${BUNZIP2} MATCHES NOT_FOUND)
-    message(FATAL_ERROR "Can't fid bunzip2")
-  endif(${BUNZIP2} MATCHES NOT_FOUND)
-
   add_custom_command(
     OUTPUT ${WEB_CLIENT_CPP}
-    COMMAND ${BUNZIP2} -k -f ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.bz2
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.bz2
+    COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
     COMMENT "Unpacking: ${WEB_CLIENT_CPP}.bz2"
   )
 

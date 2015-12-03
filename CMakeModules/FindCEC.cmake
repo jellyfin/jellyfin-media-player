@@ -8,16 +8,17 @@ if (PKG_CONFIG_FOUND)
 endif (PKG_CONFIG_FOUND)
 
 Find_Path(CEC_INCLUDE_DIR
-  NAMES cec.h
+  NAMES cec/cec.h libcec/cec.h
   PATHS /usr/include usr/local/include 
-  PATH_SUFFIXES libcec
+  PATH_SUFFIXES cec cec/cec libcec cec/include
   HINTS ${_CEC_INCLUDEDIR}
 )
 
 Find_Library(CEC_LIBRARY
   NAMES cec
   PATHS /usr/lib usr/local/lib
-  HINTS ${_CEC_LIBDIR}
+  PATH_SUFFIXES cec libcec cec/lib libcec/lib
+  HINTS ${_CEC_LIBDIR} 
 )
 
 include(FindPackageHandleStandardArgs)

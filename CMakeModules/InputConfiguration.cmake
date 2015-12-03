@@ -1,3 +1,4 @@
+message(STATUS ${CMAKE_FIND_ROOT_PATH})
 OPTION(ENABLE_SDL2 "Enable SDL2 for joystick handling" ON)
 if(ENABLE_SDL2)
   find_package(SDL2)

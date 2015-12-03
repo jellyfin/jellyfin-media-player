@@ -4,7 +4,7 @@
 #include <QMutex>
 #include <QTimer>
 #include "input/InputComponent.h"
-#include <cec.h>
+#include <libcec/cec.h>
 
 using namespace CEC;
 

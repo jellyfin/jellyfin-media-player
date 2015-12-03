@@ -28,6 +28,9 @@ function(download_deps depname dirpath)
       set(DEP_DIRNAME "konvergo-qt-${ARCHSTR}-release-${DEP_HASH}")
     elseif(depname STREQUAL plexmediaplayer-dependencies)
       set(DEP_DIRNAME "konvergo-depends-${ARCHSTR}-release-${DEP_HASH}")
+    elseif(depname STREQUAL plexmediaplayer-windows-dependencies)
+      set(ARCHSTR "mingw32-x86_64")
+      set(DEP_DIRNAME "konvergo-depends-windows-${ARCHSTR}-release-${DEP_HASH}")
     else()
       set(DEP_DIRNAME "${depname}-${ARCHSTR}-release-${DEP_HASH}")
     endif()
@@ -44,7 +47,8 @@ function(download_deps depname dirpath)
       list(GET SHA_STATUS 0 SHASUCCESS)
 
       if(SHASUCCESS EQUAL 0)
-        file(STRINGS ${DEP_DIR}/${DEP_FILENAME}.sha.txt CONTENT_HASH LIMIT_COUNT 1)
+        file(STRINGS ${DEP_DIR}/${DEP_FILENAME}.sha.txt CONTENT_HASH_RAW LIMIT_COUNT 1)
+        string(SUBSTRING ${CONTENT_HASH_RAW} 0 40 CONTENT_HASH)
 
         message(STATUS "Downloading ${DEP_FILENAME}...")
 
@@ -67,12 +71,21 @@ function(download_deps depname dirpath)
             COMMAND ${CMAKE_COMMAND} -E tar xjf ${DEP_DIR}/${DEP_FILENAME}
             WORKING_DIRECTORY ${DEP_DIR}
           )
-          message(STATUS "Fixing install library names...")
-          execute_process(
-            COMMAND ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py ${DEP_DIR}/${DEP_DIRNAME}
-            WORKING_DIRECTORY ${DEP_DIR}
-          )
-          message(STATUS "Done")
+          if(APPLE)
+            message(STATUS "Fixing install library names...")
+            execute_process(
+              COMMAND ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py ${DEP_DIR}/${DEP_DIRNAME}
+              WORKING_DIRECTORY ${DEP_DIR}
+            )
+            message(STATUS "Done")
+          endif(APPLE)
+          if(WIN32 AND EXISTS ${DEP_DIR}/${DEP_DIRNAME}/bin/mpv-1.def)
+            message(STATUS "Fixing mpv.lib...")
+            execute_process(
+              COMMAND LIB /def:bin\\mpv-1.def /out:lib\\mpv.lib /MACHINE:X64
+              WORKING_DIRECTORY ${DEP_DIR}/${DEP_DIRNAME}
+            )
+          endif(WIN32 AND EXISTS ${DEP_DIR}/${DEP_DIRNAME}/bin/mpv-1.def)
         endif()
       else(SHASUCCESS EQUAL 0)
         list(GET SHA_STATUS 1 SHAERROR)

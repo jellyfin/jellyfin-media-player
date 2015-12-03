@@ -1,11 +1,11 @@
 
 include(FetchDependencies)
-if(APPLE)
-  download_deps("plexmediaplayer-qt" dir)
-  set(QTROOT ${dir})
-else()
-  set(QTROOT "/usr/local/Qt/Qt5.5" CACHE PATH "Root of the QT binaries.")
-endif()
+download_deps("plexmediaplayer-qt" dir)
+set(QTROOT ${dir})
+list(APPEND CMAKE_FIND_ROOT_PATH ${dir})
+list(APPEND CMAKE_PREFIX_PATH ${dir})
+include_directories(${dir}/include)
+
 set(REQUIRED_QT_VERSION "5.5.0")
 
 message(STATUS ${QTROOT})

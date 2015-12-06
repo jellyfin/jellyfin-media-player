@@ -78,7 +78,7 @@ public:
   // only. If no video is running, render a black background only.
   Q_INVOKABLE virtual void setVideoOnlyMode(bool enable);
 
-  void userCommand(const QString& command);
+  Q_INVOKABLE void userCommand(const QString& command);
 
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
 

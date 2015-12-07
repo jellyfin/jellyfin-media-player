@@ -76,7 +76,6 @@ foreach(sfile in ${ALL_SRCS})
   source_group("Source Files\\\\${GNAME}" FILES ${sfile})
 endforeach(sfile in ${ALL_SRCS})
 
-find_package(PythonInterp REQUIRED)
 file(GLOB_RECURSE RESOURCE_FILES ${CMAKE_SOURCE_DIR}/resources/*)
 
 # generate resources.qrc from directory tree listings

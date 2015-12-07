@@ -28,7 +28,8 @@ else(IS_DIRECTORY ${DEPENDENCY_ROOT})
   message(STATUS "Not using bundled deps")
 endif(IS_DIRECTORY ${DEPENDENCY_ROOT})
 
-find_package(Threads)
+find_package(Threads REQUIRED)
+find_package(PythonInterp REQUIRED)
 
 # on windows we need to download the updater binary seperately
 if(WIN32)

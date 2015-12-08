@@ -14,13 +14,6 @@ endforeach(BIN ${BINS})
 set(ENV{DYLD_LIBRARY_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
 set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
 
-# Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
-set(QTCONFCONTENT "[Paths]
-Prefix=@QTROOT@
-")
-
-file(WRITE @QTROOT@/bin/qt.conf ${QTCONFCONTENT})
-
 execute_process(
   COMMAND @QTROOT@/bin/macdeployqt ${args}
   WORKING_DIRECTORY @QTROOT@/bin

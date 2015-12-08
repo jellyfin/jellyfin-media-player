@@ -6,6 +6,13 @@ list(APPEND CMAKE_FIND_ROOT_PATH ${dir})
 list(APPEND CMAKE_PREFIX_PATH ${dir})
 include_directories(${dir}/include)
 
+# Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
+set(QTCONFCONTENT "[Paths]
+Prefix=${QTROOT}
+")
+
+file(WRITE ${QTROOT}/bin/qt.conf ${QTCONFCONTENT})
+
 set(REQUIRED_QT_VERSION "5.5.0")
 
 message(STATUS ${QTROOT})

@@ -31,10 +31,13 @@ function(dumpsyms target symfile)
       set(TARGET_FILE $<TARGET_PDB_FILE:${target}>)
     endif(WIN32)
 
+    file(TO_NATIVE_PATH ${PYTHON_EXECUTABLE} PYTHON_EXE)
+    file(TO_NATIVE_PATH ${PROJECT_SOURCE_DIR}/scripts/compress.py SCRIPT_PATH)
+
     add_custom_command(
       TARGET ${target} POST_BUILD
       BYPRODUCTS ${symfile}.bz2
-      COMMAND ${DUMP_SYMS} ${EXTRA_DUMPSYMS_ARGS} ${TARGET_FILE} | ${PYTHON_EXECUTABLE} -u ${PROJECT_SOURCE_DIR}/scripts/compress.py > ${symfile}.bz2
+      COMMAND ${DUMP_SYMS} ${EXTRA_DUMPSYMS_ARGS} ${TARGET_FILE} | ${PYTHON_EXE} -u ${SCRIPT_PATH} > ${symfile}.bz2
       COMMENT Generating symbols
     )
   endif(GENERATE_SYMBOLS AND DUMP_SYMS)

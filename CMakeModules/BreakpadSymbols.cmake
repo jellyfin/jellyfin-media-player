@@ -12,7 +12,7 @@ endif(NOT CRASHDUMP_SECRET)
 cmake_dependent_option(GENERATE_SYMBOLS "Should we generate symbols for binaries?" ON "ENABLE_CRASHDUMP" OFF)
 
 function(dumpsyms target symfile)
-  find_program(DUMP_SYMS dump_syms HINTS /usr/bin/ ${DEPENDENCY_ROOT}/bin ${DEPENDENCY_ROOT}/lib)
+  find_program(DUMP_SYMS dump_syms HINTS /usr/bin/ PATH_SUFFIXES lib bin)
   if(GENERATE_SYMBOLS AND NOT DUMP_SYMS)
     message(WARNING "dump_syms not found")
   endif()

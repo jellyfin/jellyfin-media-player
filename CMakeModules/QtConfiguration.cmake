@@ -1,10 +1,12 @@
 
 include(FetchDependencies)
-download_deps("plexmediaplayer-qt" dir)
-set(QTROOT ${dir})
-list(APPEND CMAKE_FIND_ROOT_PATH ${dir})
-list(APPEND CMAKE_PREFIX_PATH ${dir})
-include_directories(${dir}/include)
+if(NOT IS_DIRECTORY ${QTROOT})
+  download_deps("plexmediaplayer-qt" dir)
+  set(QTROOT ${dir})
+endif()
+list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})
+list(APPEND CMAKE_PREFIX_PATH ${QTROOT})
+include_directories(${QTROOT}/include)
 
 # Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
 set(QTCONFCONTENT "[Paths]

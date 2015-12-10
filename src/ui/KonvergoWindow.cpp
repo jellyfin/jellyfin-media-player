@@ -121,19 +121,19 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
   connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
 
-#ifdef Q_OS_MAC
+  if (!SystemComponent::Get().isOpenELEC())
+  {
     // this is such a hack. But I could not get it to enter into fullscreen
     // mode if I didn't trigger this after a while.
     //
     QTimer::singleShot(500, [=]() {
         updateFullscreenState();
     });
-#else
-    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fakefullscreen").toBool())
-      updateFullscreenState();
-    else if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
-      setWindowState(Qt::WindowFullScreen);
-#endif
+  }
+  else
+  {
+    setWindowState(Qt::WindowFullScreen);
+  }
 
   emit enableVideoWindowSignal();
 }

@@ -6,6 +6,8 @@
 #define KONVERGO_PATHS_H
 
 #include <QString>
+#include <QUrl>
+#include <QVariant>
 
 namespace Paths
 {
@@ -13,6 +15,7 @@ namespace Paths
   QString dataDir(const QString& file = QString());
   QString cacheDir(const QString& file = QString());
   QString logDir(const QString& file = QString());
+  QString socketName(const QString& serverName);
 };
 
 #endif //KONVERGO_PATHS_H

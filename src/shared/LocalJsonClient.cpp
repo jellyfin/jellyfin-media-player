@@ -5,12 +5,11 @@
 #include "Paths.h"
 #include "LocalJsonClient.h"
 #include "LocalJsonServer.h"
-#include "utils/Utils.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 LocalJsonClient::LocalJsonClient(const QString serverPath, QObject* parent) : QLocalSocket(parent)
 {
-  m_serverPath = Paths::dataDir(serverPath);
+  m_serverPath = Paths::socketName(serverPath);
   connect(this, &QLocalSocket::readyRead, this, &LocalJsonClient::readyRead);
 }
 

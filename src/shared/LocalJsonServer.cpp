@@ -6,13 +6,11 @@
 #include "Paths.h"
 #include "QsLog.h"
 
-#include <QFile>
-
 /////////////////////////////////////////////////////////////////////////////////////////
 LocalJsonServer::LocalJsonServer(const QString& serverName, QObject* parent) : QObject(parent)
 {
   m_server = new QLocalServer(this);
-  m_serverName = Paths::dataDir(serverName);
+  m_serverName = Paths::socketName(serverName);
 
   connect(m_server, &QLocalServer::newConnection, this, &LocalJsonServer::serverClientConnected);
 }

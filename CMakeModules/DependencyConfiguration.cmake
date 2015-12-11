@@ -10,7 +10,7 @@ if(APPLE AND NOT DISABLE_BUNDLED_DEPS)
 endif(APPLE AND NOT DISABLE_BUNDLED_DEPS)
 
 if(WIN32)
-  download_deps("plexmediaplayer-windows-dependencies" dir)
+  download_deps("plexmediaplayer-windows-dependencies" dir DEPS_HASH)
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT "${dir}")
 endif(WIN32)

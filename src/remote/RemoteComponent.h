@@ -13,7 +13,7 @@
 
 #include "ComponentManager.h"
 #include "GDMManager.h"
-#include "server/httpserver.h"
+#include "server/HTTPServer.h"
 #include "qhttpresponse.h"
 #include "RemoteSubscriber.h"
 

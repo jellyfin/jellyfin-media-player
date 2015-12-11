@@ -136,6 +136,15 @@ set_target_properties(${MAIN_TARGET} PROPERTIES
   CXX_STANDARD_REQUIRED TRUE
 )
 
+# copy the qt.conf so that when running PMP from a debugger it finds the plugins and QML files
+if(APPLE)
+  add_custom_command(
+    TARGET ${MAIN_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${QTROOT}/bin/qt.conf $<TARGET_FILE_DIR:${MAIN_TARGET}>/../Resources
+    COMMENT "Copy qt.conf to main bundle"
+  )
+endif(APPLE)
+
 target_link_libraries(${MAIN_TARGET}
   shared
   qhttpserver

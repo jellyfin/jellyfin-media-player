@@ -20,7 +20,7 @@ if(NOT SKIP_WEB_CLIENT)
     OUTPUT ${WEB_CLIENT_CPP}
     COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
-    COMMENT "Unpacking: ${WEB_CLIENT_CPP}.bz2"
+    COMMENT "Unpacking: ${WEB_CLIENT_CPP}.tbz2"
   )
 
   add_custom_target(UnpackWebClientResource

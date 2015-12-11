@@ -39,8 +39,15 @@ HelperLaunchd::HelperLaunchd(QObject* parent) : QObject(parent)
 QString HelperLaunchd::launchPlistPath()
 {
   QDir homeDir = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
-  if (homeDir.cd("Library") && homeDir.cd("LaunchAgents"))
-    return homeDir.filePath("tv.plex.player-helper.plist");
+  if (homeDir.cd("Library"))
+  {
+    if (!homeDir.exists("LaunchAgents"))
+      homeDir.mkdir("LaunchAgents");
+
+    if (homeDir.cd("LaunchAgents"))
+      return homeDir.filePath("tv.plex.player-helper.plist");
+  }
+
   return "";
 }
 

@@ -209,7 +209,8 @@ QString SystemComponent::debugInformation()
   stream << "  Web Client URL: " << SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString() << endl;
   stream << "  Platform: " << getPlatformTypeString() << "-" << getPlatformArchString() << endl;
   stream << "  User-Agent: " << getUserAgent() << endl;
-  stream << "  Qt version: " << qVersion() << endl;
+  stream << "  Qt version: " << qVersion() << QString("(%1)").arg(Version::GetQtDepsVersion()) << endl;
+  stream << "  Depends version: " << Version::GetDependenciesVersion() << endl;
   stream << endl;
 
   stream << "Files" << endl;

@@ -22,3 +22,13 @@ QString Version::GetWebVersion()
 {
   return QString("@WEB_CLIENT_VERSION@");
 }
+
+QString Version::GetDependenciesVersion()
+{
+  return QString("@DEPS_HASH@");
+}
+
+QString Version::GetQtDepsVersion()
+{
+  return QString("@QT_DEPS_HASH@");
+}

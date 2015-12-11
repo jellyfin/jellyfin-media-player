@@ -11,7 +11,7 @@ endif()
 # note that hardcoding the ARCH here is not correct.
 set(ARCHSTR "${OS}-x86_64")
 
-function(download_deps depname dirpath)
+function(download_deps depname dirpath dephash)
   file(MAKE_DIRECTORY ${DEP_DIR})
 
   message(STATUS "Downloading ${depname}.hash.txt...")
@@ -39,6 +39,7 @@ function(download_deps depname dirpath)
     set(DEP_URL "https://nightlies.plex.tv/directdl/plex-dependencies/${depname}/latest/${DEP_FILENAME}")
 
     set(${dirpath} ${DEP_DIR}/${DEP_DIRNAME} PARENT_SCOPE)
+    set(${dephash} ${DEP_HASH} PARENT_SCOPE)
 
     if(NOT EXISTS ${DEP_DIR}/${DEP_DIRNAME})
       message(STATUS "Downloading ${DEP_FILENAME}.sha.txt...")

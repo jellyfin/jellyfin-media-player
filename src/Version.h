@@ -7,6 +7,8 @@ namespace Version
   QString GetCanonicalVersionString();
   QString GetBuildDate();
   QString GetWebVersion();
+  QString GetQtDepsVersion();
+  QString GetDependenciesVersion();
 };
 
 #endif // VERSION_H

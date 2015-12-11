@@ -1,7 +1,7 @@
 
 include(FetchDependencies)
 if(NOT IS_DIRECTORY ${QTROOT})
-  download_deps("plexmediaplayer-qt" dir)
+  download_deps("plexmediaplayer-qt" dir QT_DEPS_HASH)
   set(QTROOT ${dir})
 endif()
 list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})

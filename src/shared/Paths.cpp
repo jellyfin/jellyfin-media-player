@@ -86,5 +86,9 @@ QString Paths::socketName(const QString& serverName)
   if(userName.isEmpty())
     userName = "unknown";
 
+#ifdef Q_OS_UNIX
+  return QString("/tmp/pmp_%1_%2.sock").arg(serverName).arg(userName);
+#else
   return QString("pmp_%1_%2.sock").arg(serverName).arg(userName);
+#endif
 }

@@ -15,7 +15,7 @@ Prefix=${QTROOT}
 
 file(WRITE ${QTROOT}/bin/qt.conf ${QTCONFCONTENT})
 
-set(REQUIRED_QT_VERSION "5.5.0")
+set(REQUIRED_QT_VERSION "5.6.0")
 
 message(STATUS ${QTROOT})
 

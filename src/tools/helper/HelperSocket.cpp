@@ -14,6 +14,13 @@
 HelperSocket::HelperSocket(QObject* parent)
 {
   m_server = new LocalJsonServer("pmpHelper", this);
+  m_quitTimer = new QTimer(this);
+
+  connect(m_quitTimer, &QTimer::timeout, []()
+  {
+    QLOG_DEBUG() << "Quit timer ran out, quitting...";
+    qApp->quit();
+  });
 
   connect(m_server, &LocalJsonServer::clientConnected, this, &HelperSocket::clientConnected);
   connect(m_server, &LocalJsonServer::messageReceived, this, &HelperSocket::message);
@@ -30,6 +37,15 @@ void HelperSocket::clientConnected(QLocalSocket* socket)
   hello.insert("version", Version::GetVersionString());
   hello.insert("path", QCoreApplication::applicationFilePath());
   m_server->sendMessage(hello, socket);
+
+  // if we are going to quit, restart the timer.
+  m_quitTimer->stop();
+
+  connect(socket, &QLocalSocket::disconnected, [=](){
+    // give us 5 minute to upload a crash log if we got one. then quit
+    QLOG_DEBUG() << "PMP application quit, let's wait 3 minutes and then exit";
+    m_quitTimer->start(3 * 60 * 1000);
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

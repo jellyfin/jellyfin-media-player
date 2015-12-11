@@ -8,6 +8,8 @@
 #include "Paths.h"
 #include "LocalJsonServer.h"
 
+#include <QTimer>
+
 class HelperSocket : public QObject
 {
   Q_OBJECT
@@ -18,6 +20,7 @@ private:
   Q_SLOT void clientConnected(QLocalSocket* socket);
   Q_SLOT void message(const QVariant& message);
   LocalJsonServer* m_server;
+  QTimer* m_quitTimer;
 };
 
 #endif //KONVERGO_HELPERSOCKET_H

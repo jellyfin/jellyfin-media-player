@@ -4,7 +4,6 @@
 
 #include "settings/SettingsSection.h"
 #include "settings/SettingsComponent.h"
-#include "utils/Utils.h"
 #include "Paths.h"
 
 #include <QDir>

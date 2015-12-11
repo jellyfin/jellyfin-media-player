@@ -7,6 +7,7 @@
 #include <QSet>
 #include <QQuickWindow>
 #include <QTimer>
+#include <QTextStream>
 
 #include "ComponentManager.h"
 

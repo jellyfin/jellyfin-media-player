@@ -8,7 +8,6 @@
 #include <QWebChannel>
 
 #include "utils/Utils.h"
-#include "server/HTTPServer.h"
 
 class ComponentBase : public QObject
 {
@@ -36,8 +35,6 @@ public:
 private:
   ComponentManager();
   void registerComponent(ComponentBase* comp);
-
-  HttpServer* m_server;
 
   QMap<QString, ComponentBase*> m_components;
   QQmlPropertyMap m_qmlProperyMap;

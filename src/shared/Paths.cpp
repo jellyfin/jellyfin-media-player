@@ -3,7 +3,6 @@
 //
 
 #include "settings/SettingsSection.h"
-#include "settings/SettingsComponent.h"
 #include "Paths.h"
 
 #include <QDir>

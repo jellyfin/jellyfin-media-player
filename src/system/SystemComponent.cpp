@@ -257,11 +257,9 @@ QStringList SystemComponent::networkAddresses() const
 void SystemComponent::userInformation(const QVariantMap& userModel)
 {
   QStringList roleList;
-  auto roles = userModel.value("roles").toMap();
-  foreach (const QString& key, roles.keys())
-  {
-    if (roles.value(key).toBool())
-      roleList << key;
+  foreach (const QVariant& role, userModel.value("roles").toList())
+  { 
+    roleList << role.toMap().value("id").toString();
   }
 
   SettingsComponent::Get().setUserRoleList(roleList);

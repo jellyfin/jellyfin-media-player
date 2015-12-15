@@ -40,11 +40,11 @@ mark_as_advanced(BREAKPAD_INCLUDE_DIR)
 set(BREAKPAD_INCLUDE_DIRS ${BREAKPAD_INCLUDE_DIR})
 
 #
-### Look for the libraries (BREAKPAD and BREAKPADsore)
+### Look for the libraries (BREAKPAD)
 #
 find_library(
     BREAKPAD_LIBRARY
-    NAMES breakpad_client breakpad
+    NAMES breakpad_client
     HINTS
         ${PC_BREAKPAD_LIBDIR}
         ${PC_BREAKPAD_LIBRARY_DIRS} # Unused for BREAKPAD but anyway

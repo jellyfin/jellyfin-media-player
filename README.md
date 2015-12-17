@@ -2,33 +2,27 @@
 
 You need:
 
-* Qt 5.6 alpha
+* Qt 5.6 beta (on OSX and windows it will be automatically downloaded when you run CMake)
 * cmake 3.1 or newer
 * ninja is recommended for building
 
-Special Qt requirements:
+Special Qt requirements (if you build it yourself):
 
 * On Windows, you must apply ``qt-patches/0003-Always-enable-viewport-stuff.patch``
-  for correct window scaling. The patches in ``qt-patches/qt-5.6-alpha/`` fix
-  some stability issues.
+  for correct window scaling.
 * On OSX, you should apply ``qt-patches/0002-qtbase-Don-t-show-the-menu-bar-at-all-in-lion-style-fullscr.patch``
   to improve the user experience in fullscreen.
-* You can try to use Qt 5.5, but then you also need to apply the following patches:
-    - ``qt-patches/0001-qtwebengine-Add-a-backgroundColor-property.patch``
-    - ``qt-patches/0004-qtwebengine-transparency-window-creation.patch``
 
   Without them, video playback will not work.
 
 ## Building on Mac OS X
 
-Get dependencies:
-
-* ``scripts/fetch-binaries.py -p darwin-x86_64``
+Configure
 
 If you're happy just building from the command line then run CMake for the ninja build tool:
 
 * ``mkdir build ; cd build``
-* ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/path/to/qt -DCMAKE_INSTALL_PREFIX=output ..``
+* ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=output ..``
 
 Build (ninja):
 
@@ -41,21 +35,21 @@ Make a distributable package:
 Or if you prefer working in Xcode, run CMake for the xcode build):
 
 * ``mkdir build ; cd build``
-* ``cmake -GXcode -DQTROOT=/path/to/qt ..``
+* ``cmake -GXcode ..``
 
 ## Building on Linux
 
-### Building Qt 5.6.0 alpha
+### Building Qt 5.6.0 beta
 
-You'll want to grab one of the Qt 5.6.0 alpha packages from http://download.qt.io/development_releases/qt/5.6/5.6.0-alpha/single/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
+You'll want to grab one of the Qt 5.6.0 beta packages from http://download.qt.io/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
 
 ``sudo dnf install libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel libcap-devel snappy-devel libsrtp-devel nss-devel pciutils-devel gperf``
 
 (The majority of the packages on this list came from http://code.qt.io/cgit/qt/qtbase.git/tree/src/plugins/platforms/xcb/README, but everything after xcb-util-keysyms-devel was trial-and-error in attempts build QtWebEngine; this list of packages may not be complete, but hopefully it provides a useful starting point.)
 
-Once you've unpacked the Qt 5.6.0 alpha package:
+Once you've unpacked the Qt 5.6.0 beta package:
 
-* ``cd qt-everywhere-opensource-src-5.6.0-alpha``
+* ``cd qt-everywhere-opensource-src-5.6.0-beta``
 * ``./configure -confirm-license -opensource``
 * ``make``
 * ``sudo make install``

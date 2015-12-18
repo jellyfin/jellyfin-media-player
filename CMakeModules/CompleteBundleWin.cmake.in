@@ -1,4 +1,4 @@
-execute_process(COMMAND @QTROOT@/bin/windeployqt.exe --qmldir @SOURCE_ROOT@/src/ui ${CMAKE_INSTALL_PREFIX}/PlexMediaPlayer.exe)
+execute_process(COMMAND @QTROOT@/bin/windeployqt.exe --verbose 9 --qmldir @SOURCE_ROOT@/src/ui ${CMAKE_INSTALL_PREFIX}/PlexMediaPlayer.exe)
 
 # on windows windeployqt doesnt install non qt libraries, let cmake do that
 include(BundleUtilities)

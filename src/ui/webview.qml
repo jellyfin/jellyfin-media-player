@@ -40,7 +40,6 @@ KonvergoWindow
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
-    url: components.settings.value("path", "startupurl") + getMaxHeightArg()
     transformOrigin: Item.TopLeft
 
     width: Math.min((parent.height * 16) / 9, parent.width)
@@ -85,6 +84,8 @@ KonvergoWindow
       backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
+
+      url = components.settings.value("path", "startupurl") + getMaxHeightArg()
     }
 
     onLoadingChanged:

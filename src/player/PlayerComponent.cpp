@@ -74,8 +74,8 @@ bool PlayerComponent::componentInitialize()
   mpv_set_option_string(m_mpv, "config", "yes");
   mpv_set_option_string(m_mpv, "config-dir", Paths::dataDir().toUtf8().data());
 
-  // We don't need this, so avoid initializing fontconfig.
-  mpv_set_option_string(m_mpv, "use-text-osd", "no");
+  // Disable native OSD if mpv_command_string() is used.
+  mpv_set_option_string(m_mpv, "osd-level", "0");
 
   // This forces the player not to rebase playback time to 0 with mkv. We
   // require this, because mkv transcoding lets files start at times other

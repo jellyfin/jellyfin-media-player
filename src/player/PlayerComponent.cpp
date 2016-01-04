@@ -702,6 +702,11 @@ void PlayerComponent::setAudioConfiguration()
 
   // set the channel layout
   QVariant layout = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "channels");
+
+  // always force either stereo or transcoding
+  if (deviceType == AUDIO_DEVICE_TYPE_SPDIF)
+    layout = "2.0";
+
   mpv::qt::set_option_variant(m_mpv, "audio-channels", layout);
 
   // if the user has indicated that PCM only works for stereo, and that

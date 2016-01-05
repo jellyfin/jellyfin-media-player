@@ -70,6 +70,7 @@ struct ReceiverSlot
 {
   QObject* receiver;
   QByteArray slot;
+  bool hasArguments;
 };
 
 class InputComponent : public ComponentBase

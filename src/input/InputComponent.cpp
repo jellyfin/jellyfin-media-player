@@ -104,16 +104,14 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
         ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
         if (recvSlot)
         {
-          QString slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->slot));
-          QLOG_DEBUG() << "Looking for method:" << slotWithArgs;
-          if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithArgs.toLatin1().data()) != -1)
+          QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
+          if (recvSlot->hasArguments)
           {
             QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
                                       Qt::AutoConnection, Q_ARG(const QString&, hostArguments));
           }
           else
           {
-            QLOG_DEBUG() << "Method has no arguments:" << recvSlot->slot.data();
             QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(), Qt::AutoConnection);
           }
         }
@@ -141,8 +139,25 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
   ReceiverSlot* recvSlot = new ReceiverSlot;
   recvSlot->receiver = receiver;
   recvSlot->slot = QMetaObject::normalizedSignature(slot);
+  recvSlot->hasArguments = false;
 
   QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to" << qPrintable(QString(receiver->metaObject()->className()) + "::" + recvSlot->slot);
 
   m_hostCommands.insert(command, recvSlot);
+
+  auto slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->slot)).toLatin1().data();
+  auto slotWithoutArgs = QString("%1()").arg(QString::fromLatin1(recvSlot->slot)).toLatin1().data();
+  if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithArgs) != -1)
+  {
+    QLOG_DEBUG() << "Host command maps to method with an argument.";
+    recvSlot->hasArguments = true;
+  }
+  else if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithoutArgs) != -1)
+  {
+    QLOG_DEBUG() << "Host command maps to method without arguments.";
+  }
+  else
+  {
+    QLOG_ERROR() << "Slot for host command missing, or has incorrect signature!";
+  }
 }

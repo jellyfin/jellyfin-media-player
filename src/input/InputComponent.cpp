@@ -105,15 +105,11 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
         if (recvSlot)
         {
           QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
+          QGenericArgument arg0 = QGenericArgument();
           if (recvSlot->hasArguments)
-          {
-            QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
-                                      Qt::AutoConnection, Q_ARG(const QString&, hostArguments));
-          }
-          else
-          {
-            QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(), Qt::AutoConnection);
-          }
+            arg0 = Q_ARG(const QString&, hostArguments);
+          QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
+                                    Qt::AutoConnection, arg0);
         }
       }
       else

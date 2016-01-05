@@ -39,7 +39,7 @@ public:
   //    i: change to interlaced
   //    p: change to progressive ("not interlaced")
   // Example: "123x456 p 45hz"
-  void switchCommand(QString command);
+  Q_INVOKABLE void switchCommand(QString command);
 
   double currentRefreshRate();
 

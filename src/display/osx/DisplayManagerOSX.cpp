@@ -10,13 +10,29 @@
 #include "utils/osx/OSXUtils.h"
 #include "DisplayManagerOSX.h"
 
+#include "QsLog.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerOSX::initialize()
 {
   int totalModes = 0;
-  
-  CGGetActiveDisplayList(MAX_DISPLAYS, m_osxDisplays, &m_osxnumDisplays);
+
   displays.clear();
+
+  for (int i = 0; i < m_osxDisplayModes.size(); i++)
+  {
+    if (m_osxDisplayModes[i])
+      CFRelease(m_osxDisplayModes[i]);
+  }
+  m_osxDisplayModes.clear();
+
+  CGError err = CGGetActiveDisplayList(MAX_DISPLAYS, m_osxDisplays, &m_osxnumDisplays);
+  if (err)
+  {
+    m_osxnumDisplays = 0;
+    QLOG_ERROR() << "CGGetActiveDisplayList returned failure:" << err;
+    return false;
+  }
 
   for (int displayid = 0; displayid < m_osxnumDisplays; displayid++)
   {
@@ -83,7 +99,12 @@ bool DisplayManagerOSX::setDisplayMode(int display, int mode)
   CGDisplayModeRef displayMode =
   (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode);
 
-  CGDisplaySetDisplayMode(m_osxDisplays[display], displayMode, NULL);
+  CGError err = CGDisplaySetDisplayMode(m_osxDisplays[display], displayMode, NULL);
+  if (err)
+  {
+    QLOG_ERROR() << "CGDisplaySetDisplayMode() returned failure:" << err;
+    return false;
+  }
 
   // HACK : on OSX, switching display mode can leave dock in a state where mouse cursor
   // will not hide on top of hidden dock, so we reset it state to fix this

@@ -5,41 +5,21 @@ if(ENABLE_SDL2)
   if(SDL2_FOUND)
     list(APPEND ENABLED_INPUTS SDL2)
 
-    if(NOT WIN32)
-      find_package(Iconv)
-
-      if(NOT ICONV_FOUND)
-        unset(SDL2_FOUND)
-      endif(NOT ICONV_FOUND)
-
-      find_package(DL)
-
-      if(NOT DL_FOUND)
-        unset(SDL2_FOUND)
-      endif(NOT DL_FOUND)
-
-      list(APPEND SDL2_LIBRARY ${ICONV_LIBRARIES} ${DL_LIBRARIES})
-    endif()
-
     if(APPLE)
-      find_package(Iconv)
-
-      if(NOT ICONV_FOUND)
-        unset(SDL2_FOUND)
-      endif(NOT ICONV_FOUND)
-
-      list(APPEND SDL2_LIBRARY ${ICONV_LIBRARIES})
+#      find_package(Iconv)
+#      list(APPEND SDL2_LIBRARY ${ICONV_LIBRARIES})
+      find_package(Iconv REQUIRED)
       find_library(FORCEFEEDBACK ForceFeedback)
       find_library(CARBON Carbon)
-      list(APPEND SDL2_LIBRARY ${FORCEFEEDBACK} ${CARBON})
+      find_library(COREAUDIO CoreAudio)
+      find_library(COREVIDEO CoreVideo)
+      find_library(AUDIOUNIT AudioUnit)
+      list(APPEND SDL2_LIBRARY ${FORCEFEEDBACK} ${CARBON} ${COREAUDIO} ${AUDIOUNIT} ${COREVIDEO} ${ICONV_LIBRARIES})
     endif(APPLE)
 
-    if(SDL2_FOUND)
-      add_definitions(-DHAVE_SDL)
-      include_directories(${SDL2_INCLUDE_DIR})
-      set(EXTRA_LIBS ${SDL2_LIBRARY})
-    endif(SDL2_FOUND)
-
+    add_definitions(-DHAVE_SDL)
+    include_directories(${SDL2_INCLUDE_DIR})
+    set(EXTRA_LIBS ${SDL2_LIBRARY})
   endif(SDL2_FOUND)
 
 endif(ENABLE_SDL2)

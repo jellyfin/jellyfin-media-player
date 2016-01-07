@@ -313,14 +313,23 @@ static bool modeEqualsFuzzy(const DMVideoMode& m1, const DMVideoMode& m2, float 
 void DisplayComponent::switchCommand(QString command)
 {
   if (!m_displayManager)
+  {
+    QLOG_ERROR() << "Display manager not set";
     return;
+  }
 
   int currentDisplay = getApplicationDisplay();
   if (currentDisplay < 0)
+  {
+    QLOG_ERROR() << "Current display not found";
     return;
+  }
   int id = m_displayManager->getCurrentDisplayMode(currentDisplay);
   if (id < 0)
+  {
+    QLOG_ERROR() << "Current mode not found";
     return;
+  }
   DMVideoMode current_mode = *m_displayManager->displays[currentDisplay]->videoModes[id];
   DMVideoMode mode = current_mode;
 

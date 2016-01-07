@@ -20,7 +20,6 @@ public:
 
   void keyPress(const QKeySequence& sequence)
   {
-    QLOG_DEBUG() << "Input:" << sequence.toString();
     emit receivedInput("Keyboard", sequence.toString());
   }
 

@@ -24,10 +24,7 @@ QVariant CachedRegexMatcher::match(const QString& input)
 {
   // first we check if this match has already happened before
   if (m_matcherCache.contains(input))
-  {
-    QLOG_DEBUG() << "Found cached match for input:" << input;
     return m_matcherCache.value(input);
-  }
 
   // otherwise try to iterate our list and find a match
   foreach(const MatcherValuePair& matcher, m_matcherList)
@@ -37,21 +34,18 @@ QVariant CachedRegexMatcher::match(const QString& input)
     if (re.indexIn(input) != -1)
     {
       // found match
-      QLOG_DEBUG() << "Matched:" << "to pattern:" << re.pattern();
-
       QVariant returnValue = matcher.second;
 
       if (re.captureCount() > 0 && matcher.second.type() == QVariant::String)
       {
         QString value(matcher.second.toString());
 
-        QLOG_DEBUG() << "Captured:" << re.captureCount();
         for (int i = 0; i < re.captureCount(); i ++)
         {
-          QLOG_DEBUG() << "capture" << i+1 << ":" << re.cap(i+1);
-          value = value.arg(re.cap(i+1));
+          QString argFmt = QString("%%1").arg(i + 1);
+          if (value.contains(argFmt))
+            value = value.arg(re.cap(i + 1));
         }
-        QLOG_DEBUG() << "After captures the final value is:" << value;
         returnValue = QVariant(value);
       }
 

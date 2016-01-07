@@ -83,6 +83,8 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
   // hide mouse if it's visible.
   SystemComponent::Get().setCursorVisibility(false);
 
+  QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode;
+
   QString action = m_mappings->mapToAction(source, keycode);
   if (!action.isEmpty())
   {
@@ -119,7 +121,6 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
     }
     else
     {
-      QLOG_DEBUG() << "Sending action:" << action;
       emit receivedAction(action);
     }
   }

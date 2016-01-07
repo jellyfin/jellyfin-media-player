@@ -65,7 +65,6 @@ QString InputMapping::mapToAction(const QString& source, const QString& keycode)
     QVariant action = m_inputMatcher.value(sourceName.toString())->match(keycode);
     if (action.isValid())
     {
-      QLOG_DEBUG() << "Mapped:" << keycode << "to action:" << action.toString();
       return action.toString();
     }
   }

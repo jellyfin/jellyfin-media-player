@@ -318,6 +318,12 @@ void DisplayComponent::switchCommand(QString command)
     return;
   }
 
+  if (!initializeDisplayManager())
+  {
+    QLOG_ERROR() << "Could not reinitialize display manager";
+    return;
+  }
+
   int currentDisplay = getApplicationDisplay();
   if (currentDisplay < 0)
   {

@@ -272,7 +272,7 @@ void SystemComponent::openExternalUrl(const QString& url)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void SystemComponent::runUserScript(const QString& script)
+void SystemComponent::runUserScript(QString script)
 {
   // We take the path the user supplied and run it through fileInfo and
   // look for the fileName() part, this is to avoid people sharing keymaps

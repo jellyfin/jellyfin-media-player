@@ -42,7 +42,7 @@ public:
 
   Q_INVOKABLE void openExternalUrl(const QString& url);
 
-  Q_INVOKABLE void runUserScript(const QString& script);
+  Q_INVOKABLE void runUserScript(QString script);
 
   // possible os types type enum
   enum PlatformType

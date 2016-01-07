@@ -778,7 +778,7 @@ void PlayerComponent::updateVideoSettings()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::userCommand(const QString& command)
+void PlayerComponent::userCommand(QString command)
 {
   QByteArray cmd_utf8 = command.toUtf8();
   mpv_command_string(m_mpv, cmd_utf8.data());

@@ -3,8 +3,6 @@ OPTION(ENABLE_SDL2 "Enable SDL2 for joystick handling" ON)
 if(ENABLE_SDL2)
   find_package(SDL2)
   if(SDL2_FOUND)
-    list(APPEND ENABLED_INPUTS SDL2)
-
     if(APPLE)
 #      find_package(Iconv)
 #      list(APPEND SDL2_LIBRARY ${ICONV_LIBRARIES})
@@ -17,6 +15,24 @@ if(ENABLE_SDL2)
       list(APPEND SDL2_LIBRARY ${FORCEFEEDBACK} ${CARBON} ${COREAUDIO} ${AUDIOUNIT} ${COREVIDEO} ${ICONV_LIBRARIES})
     endif(APPLE)
 
+    if(UNIX AND NOT APPLE)
+      find_package(Iconv)
+
+      if(NOT ICONV_FOUND)
+        unset(SDL2_FOUND)
+      endif(NOT ICONV_FOUND)
+
+      find_package(DL)
+
+      if(NOT DL_FOUND)
+        unset(SDL2_FOUND)
+      endif(NOT DL_FOUND)
+
+      list(APPEND SDL2_LIBRARY ${ICONV_LIBRARIES} ${DL_LIBRARIES})
+    endif()
+  endif(SDL2_FOUND)
+  if(SDL2_FOUND)
+    list(APPEND ENABLED_INPUTS SDL2)
     add_definitions(-DHAVE_SDL)
     include_directories(${SDL2_INCLUDE_DIR})
     set(EXTRA_LIBS ${SDL2_LIBRARY})

@@ -142,14 +142,14 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
 
   m_hostCommands.insert(command, recvSlot);
 
-  auto slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->slot)).toLatin1().data();
-  auto slotWithoutArgs = QString("%1()").arg(QString::fromLatin1(recvSlot->slot)).toLatin1().data();
-  if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithArgs) != -1)
+  auto slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->slot)).toLatin1();
+  auto slotWithoutArgs = QString("%1()").arg(QString::fromLatin1(recvSlot->slot)).toLatin1();
+  if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithArgs.data()) != -1)
   {
     QLOG_DEBUG() << "Host command maps to method with an argument.";
     recvSlot->hasArguments = true;
   }
-  else if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithoutArgs) != -1)
+  else if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithoutArgs.data()) != -1)
   {
     QLOG_DEBUG() << "Host command maps to method without arguments.";
   }

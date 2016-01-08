@@ -102,6 +102,8 @@ void DisplayComponent::monitorChange()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayComponent::switchToBestVideoMode(float frameRate)
 {
+  initializeDisplayManager();
+
   if (!m_displayManager)
     return false;
 
@@ -147,6 +149,8 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayComponent::switchToBestOverallVideoMode(int display)
 {
+  initializeDisplayManager();
+
   if (!m_displayManager || !m_displayManager->isValidDisplay(display))
     return false;
 
@@ -196,6 +200,8 @@ double DisplayComponent::currentRefreshRate()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayComponent::restorePreviousVideoMode()
 {
+  initializeDisplayManager();
+
   if (!m_displayManager)
     return false;
 

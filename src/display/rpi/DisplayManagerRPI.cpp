@@ -8,8 +8,6 @@
 #include "DisplayManagerRPI.h"
 #include "display/DisplayComponent.h"
 
-#define NTSC_MASK (1 << 8)
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DisplayManagerRPI::tv_callback(void *callback_data, uint32_t reason, uint32_t param1, uint32_t param2)
 {
@@ -93,7 +91,7 @@ bool DisplayManagerRPI::initialize()
   {
     TV_SUPPORTED_MODE_NEW_T* tvmode = &m_modes[n];
     DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode);
-    mode->id = n;
+    mode->id = n * 2 + 0;
     display->videoModes[mode->id] = mode;
 
     mode->height = tvmode->height;
@@ -103,7 +101,7 @@ bool DisplayManagerRPI::initialize()
     mode->bitsPerPixel = 32;
 
     mode = DMVideoModePtr(new DMVideoMode(*mode));
-    mode->id |= NTSC_MASK;
+    mode->id = n * 2 + 1;
     display->videoModes[mode->id] = mode;
     mode->refreshRate /= 1.001;
   }
@@ -117,19 +115,16 @@ bool DisplayManagerRPI::initialize()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerRPI::setDisplayMode(int display, int mode)
 {
-  bool ntsc = (mode & NTSC_MASK);
-  mode &= ~NTSC_MASK;
-
   if (!isValidDisplayMode(display, mode))
     return false;
 
   HDMI_PROPERTY_PARAM_T property;
   property.property = HDMI_PROPERTY_PIXEL_CLOCK_TYPE;
-  property.param1 = ntsc ? HDMI_PIXEL_CLOCK_TYPE_NTSC : HDMI_PIXEL_CLOCK_TYPE_PAL;
+  property.param1 = (mode % 2) ? HDMI_PIXEL_CLOCK_TYPE_NTSC : HDMI_PIXEL_CLOCK_TYPE_PAL;
   property.param2 = 0;
   vc_tv_hdmi_set_property(&property);
 
-  TV_SUPPORTED_MODE_NEW_T* tvmode = &m_modes[mode];
+  TV_SUPPORTED_MODE_NEW_T* tvmode = &m_modes[mode / 2];
   bool ret = vc_tv_hdmi_power_on_explicit_new(HDMI_MODE_HDMI, (HDMI_RES_GROUP_T)tvmode->group, tvmode->code) == 0;
   if (!ret)
   {
@@ -156,7 +151,16 @@ int DisplayManagerRPI::getCurrentDisplayMode(int display)
         tvmode->height == tvstate.height &&
         tvmode->frame_rate == tvstate.frame_rate &&
         tvmode->scan_mode == tvstate.scan_mode)
-      return mode;
+    {
+      bool ntsc = false;
+      HDMI_PROPERTY_PARAM_T property;
+      property.property = HDMI_PROPERTY_PIXEL_CLOCK_TYPE;
+      property.param1 = 0;
+      property.param2 = 0;
+      if (!vc_tv_hdmi_get_property(&property))
+        ntsc = property.param1 == HDMI_PIXEL_CLOCK_TYPE_NTSC;
+      return mode * 2 + (ntsc ? 1 : 0);
+    }
   }
 
   return -1;

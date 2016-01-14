@@ -8,6 +8,8 @@
 #include "DisplayManagerRPI.h"
 #include "display/DisplayComponent.h"
 
+#define NTSC_MASK (1 << 8)
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DisplayManagerRPI::tv_callback(void *callback_data, uint32_t reason, uint32_t param1, uint32_t param2)
 {
@@ -99,6 +101,11 @@ bool DisplayManagerRPI::initialize()
     mode->refreshRate = tvmode->frame_rate;
     mode->interlaced = (tvmode->scan_mode == 1);
     mode->bitsPerPixel = 32;
+
+    mode = DMVideoModePtr(new DMVideoMode(*mode));
+    mode->id |= NTSC_MASK;
+    display->videoModes[mode->id] = mode;
+    mode->refreshRate /= 1.001;
   }
 
   if (m_modes.size() == 0)
@@ -110,8 +117,17 @@ bool DisplayManagerRPI::initialize()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerRPI::setDisplayMode(int display, int mode)
 {
+  bool ntsc = (mode & NTSC_MASK);
+  mode &= ~NTSC_MASK;
+
   if (!isValidDisplayMode(display, mode))
     return false;
+
+  HDMI_PROPERTY_PARAM_T property;
+  property.property = HDMI_PROPERTY_PIXEL_CLOCK_TYPE;
+  property.param1 = ntsc ? HDMI_PIXEL_CLOCK_TYPE_NTSC : HDMI_PIXEL_CLOCK_TYPE_PAL;
+  property.param2 = 0;
+  vc_tv_hdmi_set_property(&property);
 
   TV_SUPPORTED_MODE_NEW_T* tvmode = &m_modes[mode];
   bool ret = vc_tv_hdmi_power_on_explicit_new(HDMI_MODE_HDMI, (HDMI_RES_GROUP_T)tvmode->group, tvmode->code) == 0;

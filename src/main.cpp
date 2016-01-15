@@ -40,7 +40,7 @@ static void preinitQt()
   // Warning: this must be the same as the default value as declared in
   // the settings_description.json file, or confusion will result.
   if (useOpengl.type() != QMetaType::Bool)
-    useOpengl = true;
+    useOpengl = false;
 
   if (useOpengl.toBool())
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);

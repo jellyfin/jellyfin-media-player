@@ -52,6 +52,10 @@ public:
   // Stop playback and clear all queued items.
   Q_INVOKABLE virtual void stop();
 
+  // A full reload of the stream is imminent (stop() + load())
+  // Used ofr not resetting display mode with the next stop() call.
+  Q_INVOKABLE virtual void streamSwitch();
+
   Q_INVOKABLE virtual void pause();
   Q_INVOKABLE virtual void play();
   
@@ -164,6 +168,7 @@ private:
   QTimer m_restoreDisplayTimer;
   QTimer m_reloadAudioTimer;
   QSet<QString> m_audioDevices;
+  bool m_streamSwitchImminent;
 };
 
 #endif // PLAYERCOMPONENT_H

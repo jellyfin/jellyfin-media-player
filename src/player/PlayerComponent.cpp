@@ -30,7 +30,8 @@ static void wakeup_cb(void *context)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::PlayerComponent(QObject* parent)
   : ComponentBase(parent), m_lastPositionUpdate(0.0), m_playbackAudioDelay(0), m_playbackStartSent(false), m_window(0), m_mediaFrameRate(0),
-  m_restoreDisplayTimer(this), m_reloadAudioTimer(this)
+  m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
+  m_streamSwitchImminent(false)
 {
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "MpvVideo"); // deprecated name
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "KonvergoVideo");
@@ -243,6 +244,12 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   mpv::qt::command_variant(m_mpv, command);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::streamSwitch()
+{
+  m_streamSwitchImminent = true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool PlayerComponent::switchDisplayFrameRate()
 {
@@ -336,7 +343,9 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       emit playbackEnded(m_CurrentUrl);
       m_CurrentUrl = "";
 
-      m_restoreDisplayTimer.start(0);
+      if (!m_streamSwitchImminent)
+        m_restoreDisplayTimer.start(0);
+      m_streamSwitchImminent = false;
       break;
     }
     case MPV_EVENT_IDLE:

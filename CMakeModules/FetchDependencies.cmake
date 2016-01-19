@@ -101,9 +101,9 @@ function(download_deps DD_NAME)
       WORKING_DIRECTORY ${DEP_DIR}
     )
     if(APPLE)
-      message(STATUS "Fixing install library names...")
+      message(STATUS "Fixing install library names...${DEP_DIR}/${DEP_DIRNAME}")
       execute_process(
-        COMMAND ${PROJECT_SOURCE_DIR}/scripts/darwin/fix-install-names.py ${DEP_DIR}/${DEP_DIRNAME}
+        COMMAND ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py ${DEP_DIR}/${DEP_DIRNAME}
         WORKING_DIRECTORY ${DEP_DIR}
       )
       message(STATUS "Done")

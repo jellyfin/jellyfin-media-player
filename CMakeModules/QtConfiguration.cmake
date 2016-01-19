@@ -1,11 +1,17 @@
 
 include(FetchDependencies)
+
+if(WIN32)
+  set(WINARCHSTR ARCHSTR windows-x86_64)
+endif(WIN32)
+
 if(NOT IS_DIRECTORY ${QTROOT})
   download_deps(
 		"plexmediaplayer-qt"
 		DIRECTORY dir
 		DEPHASH QT_DEPS_HASH
     ARTIFACTNAME konvergo-qt
+    ${WINARCHSTR}
 	)
   set(QTROOT ${dir})
 endif()

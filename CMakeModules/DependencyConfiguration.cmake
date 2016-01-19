@@ -4,13 +4,22 @@ option(DISABLE_BUNDLED_DEPS "Disable the bundled deps on certain platforms" OFF)
 include(FetchDependencies)
 
 if(APPLE AND NOT DISABLE_BUNDLED_DEPS)  
-  download_deps("plexmediaplayer-dependencies" dir DEPS_HASH)
+  download_deps(
+    "plexmediaplayer-dependencies"
+     ARTIFACTNAME konvergo-depends
+     DIRECTORY dir
+  )
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT ${dir})
 endif(APPLE AND NOT DISABLE_BUNDLED_DEPS)
 
 if(WIN32)
-  download_deps("plexmediaplayer-windows-dependencies" dir DEPS_HASH)
+  download_deps(
+    "plexmediaplayer-windows-dependencies"
+    DIRECTORY dir
+    ARTIFACTNAME konvergo-depends-windows
+    ARCHSTR mingw32-x86_64
+  )
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT "${dir}")
 endif(WIN32)

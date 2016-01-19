@@ -1,7 +1,12 @@
 
 include(FetchDependencies)
 if(NOT IS_DIRECTORY ${QTROOT})
-  download_deps("plexmediaplayer-qt" dir QT_DEPS_HASH)
+  download_deps(
+		"plexmediaplayer-qt"
+		DIRECTORY dir
+		DEPHASH QT_DEPS_HASH
+    ARTIFACTNAME konvergo-qt
+	)
   set(QTROOT ${dir})
 endif()
 list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})

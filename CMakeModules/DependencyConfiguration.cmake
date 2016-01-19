@@ -20,6 +20,12 @@ if(WIN32)
     ARTIFACTNAME konvergo-depends-windows
     ARCHSTR mingw32-x86_64
   )
+  if(NOT EXISTS ${dir}/lib/mpv.lib)
+    execute_process(
+      COMMAND LIB /def:bin\\mpv-1.def /out:lib\\mpv.lib /MACHINE:X64
+      WORKING_DIRECTORY ${dir}
+    )
+  endif(NOT EXISTS ${dir}/lib/mpv.lib)
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT "${dir}")
 endif(WIN32)

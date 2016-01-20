@@ -12,7 +12,7 @@
 #include "QsLog.h"
 #include "utils/Utils.h"
 
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32)
 
 #include <windows.h>
 #include <d3d9.h>
@@ -73,7 +73,7 @@ void initD3DDevice(void)
 // Special libmpv-specific pseudo extension for better behavior with OpenGL
 // fullscreen modes. This is needed with some drivers which do not allow the
 // libmpv DXVA code to create a new D3D device.
-static void* __stdcall MPGetD3DInterface(const char* name)
+static void* __stdcall MPGetNativeDisplay(const char* name)
 {
   QLOG_INFO() << "Asking for " << qPrintable(QString::fromUtf8((name)));
   if (strcmp(name, "IDirect3DDevice9") == 0)
@@ -82,6 +82,13 @@ static void* __stdcall MPGetD3DInterface(const char* name)
     IDirect3DDevice9_AddRef(d3ddevice);
     return (void *)d3ddevice;
   }
+  return NULL;
+}
+// defined(Q_OS_WIN32)
+#else
+// Unsupported or not needed. Also, not using Windows-specific calling convention.
+static void* MPGetNativeDisplay(const char* name)
+{
   return NULL;
 }
 #endif
@@ -96,11 +103,11 @@ static void* get_proc_address(void* ctx, const char* name)
     return NULL;
 
   void *res = (void *)glctx->getProcAddress(QByteArray(name));
-#ifdef Q_OS_WIN32
-  if (strcmp(name, "glMPGetD3DInterface") == 0)
+  if (strcmp(name, "glMPGetNativeDisplay") == 0)
   {
-    return (void *)&MPGetD3DInterface;
+    return (void *)&MPGetNativeDisplay;
   }
+#ifdef Q_OS_WIN32
   // wglGetProcAddress(), which is used by Qt, does not always resolve all
   // builtin functions with all drivers (only extensions). Qt compensates this
   // for a degree, but does this only for functions Qt happens to need. So
@@ -125,11 +132,8 @@ PlayerRenderer::PlayerRenderer(mpv::qt::Handle mpv, QQuickWindow* window)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool PlayerRenderer::init()
 {
-  const char *extensions = "";
-#ifdef Q_OS_WIN32
-  // For the custom IDirect3DDevice9 hack above.
-  extensions = "GL_MP_D3D_interfaces";
-#endif
+  // Signals presence of MPGetNativeDisplay().
+  const char *extensions = "GL_MP_MPGetNativeDisplay";
   return mpv_opengl_cb_init_gl(m_mpvGL, extensions, get_proc_address, NULL) >= 0;
 }
 

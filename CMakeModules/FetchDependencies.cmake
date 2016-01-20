@@ -60,7 +60,7 @@ function(download_deps DD_NAME)
   endif(NOT DEFINED DD_ARCHSTR)
 
   set(BASE_URL "https://nightlies.plex.tv/directdl/plex-dependencies/${DD_NAME}/${DD_BUILD_NUMBER}")
-  set(DEP_DIR ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/${DD_BUILD_NUMBER}/)
+  set(DEP_DIR ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/${DD_BUILD_NUMBER})
 
   set(HASH_FILENAME ${DD_NAME}-${DD_BUILD_NUMBER}-hash.txt)
   get_content_of_url(URL ${BASE_URL}/hash.txt CONTENT_VAR DEP_HASH FILENAME ${HASH_FILENAME})

@@ -161,8 +161,20 @@ IN THE SOFTWARE.
 Others:
 -------
 
-- qt: LGPL v2.1 or v3
-- qtwebengine: LGPL v3, or GPL v2 or later
-- mpv: GPL v2 or later
-- libcec: GPL v2 or later
-- libsdl2: zlib license
+- qt: LGPL v2.1 or v3 (http://doc.qt.io/qt-5/licensing.html)
+  The Qt website also lists further licenses for some of its components and
+  dependencies.
+  - qtwebengine: LGPL v3, or GPL v2 or later (http://doc.qt.io/qt-5/qtwebenginewidgets-index.html#license-information)
+- mpv: GPL v2 or later (https://github.com/mpv-player/mpv/blob/master/LICENSE)
+  - FFmpeg: LGPL v2.1 or later (http://www.ffmpeg.org/legal.html)
+    - libdcadec: LCPL v2.1 or later (https://github.com/foo86/dcadec/blob/master/COPYING.LGPLv2.1)
+    - bzip2: BSD-style (http://www.bzip.org)
+  - libass: ISC (https://github.com/libass/libass/blob/master/COPYING)
+    - freetype: GPL 2 or FreeType License (http://git.savannah.gnu.org/cgit/freetype/freetype2.git/tree/docs/LICENSE.TXT)
+    - HarfBuzz: "Old MIT" license (http://cgit.freedesktop.org/harfbuzz/tree/COPYING)
+    - fribidi: LGPL v2.1 or later (http://cgit.freedesktop.org/fribidi/fribidi/tree/COPYING)
+- libcec: GPL v2 or later (https://github.com/Pulse-Eight/libcec/blob/master/COPYING)
+- libsdl2: zlib license (http://www.libsdl.org/license.php)
+- zlib: zlib license (http://www.zlib.net/zlib_license.html)
+- ICE: ICU license (http://source.icu-project.org/repos/icu/icu/trunk/license.html)
+

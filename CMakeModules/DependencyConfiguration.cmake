@@ -28,6 +28,13 @@ if(WIN32)
   endif(NOT EXISTS ${dir}/lib/mpv.lib)
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT "${dir}")
+
+  download_deps(
+    "windows-redist"
+    DIRECTORY VCREDIST_DIR
+    ARTIFACTNAME windows-redist-2015
+    ARCHSTR windows-x86_x64
+  )
 endif(WIN32)
 
 set(DEPENDENCY_ROOT ${DEFAULT_ROOT} CACHE PATH "Path where the deps are located")

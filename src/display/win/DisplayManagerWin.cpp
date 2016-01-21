@@ -36,7 +36,7 @@ static bool modeEquals(const DMVideoMode& m1, const DMVideoMode& m2)
 {
   return m1.height == m2.height &&
          m1.width == m2.width &&
-         fabs(m1.refreshRate - m2.refreshRate) < 1e9 &&
+         fabs(m1.refreshRate - m2.refreshRate) < 1e-9 &&
          m1.bitsPerPixel == m2.bitsPerPixel &&
          m1.interlaced == m2.interlaced;
 }

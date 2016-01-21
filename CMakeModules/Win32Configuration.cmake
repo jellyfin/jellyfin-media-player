@@ -8,7 +8,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Oy-")
 find_library(WINMM winmm)
 find_library(IMMLIB imm32)
 find_library(VERLIB version)
-set(OS_LIBS ${WINMM} ${IMMLIB} ${VERLIB})
+find_library(DWMLIB dwmapi)
+set(OS_LIBS ${WINMM} ${IMMLIB} ${VERLIB} ${DWMLIB})
 
 # Add install rules for required system runtimes such as MSVCRxx.dll
 SET (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)

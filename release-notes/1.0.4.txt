@@ -1,0 +1,22 @@
+NEW:
+  - Updated web client to 2.5.1
+  - Request Multimedia Class Schedule Service on Windows
+  - Windows installer now calls the vcredist installer automatically.
+    For 1.0.4 this means that you need to re-run the installer and can not
+    auto-update on windows.
+  - Windows version is now built with Visual Studio 2015
+  - We now default to DirectX/ANGLE on Windows, this will hopefully reduce
+    the number of issues we see with bad / buggy OpenGL drivers.
+
+FIXES:
+  - mpv's internal OSD is now switched off, we are replacing this with something
+    native to PMP in an upcoming version.
+  - Fixed refresh rate switching on RPI2
+  - Correctly signal NTSC (23.976hz) refresh rates on RPI2
+  - Fixed refresh rate switching bugs on Windows (Thanks niko34!)
+  - Stability fixes to refresh rate switching on OSX
+  - Always force transcoding if "Optical" device type is selected
+  - Fix the host:switch command
+  - Don't switch refresh rate when seeking in transcoding video
+  - Fix inputs via SDL on OSX
+  - Fix 7.1 audio setups on OSX

@@ -17,6 +17,7 @@
 #include <windows.h>
 #include <d3d9.h>
 #include <dwmapi.h>
+#include <avrt.h>
 
 typedef IDirect3D9* WINAPI pDirect3DCreate9(UINT);
 
@@ -125,7 +126,7 @@ static void* get_proc_address(void* ctx, const char* name)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerRenderer::PlayerRenderer(mpv::qt::Handle mpv, QQuickWindow* window)
-: m_mpv(mpv), m_mpvGL(0), m_window(window), m_size()
+: m_mpv(mpv), m_mpvGL(0), m_window(window), m_size(), m_hAvrtHandle(0)
 {
   m_mpvGL = (mpv_opengl_cb_context *)mpv_get_sub_api(m_mpv, MPV_SUB_API_OPENGL_CB);
 }
@@ -169,6 +170,23 @@ void PlayerRenderer::render()
 void PlayerRenderer::swap()
 {
   mpv_opengl_cb_report_flip(m_mpvGL, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerRenderer::onPlaybackActive(bool active)
+{
+#ifdef Q_OS_WIN32
+  if (active && !m_hAvrtHandle)
+  {
+    DWORD handle = 0;
+    m_hAvrtHandle = AvSetMmThreadCharacteristicsW(L"Low Latency", &handle);
+  }
+  else if (!active && m_hAvrtHandle)
+  {
+    AvRevertMmThreadCharacteristics(m_hAvrtHandle);
+    m_hAvrtHandle = 0;
+  }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,6 +236,7 @@ void PlayerQuickItem::onSynchronize()
     }
     connect(window(), &QQuickWindow::beforeRendering, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
     connect(window(), &QQuickWindow::frameSwapped, m_renderer, &PlayerRenderer::swap, Qt::DirectConnection);
+    connect(&PlayerComponent::Get(), &PlayerComponent::playbackActive, m_renderer, &PlayerRenderer::onPlaybackActive, Qt::QueuedConnection);
     window()->setPersistentOpenGLContext(true);
     window()->setPersistentSceneGraph(true);
     window()->setClearBeforeRendering(false);

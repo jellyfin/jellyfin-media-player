@@ -122,6 +122,9 @@ Q_SIGNALS:
   // playback starts normally
   void playbackStarting();
   void paused(bool paused);
+  // true if the video (or music) is actually
+  // false if nothing is loaded, playback is paused, during seeking, or media is being loaded
+  void playbackActive(bool active);
   void windowVisible(bool visible);
   // emitted as soon as the duration of the current file is known
   void updateDuration(qint64 milliseconds);

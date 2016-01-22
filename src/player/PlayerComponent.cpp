@@ -113,6 +113,7 @@ bool PlayerComponent::componentInitialize()
 #endif
 
   mpv_observe_property(m_mpv, 0, "pause", MPV_FORMAT_FLAG);
+  mpv_observe_property(m_mpv, 0, "core-idle", MPV_FORMAT_FLAG);
   mpv_observe_property(m_mpv, 0, "cache-buffering-state", MPV_FORMAT_INT64);
   mpv_observe_property(m_mpv, 0, "playback-time", MPV_FORMAT_DOUBLE);
   mpv_observe_property(m_mpv, 0, "vo-configured", MPV_FORMAT_FLAG);
@@ -368,6 +369,10 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         int state = *(int *)prop->data;
         emit paused(state);
+      }
+      else if (strcmp(prop->name, "core-idle") == 0 && prop->format == MPV_FORMAT_FLAG)
+      {
+        emit playbackActive(!*(int *)prop->data);
       }
       else if (strcmp(prop->name, "cache-buffering-state") == 0 && prop->format == MPV_FORMAT_INT64)
       {

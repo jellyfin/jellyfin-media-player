@@ -60,8 +60,8 @@ public:
   Q_INVOKABLE virtual void play();
   
   /* 0-100 volume 0=mute and 100=normal */
-  Q_INVOKABLE virtual void setVolume(quint8 volume);
-  Q_INVOKABLE virtual quint8 volume();
+  Q_INVOKABLE virtual void setVolume(int volume);
+  Q_INVOKABLE virtual int volume();
 
   // Returns a QVariant of the following format:
   // QVariantList                   (list of audio device entries)

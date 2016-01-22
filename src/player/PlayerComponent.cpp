@@ -526,14 +526,14 @@ void PlayerComponent::setAudioDevice(const QString& name)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setVolume(quint8 volume)
+void PlayerComponent::setVolume(int volume)
 {
   // Will fail if no audio output opened (i.e. no file playing)
   mpv::qt::set_property_variant(m_mpv, "volume", volume);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-quint8 PlayerComponent::volume()
+int PlayerComponent::volume()
 {
   QVariant volume = mpv::qt::get_property_variant(m_mpv, "volume");
   if (volume.isValid())

@@ -10,5 +10,3 @@ find_library(IMMLIB imm32)
 find_library(VERLIB version)
 find_library(DWMLIB dwmapi)
 set(OS_LIBS ${WINMM} ${IMMLIB} ${VERLIB} ${DWMLIB})
-
-set(OS_LIBS ${WINMM} ${IMMLIB} ${VERLIB})

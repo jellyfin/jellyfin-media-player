@@ -10,6 +10,8 @@
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
+#else
+typedef void* HANDLE;
 #endif
 
 #include "PlayerComponent.h"

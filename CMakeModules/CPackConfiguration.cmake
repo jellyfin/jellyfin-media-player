@@ -45,27 +45,6 @@ include(CPack)
 
 cpack_add_component(Core DISPLAY_NAME "Plex Media Player" DESCRIPTION "Plex Media Player (Core Application)" REQUIRED)
 
-# borrowed from https://github.com/peersafe/PeerSafe/blob/master/cmake_modules/package.cmake
-if(WIN32)
-  string(REPLACE "." "" VCVER $ENV{VisualStudioVersion})
-  if(MSVC)
-    if(CMAKE_CL_64)
-      set(VC_RUNTIME_DIR "$ENV{VCInstallDir}/redist/x64/Microsoft.VC${VCVER}.CRT")
-    else()
-      set(VC_RUNTIME_DIR "$ENV{VCInstallDir}/redist/x86/Microsoft.VC${VCVER}.CRT")
-    endif()
-    find_file(MSVCP NAMES msvcp${VCVER}.dll PATHS ${VC_RUNTIME_DIR} NO_DEFAULT_PATH)
-    #find_file(MSVCR NAMES msvcr${VCVER}.dll PATHS ${VC_RUNTIME_DIR} NO_DEFAULT_PATH)
-    find_file(VCCORLIB NAMES vccorlib${VCVER}.dll PATHS ${VC_RUNTIME_DIR} NO_DEFAULT_PATH)
-    if(NOT MSVCP)
-      set(ERROR_MESSAGE "\nCould not find library msvcp${VCVER}.dll.\nRun cmake from a Visual Studio Command Prompt.")
-      message(FATAL_ERROR "${ERROR_MESSAGE}")
-    endif()
-  endif()
-
-  install(FILES ${MSVCP} ${VCCORLIB} DESTINATION .)
-endif()
-
 if(WIN32 AND DEFINED DEPENDENCY_ROOT)
   install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/qt.conf DESTINATION .)
   #add_custom_command(TARGET package POST_BUILD COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd  ${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}.exe WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )

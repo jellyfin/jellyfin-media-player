@@ -547,6 +547,22 @@ int PlayerComponent::volume()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setMuted(bool muted)
+{
+  // Will fail if no audio output opened (i.e. no file playing)
+  mpv::qt::set_property_variant(m_mpv, "mute", muted);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool PlayerComponent::muted()
+{
+  QVariant mute = mpv::qt::get_property_variant(m_mpv, "mute");
+  if (mute.isValid())
+    return mute.toBool();
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setSubtitleStream(const QString &subtitleStream)
 {
   if (subtitleStream.isEmpty())

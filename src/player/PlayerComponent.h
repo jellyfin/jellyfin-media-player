@@ -59,9 +59,16 @@ public:
   Q_INVOKABLE virtual void pause();
   Q_INVOKABLE virtual void play();
   
-  /* 0-100 volume 0=mute and 100=normal */
+  // 0-100 volume 0=mute and 100=normal
+  // Ignored if no audio output active (e.g. when no file is playing).
   Q_INVOKABLE virtual void setVolume(int volume);
+  // Returns 0 if no audio output active.
   Q_INVOKABLE virtual int volume();
+
+  // Ignored if no audio output active.
+  Q_INVOKABLE virtual void setMuted(bool muted);
+  // Returns 0 if no audio output active.
+  Q_INVOKABLE virtual bool muted();
 
   // Returns a QVariant of the following format:
   // QVariantList                   (list of audio device entries)

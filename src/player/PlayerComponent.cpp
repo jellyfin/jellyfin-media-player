@@ -19,6 +19,11 @@
 #include <string.h>
 #include <shared/Paths.h>
 
+#ifdef TARGET_RPI
+#include <bcm_host.h>
+#include <interface/vmcs_host/vcgencmd.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void wakeup_cb(void *context)
 {
@@ -145,6 +150,8 @@ bool PlayerComponent::componentInitialize()
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO), &SettingsSection::valuesUpdated,
           this, &PlayerComponent::setAudioConfiguration);
+
+  initializeCodecSupport();
 
   return true;
 }
@@ -805,6 +812,33 @@ void PlayerComponent::updateVideoSettings()
 
   QVariant cache = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "cache");
   mpv::qt::set_option_variant(m_mpv, "cache", cache.toInt() * 1024);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::initializeCodecSupport()
+{
+  QMap<QString, QString> all = { {"vc1", "WVC1"}, {"mpeg2video", "MPG2"} };
+  for (auto name : all.keys())
+  {
+    bool ok = true;
+#ifdef TARGET_RPI
+    char res[100] = "";
+    bcm_host_init();
+    if (vc_gencmd(res, sizeof(res), "codec_enabled %s", all[name].toUtf8().data()))
+      res[0] = '\0'; // error
+    ok = !!strstr(res, "=enabled");
+#endif
+    m_codecSupport[name] = ok;
+    QLOG_INFO() << "Codec" << name << (ok ? "present" : "disabled");
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool PlayerComponent::checkCodecSupport(const QString& codec)
+{
+  if (m_codecSupport.contains(codec))
+    return m_codecSupport[codec];
+  return true; // doesn't matter if unknown codecs are reported as "ok"
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

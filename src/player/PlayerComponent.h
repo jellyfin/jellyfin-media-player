@@ -90,6 +90,11 @@ public:
   // only. If no video is running, render a black background only.
   Q_INVOKABLE virtual void setVideoOnlyMode(bool enable);
 
+  // Currently is meant to check for "vc1" and "mpeg2video". Will return whether
+  // it can be natively decoded. Will return true for all other codecs,
+  // including unknown codec names.
+  Q_INVOKABLE virtual bool checkCodecSupport(const QString& codec);
+
   Q_INVOKABLE void userCommand(QString command);
 
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
@@ -166,6 +171,7 @@ private:
   bool switchDisplayFrameRate();
   void checkCurrentAudioDevice(const QSet<QString>& old_devs, const QSet<QString>& new_devs);
   void appendAudioFormat(QTextStream& info, const QString& property) const;
+  void initializeCodecSupport();
 
   mpv::qt::Handle m_mpv;
 
@@ -179,6 +185,7 @@ private:
   QTimer m_reloadAudioTimer;
   QSet<QString> m_audioDevices;
   bool m_streamSwitchImminent;
+  QMap<QString, bool> m_codecSupport;
 };
 
 #endif // PLAYERCOMPONENT_H

@@ -155,7 +155,8 @@ PlayerRenderer::~PlayerRenderer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerRenderer::render()
 {
-  int fbo = m_window->renderTargetId();
+  GLint fbo = 0;
+  QOpenGLContext::currentContext()->functions()->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
 
   m_window->resetOpenGLState();
 

@@ -115,6 +115,8 @@ bool PlayerComponent::componentInitialize()
   // interlaved audio/video. Setting it too low increases sensitivity to network
   // issues, and could cause playback failure with "bad" files.
   mpv::qt::set_option_variant(m_mpv, "demuxer-max-bytes", 50 * 1024 * 1024); // bytes
+  // Specifically for enabling mpeg4.
+  mpv::qt::set_option_variant(m_mpv, "hwdec-codecs", "all");
 #endif
 
   mpv_observe_property(m_mpv, 0, "pause", MPV_FORMAT_FLAG);

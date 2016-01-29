@@ -85,6 +85,7 @@ void SystemComponent::componentPostInitialize()
 {
   InputComponent::Get().registerHostCommand("crash!", this, "crashApp");
   InputComponent::Get().registerHostCommand("script", this, "runUserScript");
+  InputComponent::Get().registerHostCommand("message", this, "hostMessage");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

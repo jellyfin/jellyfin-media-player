@@ -73,6 +73,9 @@ public:
 
   Q_INVOKABLE void crashApp();
 
+signals:
+  void hostMessage(const QString& message);
+
 private:
   SystemComponent(QObject* parent = 0);
   static QMap<QString, QString> networkInterfaces();

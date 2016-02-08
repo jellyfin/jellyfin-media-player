@@ -177,8 +177,8 @@ RemotePollSubscriber::RemotePollSubscriber(const QString &clientIdentifier, cons
 void RemotePollSubscriber::setHTTPResponse(QHttpResponse *response)
 {
   m_response = response;
-  m_response->setHeader("Content-Type", "application/xml");
-  m_response->setHeader("Access-Control-Expose-Headers", "X-Plex-Client-Identifier");
+  m_response->addHeader("Content-Type", "application/xml");
+  m_response->addHeader("Access-Control-Expose-Headers", "X-Plex-Client-Identifier");
 
   connect(m_response, &QHttpResponse::done, this, &RemotePollSubscriber::responseDone);
 }
@@ -189,7 +189,7 @@ void RemotePollSubscriber::sendUpdate()
   if (m_response)
   {
     // if we have a response, we are handling a poll request
-    m_response->writeHead(QHttpResponse::STATUS_OK);
+    m_response->setStatusCode(qhttp::ESTATUS_OK);
     m_response->write(getTimeline());
 
     m_response->end();

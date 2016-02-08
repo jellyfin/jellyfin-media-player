@@ -34,25 +34,25 @@ bool HttpServer::start()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void HttpServer::writeError(QHttpResponse* response, QHttpResponse::StatusCode errorCode)
+void HttpServer::writeError(QHttpResponse* response, qhttp::TStatusCode errorCode)
 {
   QByteArray errorStyle = "<style>h1 {color:red;}</style>";
-  response->writeHead(errorCode);
+  response->setStatusCode(errorCode);
   response->write(errorStyle);
 
   QByteArray error;
   switch (errorCode)
   {
-    case QHttpResponse::STATUS_FORBIDDEN:
+    case qhttp::ESTATUS_FORBIDDEN:
       error = "Access to file denied. You might want to check permissions";
       break;
-    case QHttpResponse::STATUS_NOT_FOUND:
+    case qhttp::ESTATUS_NOT_FOUND:
       error = "Could not find that file. Install might be broken?";
       break;
-    case QHttpResponse::STATUS_METHOD_NOT_ALLOWED:
+    case qhttp::ESTATUS_METHOD_NOT_ALLOWED:
       error = "That method is not allowed.";
       break;
-    case QHttpResponse::STATUS_NOT_IMPLEMENTED:
+    case qhttp::ESTATUS_NOT_IMPLEMENTED:
       error = "This request is not yet implemented";
       break;
     default:
@@ -73,20 +73,20 @@ bool HttpServer::writeFile(const QString& file, QHttpResponse* response)
     QFile fp(file);
     if (fp.open(QFile::ReadOnly))
     {
-      response->writeHead(QHttpResponse::STATUS_OK);
+      response->setStatusCode(qhttp::ESTATUS_OK);
       response->write(fp.readAll());
       fp.close();
       return true;
     }
     else
     {
-      writeError(response, QHttpResponse::STATUS_FORBIDDEN);
+      writeError(response, qhttp::ESTATUS_FORBIDDEN);
       return false;
     }
   }
   else
   {
-    writeError(response, QHttpResponse::STATUS_NOT_FOUND);
+    writeError(response, qhttp::ESTATUS_NOT_FOUND);
     return false;
   }
 }
@@ -96,10 +96,10 @@ void HttpServer::handleWebClientRequest(QHttpRequest* request, QHttpResponse* re
 {
   switch (request->method())
   {
-    case QHttpRequest::HTTP_GET:
+    case qhttp::EHTTP_GET:
     {
       // cut the WEB_CLIENT_PATH prefix
-      QString relativeUrl = request->path();
+      QString relativeUrl = request->url().path();
       relativeUrl.replace(WEB_CLIENT_PATH, "");
       QString rUrl = m_baseUrl + relativeUrl;
 
@@ -109,7 +109,7 @@ void HttpServer::handleWebClientRequest(QHttpRequest* request, QHttpResponse* re
 
     default:
     {
-      writeError(response, QHttpResponse::STATUS_METHOD_NOT_ALLOWED);
+      writeError(response, qhttp::ESTATUS_METHOD_NOT_ALLOWED);
       QLOG_WARN() << "Method" << qPrintable(request->methodString()) << "is not supported";
     }
   }
@@ -132,10 +132,10 @@ void HttpServer::handleRemoteController(QHttpRequest* request, QHttpResponse* re
 /////////////////////////////////////////////////////////////////////////////////////////
 void HttpServer::handleFilesRequest(QHttpRequest* request, QHttpResponse* response)
 {
-  if (request->path() == "/files/qwebchannel.js")
+  if (request->url().path() == "/files/qwebchannel.js")
     writeFile(":/qtwebchannel/qwebchannel.js", response);
   else
-    writeError(response, QHttpResponse::STATUS_NOT_FOUND);
+    writeError(response, qhttp::ESTATUS_NOT_FOUND);
 
   response->end();
 }
@@ -145,7 +145,7 @@ void HttpServer::handleRequest(QHttpRequest* request, QHttpResponse* response)
 {
   QLOG_DEBUG() << "Incoming request to:" << request->url().toString() << "from" << request->remoteAddress();
 
-  QString path = request->path();
+  QString path = request->url().path();
   if (path.startsWith(WEB_CLIENT_PATH))
   {
     handleWebClientRequest(request, response);
@@ -164,12 +164,12 @@ void HttpServer::handleRequest(QHttpRequest* request, QHttpResponse* response)
   }
   else if (path == "/")
   {
-    response->writeHead(QHttpResponse::STATUS_OK);
+    response->setStatusCode(qhttp::ESTATUS_OK);
     response->end("You should not be here :-)");
   }
   else
   {
-    writeError(response, QHttpResponse::STATUS_NOT_FOUND);
+    writeError(response, qhttp::ESTATUS_NOT_FOUND);
     response->end();
   }
 }

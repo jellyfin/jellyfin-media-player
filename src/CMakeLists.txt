@@ -1,5 +1,5 @@
 include_directories(
-  ${CMAKE_SOURCE_DIR}/external/qhttpserver/src
+  ${CMAKE_SOURCE_DIR}/external/qhttp/src
   ${CMAKE_SOURCE_DIR}/external/qslog
   ${CMAKE_SOURCE_DIR}/external/SPMediaKeyTap
   ${CMAKE_SOURCE_DIR}/external/plistparser
@@ -146,7 +146,7 @@ endif(APPLE)
 
 target_link_libraries(${MAIN_TARGET}
   shared
-  qhttpserver
+  qhttp
   qslog
   ${PLISTPARSER}
   ${MPV_LIBRARY}

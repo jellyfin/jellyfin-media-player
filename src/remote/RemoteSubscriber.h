@@ -12,7 +12,7 @@
 #include <QNetworkReply>
 #include <QQueue>
 
-#include "qhttpresponse.h"
+#include "qhttpserverresponse.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 class RemoteSubscriber : public QObject
@@ -73,12 +73,12 @@ protected:
 class RemotePollSubscriber : public RemoteSubscriber
 {
 public:
-  RemotePollSubscriber(const QString& clientIdentifier, const QString& deviceName, QHttpResponse *response, QObject* parent = 0);
-  void setHTTPResponse(QHttpResponse *response);
+  RemotePollSubscriber(const QString& clientIdentifier, const QString& deviceName, qhttp::server::QHttpResponse *response, QObject* parent = 0);
+  void setHTTPResponse(qhttp::server::QHttpResponse *response);
   virtual void sendUpdate();
 
 private :
-   QHttpResponse* m_response;
+   qhttp::server::QHttpResponse* m_response;
 
 public Q_SLOTS:
    void responseDone();

@@ -1,5 +1,5 @@
-add_subdirectory(qhttpserver)
 add_subdirectory(qslog)
+add_subdirectory(qhttp)
 
 if(APPLE)
   add_subdirectory(plistparser)

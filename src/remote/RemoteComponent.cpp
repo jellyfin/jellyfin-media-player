@@ -113,7 +113,7 @@ QVariantMap RemoteComponent::GDMInformation()
 /////////////////////////////////////////////////////////////////////////////////////////
 void RemoteComponent::handleResource(QHttpRequest* request, QHttpResponse* response)
 {
-  if (request->method() == QHttpRequest::HTTP_GET)
+  if (request->method() == qhttp::EHTTP_GET)
   {
     QVariantMap headers = ResourceInformation();
 
@@ -130,13 +130,13 @@ void RemoteComponent::handleResource(QHttpRequest* request, QHttpResponse* respo
     output.writeEndElement();
     output.writeEndDocument();
 
-    response->writeHead(QHttpResponse::STATUS_OK);
+    response->setStatusCode(qhttp::ESTATUS_OK);
     response->write(outputData);
     response->end();
   }
   else
   {
-    response->writeHead(QHttpResponse::STATUS_METHOD_NOT_ALLOWED);
+    response->setStatusCode(qhttp::ESTATUS_METHOD_NOT_ALLOWED);
     response->end();
   }
 }
@@ -171,11 +171,11 @@ QVariantMap RemoteComponent::QueryToMap(const QUrl& url)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QVariantMap RemoteComponent::HeaderToMap(const HeaderHash& hash)
+QVariantMap RemoteComponent::HeaderToMap(const qhttp::THeaderHash& hash)
 {
   QVariantMap variantMap;
   foreach (const QString& key, hash.keys())
-    variantMap[key] = hash[key];
+    variantMap.insert(key, hash.value(key.toUtf8()));
   return variantMap;
 }
 
@@ -187,23 +187,23 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
   QVariantMap headerMap = HeaderToMap(request->headers());
   QString identifier = headerMap["x-plex-client-identifier"].toString();
 
-  response->setHeader("Access-Control-Allow-Origin", "*");
-  response->setHeader("X-Plex-Client-Identifier",  SettingsComponent::Get().value(SETTINGS_SECTION_WEBCLIENT, "clientID").toString());
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("X-Plex-Client-Identifier",  SettingsComponent::Get().value(SETTINGS_SECTION_WEBCLIENT, "clientID").toByteArray());
 
   // handle CORS requests here
-  if ((request->method() == QHttpRequest::HTTP_OPTIONS) && headerMap.contains("access-control-request-method"))
+  if ((request->method() == qhttp::EHTTP_OPTIONS) && headerMap.contains("access-control-request-method"))
   {    
-    response->setHeader("Content-Type", "text/plain");
-    response->setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, HEAD");
-    response->setHeader("Access-Control-Max-Age", "1209600");
-    response->setHeader("Connection", "close");
+    response->addHeader("Content-Type", "text/plain");
+    response->addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, HEAD");
+    response->addHeader("Access-Control-Max-Age", "1209600");
+    response->addHeader("Connection", "close");
 
     if (headerMap.contains("access-control-request-headers"))
     {
-      response->setHeader("Access-Control-Allow-Headers", headerMap["access-control-request-headers"].toString());
+      response->addHeader("Access-Control-Allow-Headers", headerMap.value("access-control-request-headers").toByteArray());
     }
 
-    response->writeHead(QHttpResponse::STATUS_OK);
+    response->setStatusCode(qhttp::ESTATUS_OK);
     response->end();
     return;
   }
@@ -211,32 +211,35 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
   // we want to handle the subscription events in the host
   // since we are going to handle the updating later.
   //
-  if (request->path() == "/player/timeline/subscribe")
+  if (request->url().path() == "/player/timeline/subscribe")
   {
     handleSubscription(request, response, false);
     return;
   }
-  else if (request->path() == "/player/timeline/unsubscribe")
+  else if (request->url().path() == "/player/timeline/unsubscribe")
   {
     subscriberRemove(request->headers()["x-plex-client-identifier"]);
-    response->writeHead(QHttpResponse::STATUS_OK);
+    response->setStatusCode(qhttp::ESTATUS_OK);
     response->end();
     return;
   }
-  else if ((request->path() == "/player/timeline/poll"))
+  else if ((request->url().path() == "/player/timeline/poll"))
   {
     if (m_subscriberMap.contains(identifier) == false)
       handleSubscription(request, response, true);
 
     RemotePollSubscriber *subscriber = (RemotePollSubscriber *)m_subscriberMap[identifier];
-    subscriber->reSubscribe();
-    subscriber->setHTTPResponse(response);
-
-    // if we don't have to wait, just ship the update right away
-    // otherwise, this will wait until next update
-    if (!(queryMap.contains("wait") && ( queryMap["wait"].toList()[0].toInt() == 1)))
+    if (subscriber)
     {
-     subscriber->sendUpdate();
+      subscriber->reSubscribe();
+      subscriber->setHTTPResponse(response);
+
+      // if we don't have to wait, just ship the update right away
+      // otherwise, this will wait until next update
+      if (! (queryMap.contains("wait") && (queryMap["wait"].toList()[0].toInt() == 1)))
+      {
+        subscriber->sendUpdate();
+      }
     }
 
     return;
@@ -247,7 +250,7 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
   if (headerMap.contains("x-plex-client-identifier") == false || queryMap.contains("commandID") == false)
   {
     QLOG_WARN() << "Can't find a X-Plex-Client-Identifier header";
-    response->writeHead(QHttpResponse::STATUS_NOT_ACCEPTABLE);
+    response->setStatusCode(qhttp::ESTATUS_NOT_ACCEPTABLE);
     response->end();
     return;
   }
@@ -266,7 +269,7 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
     if (m_subscriberMap.contains(identifier) == false)
     {
       QLOG_WARN() << "Failed to lock up subscriber" << identifier;
-      response->writeHead(QHttpResponse::STATUS_NOT_ACCEPTABLE);
+      response->setStatusCode(qhttp::ESTATUS_NOT_ACCEPTABLE);
       response->end();
       return;
     }
@@ -278,7 +281,7 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
   QVariantMap arg = {
     { "method", request->methodString() },
     { "headers", headerMap },
-    { "path", request->path() },
+    { "path", request->url().path() },
     { "query", queryMap },
     { "commandID", m_commandId}
   };
@@ -340,11 +343,11 @@ void RemoteComponent::commandResponse(const QVariantMap& responseArguments)
   {
     QVariantMap headers = responseArguments["headers"].toMap();
       foreach (const QString& key, headers.keys())
-        response->setHeader(key, headers[key].toString());
+        response->addHeader(key.toUtf8(), headers[key].toByteArray());
   }
 
   // write the response HTTP code
-  response->writeHead(responseCode);
+  response->setStatusCode((qhttp::TStatusCode)responseCode);
 
   // handle optional body argument
   if (responseArguments.contains("body") && responseArguments["body"].type() == QVariant::String)
@@ -363,7 +366,7 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
       headers.contains("x-plex-device-name") == false)
   {
     QLOG_ERROR() << "Missing X-Plex headers in /timeline/subscribe request";
-    response->writeHead(QHttpResponse::STATUS_BAD_REQUEST);
+    response->setStatusCode(qhttp::ESTATUS_BAD_REQUEST);
     response->end();
     return;
   }
@@ -374,7 +377,7 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   if (query.contains("commandID") == false || ((query.contains("port") == false) && !poll))
   {
     QLOG_ERROR() << "Missing arguments to /timeline/subscribe request";
-    response->writeHead(QHttpResponse::STATUS_BAD_REQUEST);
+    response->setStatusCode(qhttp::ESTATUS_BAD_REQUEST);
     response->end();
     return;
   }
@@ -427,7 +430,7 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   {
     subscriber->sendUpdate();
 
-    response->writeHead(QHttpResponse::STATUS_OK);
+    response->setStatusCode(qhttp::ESTATUS_OK);
     response->end();
   }
 }

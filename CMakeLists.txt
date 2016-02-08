@@ -26,7 +26,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME Core)
 
-add_definitions(-DQS_LOG_LINE_NUMBERS -DQHTTPSERVER_EXPORT)
+add_definitions(-DQS_LOG_LINE_NUMBERS)
 
 include(DependencyConfiguration)
 include(QtConfiguration)

@@ -81,7 +81,8 @@ static void* __stdcall MPGetNativeDisplay(const char* name)
   if (strcmp(name, "IDirect3DDevice9") == 0)
   {
     QLOG_INFO() << "Returning device " << (void *)d3ddevice;
-    IDirect3DDevice9_AddRef(d3ddevice);
+    if (d3ddevice)
+      IDirect3DDevice9_AddRef(d3ddevice);
     return (void *)d3ddevice;
   }
   return NULL;

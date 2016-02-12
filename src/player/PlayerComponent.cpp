@@ -88,8 +88,8 @@ bool PlayerComponent::componentInitialize()
   // than 0, and web-client expects that we return these times unchanged.
   mpv::qt::set_option_variant(m_mpv, "demuxer-mkv-probe-start-time", false);
 
-  // Always use the system mixer.
-  mpv_set_option_string(m_mpv, "softvol", "no");
+  // Always use the internal mixer by default.
+  mpv_set_option_string(m_mpv, "softvol", "yes");
 
   // Just discard audio output if no audio device could be opened. This gives
   // us better flexibility how to react to such errors (instead of just

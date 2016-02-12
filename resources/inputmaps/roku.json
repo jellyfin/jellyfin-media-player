@@ -1,0 +1,21 @@
+{
+  "name": "Roku HTTP input",
+  "idmatcher": "roku",
+  "mapping": {
+    "Up": "up",
+    "Down": "down",
+    "Left": "left",
+    "Right": "right",
+    "Select": "enter",
+    "Play": "play_pause",
+    "Home": "home",
+    "Back": "back",
+    "Fwd": "seek_forward",
+    "Rev": "seek_backward",
+    "Info": "host:toggleDebug",
+    "Backspace": "back",
+    "Enter": "enter",
+    "Lit_([0-9])": "%1",
+    "Lit_([A-Za-z])": "jump+%1"
+  }
+}

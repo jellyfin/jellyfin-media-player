@@ -6,6 +6,7 @@
 #include "power/PowerComponent.h"
 #include "InputKeyboard.h"
 #include "InputSocket.h"
+#include "InputRoku.h"
 
 #ifdef Q_OS_MAC
 #include "apple/InputAppleRemote.h"
@@ -58,6 +59,7 @@ bool InputComponent::componentInitialize()
 
   addInput(&InputKeyboard::Get());
   addInput(new InputSocket(this));
+  addInput(new InputRoku(this));
 
 #ifdef Q_OS_MAC
   addInput(new InputAppleRemote(this));

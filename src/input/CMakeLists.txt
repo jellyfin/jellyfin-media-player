@@ -6,6 +6,8 @@ set(INPUT_SRCS
   InputKeyboard.h
   InputSocket.h
   InputSocket.cpp
+  InputRoku.cpp
+  InputRoku.h
 )
 
 if(APPLE)

@@ -13,7 +13,6 @@
 #include "system/UpdaterComponent.h"
 #include "settings/SettingsComponent.h"
 #include "remote/RemoteComponent.h"
-#include "remote/RokuRemoteComponent.h"
 
 #include "server/HTTPServer.h"
 
@@ -70,7 +69,6 @@ void ComponentManager::initialize()
   registerComponent(&RemoteComponent::Get());
   registerComponent(&PlayerComponent::Get());
   registerComponent(&PowerComponent::Get());
-  registerComponent(&RokuRemoteComponent::Get());
 
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());

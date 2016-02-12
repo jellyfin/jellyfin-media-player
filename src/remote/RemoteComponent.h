@@ -59,7 +59,6 @@ private:
   void handleSubscription(QHttpRequest * request, QHttpResponse * response, bool poll=false);
   void subscribeToWeb(bool subscribe);
 
-  HttpServer* m_server;
   GDMManager* m_gdmManager;
 
   quint64 m_commandId;

@@ -52,6 +52,7 @@ void InputRoku::handleRequest(QHttpRequest* request, QHttpResponse* response)
   }
   else
   {
+    QLOG_WARN() << "Could not handle roku input:" << path;
     response->setStatusCode(qhttp::ESTATUS_NOT_FOUND);
     response->end();
   }

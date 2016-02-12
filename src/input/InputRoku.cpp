@@ -32,17 +32,23 @@ bool InputRoku::initInput()
 /////////////////////////////////////////////////////////////////////////////////////////
 void InputRoku::handleRequest(QHttpRequest* request, QHttpResponse* response)
 {
-  if (request->url().path() == "/query/apps")
+  QString path = request->url().path();
+  if (path == "/query/apps")
   {
     handleQueryApps(request, response);
   }
-  else if (request->url().path() == "/query/device-info")
+  else if (path == "/query/device-info")
   {
     handleQueryDeviceInfo(request, response);
   }
-  else if (request->url().path().startsWith("/keypress/"))
+  else if (path.startsWith("/keypress/") || path.startsWith("/keydown/"))
   {
     handleKeyPress(request, response);
+  }
+  else if (path.startsWith("/keyup/"))
+  {
+    response->setStatusCode(qhttp::ESTATUS_OK);
+    response->end();
   }
   else
   {

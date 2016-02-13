@@ -9,6 +9,8 @@
 #include <QHostInfo>
 #include <QJsonDocument>
 #include <QVariant>
+#include <qnetworkinterface.h>
+#include <QUuid>
 
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
@@ -95,4 +97,40 @@ QString Utils::CurrentUserId()
   }
 
   return QString();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Utils::PrimaryIPv4Address()
+{
+  QList<QNetworkInterface> ifs = QNetworkInterface::allInterfaces();
+  foreach(const QNetworkInterface& iface, ifs)
+  {
+    if (iface.isValid() && iface.flags() & QNetworkInterface::IsUp)
+    {
+      QList<QHostAddress> addresses = iface.allAddresses();
+      foreach(const QHostAddress& addr, addresses)
+      {
+        if (!addr.isLoopback() && !addr.isMulticast() && addr.protocol() == QAbstractSocket::IPv4Protocol)
+        {
+          QLOG_DEBUG() << "I think that" << addr.toString() << "is my primary address";
+          return addr.toString();
+        }
+      }
+    }
+  }
+  return "";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Utils::ClientUUID()
+{
+  QString storedUUID = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "clientUUID").toString();
+  if (storedUUID.isEmpty())
+  {
+    QString newUUID = QUuid::createUuid().toString();
+    newUUID = newUUID.replace("{", "").replace("}", "");
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "clientUUID", newUUID);
+    return newUUID;
+  }
+  return storedUUID;
 }

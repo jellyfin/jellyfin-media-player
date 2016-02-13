@@ -52,6 +52,8 @@ namespace Utils
   QJsonDocument OpenJsonDocument(const QString& path, QJsonParseError* err);
   QString CurrentUserId();
   QString ComputerName();
+  QString PrimaryIPv4Address();
+  QString ClientUUID();
 }
 
 #endif // UTILS_H

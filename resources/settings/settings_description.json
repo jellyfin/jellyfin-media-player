@@ -79,6 +79,11 @@
         // Warning: the default must be the same as the one in preinitQt().
         "default": false,
         "platforms": [ "windows" ]
+      },
+      {
+        "value": "clientUUID",
+        "default": "",
+        "hidden": false
       }
     ]
   },

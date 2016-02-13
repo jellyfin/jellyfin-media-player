@@ -7,6 +7,7 @@
 
 #include "input/InputComponent.h"
 #include "qhttpserver.hpp"
+#include <QUdpSocket>
 
 class InputRoku : public InputBase
 {
@@ -24,6 +25,12 @@ private:
   void handleQueryDeviceInfo(qhttp::server::QHttpRequest* request, qhttp::server::QHttpResponse* response);
 
   qhttp::server::QHttpServer* m_server;
+  QUdpSocket* m_ssdpSocket;
+
+  void ssdpRead();
+  void parseSSDPData(const QByteArray& data, const QHostAddress& sender, quint16 port);
+  QByteArray getSSDPPacket();
+  void handleRootInfo(qhttp::server::QHttpRequest* request, qhttp::server::QHttpResponse* response);
 };
 
 #endif //PLEXMEDIAPLAYER_ROKUREMOTECOMPONENT_H

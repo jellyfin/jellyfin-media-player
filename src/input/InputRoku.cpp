@@ -10,6 +10,7 @@
 
 #include <QUrl>
 #include <QUdpSocket>
+#include <QTimeZone>
 #include <QXmlStreamWriter>
 
 using namespace qhttp::server;
@@ -177,6 +178,30 @@ void InputRoku::handleQueryDeviceInfo(QHttpRequest* request, QHttpResponse* resp
 
   writer.writeStartDocument();
   writer.writeStartElement("device-info");
+  writer.writeTextElement("udn", Utils::ClientUUID());
+  writer.writeTextElement("serial-number", ROKU_SERIAL_NUMBER);
+  writer.writeTextElement("device-id", ROKU_SERIAL_NUMBER);
+  writer.writeTextElement("vendor-name", "Roku");
+  writer.writeTextElement("model-number", "4200X");
+  writer.writeTextElement("model-name", "Roku 3");
+  writer.writeTextElement("wifi-mac", "00:00:00:00:00:00");
+  writer.writeTextElement("ethernet-mac", "00:00:00:00:00:00");
+  writer.writeTextElement("network-type", "ethernet");
+  writer.writeTextElement("user-device-name", Utils::ComputerName());
+  writer.writeTextElement("software-version", "7.00");
+  writer.writeTextElement("software-build", "09021");
+
+  QLocale locale = QLocale::system();
+  QString lcl = locale.name();
+  QStringList landc = lcl.split("_");
+
+  writer.writeTextElement("language", landc.value(0));
+  writer.writeTextElement("country", landc.value(1));
+  writer.writeTextElement("locale", locale.name());
+
+  QTimeZone tz = QTimeZone::systemTimeZone();
+  writer.writeTextElement("time-zone", tz.displayName(QTimeZone::StandardTime, QTimeZone::LongName));
+  writer.writeTextElement("time-zone-offset", QString::number(tz.offsetFromUtc(QDateTime::currentDateTime()) / 60));
   writer.writeEndElement(); // device-info
   writer.writeEndDocument();
 

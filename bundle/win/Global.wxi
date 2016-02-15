@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <?define ProductName=Plex Media Player ?>
+  <?define ProductDesc=Plex Media Player for Windows ?>
+  <?define ProductUUID=5ff03b00-d0b7-11e5-92e1-8c89a580aa18 ?>
+  <?define PlexWebsiteUrl=https://plex.tv ?>
+  <?define LanguageCode=1033 ?>
+  <?define LaunchCondition_PerUser=Plex Media Player does not allow per-user installations. Setup will now exit ?>
+  <?define OldWindowsError=Plex Media Player requires at least Windows 7 ?>
+  <?define NewerVersionError=A newer version of Plex Media Server is already installed ?>
+</Include>

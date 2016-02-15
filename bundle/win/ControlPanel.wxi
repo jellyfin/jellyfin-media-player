@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <Property Id="ARPCOMMENTS" Value="Plex Media Player for Windows" />
+  <Property Id="ARPCONTACT" Value="Plex" />
+  <Property Id="ARPPRODUCTICON" Value="PlexMediaPlayerIcon" />
+  <Property Id="ARPURLINFOABOUT" Value="$(var.PlexWebsiteUrl)" />
+  <Property Id="ARPURLUPDATEINFO" Value="$(var.PlexWebsiteUrl)" />
+  <Property Id="ARPHELPLINK" Value="$(var.PlexWebsiteUrl)" />
+  <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
+  <InstallExecuteSequence>
+    <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"></Custom>
+  </InstallExecuteSequence>
+</Include>
+
+

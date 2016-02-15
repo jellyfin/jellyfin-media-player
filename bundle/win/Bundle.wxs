@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <?include Version.wxi ?>
+  <?include Global.wxi ?>
+
+  <Bundle Name="$(var.ProductName)"
+          Version="$(var.Version)"
+          Manufacturer="Plex"
+          UpgradeCode="$(var.ProductUUID)"
+          HelpUrl="https://www.plex.tv/"
+          Copyright="Plex"
+          AboutUrl="https://www.plex.tv/"
+          >
+    <util:RegistrySearch Variable="KB2919355_amd64"
+                         Root="HKLM"
+                         Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\Package_for_KB2919355~31bf3856ad364e35~amd64~~6.3.1.14"
+                         Value="CurrentState"
+                         Win64="yes"
+                         />
+    <util:RegistrySearch Variable="KB2919355_x86"
+                         Root="HKLM"
+                         Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\Package_for_KB2919355~31bf3856ad364e35~x86~~6.3.1.14"
+                         Value="CurrentState"
+                         />
+    <bal:Condition Message="Plex Media Player can only be installed on Windows 7 or newer.">
+      <![CDATA[VersionNT >= v6.1]]>
+    </bal:Condition>
+    <!-- Checking for prerequisites for windows versions where they are required -->
+    <!-- We need to check for when ServicePackLevel is not defined as well, with (NOT ServicePackLevel) -->
+    <bal:Condition Message="Plex Media Player on Windows 7 or Windows Server 2008 R2 requires Service Pack 1.">
+      <![CDATA[NOT ((VersionNT = v6.1) AND ((NOT ServicePackLevel) OR (ServicePackLevel < 1)))]]>
+    </bal:Condition>
+    <!-- Windows 8 and 2012 have no prerequisites -->
+    <bal:Condition Message="Plex Media Player on Windows 8.1 or Windows Server 2012 R2 requires KB2919355 installed.">
+      <![CDATA[NOT ((VersionNT = v6.3) AND (KB2919355_x86 <> 112 AND KB2919355_amd64 <> 112))]]>
+    </bal:Condition>
+
+    <!-- msvcp140.dll will exist and ucrtbase.dll will not exist with a bad vcredist install-->
+    <util:FileSearch Variable="Found_ucrtbase_dll"
+                     Path="[SystemFolder]ucrtbase.dll"
+                     Result="exists"
+                     />
+    <util:FileSearch Variable="Bad_VCRedist"
+                     Path="[SystemFolder]msvcp140.dll"
+                     Result="exists"
+                     Condition="NOT Found_ucrtbase_dll"
+                     />
+
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+      <bal:WixStandardBootstrapperApplication
+        LicenseUrl=""
+        ThemeFile="pmstheme.xml"
+        LocalizationFile="HyperlinkTheme.wxl"
+        />
+      <Payload SourceFile="pms64x64.png" />
+    </BootstrapperApplicationRef>
+
+    <Variable Name="autolaunch" bal:Overridable="yes" Type="numeric" Value="0" />
+
+    <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles64Folder]Plex\Plex Media Player" />
+    <!-- Search for InstallFolder in registry and set it to the PreviousInstallFolder -->
+    <util:RegistrySearch
+      Id="PreviousInstallFolderSearch" Root='HKCU' Key='Software\Plex, Inc.\Plex Media Player' Value='InstallFolder' Variable='PreviousInstallFolder' />
+    <!-- Checks if PreviousInstallFolder exists event if it is defined in the Registry, sets it to InstallFolder if so -->
+    <util:DirectorySearch
+      Path='[PreviousInstallFolder]' Variable='InstallFolder' After='PreviousInstallFolderSearch' Condition='PreviousInstallFolder' />
+
+    <Variable Name="LaunchTarget" Value="[InstallFolder]\PlexMediaPlayer.exe"/>
+
+    <Chain>
+      <MsiPackage Id="pmp"
+                  Name="PMP.msi"
+                  Compressed="yes"
+                  SourceFile="$(var.OutputPath)/PMP.msi"
+                  Vital="yes">
+        <MsiProperty Name="INSTALLLOCATION" Value="[InstallFolder]" />
+        <!-- Disable autolaunch for now -->
+        <!--  <MsiProperty Name="AUTOLAUNCH" Value="[autolaunch]" /> -->
+      </MsiPackage>
+      <ExePackage Id="vcredist_repair"
+                  SourceFile="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\1033\vcredist_x64.exe"
+                  Name="vcredist_x64.exe"
+                  InstallCommand="/repair /quiet /norestart"
+                  InstallCondition="Bad_VCRedist"
+                  Compressed="yes"
+                  Vital="yes"
+                  Permanent="yes">
+        <ExitCode Value="1638" Behavior="success"/>
+      </ExePackage>
+      <ExePackage Id="vcredist"
+                  SourceFile="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\1033\vcredist_x64.exe"
+                  Name="vcredist_x64.exe"
+                  InstallCommand="/install /quiet /norestart"
+                  InstallCondition="NOT Bad_VCRedist"
+                  Compressed="yes"
+                  Vital="yes"
+                  Permanent="yes">
+        <ExitCode Value="1638" Behavior="success"/>
+      </ExePackage>
+    </Chain>
+  </Bundle>
+</Wix>

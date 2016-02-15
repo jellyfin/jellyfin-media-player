@@ -22,7 +22,7 @@ if(WIN32)
   )
   if(NOT EXISTS ${dir}/lib/mpv.lib)
     execute_process(
-      COMMAND LIB /def:bin\\mpv-1.def /out:lib\\mpv.lib /MACHINE:X64
+      COMMAND ${PROJECT_SOURCE_DIR}/scripts/make_mpv_lib.bat
       WORKING_DIRECTORY ${dir}
     )
   endif(NOT EXISTS ${dir}/lib/mpv.lib)

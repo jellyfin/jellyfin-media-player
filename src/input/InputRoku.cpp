@@ -50,8 +50,6 @@ void InputRoku::ssdpRead()
 {
   while (m_ssdpSocket->hasPendingDatagrams())
   {
-    QLOG_DEBUG() << "Got SSDP datagram";
-
     QByteArray datagram;
     datagram.resize((int)m_ssdpSocket->pendingDatagramSize());
 
@@ -60,7 +58,6 @@ void InputRoku::ssdpRead()
 
     m_ssdpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
-    QLOG_DEBUG() << "datagram:" << QString::fromUtf8(datagram);
     parseSSDPData(datagram, sender, senderPort);
   }
 }
@@ -75,15 +72,6 @@ void InputRoku::parseSSDPData(const QByteArray& data, const QHostAddress& sender
 /////////////////////////////////////////////////////////////////////////////////////////
 QByteArray InputRoku::getSSDPPacket()
 {
-
-  /*
-    HTTP/1.1 200 OK
-    Cache-Control: max-age=300
-    ST: roku:ecp
-    Location: http://192.168.1.134:8060/
-    USN: uuid:roku:ecp:P0A070000007
-   */
-
   QByteArray packetData;
 
   // Header
@@ -101,16 +89,12 @@ QByteArray InputRoku::getSSDPPacket()
   packetData.append(ROKU_SERIAL_NUMBER);
   packetData.append("\r\n\r\n");
 
-  QLOG_DEBUG() << "Reply: " << QString::fromUtf8(packetData);
-
   return packetData;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 void InputRoku::handleRequest(QHttpRequest* request, QHttpResponse* response)
 {
   QString path = request->url().path();
-
-  QLOG_DEBUG() << "Request:" << path;
 
   if (path == "/")
   {
@@ -208,37 +192,6 @@ void InputRoku::handleQueryDeviceInfo(QHttpRequest* request, QHttpResponse* resp
   response->setStatusCode(qhttp::ESTATUS_OK);
   response->write(data);
   response->end();
-
-  /*
-   <device-info>
-    <udn>015e5108-9000-1046-8035-b0a737964dfb</udn>
-    <serial-number>1GU48T017973</serial-number>
-    <device-id>1GU48T017973</device-id>
-    <vendor-name>Roku</vendor-name>
-    <model-number>4200X</model-number>
-    <model-name>Roku 3</model-name>
-    <wifi-mac>b0:a7:37:96:4d:fb</wifi-mac>
-    <ethernet-mac>b0:a7:37:96:4d:fa</ethernet-mac>
-    <network-type>ethernet</network-type>
-    <user-device-name/>
-    <software-version>7.00</software-version>
-    <software-build>09021</software-build>
-    <secure-device>true</secure-device>
-    <language>en</language>
-    <country>US</country>
-    <locale>en_US</locale>
-    <time-zone>US/Pacific</time-zone>
-    <time-zone-offset>-480</time-zone-offset>
-    <power-mode>PowerOn</power-mode>
-    <developer-enabled>true</developer-enabled>
-    <keyed-developer-id>70f6ed9c90cf60718a26f3a7c3e5af1c3ec29558</keyed-developer-id>
-    <search-enabled>true</search-enabled>
-    <voice-search-enabled>true</voice-search-enabled>
-    <notifications-enabled>true</notifications-enabled>
-    <notifications-first-use>false</notifications-first-use>
-    <headphones-connected>false</headphones-connected>
-  </device-info>
-   */
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -252,8 +205,6 @@ void InputRoku::handleKeyPress(QHttpRequest* request, QHttpResponse* response)
     response->end();
     return;
   }
-
-  QLOG_DEBUG() << "We got roku input:" << pathsplit.value(2);
 
   emit receivedInput("roku", pathsplit.value(2));
 

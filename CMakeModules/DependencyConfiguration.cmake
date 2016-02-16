@@ -52,11 +52,3 @@ endif(IS_DIRECTORY ${DEPENDENCY_ROOT})
 
 find_package(Threads REQUIRED)
 find_package(PythonInterp REQUIRED)
-
-# on windows we need to download the updater binary seperately
-if(WIN32)
-  file(DOWNLOAD https://nightlies.plex.tv/directdl/plex-dependencies/konvergo-qt/updater.exe ${CMAKE_BINARY_DIR}/updater.exe
-       SHOW_PROGRESS
-       EXPECTED_HASH SHA1=d3b4f70d6542fa42c8edd2b9b93fd0916bf20f07
-       TLS_VERIFY OFF)
-endif(WIN32)

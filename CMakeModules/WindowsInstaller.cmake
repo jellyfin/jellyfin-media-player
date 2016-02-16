@@ -11,7 +11,7 @@ set(WIX_VARIABLES -dDeploymentPath="${CMAKE_INSTALL_PREFIX}" -dOutputPath="${CMA
 include(CMakeParseArguments)
 
 function(wix_harvest_directory dir fragment)
-  set(ARGS REFVARIABLE CGROUP)
+  set(ARGS REFVARIABLE CGROUP DEPENDS)
   cmake_parse_arguments(_WHD "" "${ARGS}" "" ${ARGN})
   
   if(NOT _WHD_REFVARIABLE)
@@ -22,11 +22,12 @@ function(wix_harvest_directory dir fragment)
     set(CGROUP -cg ${_WHD_CGROUP})
   endif()
   
-  if(IS_DIRECTORY ${dir})
-    add_custom_command(OUTPUT ${fragment}
-                       COMMAND ${WIX_HEAT} dir "${dir}" -srd -nologo -sw5150 ${CGROUP} -dr ${_WHD_REFVARIABLE} -ag -out ${fragment} -var var.DeploymentPath
-                       COMMENT "Harvesting dir ${dir} to ${fragment}")
-  endif()
+  add_custom_command(OUTPUT ${fragment}
+                     DEPENDS ${_WHD_DEPENDS}
+                     COMMAND ${WIX_HEAT} dir "${dir}" -srd -nologo -sw5150 ${CGROUP} -dr ${_WHD_REFVARIABLE} -ag -out ${fragment} -var var.DeploymentPath
+                     COMMENT "Harvesting dir ${dir} to ${fragment}")
+  add_custom_target(heat_${fragment} DEPENDS ${fragment})
+  
 endfunction()
 
 function(wix_get_extension VARIABLE)
@@ -119,7 +120,12 @@ function(wix_create_installer output)
             TARGET ${_WCI_TARGET})
 endfunction()
 
-wix_harvest_directory("${CMAKE_INSTALL_PREFIX}" "files.wxs" CGROUP ProgramFilesComponentGroup)
+add_custom_target(wix_install
+                  COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake > wix_install.log
+                  COMMENT "Copying files..."
+                  DEPENDS PMPHelper PlexMediaPlayer)
+
+wix_harvest_directory("${CMAKE_INSTALL_PREFIX}" files.wxs CGROUP ProgramFilesComponentGroup DEPENDS wix_install)
 
 wix_create_installer(PMP.msi 
                      WXS_FILES files.wxs "${PROJECT_SOURCE_DIR}/bundle/win/PMP.wxs"
@@ -134,10 +140,4 @@ wix_create_installer(PlexMediaPlayer-${VERSION_STRING}-windows-x64.exe
                      BASEDIR "${PROJECT_SOURCE_DIR}/bundle/win"
 )
 
-add_custom_target(wix_install
-                  COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake > wix_install.log
-                  DEPENDS PlexMediaPlayer PMPHelper
-                  COMMENT Installing files...)
-                  
-add_custom_target(windows_package
-                  DEPENDS wix_install PlexMediaPlayerInstaller)
+add_custom_target(windows_package DEPENDS PlexMediaPlayerInstaller)

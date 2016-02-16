@@ -9,19 +9,13 @@
 
   <?define FirstProductVersion=1.0.0 ?>
   <?define PlexMediaPlayerRegistryKey=Software\Plex, Inc.\Plex Media Player?>
-  
-    <Product Id="$(var.ProductUUID)"
-        Name="$(var.ProductName)"
-        Language="1033"
-        Version="$(var.Version)"
-        Manufacturer="Plex"
-        UpgradeCode="$(var.ProductUUID)">
 
     <!-- To keep things simple, the installer considers each new release
          a major upgrade, in which everything is uninstalled, then reinstalled
          To accomplish this, we change the Product Id on every build.
          However, the upgrade code remains the same on every build, to ensure
-         that newer installers recognize older installations -->
+         that newer installers recognize older installations -->  
+    <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="Plex" UpgradeCode="$(var.ProductUUID)">
 
     <!-- Package Ids change on every build, by definition -->
     <Package Id="*" Platform="x64" InstallerVersion="405" Compressed="yes" Description="$(var.ProductDesc)" InstallPrivileges="elevated"/>

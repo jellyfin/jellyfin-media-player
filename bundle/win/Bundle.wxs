@@ -13,6 +13,7 @@
           Copyright="Plex"
           AboutUrl="https://www.plex.tv/"
           Tag="$(var.FullVersion)"
+          IconSourceFile="Plex.ico"
           >
     <util:RegistrySearch Variable="KB2919355_amd64"
                          Root="HKLM"

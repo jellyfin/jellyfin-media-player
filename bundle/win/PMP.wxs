@@ -43,7 +43,7 @@
     </Condition>
     
     <!-- Icon used in the control panel -->
-    <Icon Id="PlexMediaPlayerIcon" SourceFile="$(var.DeployPath)\PlexMediaPlayer.exe"/>
+    <Icon Id="PlexMediaPlayerIcon" SourceFile="Plex.ico" />
 
     <!-- Useful control panel fields -->
     <?include ControlPanel.wxi ?>

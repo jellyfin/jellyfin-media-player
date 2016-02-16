@@ -18,16 +18,11 @@
     <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="Plex" UpgradeCode="$(var.ProductUUID)">
 
     <!-- Package Ids change on every build, by definition -->
-    <Package Id="*" Platform="x64" InstallerVersion="405" Compressed="yes" Description="$(var.ProductDesc)" InstallPrivileges="elevated"/>
-
-    <!-- Only allow all-users installations, to defeat bugs in XP with per-user installations -->
-    <Property Id="ALLUSERS" Value="1" />
+    <Package Id="*" Platform="x64" InstallerVersion="405" Compressed="yes" Description="$(var.ProductDesc)" />
     
     <!-- allow for reinstall, this is needed to force installation when the version match -->
     <Property Id="REINSTALLMODE" Value="amus"/>
-    
-    <Condition Message="?(var.LaunchCondition_PerUser)">ALLUSERS</Condition>
-    
+        
     <!-- Embedded, compressed cab file -->
     <Media Id="1" Cabinet="pmp.cab" EmbedCab="yes" CompressionLevel="high" />
             

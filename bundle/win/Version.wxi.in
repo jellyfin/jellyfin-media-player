@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
   <?define Version=@VERSION_STRING_SHORT@ ?>
+  <?define FullVersion=@VERSION_STRING@ ?>
   <?define DeployPath=@CMAKE_INSTALL_PREFIX@ ?>
 </Include>

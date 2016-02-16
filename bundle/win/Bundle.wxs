@@ -12,6 +12,7 @@
           HelpUrl="https://www.plex.tv/"
           Copyright="Plex"
           AboutUrl="https://www.plex.tv/"
+          Tag="$(var.FullVersion)"
           >
     <util:RegistrySearch Variable="KB2919355_amd64"
                          Root="HKLM"
@@ -47,14 +48,15 @@
                      Result="exists"
                      Condition="NOT Found_ucrtbase_dll"
                      />
-
+                     
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
       <bal:WixStandardBootstrapperApplication
         LicenseUrl=""
         ThemeFile="pmstheme.xml"
         LocalizationFile="HyperlinkTheme.wxl"
         />
-      <Payload SourceFile="pms64x64.png" />
+      <Payload SourceFile="plex-chevron-85.png" />
+      <Payload SourceFile="progress-bar.png" />
     </BootstrapperApplicationRef>
 
     <Variable Name="autolaunch" bal:Overridable="yes" Type="numeric" Value="0" />

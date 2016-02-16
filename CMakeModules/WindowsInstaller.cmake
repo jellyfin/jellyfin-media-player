@@ -1,6 +1,7 @@
 find_program(WIX_HEAT heat)
 find_program(WIX_CANDLE candle)
 find_program(WIX_LIGHT light)
+find_program(WIX_INSIGNIA insignia)
 
 get_filename_component(WIX_BIN_DIR ${WIX_CANDLE} DIRECTORY)
 
@@ -94,6 +95,14 @@ function(wix_light)
   add_custom_target(${_WL_TARGET} DEPENDS ${_WL_OUTPUT})
   
   if(CODE_SIGN)
+    if(_WL_OUTPUT MATCHES ".*exe")
+      add_custom_command(TARGET ${_WL_TARGET} POST_BUILD
+        COMMAND ${WIX_INSIGNIA} -ib ${_WL_OUTPUT} -o engine.exe
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd engine.exe
+        COMMAND ${WIX_INSIGNIA} -ab engine.exe ${_WL_OUTPUT} -o ${_WL_OUTPUT}
+        COMMENT "Doing insignia dance"
+      )
+    endif()
     add_custom_command(TARGET ${_WL_TARGET} POST_BUILD
                        COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd ${_WL_OUTPUT}
                        COMMENT Signing ${_WL_OUTPUT}
@@ -121,7 +130,7 @@ function(wix_create_installer output)
 endfunction()
 
 add_custom_target(wix_install
-                  COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake > wix_install.log
+                  COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake
                   COMMENT "Copying files..."
                   DEPENDS PMPHelper PlexMediaPlayer)
 

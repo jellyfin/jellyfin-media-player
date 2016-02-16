@@ -79,8 +79,7 @@
                   SourceFile="$(var.OutputPath)/PMP.msi"
                   Vital="yes">
         <MsiProperty Name="INSTALLLOCATION" Value="[InstallFolder]" />
-        <!-- Disable autolaunch for now -->
-        <!--  <MsiProperty Name="AUTOLAUNCH" Value="[autolaunch]" /> -->
+        <MsiProperty Name="AUTOLAUNCH" Value="[autolaunch]" />
       </MsiPackage>
       <ExePackage Id="vcredist_repair"
                   SourceFile="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\1033\vcredist_x64.exe"

@@ -119,19 +119,19 @@ function(wix_create_installer output)
             TARGET ${_WCI_TARGET})
 endfunction()
 
-wix_harvest_directory(${CMAKE_INSTALL_PREFIX} "files.wxs" CGROUP ProgramFilesComponentGroup)
+wix_harvest_directory("${CMAKE_INSTALL_PREFIX}" "files.wxs" CGROUP ProgramFilesComponentGroup)
 
 wix_create_installer(PMP.msi 
-                     WXS_FILES files.wxs ${PROJECT_SOURCE_DIR}/bundle/win/PMP.wxs
+                     WXS_FILES files.wxs "${PROJECT_SOURCE_DIR}/bundle/win/PMP.wxs"
                      EXTENSIONS WixUtilExtension WixFirewallExtension
 )
 
 wix_create_installer(PlexMediaPlayer-${VERSION_STRING}-windows-x64.exe
                      TARGET PlexMediaPlayerInstaller
-                     WXS_FILES ${PROJECT_SOURCE_DIR}/bundle/win/Bundle.wxs
+                     WXS_FILES "${PROJECT_SOURCE_DIR}/bundle/win/Bundle.wxs"
                      EXTENSIONS WixUtilExtension WixBalExtension
                      DEPENDS wix_PMP.msi
-                     BASEDIR ${PROJECT_SOURCE_DIR}/bundle/win
+                     BASEDIR "${PROJECT_SOURCE_DIR}/bundle/win"
 )
 
 add_custom_target(wix_install

@@ -18,7 +18,7 @@
     <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="Plex" UpgradeCode="$(var.ProductUUID)">
 
     <!-- Package Ids change on every build, by definition -->
-    <Package Id="*" Platform="x64" InstallerVersion="405" Compressed="yes" Description="$(var.ProductDesc)" />
+    <Package Id="*" Platform="x64" InstallerVersion="405" Compressed="yes" Description="$(var.ProductDesc)" InstallScope="perMachine" />
     
     <!-- allow for reinstall, this is needed to force installation when the version match -->
     <Property Id="REINSTALLMODE" Value="amus"/>

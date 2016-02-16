@@ -139,6 +139,7 @@ wix_harvest_directory("${CMAKE_INSTALL_PREFIX}" files.wxs CGROUP ProgramFilesCom
 wix_create_installer(PMP.msi 
                      WXS_FILES files.wxs "${PROJECT_SOURCE_DIR}/bundle/win/PMP.wxs"
                      EXTENSIONS WixUtilExtension WixFirewallExtension
+                     BASEDIR "${PROJECT_SOURCE_DIR}/bundle/win"
 )
 
 wix_create_installer(PlexMediaPlayer-${VERSION_STRING}-windows-x64.exe

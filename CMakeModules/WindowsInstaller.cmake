@@ -85,6 +85,7 @@ function(wix_light)
   if(NOT _WL_TARGET)
     set(_WL_TARGET wix_${_WL_OUTPUT})
   endif()
+  
     
   add_custom_command(OUTPUT ${_WL_OUTPUT}
                      DEPENDS ${_WL_OBJS} ${_WL_DEPENDS}

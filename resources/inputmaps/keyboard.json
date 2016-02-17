@@ -16,7 +16,7 @@
     "(?:Num\\+|Shift\\+)?([0-9])": "%1",
 
     // map some other normal buttons that might be useful
-    "(?:Shift\\+)?(\\.|\\-|\\:|\\_)": "%1",
+    "(?:Shift\\+)?(\\.|\\:|\\_)": "%1",
 
     // map Shift+Letter to action jump+letter
     "Shift\\+([A-Z])": "jump+%1",
@@ -72,6 +72,10 @@
     "Ctrl\\+Shift\\+G": "seek_forward",
     "Ctrl\\+B": "step_backward",
     "Ctrl\\+G": "step_forward",
+
+    // volume
+    "\\+": "increase_volume",
+    "\\-": "decrease_volume",
 
     // debug command to crash the host. for testing
     "Ctrl\\+Alt\\+Shift\\+F1": "host:crash!"

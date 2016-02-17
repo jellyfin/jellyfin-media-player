@@ -3,17 +3,17 @@
   "idmatcher": "Keyboard.*",
   "mapping":
   {
-    // standard navigation, we allow num and shift modifiers
-    "(Num\\+|Shift\\+)?Left": "left",
-    "(Num\\+|Shift\\+)?Right": "right",
-    "(Num\\+|Shift\\+)?Up": "up",
-    "(Num\\+|Shift\\+)?Down": "down",
-    "(Num\\+)?(Return|Enter)": "enter",
+    // standard navigation, we allow shift modifiers
+    "(Shift\\+)?Left": "left",
+    "(Shift\\+)?Right": "right",
+    "(Shift\\+)?Up": "up",
+    "(Shift\\+)?Down": "down",
+    "(Return|Enter)": "enter",
     "Space": "space",
     "(Esc|Backspace)": "back",
 
-    // map Num+X and Shift+X to X. This allows normal number input
-    "(?:Num\\+|Shift\\+)?([0-9])": "%1",
+    // map X and Shift+X to X. This allows normal number input
+    "(?:Shift\\+)?([0-9])": "%1",
 
     // map some other normal buttons that might be useful
     "(?:Shift\\+)?(\\.|\\:|\\_)": "%1",
@@ -65,7 +65,6 @@
 
     // Windows Media Center keyboard shortcuts
     "Alt\\+(Return|Enter)": "host:fullscreen",
-    "Ctrl\\+P": "pause",
     "Ctrl\\+Shift\\+P": "play_pause",
     "Ctrl\\+Shift\\+S": "stop",
     "Ctrl\\+Shift\\+B": "seek_backward",

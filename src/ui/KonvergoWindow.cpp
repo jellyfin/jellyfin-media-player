@@ -44,7 +44,9 @@ bool MouseEventFilter::eventFilter(QObject* watched, QEvent* event)
       system.setCursorVisibility(false);
       if (kevent->spontaneous())
       {
-        InputKeyboard::Get().keyPress(QKeySequence(kevent->key() | kevent->modifiers()));
+        // We ignore the KeypadModifier here since it's practically useless
+        QKeySequence key(kevent->key() | (kevent->modifiers() &= ~Qt::KeypadModifier));
+        InputKeyboard::Get().keyPress(key);
         return true;
       }
     }

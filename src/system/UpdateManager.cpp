@@ -55,10 +55,19 @@ QString UpdateManager::HaveUpdate()
     // check if this version has been applied
     QString readyFile(GetPath("_readyToApply", dir, false));
     QLOG_DEBUG() << "Checking for:" << readyFile;
+
+    QDir packageDir(GetPath("packages", dir, false));
+
     if (QFile::exists(readyFile))
     {
       QLOG_DEBUG() << dir << "is not applied";
       return dir;
+    }
+    else if (packageDir.exists())
+    {
+      QLOG_DEBUG() << "Removing old update packages in dir:" << dir;
+      if (!packageDir.removeRecursively())
+        QLOG_WARN() << "Failed to remove old update packages in dir:" << dir;
     }
   }
 

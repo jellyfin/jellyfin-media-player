@@ -19,6 +19,7 @@ bool UpdateManagerWin32::applyUpdate(const QString& version)
   {
     QStringList args;
     args << "/passive" << "/norestart" << "/log" << Paths::logDir("Plex Media Player Installer.log");
+    args << "autolaunch=1";
 
     QFile::remove(GetPath("_readyToApply", version, false));
     if (QProcess::startDetached(updateExe, args, QDir::temp().absolutePath()))

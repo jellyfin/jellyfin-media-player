@@ -183,8 +183,10 @@ int main(int argc, char *argv[])
 {
   try
   {
-    for (int n = 1; n < argc; n++) {
-      if (strcmp(argv[n], "--licenses") == 0) {
+    for (int n = 1; n < argc; n++)
+    {
+      if (strcmp(argv[n], "--licenses") == 0)
+      {
         QFile licenses(":/misc/licenses.txt");
         licenses.open(QIODevice::ReadOnly | QIODevice::Text);
         QByteArray contents = licenses.readAll();
@@ -196,7 +198,7 @@ int main(int argc, char *argv[])
     int newArgc = argc;
     char **newArgv = appendCommandLineArguments(&newArgc, argv);
 
-    // Supress SSL related warnings on OSX
+    // Suppress SSL related warnings on OSX
     // See https://bugreports.qt.io/browse/QTBUG-43173 for more info
     //
 #ifdef Q_OS_MAC

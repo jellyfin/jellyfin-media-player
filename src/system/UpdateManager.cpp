@@ -67,7 +67,9 @@ QString UpdateManager::HaveUpdate()
     {
       QLOG_DEBUG() << "Removing old update packages in dir:" << dir;
       if (!packageDir.removeRecursively())
+      {
         QLOG_WARN() << "Failed to remove old update packages in dir:" << dir;
+      }
     }
   }
 

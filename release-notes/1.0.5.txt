@@ -1,0 +1,18 @@
+NEW:
+  - Updated web-client to 2.5.5.
+    See https://forums.plex.tv/discussion/132141/plex-for-smart-tvs-tivo#latest for details
+  - Volume control: +/- is now mapped to volume control.
+    Change your mapping to do increase/decrease_volume
+  - New Windows installer. We struggled to get the old installer to work fine with
+    auto-updates. We have now switched to a new framework for generating the installer
+    and it should work much better with auto-updates. You will need to manually
+    uninstall and install the latest version to get auto-updates in the future.
+
+FIXES:
+  - Filter out the use of Num+ in the keymaps.
+  - Remove old update packages lying around on disk
+  - Fix crash if we could not init Direct3D
+  - Playback fixes on RPI2
+  - The 7.1 OSX fixes described in 1.0.4 was not actually shipped. Now they are.
+  - Workaround for a crash related to hardware acceleration on OSX.
+  - Much improved transcoding decisions on RPI2.

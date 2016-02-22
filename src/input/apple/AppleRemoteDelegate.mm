@@ -19,8 +19,9 @@
 - (bool)setupRemote
 {
   [[HIDRemote sharedHIDRemote] setDelegate:self];
-  [[HIDRemote sharedHIDRemote] setSimulateHoldEvents:false];
-  if (![[HIDRemote sharedHIDRemote] startRemoteControl:kHIDRemoteModeExclusiveAuto])
+  [[HIDRemote sharedHIDRemote] setSimulateHoldEvents:NO];
+  [[HIDRemote sharedHIDRemote] setExclusiveLockLendingEnabled:YES];
+  if (![[HIDRemote sharedHIDRemote] startRemoteControl:kHIDRemoteModeExclusive])
   {
     QLOG_ERROR() << "Failed to init AppleRemote";
     return false;

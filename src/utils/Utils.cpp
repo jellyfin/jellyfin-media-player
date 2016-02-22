@@ -23,7 +23,7 @@
 QString Utils::ComputerName()
 {
 #ifdef Q_OS_MAC
-  return OSXUtils::computerName();
+  return OSXUtils::ComputerName();
 #else
   return QHostInfo::localHostName();
 #endif

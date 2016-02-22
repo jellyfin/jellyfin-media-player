@@ -18,7 +18,7 @@ void OSXUtils::SetMenuBarVisible(bool visible)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString OSXUtils::computerName()
+QString OSXUtils::ComputerName()
 {
   return QString::fromNSString([[NSHost currentHost] localizedName]);
 }

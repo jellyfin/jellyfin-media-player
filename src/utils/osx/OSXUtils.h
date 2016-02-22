@@ -3,11 +3,10 @@
 
 #include <QString>
 
-class OSXUtils
+namespace OSXUtils
 {
-public:
-  static void SetMenuBarVisible(bool visible);
-  static QString computerName();
+  void SetMenuBarVisible(bool visible);
+  QString ComputerName();
 };
 
 #endif /* OSXUTILS_H */

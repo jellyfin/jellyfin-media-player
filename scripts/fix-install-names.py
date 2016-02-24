@@ -50,6 +50,9 @@ def fix_install_name(path):
               current_basename = os.path.basename(current_lib)
               correct_lib = os.path.join(root, current_basename)
 
+              if ".framework" in current_lib:
+                current_basename = "/".join(current_lib.split("/")[-4:])
+
               if not os.path.exists(correct_lib):
                 # look for it further up, like in the root path:
                 if os.path.exists(os.path.join(path, "lib", current_basename)):

@@ -55,7 +55,6 @@ foreach(COMP ${components})
 	list(APPEND QT5_CFLAGS ${${mod}_EXECUTABLE_COMPILE_FLAGS})
 endforeach(COMP ${components})
 
-list(REMOVE_DUPLICATES QT5_CFLAGS)
 if(WIN32)
   list(REMOVE_ITEM QT5_CFLAGS -fPIC)
 endif(WIN32)

@@ -94,26 +94,41 @@ function(download_deps DD_NAME)
   set(DEP_URL "${BASE_URL}/${DEP_FILENAME}")
   get_content_of_url(URL ${DEP_URL}.sha.txt CONTENT_VAR CONTENT_HASH)
 
+  string(SUBSTRING "${CONTENT_HASH}" 0 40 CONTENT_HASH)
+
   if(NOT EXISTS ${DEP_DIR}/${DEP_DIRNAME}/_FINISHED)
     message(STATUS "Clearing out old dependencies ...")
     execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME})
     file(MAKE_DIRECTORY ${DEP_DIR})
-      
-    message(STATUS "Downloading ${DEP_FILENAME}...")
 
-    file(
-      DOWNLOAD ${DEP_URL} ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME}
-      SHOW_PROGRESS
-      STATUS DEP_STATUS
-      LOG DEP_LOG
-      EXPECTED_HASH SHA1=${CONTENT_HASH}
-    )
+    if(EXISTS ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME})
+      message(STATUS "Checking checksum of file ${DEP_FILENAME}")
+      file(SHA1 ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME} CURRENT_SHA1)
+    endif()
 
-    list(GET DEP_STATUS 0 DEP_SUCCESS)
+    if(NOT CURRENT_SHA1 STREQUAL CONTENT_HASH)
+      message(STATUS "Downloading ${DEP_FILENAME}...")
+      file(
+        DOWNLOAD ${DEP_URL} ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME}
+        SHOW_PROGRESS
+        STATUS DEP_STATUS
+        LOG DEP_LOG
+      )
 
-    if(NOT DEP_SUCCESS EQUAL 0)
-      list(GET DEP_STATUS 1 DEP_ERROR)
-      message(FATAL_ERROR "Failed to download ${DEP_URL}: ${DEP_ERROR}\n${DEP_LOG}")
+      list(GET DEP_STATUS 0 DEP_SUCCESS)
+
+      if(NOT DEP_SUCCESS EQUAL 0)
+        list(GET DEP_STATUS 1 DEP_ERROR)
+        file(REMOVE ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME})
+        message(FATAL_ERROR "Failed to download ${DEP_URL}: ${DEP_ERROR}\n${DEP_LOG}")
+      endif()
+
+      message(STATUS "Checking checksum of file ${DEP_FILENAME}")
+      file(SHA1 ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME} CURRENT_SHA1)
+      if(NOT CURRENT_SHA1 STREQUAL CONTENT_HASH)
+        file(REMOVE ${DEPENDENCY_CACHE_DIR}/${DEP_FILENAME})
+        message(FATAL_ERROR "Failed to verify hash of dependencies, expected: ${CONTENT_HASH} actual: ${CURRENT_SHA1}")
+      endif()
     endif()
 
     message(STATUS "Unpacking ${DEP_FILENAME}...")

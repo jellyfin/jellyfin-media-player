@@ -12,6 +12,7 @@ if(NOT IS_DIRECTORY ${QTROOT})
 		DEPHASH QT_DEPS_HASH
     ARTIFACTNAME konvergo-qt
     ${WINARCHSTR}
+    DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
 	)
   set(QTROOT ${dir})
 endif()

@@ -6,8 +6,9 @@ include(FetchDependencies)
 if(APPLE AND NOT DISABLE_BUNDLED_DEPS)  
   download_deps(
     "plexmediaplayer-dependencies"
-     ARTIFACTNAME konvergo-depends
-     DIRECTORY dir
+    ARTIFACTNAME konvergo-depends
+    DIRECTORY dir
+    DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
   )
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT ${dir})

@@ -104,6 +104,9 @@ bool DisplayManagerX11::setDisplayMode(int display, int mode)
                              crtc->x, crtc->y, xrmode, crtc->rotation,
                              crtc->outputs, crtc->noutput);
 
+  // The return value isn't always accurate, apparently.
+  success = true;
+
 done:
   if (crtc)
     XRRFreeCrtcInfo(crtc);

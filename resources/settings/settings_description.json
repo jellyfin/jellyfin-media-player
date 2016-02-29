@@ -44,6 +44,11 @@
         "default": true
       },
       {
+        "value": "manualUpdateCheck",
+        "input_type": "button",
+        "default": true
+      },
+      {
         "value": "updateChannel",
         "default": 0,
         "possible_values": [

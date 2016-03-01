@@ -21,6 +21,7 @@
     // map Shift+Letter to action jump+letter
     "Shift\\+([A-Z])": "jump+%1",
 
+    "Space": "play_pause",
     "P": "play_pause",
     "Ctrl\\+P": "pause",
     "X": "stop",

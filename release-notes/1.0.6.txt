@@ -1,0 +1,9 @@
+NEW:
+  - Search! There is now global search in PMP. It's early days and doesn't work well with keyboards yet.
+  - Manual check for new version in Main settings (no need to restart to check for new version).
+  
+FIXED:
+  - The "three dots" indicating buffering could stick around for a very long time. We fixed that.
+  - MPEG-2 video direct playback is now working correctly
+  - Switching servers from the dashboard is no longer slow
+  - A variety of smaller fixes in the web-client

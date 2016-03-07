@@ -584,7 +584,7 @@ void PlayerComponent::setSubtitleStream(const QString &subtitleStream)
   }
   else
   {
-    QStringList args = (QStringList() << "sub_add" << subtitleStream << "cached");
+    QStringList args = (QStringList() << "sub-add" << subtitleStream << "cached");
     mpv::qt::command_variant(m_mpv, args);
   }
 }
@@ -621,7 +621,7 @@ void PlayerComponent::setSubtitleDelay(qint64 milliseconds)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::onReloadAudio()
 {
-  mpv::qt::command_variant(m_mpv, QStringList() << "ao_reload");
+  mpv::qt::command_variant(m_mpv, QStringList() << "ao-reload");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

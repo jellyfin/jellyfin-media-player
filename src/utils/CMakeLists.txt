@@ -4,6 +4,7 @@ add_sources(
   PlatformUtils.cpp PlatformUtils.h
   HelperLauncher.h HelperLauncher.cpp
   Utils.cpp Utils.h
+  Log.cpp Log.h
 )
 
 if(APPLE)

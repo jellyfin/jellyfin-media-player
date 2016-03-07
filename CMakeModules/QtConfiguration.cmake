@@ -9,7 +9,7 @@ if(NOT IS_DIRECTORY ${QTROOT})
   download_deps(
 		"plexmediaplayer-qt"
 		DIRECTORY dir
-		DEPHASH QT_DEPS_HASH
+		DEPHASH_VAR QT_DEPS_HASH
     ARTIFACTNAME konvergo-qt
     ${WINARCHSTR}
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py

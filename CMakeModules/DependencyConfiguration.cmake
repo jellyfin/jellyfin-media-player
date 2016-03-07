@@ -8,6 +8,7 @@ if(APPLE AND NOT DISABLE_BUNDLED_DEPS)
     "plexmediaplayer-dependencies"
     ARTIFACTNAME konvergo-depends
     DIRECTORY dir
+    DEPHASH_VAR DEPS_HASH
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
   )
   message("dependencies are: ${dir}")
@@ -20,6 +21,7 @@ if(WIN32)
     DIRECTORY dir
     ARTIFACTNAME konvergo-depends-windows
     ARCHSTR mingw32-x86_64
+    DEPHASH_VAR DEPS_HASH
   )
   if(NOT EXISTS ${dir}/lib/mpv.lib)
     execute_process(

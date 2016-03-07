@@ -50,7 +50,7 @@ function(get_content_of_url)
 endfunction(get_content_of_url)
 
 function(download_deps DD_NAME)
-  set(ARGS DIRECTORY BUILD_NUMBER ARTIFACTNAME VARIANT DEPHASH ARCHSTR DYLIB_SCRIPT_PATH)
+  set(ARGS DIRECTORY BUILD_NUMBER ARTIFACTNAME VARIANT DEPHASH_VAR ARCHSTR DYLIB_SCRIPT_PATH)
   cmake_parse_arguments(DD "" "${ARGS}" "" ${ARGN})
 
   if(NOT DEFINED DD_VARIANT)
@@ -84,6 +84,9 @@ function(download_deps DD_NAME)
   endif()
 
   message(STATUS "Dependency hash is: ${DEP_HASH}")
+  if(DD_DEPHASH_VAR)
+    set(${DD_DEPHASH_VAR} ${DEP_HASH} PARENT_SCOPE)
+  endif()
 
   set(DEP_DIRNAME "${DD_ARTIFACTNAME}-${DD_ARCHSTR}-${DD_VARIANT}-${DEP_HASH}")
   set(DEP_FILENAME ${DEP_DIRNAME}.tbz2)

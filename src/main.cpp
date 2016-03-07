@@ -119,6 +119,7 @@ void initLogger()
   qInstallMessageHandler(qtMessageOutput);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 static QsLogging::Level logLevelFromString(const QString& str)
 {
   if (str == "trace")     return QsLogging::Level::TraceLevel;
@@ -132,6 +133,7 @@ static QsLogging::Level logLevelFromString(const QString& str)
   return QsLogging::Level::DebugLevel;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 static void updateLogLevel()
 {
   QString level = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "logLevel").toString();

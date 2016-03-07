@@ -33,8 +33,6 @@ public:
 
   Q_INVOKABLE QString debugInformation();
 
-  Q_INVOKABLE QString logFilePath() { return Paths::logDir(Names::MainName() + ".log"); }
-
   Q_INVOKABLE QStringList networkAddresses() const;
   Q_INVOKABLE int networkPort() const;
 

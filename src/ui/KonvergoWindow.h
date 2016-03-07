@@ -5,17 +5,6 @@
 #include <QEvent>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class MouseEventFilter : public QObject
-{
-  Q_OBJECT
-public:
-  MouseEventFilter(QObject* parent = 0) : QObject(parent) {}
-
-protected:
-  bool eventFilter(QObject* watched, QEvent* event);
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 class KonvergoWindow : public QQuickWindow
 {
   Q_OBJECT
@@ -82,7 +71,6 @@ private:
 
 private:
   bool m_debugLayer;
-  MouseEventFilter* m_eventFilter;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
 };

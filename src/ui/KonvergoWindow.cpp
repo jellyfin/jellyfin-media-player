@@ -16,59 +16,7 @@
 #include "power/PowerComponent.h"
 #include "utils/Utils.h"
 #include "KonvergoEngine.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-bool MouseEventFilter::eventFilter(QObject* watched, QEvent* event)
-{
-  SystemComponent& system = SystemComponent::Get();
-
-  // ignore mouse events if mouse is disabled
-  if  (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool() &&
-       ((event->type() == QEvent::MouseMove) ||
-        (event->type() == QEvent::MouseButtonPress) ||
-        (event->type() == QEvent::MouseButtonRelease) ||
-        (event->type() == QEvent::MouseButtonDblClick)))
-  {
-    return true;
-  }
-
-  if (event->type() == QEvent::KeyPress)
-  {
-    // In konvergo we intercept all keyboard events and translate them
-    // into web client actions. We need to do this so that we can remap
-    // keyboard buttons to different events.
-    //
-    QKeyEvent* kevent = dynamic_cast<QKeyEvent*>(event);
-    if (kevent)
-    {
-      system.setCursorVisibility(false);
-      if (kevent->spontaneous())
-      {
-        // We ignore the KeypadModifier here since it's practically useless
-        QKeySequence key(kevent->key() | (kevent->modifiers() &= ~Qt::KeypadModifier));
-        InputKeyboard::Get().keyPress(key);
-        return true;
-      }
-    }
-  }
-  else if (event->type() == QEvent::MouseMove)
-  {
-    system.setCursorVisibility(true);
-  }
-  else if (event->type() == QEvent::Wheel)
-  {
-    return true;
-  }
-  else if (event->type() == QEvent::MouseButtonPress)
-  {
-    // ignore right clicks that would show context menu
-    QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
-    if ((mouseEvent) && (mouseEvent->button() == Qt::RightButton))
-      return true;
-  }
-
-  return QObject::eventFilter(watched, event);
-}
+#include "EventFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugLayer(false)
@@ -76,11 +24,10 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
 
-  m_eventFilter = new MouseEventFilter(this);
-  installEventFilter(m_eventFilter);
-
   m_infoTimer = new QTimer(this);
   m_infoTimer->setInterval(1000);
+
+  installEventFilter(new EventFilter(this));
 
   connect(m_infoTimer, &QTimer::timeout, this, &KonvergoWindow::updateDebugInfo);
 
@@ -152,7 +99,6 @@ void KonvergoWindow::closingWindow()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 KonvergoWindow::~KonvergoWindow()
 {
-  removeEventFilter(m_eventFilter);
   DisplayComponent::Get().setApplicationWindow(0);
 }
 

@@ -145,39 +145,26 @@ static void updateLogLevel()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-char** appendCommandLineArguments(int *argc, char **argv)
+char** appendCommandLineArguments(int argc, char **argv, const QStringList& args)
 {
-  static char *newArgs[16];
-  QList<QString> argList;
+  size_t newSize = (argc + args.length() + 1) * sizeof(char*);
+  char** newArgv = (char**)calloc(1, newSize);
+  memcpy(newArgv, argv, (size_t)(argc * sizeof(char*)));
 
-  // Copy argv list to our StringList
-  for (int i=0; i < *argc; i++)
-  {
-    argList << QString(argv[i]);
-  }
+  int pos = argc;
+  foreach(const QString& str, args)
+    newArgv[pos++] = qstrdup(str.toUtf8().data());
 
-  // add any required additionnal commandline argument
-#if KONVERGO_OPENELEC
-  // on RPI with webengine, OpenGL contexts are shared statically with webengine
-  // which avoids proper reset when switching display mode
-  // On OE we also need that because there is a crash with OZONE otherwise
-  argList << "--disable-gpu";
-#endif
+  return newArgv;
+}
 
-  // with webengine we need those to have a proper scaling of the webview in the window
-  argList << "--enable-viewport";
-  argList << "--enable-viewport-meta";
-
-  // Now rebuild our argc, argv list
-  *argc = argList.size();
-
-  for(int iarg=0; iarg < argList.size(); iarg++)
-  {
-    newArgs[iarg] = (char*)malloc(256);
-    strcpy(newArgs[iarg], argList.value(iarg).toStdString().c_str());
-  }
-
-  return (char**)newArgs;
+/////////////////////////////////////////////////////////////////////////////////////////
+void ShowLicenseInfo()
+{
+  QFile licenses(":/misc/licenses.txt");
+  licenses.open(QIODevice::ReadOnly | QIODevice::Text);
+  QByteArray contents = licenses.readAll();
+  printf("%.*s\n", contents.size(), contents.data());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -185,20 +172,19 @@ int main(int argc, char *argv[])
 {
   try
   {
-    for (int n = 1; n < argc; n++)
-    {
-      if (strcmp(argv[n], "--licenses") == 0)
-      {
-        QFile licenses(":/misc/licenses.txt");
-        licenses.open(QIODevice::ReadOnly | QIODevice::Text);
-        QByteArray contents = licenses.readAll();
-        printf("%.*s\n", (int)contents.size(), contents.data());
-        return 0;
-      }
-    }
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Plex Media Player");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addOptions({{{"l", "licenses"}, "Show license information"}});
 
-    int newArgc = argc;
-    char **newArgv = appendCommandLineArguments(&newArgc, argv);
+    char **newArgv = appendCommandLineArguments(argc, argv, {"--enable-viewport", "--enable-viewport-meta"});
+    argc += 2;
+
+#ifdef KONVERGO_OPENELEC
+    newArgv = appendCommandLineArguments(argc, newArgv, {"--disable-gpu"});
+    argc ++;
+#endif
 
     // Suppress SSL related warnings on OSX
     // See https://bugreports.qt.io/browse/QTBUG-43173 for more info
@@ -217,8 +203,25 @@ int main(int argc, char *argv[])
 #endif
 
     preinitQt();
-    QGuiApplication app(newArgc, newArgv);
+
+    QGuiApplication app(argc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));
+
+    // Get the arguments from the app, this is the parsed version of newArgc and newArgv
+    QStringList args = app.arguments();
+
+    // Remove the viewport arguments so that the parser doesn't barf
+    args.removeAll("--enable-viewport");
+    args.removeAll("--enable-viewport-meta");
+
+    // Now parse the command line.
+    parser.process(args);
+
+    if (parser.isSet("licenses"))
+    {
+      ShowLicenseInfo();
+      return EXIT_SUCCESS;
+    }
 
     // init breakpad.
     setupCrashDumper();

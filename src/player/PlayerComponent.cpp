@@ -117,6 +117,9 @@ bool PlayerComponent::componentInitialize()
   mpv::qt::set_option_variant(m_mpv, "demuxer-max-bytes", 50 * 1024 * 1024); // bytes
   // Specifically for enabling mpeg4.
   mpv::qt::set_option_variant(m_mpv, "hwdec-codecs", "all");
+  // Do not use exact seeks by default. (This affects the start position in the "loadfile"
+  // command in particular. We override the seek mode for normal "seek" commands.)
+  mpv::qt::set_option_variant(m_mpv, "hr-seek", "no");
 #endif
 
   mpv_observe_property(m_mpv, 0, "pause", MPV_FORMAT_FLAG);
@@ -523,7 +526,7 @@ void PlayerComponent::seekTo(qint64 ms)
 {
   double start = mpv::qt::get_property_variant(m_mpv, "time-start").toDouble();
   QString timeStr = QString::number(ms / 1000.0 + start);
-  QStringList args = (QStringList() << "seek" << timeStr << "absolute");
+  QStringList args = (QStringList() << "seek" << timeStr << "absolute+exact");
   mpv::qt::command_variant(m_mpv, args);
 }
 

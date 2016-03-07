@@ -1,7 +1,6 @@
 # Get the current date.
-include(GetDate)
 include(WebClientVariables)
-today(CURRENT_DATE)
+string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")
 
 # Get git revision version
 include(GetGitRevisionDescription)

@@ -524,9 +524,8 @@ void PlayerComponent::pause()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::seekTo(qint64 ms)
 {
-  double start = mpv::qt::get_property_variant(m_mpv, "time-start").toDouble();
-  QString timeStr = QString::number(ms / 1000.0 + start);
-  QStringList args = (QStringList() << "seek" << timeStr << "absolute+exact");
+  double timeSecs = ms / 1000.0;
+  QVariantList args = (QVariantList() << "seek" << timeSecs << "absolute+exact");
   mpv::qt::command_variant(m_mpv, args);
 }
 

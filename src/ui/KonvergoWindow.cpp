@@ -19,7 +19,7 @@
 #include "EventFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugLayer(false)
+KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugLayer(false), m_lastScale(1.0)
 {
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
@@ -46,6 +46,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 #endif
 
   loadGeometry();
+  m_lastScale = CalculateScale(size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
@@ -207,6 +208,8 @@ void KonvergoWindow::updateFullscreenState()
     setVisibility(QWindow::Windowed);
     loadGeometry();
   }
+  
+  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,6 +224,8 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     PowerComponent::Get().setFullscreenState(true);
   else if (visibility == QWindow::Windowed)
     PowerComponent::Get().setFullscreenState(false);
+
+  notifyScale(size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -292,4 +297,47 @@ void KonvergoWindow::toggleDebug()
     updateDebugInfo();
     setProperty("showDebugLayer", true);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::notifyScale(const QSize& size)
+{
+  qreal scale = CalculateScale(size);
+  if (scale != m_lastScale)
+  {
+    QLOG_DEBUG() << "windowScale updated to:" << scale;
+    m_lastScale = scale;
+
+    emit SystemComponent::Get().scaleChanged(CalculateWebScale(size, devicePixelRatio()));
+  }
+  emit webScaleChanged();
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::resizeEvent(QResizeEvent* event)
+{
+  notifyScale(event->size());
+  QQuickWindow::resizeEvent(event);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+#define ROUND(x) (qRound(x * 1000) / 1000.0)
+
+/////////////////////////////////////////////////////////////////////////////////////////
+qreal KonvergoWindow::CalculateScale(const QSize& size)
+{
+  qreal horizontalScale = (qreal)size.width() / (qreal)WEBUI_SIZE.width();
+  qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();
+  return ROUND(qMin(horizontalScale, verticalScale));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+qreal KonvergoWindow::CalculateWebScale(const QSize& size, qint32 devicePixelRatio)
+{
+  qreal horizontalScale = (qreal)size.width() / (qreal)WEBUI_SIZE.width();
+  qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();
+
+  qreal minScale = qMin(horizontalScale, qMin(verticalScale, (qreal)(WEBUI_MAX_HEIGHT / devicePixelRatio) / (qreal)WEBUI_SIZE.height()));
+  return ROUND(qMax(1.0, minScale));
 }

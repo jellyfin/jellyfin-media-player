@@ -73,6 +73,7 @@ public:
 
 signals:
   void hostMessage(const QString& message);
+  void scaleChanged(qreal scale);
 
 private:
   SystemComponent(QObject* parent = 0);

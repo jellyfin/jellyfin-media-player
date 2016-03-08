@@ -4,14 +4,34 @@
 #include <QQuickWindow>
 #include <QEvent>
 
+
+// This controls how big the web view will zoom using semantic zoom
+// over a specific number of pixels and we run out of space for on screen
+// tiles in chromium. This only happens on OSX since on other platforms
+// we can use the GPU to transfer tiles directly but we set the limit on all platforms
+// to keep it consistent.
+//
+// See more discussion in: https://github.com/plexinc/plex-media-player/issues/10
+// The number of pixels here are REAL pixels, the code in webview.qml will compensate
+// for a higher DevicePixelRatio
+//
+#define WEBUI_MAX_HEIGHT 1440.0
+#define WEBUI_SIZE QSize(1280, 720)
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class KonvergoWindow : public QQuickWindow
 {
   Q_OBJECT
+
   Q_PROPERTY(bool fullScreen READ isFullScreen WRITE setFullScreen NOTIFY fullScreenSwitched)
   Q_PROPERTY(bool showDebugLayer MEMBER m_debugLayer NOTIFY debugLayerChanged)
   Q_PROPERTY(QString debugInfo MEMBER m_debugInfo NOTIFY debugInfoChanged)
   Q_PROPERTY(QString videoInfo MEMBER m_videoInfo NOTIFY debugInfoChanged)
+  Q_PROPERTY(qreal webScale READ webScale NOTIFY webScaleChanged)
+  Q_PROPERTY(qreal webHeightMax READ webHeightMax NOTIFY webScaleChanged)
+  Q_PROPERTY(QSize webUISize READ webUISize NOTIFY webScaleChanged)
+  Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
+
 public:
   static void RegisterClass();
 
@@ -43,15 +63,24 @@ public:
     emit reloadWebClient();
   }
 
+  qreal windowScale() { return CalculateScale(size()); }
+  qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
+  qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }
+  QSize webUISize() { return WEBUI_SIZE; }
+  static qreal CalculateScale(const QSize& size);
+  static qreal CalculateWebScale(const QSize& size, qint32 devicePixelRatio);
+
 Q_SIGNALS:
   void fullScreenSwitched();
+  void webScaleChanged();
   void enableVideoWindowSignal();
   void debugLayerChanged();
   void debugInfoChanged();
   void reloadWebClient();
 
 protected:
-  virtual void focusOutEvent(QFocusEvent * ev);
+  virtual void focusOutEvent(QFocusEvent* ev) override;
+  virtual void resizeEvent(QResizeEvent* event) override;
 
 private slots:
   void closingWindow();
@@ -65,12 +94,12 @@ private slots:
   void playerPlaybackStarting();
 
 private:
+  void notifyScale(const QSize& size);
   void saveGeometry();
   void loadGeometry();
   QRect loadGeometryRect();
-
-private:
   bool m_debugLayer;
+  qreal m_lastScale;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
 };

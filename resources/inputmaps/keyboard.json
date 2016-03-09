@@ -49,6 +49,7 @@
 
     // emulate some of of PHT's behaviour
     "I": "host:toggleDebug",
+    "W": "toggle_watched",
     "\\\\": "host:fullscreen",
 
     // media keys from the FLIRC and on Linux keyboards

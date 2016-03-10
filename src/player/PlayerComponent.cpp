@@ -251,6 +251,10 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   extraArgs.insert("pause", options["autoplay"].toBool() ? "no" : "yes");
 
+  QString userAgent = metadata["headers"].toMap()["User-Agent"].toString();
+  if (userAgent.size())
+    extraArgs.insert("user-agent", userAgent);
+
   command << extraArgs;
 
   QLOG_DEBUG() << command;

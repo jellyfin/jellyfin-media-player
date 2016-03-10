@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
     // Remove the viewport arguments so that the parser doesn't barf
     args.removeAll("--enable-viewport");
     args.removeAll("--enable-viewport-meta");
+    args.removeAll("--disable-gpu");
 
     // Now parse the command line.
     parser.process(args);

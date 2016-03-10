@@ -1,12 +1,14 @@
 #include <locale.h>
 
 #include <QGuiApplication>
+#include <QApplication>
 #include <QFileInfo>
 #include <QIcon>
 #include <QtQml>
 #include <QtWebEngine/qtwebengineglobal.h>
-#include <shared/Names.h>
+#include <QErrorMessage>
 
+#include "shared/Names.h"
 #include "system/SystemComponent.h"
 #include "system/UpdateManager.h"
 #include "QsLog.h"
@@ -231,19 +233,14 @@ int main(int argc, char *argv[])
   }
   catch (FatalException& e)
   {
-
     QLOG_FATAL() << "Unhandled FatalException:" << qPrintable(e.message());
+    QApplication errApp(argc, argv);
 
-    QGuiApplication app(argc, argv);
-    QString text = e.message() + "<br>" + QObject::tr("Please visit Plex support forums for support.");
+    QErrorMessage* msg = new QErrorMessage;
+    msg->showMessage("Plex Media Player encountered a fatal error and will now quit: " + e.message());
+    QObject::connect(msg, &QErrorMessage::finished, []() { qApp->exit(1); });
 
-    QQmlApplicationEngine* engine = new QQmlApplicationEngine(NULL);
-    engine->rootContext()->setContextProperty("errorTitle", QObject::tr("A critical error occurred."));
-    engine->rootContext()->setContextProperty("errorText", text);
-    engine->load(QUrl(QStringLiteral("qrc:/ui/errormessage.qml")));
-
-    app.exec();
+    errApp.exec();
     return 1;
-
   }
 }

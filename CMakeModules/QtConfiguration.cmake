@@ -32,7 +32,7 @@ set(REQUIRED_QT_VERSION "5.6.0")
 message(STATUS ${QTROOT})
 
 set(QTCONFIGROOT ${QTROOT}/lib/cmake/Qt5)
-set(components Core Network WebChannel Qml Quick Xml WebEngine)
+set(components Core Network WebChannel Qml Quick Xml WebEngine Widgets)
 
 if(OPENELEC)
   set(components ${components} DBus)

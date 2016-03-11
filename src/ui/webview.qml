@@ -9,10 +9,8 @@ KonvergoWindow
   id: mainWindow
   title: "Plex Media Player"
   objectName: "mainWindow"
-  minimumHeight: 240
-  minimumWidth: 426
-  height: 720
-  width: 1280
+  minimumHeight: windowMinSize.height
+  minimumWidth: windowMinSize.width
 
   function getInitialScaleArg()
   {
@@ -22,15 +20,6 @@ KonvergoWindow
   function maxWebScale()
   {
     return webHeightMax ? ((webHeightMax / Screen.devicePixelRatio) / 720) : 10;
-  }
-
-  onWebScaleChanged:
-  {
-    if (web.url == "")
-    {
-      console.log("Loading web page")
-      web.url = components.settings.value("path", "startupurl") + getInitialScaleArg();
-    }
   }
 
   MpvVideo
@@ -53,8 +42,8 @@ KonvergoWindow
     profile.httpUserAgent: components.system.getUserAgent()
     transformOrigin: Item.TopLeft
 
-    width: Math.min((parent.height * 16) / 9, parent.width)
-    height: Math.min((parent.width * 9) / 16, parent.height)
+    width: parent.width
+    height: parent.height
     
     scale:
     {
@@ -67,14 +56,6 @@ KonvergoWindow
       }
     }
 
-    zoomFactor:
-    {
-      if (mainWindow.windowScale < 1)
-        return mainWindow.windowScale
-      else
-        return 1;
-    }
-
     Component.onCompleted:
     {
       // set the transparency
@@ -82,6 +63,7 @@ KonvergoWindow
       backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
+      url = components.settings.value("path", "startupurl") + getInitialScaleArg();
     }
 
     onLoadingChanged:
@@ -175,7 +157,7 @@ KonvergoWindow
         dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
         dbg += "  Web Max Height: " + (webHeightMax / Screen.devicePixelRatio) + " / Max scale: " + mainWindow.maxWebScale() + "\n";
         dbg += "  Web scale: " + webScale + " / Window scale: " + windowScale + "\n";
-        dbg += "  Scale applied: " + web.scale + " / Zoom: " + web.zoomFactor + "\n";
+        dbg += "  Scale applied: " + web.scale + "\n";
 
         return dbg;
       }

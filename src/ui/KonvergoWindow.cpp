@@ -46,7 +46,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 #endif
 
   loadGeometry();
-  m_lastScale = CalculateScale(size());
+  notifyScale(size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
@@ -57,9 +57,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   connect(this, &KonvergoWindow::enableVideoWindowSignal,
           this, &KonvergoWindow::enableVideoWindow, Qt::QueuedConnection);
 
-//  connect(QGuiApplication::desktop(), &QDesktopWidget::screenCountChanged,
-//              this, &KonvergoWindow::onScreenCountChanged);
-
   connect(&PlayerComponent::Get(), &PlayerComponent::windowVisible,
           this, &KonvergoWindow::playerWindowVisible);
 
@@ -69,21 +66,20 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
 
-  connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
+  connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::closingWindow);
 
-  if (!SystemComponent::Get().isOpenELEC())
-  {
-    // this is such a hack. But I could not get it to enter into fullscreen
-    // mode if I didn't trigger this after a while.
-    //
-    QTimer::singleShot(500, [=]() {
-        updateFullscreenState();
-    });
-  }
-  else
-  {
-    setWindowState(Qt::WindowFullScreen);
-  }
+#ifdef KONVERGO_OPENELEC
+  setVisibility(QWindow::FullScreen);
+#elif !defined(Q_OS_MAC)
+  updateFullscreenState(false);
+#else
+  // this is such a hack. But I could not get it to enter into fullscreen
+  // mode if I didn't trigger this after a while.
+  //
+  QTimer::singleShot(500, [=]() {
+    updateFullscreenState(false);
+  });
+#endif
 
   emit enableVideoWindowSignal();
 }
@@ -91,7 +87,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::closingWindow()
 {
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() == false)
+  if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
     saveGeometry();
 
   qApp->quit();
@@ -104,52 +100,93 @@ KonvergoWindow::~KonvergoWindow()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+bool KonvergoWindow::fitsInScreens(const QRect& rc)
+{
+  foreach (QScreen *screen, QGuiApplication::screens())
+  {
+    if (screen->virtualGeometry().contains(rc))
+      return true;
+  }
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::saveGeometry()
 {
   QRect rc = geometry();
-  QJsonObject obj;
-  obj.insert("x", rc.x());
-  obj.insert("y", rc.y());
-  obj.insert("width", rc.width());
-  obj.insert("height", rc.height());
-  SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "geometry", obj.toVariantMap());
+
+  // lets make sure we are not saving something craycray
+  if (rc.size().width() < windowMinSize().width() || rc.size().height() < windowMinSize().height())
+    return;
+
+  if (!fitsInScreens(rc))
+    return;
+
+  QVariantMap map = {{"x", rc.x()}, {"y", rc.y()},
+                     {"width", rc.width()}, {"height", rc.height()}};
+  SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "geometry", map);
+  SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "lastUsedScreen", screen()->name());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::loadGeometry()
 {
   QRect rc = loadGeometryRect();
-  if (rc.isValid())
+  QScreen* myScreen = loadLastScreen();
+  if (!myScreen)
+    myScreen = screen();
+
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
+  {
+    QLOG_DEBUG() << "Load FullScreen geo...";
+    setGeometry(myScreen->geometry());
+    setScreen(myScreen);
+  }
+  else
+  {
     setGeometry(rc);
+    saveGeometry();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QRect KonvergoWindow::loadGeometryRect()
 {
-  QJsonObject obj = QJsonObject::fromVariantMap(SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "geometry").toMap());
-  if (obj.isEmpty())
-    return QRect();
+  // if we dont have anything, default to 720p in the middle of the screen
+  QRect defaultRect = QRect((screen()->geometry().width() - webUISize().width()) / 2,
+                            (screen()->geometry().height() - webUISize().height()) / 2,
+                            webUISize().width(), webUISize().height());
 
-  QRect rc(obj["x"].toInt(), obj["y"].toInt(), obj["width"].toInt(), obj["height"].toInt());
+  QVariantMap map = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "geometry").toMap();
+  if (map.isEmpty())
+    return defaultRect;
 
-  if (rc.width() < 1280)
-    rc.setWidth(1280);
+  QRect rc(map["x"].toInt(), map["y"].toInt(), map["width"].toInt(), map["height"].toInt());
 
-  if (rc.height() < 720)
-    rc.setHeight(720);
+  QLOG_DEBUG() << "Restoring geo:" << rc;
 
-  // make sure our poisition is contained in one of the current screens
-  foreach (QScreen *screen, QGuiApplication::screens())
+  if (!rc.isValid() || rc.isEmpty())
   {
-    if (screen->availableGeometry().contains(rc))
-      return rc;
+    QLOG_DEBUG() << "Geo bad, going for defaults";
+    return defaultRect;
   }
 
- // otherwise default to center of current screen
-  return QRect((screen()->geometry().width() - geometry().width()) / 2,
-               (screen()->geometry().height() - geometry().height()) / 2,
-               geometry().width(),
-               geometry().height());
+  QSize minsz = windowMinSize();
+
+  // Clamp to min size if we have really small values in there
+  if (rc.size().width() < minsz.width())
+    rc.setWidth(minsz.width());
+  if (rc.size().height() < minsz.height())
+    rc.setHeight(minsz.height());
+
+  // also make sure we are not putting windows outside the screen somewhere
+  if (!fitsInScreens(rc))
+  {
+    QLOG_DEBUG() << "Could not fit stored geo into current screens";
+    return defaultRect;
+  }
+
+  return rc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,24 +229,22 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::updateFullscreenState()
+void KonvergoWindow::updateFullscreenState(bool saveGeo)
 {
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
   {
     // if we were go from windowed to fullscreen
-    // we want to stor our current windowed position
-    if (!isFullScreen())
+    // we want to store our current windowed position
+    if (!isFullScreen() && saveGeo)
       saveGeometry();
 
-      setVisibility(QWindow::FullScreen);
+    setVisibility(QWindow::FullScreen);
   }
   else
   {
     setVisibility(QWindow::Windowed);
     loadGeometry();
   }
-  
-  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +301,7 @@ void KonvergoWindow::RegisterClass()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onScreenCountChanged(int newCount)
 {
-  updateFullscreenState();
+  updateFullscreenState(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -305,7 +340,7 @@ void KonvergoWindow::notifyScale(const QSize& size)
   qreal scale = CalculateScale(size);
   if (scale != m_lastScale)
   {
-    QLOG_DEBUG() << "windowScale updated to:" << scale;
+    QLOG_DEBUG() << "windowScale updated to:" << scale << "webscale:" << CalculateWebScale(size, devicePixelRatio());
     m_lastScale = scale;
 
     emit SystemComponent::Get().scaleChanged(CalculateWebScale(size, devicePixelRatio()));
@@ -313,10 +348,10 @@ void KonvergoWindow::notifyScale(const QSize& size)
   emit webScaleChanged();
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::resizeEvent(QResizeEvent* event)
 {
+  QLOG_DEBUG() << "resize event:" << event->size();
   notifyScale(event->size());
   QQuickWindow::resizeEvent(event);
 }
@@ -339,5 +374,26 @@ qreal KonvergoWindow::CalculateWebScale(const QSize& size, qint32 devicePixelRat
   qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();
 
   qreal minScale = qMin(horizontalScale, qMin(verticalScale, (qreal)(WEBUI_MAX_HEIGHT / devicePixelRatio) / (qreal)WEBUI_SIZE.height()));
-  return ROUND(qMax(1.0, minScale));
+  qreal minWinScale = 240.0 / (qreal)WEBUI_SIZE.height();
+  return ROUND(qMax(minWinScale, minScale));
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QScreen* KonvergoWindow::loadLastScreen()
+{
+  QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "lastUsedScreen").toString();
+  if (screenName.isEmpty())
+    return nullptr;
+
+  for (QScreen* scr : QGuiApplication::screens())
+  {
+    if (scr->name() == screenName)
+      return scr;
+  }
+
+  QLOG_DEBUG() << "Tried to find screen:" << screenName << "but it was not present";
+
+  return nullptr;
+}
+
+

@@ -227,19 +227,23 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   if (startMilliseconds != 0)
     extraArgs.insert("start", "+" + QString::number(startMilliseconds / 1000.0));
 
+  // force default audio selection
+  extraArgs.insert("ff-aid", "auto");
+
+  // by default ignore all subtitles, unless overridden
+  extraArgs.insert("sid", "no");
+  extraArgs.insert("ff-sid", "auto");
+
   // detect subtitles
   if (!subtitleStream.isEmpty())
   {
     // If the stream title starts with a #, then it's an index
     if (subtitleStream.startsWith("#"))
       extraArgs.insert("ff-sid", subtitleStream.mid(1));
-    else
+    else {
       extraArgs.insert("sub-file", subtitleStream);
-  }
-  else
-  {
-    // no subtitles, tell mpv to ignore them.
-    extraArgs.insert("sid", "no");
+      extraArgs.insert("sid", "auto"); // select the external one by default
+    }
   }
 
   if (metadata["type"] == "music")

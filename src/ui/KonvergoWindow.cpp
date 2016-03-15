@@ -352,6 +352,22 @@ void KonvergoWindow::notifyScale(const QSize& size)
 void KonvergoWindow::resizeEvent(QResizeEvent* event)
 {
   QLOG_DEBUG() << "resize event:" << event->size();
+
+  // This next block should never really be needed in a prefect world...
+  // Unfortunatly this is an imperfect world and on windows sometimes what
+  // would happen on startup is that we got a resize event that would make
+  // the window much smaller than fullscreen.
+  //
+  if (isFullScreen())
+  {
+    QSize fsSize = screen()->size();
+    if (event->size().width() < fsSize.width() || event->size().height() < fsSize.height())
+    {
+      QLOG_DEBUG() << "Ignoring resize event when in fullscreen...";
+      return;
+    }
+  }
+
   notifyScale(event->size());
   QQuickWindow::resizeEvent(event);
 }

@@ -70,15 +70,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
 #ifdef KONVERGO_OPENELEC
   setVisibility(QWindow::FullScreen);
-#elif !defined(Q_OS_MAC)
-  updateFullscreenState(false);
 #else
-  // this is such a hack. But I could not get it to enter into fullscreen
-  // mode if I didn't trigger this after a while.
-  //
-  QTimer::singleShot(500, [=]() {
-    updateFullscreenState(false);
-  });
+  updateFullscreenState(false);
 #endif
 
   emit enableVideoWindowSignal();
@@ -139,7 +132,19 @@ void KonvergoWindow::loadGeometry()
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
   {
     QLOG_DEBUG() << "Load FullScreen geo...";
+
+    // On OSX we need to set the geometry to the size we want when we
+    // return from fullscreen otherwise when we exit fullscreen it
+    // will stay small or big. On Windows we need to set it to max
+    // resolution for the screen (i.e. fullscreen) otherwise it will
+    // just scale the webcontent to the minimum size we have defined
+    //
+#ifdef Q_OS_MAC
+    setGeometry(rc);
+#else
     setGeometry(myScreen->geometry());
+#endif
+    
     setScreen(myScreen);
   }
   else

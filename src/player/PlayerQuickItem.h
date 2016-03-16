@@ -31,6 +31,7 @@ public slots:
   void onPlaybackActive(bool active);
 
 private:
+  static void on_update(void *ctx);
   mpv::qt::Handle m_mpv;
   mpv_opengl_cb_context* m_mpvGL;
   QQuickWindow* m_window;
@@ -50,7 +51,6 @@ public:
     QString debugInfo() { return m_debugInfo; }
 
 signals:
-    void onUpdate();
     void onFatalError(QString message);
 
 private slots:
@@ -60,7 +60,6 @@ private slots:
     void onHandleFatalError(QString message);
 
 private:
-    static void on_update(void *ctx);
     mpv::qt::Handle m_mpv;
     mpv_opengl_cb_context* m_mpvGL;
     PlayerRenderer* m_renderer;

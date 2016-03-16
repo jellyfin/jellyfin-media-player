@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include <QOpenGLContext>
+#include <QRunnable>
 
 #include <QtGui/QOpenGLFramebufferObject>
 
@@ -125,6 +126,24 @@ static void* get_proc_address(void* ctx, const char* name)
   return res;
 }
 
+namespace {
+
+class RequestRepaintJob : public QRunnable {
+  QQuickWindow *window;
+public:
+  RequestRepaintJob(QQuickWindow *window) : window(window) { }
+  void run() override {
+    // QSGThreadedRenderLoop::update has a special code path that will render
+    // without syncing the render and GUI threads unless asked elsewhere to support
+    // QQuickAnimator animations. This is currently triggered by the fact that
+    // QQuickWindow::update() is called from the render thread.
+    // This allows continuing rendering video while the GUI thread is busy.
+    window->update();
+  }
+};
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerRenderer::PlayerRenderer(mpv::qt::Handle mpv, QQuickWindow* window)
 : m_mpv(mpv), m_mpvGL(0), m_window(window), m_size(), m_hAvrtHandle(0)
@@ -139,6 +158,8 @@ bool PlayerRenderer::init()
   // Request Multimedia Class Schedule Service.
   DwmEnableMMCSS(TRUE);
 #endif
+
+  mpv_opengl_cb_set_update_callback(m_mpvGL, on_update, (void *)this);
 
   // Signals presence of MPGetNativeDisplay().
   const char *extensions = "GL_MP_MPGetNativeDisplay";
@@ -192,6 +213,20 @@ void PlayerRenderer::onPlaybackActive(bool active)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerRenderer::on_update(void *ctx)
+{
+  PlayerRenderer *self = (PlayerRenderer *)ctx;
+  // QQuickWindow::scheduleRenderJob is expected to be called from the GUI thread but
+  // is thread-safe when using the QSGThreadedRenderLoop. We can detect a non-threaded render
+  // loop by checking if QQuickWindow::beforeSynchronizing was called from the GUI thread
+  // (which affects the QObject::thread() of the PlayerRenderer).
+  if (self->thread() == self->m_window->thread())
+    QMetaObject::invokeMethod(self->m_window, "update", Qt::QueuedConnection);
+  else
+    self->m_window->scheduleRenderJob(new RequestRepaintJob(self->m_window), QQuickWindow::NoStage);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerQuickItem::PlayerQuickItem(QQuickItem* parent)
 : QQuickItem(parent), m_mpvGL(NULL), m_renderer(NULL)
 {
@@ -213,7 +248,6 @@ void PlayerQuickItem::onWindowChanged(QQuickWindow* win)
   {
     connect(win, &QQuickWindow::beforeSynchronizing, this, &PlayerQuickItem::onSynchronize, Qt::DirectConnection);
     connect(win, &QQuickWindow::sceneGraphInvalidated, this, &PlayerQuickItem::onInvalidate, Qt::DirectConnection);
-    connect(this, &PlayerQuickItem::onUpdate, win, &QQuickWindow::update, Qt::QueuedConnection);
   }
 }
 
@@ -270,13 +304,6 @@ void PlayerQuickItem::onInvalidate()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerQuickItem::on_update(void *ctx)
-{
-  PlayerQuickItem *self = (PlayerQuickItem *)ctx;
-  emit self->onUpdate();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerQuickItem::initMpv(PlayerComponent* player)
 {
   m_mpv = player->getMpvHandle();
@@ -284,8 +311,6 @@ void PlayerQuickItem::initMpv(PlayerComponent* player)
   m_mpvGL = (mpv_opengl_cb_context *)mpv_get_sub_api(m_mpv, MPV_SUB_API_OPENGL_CB);
   if (!m_mpvGL)
     throw FatalException(tr("OpenGL not enabled in libmpv."));
-
-  mpv_opengl_cb_set_update_callback(m_mpvGL, on_update, (void *)this);
 
   connect(player, &PlayerComponent::windowVisible, this, &QQuickItem::setVisible);
   window()->update();

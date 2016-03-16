@@ -128,18 +128,25 @@ static void* get_proc_address(void* ctx, const char* name)
 
 namespace {
 
-class RequestRepaintJob : public QRunnable {
-  QQuickWindow *window;
+/////////////////////////////////////////////////////////////////////////////////////////
+class RequestRepaintJob : public QRunnable
+{
 public:
-  RequestRepaintJob(QQuickWindow *window) : window(window) { }
-  void run() override {
+  RequestRepaintJob(QQuickWindow *window) : m_window(window) { }
+
+  void run() override
+  {
     // QSGThreadedRenderLoop::update has a special code path that will render
     // without syncing the render and GUI threads unless asked elsewhere to support
     // QQuickAnimator animations. This is currently triggered by the fact that
     // QQuickWindow::update() is called from the render thread.
     // This allows continuing rendering video while the GUI thread is busy.
-    window->update();
+    //
+    m_window->update();
   }
+
+private:
+  QQuickWindow *m_window;
 };
 
 }
@@ -220,6 +227,7 @@ void PlayerRenderer::on_update(void *ctx)
   // is thread-safe when using the QSGThreadedRenderLoop. We can detect a non-threaded render
   // loop by checking if QQuickWindow::beforeSynchronizing was called from the GUI thread
   // (which affects the QObject::thread() of the PlayerRenderer).
+  //
   if (self->thread() == self->m_window->thread())
     QMetaObject::invokeMethod(self->m_window, "update", Qt::QueuedConnection);
   else

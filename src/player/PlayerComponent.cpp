@@ -402,7 +402,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       else if (strcmp(prop->name, "playback-time") == 0 && prop->format == MPV_FORMAT_DOUBLE)
       {
         double pos = *(double*)prop->data;
-        if (fabs(pos - m_lastPositionUpdate) > 0.25)
+        if (fabs(pos - m_lastPositionUpdate) > 0.015)
         {
           quint64 ms = (quint64)(qMax(pos * 1000.0, 0.0));
           emit positionUpdate(ms);

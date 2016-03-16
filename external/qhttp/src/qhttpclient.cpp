@@ -36,7 +36,11 @@ QHttpClient::isOpen() const {
 
 void
 QHttpClient::killConnection() {
-    d_func()->isocket.close();
+    Q_D(QHttpClient);
+
+    d->iconnectingTimer.stop();
+    d->itimer.stop();
+    d->isocket.close();
 }
 
 TBackend
@@ -52,6 +56,21 @@ QHttpClient::tcpSocket() const {
 QLocalSocket*
 QHttpClient::localSocket() const {
     return d_func()->isocket.ilocalSocket;
+}
+
+void
+QHttpClient::setConnectingTimeOut(quint32 timeout) {
+    Q_D(QHttpClient);
+
+    if ( timeout == 0 ) {
+        d->iconnectingTimer.stop();
+
+    } else {
+        d->iconnectingTimer.start(timeout,
+                Qt::CoarseTimer,
+                this
+                );
+    }
 }
 
 bool
@@ -119,7 +138,6 @@ QHttpClient::request(THttpMethod method, QUrl url,
             d->isocket.connectTo(url.host(), url.port(80));
     }
 
-
     return true;
 }
 
@@ -129,6 +147,10 @@ QHttpClient::timerEvent(QTimerEvent *e) {
 
     if ( e->timerId() == d->itimer.timerId() ) {
         killConnection();
+
+    } else if ( e->timerId() == d->iconnectingTimer.timerId() ) {
+        d->iconnectingTimer.stop();
+        emit connectingTimeOut();
     }
 }
 

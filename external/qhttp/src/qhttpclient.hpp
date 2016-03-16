@@ -90,14 +90,29 @@ public:
     void        killConnection();
 
 
-    /** returns time-out value [mSec] for open connections (sockets).
+    /** returns time-out value [mSec] for ESTABLISHED connections (sockets).
      *  @sa setTimeOut(). */
     quint32     timeOut()const;
 
-    /** set time-out for new open connections in miliseconds [mSec].
-     * each connection will be forcefully closed after this timeout.
+    /** set time-out for ESTABLISHED connections in miliseconds [mSec].
+     * each (already opened) connection will be forcefully closed after this timeout.
      *  a zero (0) value disables timer for new connections. */
     void        setTimeOut(quint32);
+
+    /** set a time-out [mSec] for making a new connection (make a request).
+     * if connecting to server takes more than this time-out value,
+     *  the @sa timedOut(quint32) signal will be emitted and connection will be killed.
+     * 0 (default) timeout value means to disable this timer.
+     */
+    void        setConnectingTimeOut(quint32);
+
+    template<class Handler>
+    void        setConnectingTimeOut(quint32 timeout, Handler&& func) {
+        setConnectingTimeOut(timeout);
+        QObject::connect(this, &QHttpClient::connectingTimeOut,
+                std::forward<Handler&&>(func)
+                );
+    }
 
     /** returns the backend type of this client. */
     TBackend    backendType() const;
@@ -125,6 +140,9 @@ signals:
 
     /** emitted when the HTTP connection drops or being disconnected. */
     void        disconnected();
+
+    /// emitted when fails to connect to a HTTP server. @sa setConnectingTimeOut()
+    void        connectingTimeOut();
 
 
 protected:

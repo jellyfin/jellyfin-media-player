@@ -121,6 +121,8 @@ public:
 
 protected:
     void         onConnected() {
+        iconnectingTimer.stop();
+
         if ( itimeOut > 0 )
             itimer.start(itimeOut, Qt::CoarseTimer, q_func());
 
@@ -143,7 +145,7 @@ protected:
 
     void         onDispatchResponse() {
         // if ilastResponse has been sent previously, just return
-        if ( ilastResponse->d_func()->ireadState == QHttpResponsePrivate::ESent )
+        if ( !ilastResponse  ||  ilastResponse->d_func()->ireadState == QHttpResponsePrivate::ESent )
             return;
 
         ilastResponse->d_func()->ireadState = QHttpResponsePrivate::ESent;
@@ -157,6 +159,8 @@ protected:
     QHttpResponse*      ilastResponse = nullptr;
     TRequstHandler      ireqHandler;
     TResponseHandler    irespHandler;
+
+    QBasicTimer         iconnectingTimer;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -115,7 +115,7 @@ public:
 
     void         onDispatchRequest() {
         // if ilastRequest has been sent previously, just return
-        if ( ilastRequest->d_func()->ireadState == QHttpRequestPrivate::ESent )
+        if ( !ilastRequest || ilastRequest->d_func()->ireadState == QHttpRequestPrivate::ESent )
             return;
 
         ilastRequest->d_func()->ireadState = QHttpRequestPrivate::ESent;

@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QVariantMap>
+#include <QTimer>
 #include "ComponentManager.h"
 #include "InputMapping.h"
 
@@ -15,7 +16,7 @@ public:
   virtual const char* inputName() = 0;
   
 signals:
-  void receivedInput(const QString& source, const QString& keycode, float amount = 1.0);
+  void receivedInput(const QString& source, const QString& keycode, bool pressDown = true);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,7 @@ signals:
   void receivedAction(const QString& action);
 
 private Q_SLOTS:
-  void remapInput(const QString& source, const QString& keycode, float amount = 1.0);
+  void remapInput(const QString& source, const QString& keycode, bool pressDown = true);
   
 private:
   InputComponent(QObject *parent = 0);
@@ -98,6 +99,9 @@ private:
   QHash<QString, ReceiverSlot*> m_hostCommands;
   QList<InputBase*> m_inputs;
   InputMapping* m_mappings;
+  QTimer* m_autoRepeatTimer;
+  QString m_currentAction;
+  qint32 m_currentActionCount;
 };
 
 #endif // INPUTADAPTER_H

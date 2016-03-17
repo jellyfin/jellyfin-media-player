@@ -26,7 +26,7 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InputComponent::InputComponent(QObject* parent) : ComponentBase(parent)
+InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_currentActionCount(0)
 {
   m_mappings = new InputMapping(this);
 }
@@ -47,6 +47,22 @@ bool InputComponent::addInput(InputBase* base)
   // needs to be remaped in remapInput and then finally send it out to JS land.
   //
   connect(base, &InputBase::receivedInput, this, &InputComponent::remapInput);
+
+
+  // for auto-repeating inputs
+  //
+  m_autoRepeatTimer = new QTimer(this);
+  connect(m_autoRepeatTimer, &QTimer::timeout, [=]()
+  {
+    if (!m_currentAction.isEmpty())
+    {
+      m_currentActionCount ++;
+      emit receivedAction(m_currentAction);
+    }
+
+    qint32 multiplier = qMin(5, qMax(1, m_currentActionCount / 5));
+    m_autoRepeatTimer->setInterval(100 / multiplier);
+  });
   
   return true;
 }
@@ -80,12 +96,20 @@ bool InputComponent::componentInitialize()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputComponent::remapInput(const QString &source, const QString &keycode, float amount)
+void InputComponent::remapInput(const QString &source, const QString &keycode, bool pressDown)
 {
+  QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode << "pressed:" << (pressDown ? "down" : "release");
+
+  if (!pressDown)
+  {
+    m_autoRepeatTimer->stop();
+    m_currentAction.clear();
+    m_currentActionCount = 0;
+    return;
+  }
+
   // hide mouse if it's visible.
   SystemComponent::Get().setCursorVisibility(false);
-
-  QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode;
 
   QString action = m_mappings->mapToAction(source, keycode);
   if (!action.isEmpty())
@@ -123,7 +147,10 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
     }
     else
     {
+      m_currentAction = action;
       emit receivedAction(action);
+
+      m_autoRepeatTimer->start(500);
     }
   }
   else

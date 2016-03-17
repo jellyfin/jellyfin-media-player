@@ -18,9 +18,9 @@ public:
   virtual bool initInput() { return true; }
   virtual const char* inputName() { return "Keyboard"; }
 
-  void keyPress(const QKeySequence& sequence)
+  void keyPress(const QKeySequence& sequence, bool press)
   {
-    emit receivedInput("Keyboard", sequence.toString());
+    emit receivedInput("Keyboard", sequence.toString(), press);
   }
 
 private:

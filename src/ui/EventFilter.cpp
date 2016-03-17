@@ -24,21 +24,24 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     return true;
   }
 
-  if (event->type() == QEvent::KeyPress)
+  if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
   {
     // In konvergo we intercept all keyboard events and translate them
     // into web client actions. We need to do this so that we can remap
     // keyboard buttons to different events.
     //
+
+    bool pressed = event->type() == QEvent::KeyPress;
+
     QKeyEvent* kevent = dynamic_cast<QKeyEvent*>(event);
     if (kevent)
     {
       system.setCursorVisibility(false);
-      if (kevent->spontaneous())
+      if (kevent->spontaneous() && !kevent->isAutoRepeat())
       {
         // We ignore the KeypadModifier here since it's practically useless
         QKeySequence key(kevent->key() | (kevent->modifiers() &= ~Qt::KeypadModifier));
-        InputKeyboard::Get().keyPress(key);
+        InputKeyboard::Get().keyPress(key, pressed);
         return true;
       }
     }

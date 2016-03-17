@@ -20,10 +20,8 @@ class InputCEC : public InputBase
 public:
   InputCEC(QObject* parent);
 
-  virtual const char* inputName()
-  { return CEC_INPUT_NAME; }
-
-  virtual bool initInput();
+  virtual const char* inputName() override { return CEC_INPUT_NAME; }
+  virtual bool initInput() override;
 
 private:
   QThread* m_cecThread;
@@ -42,7 +40,7 @@ public:
   ~InputCECWorker();
 
   Q_SLOT bool init();
-  Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, float amount);
+  Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, bool pressDown);
 
 public slots:
   void checkAdapter();
@@ -54,7 +52,7 @@ private:
   void closeAdapter();
 
   QString getCommandString(cec_user_control_code code, unsigned int duration);
-  void sendReceivedInput(const QString& source, const QString& keycode, float amount = 1.0);
+  void sendReceivedInput(const QString& source, const QString& keycode, bool pressDown = true);
   QString getCommandParamsList(cec_command command);
 
   // libcec callbacks

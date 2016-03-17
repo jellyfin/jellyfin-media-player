@@ -185,9 +185,9 @@ void InputCECWorker::checkAdapter()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCECWorker::sendReceivedInput(const QString &source, const QString &keycode, float amount)
+void InputCECWorker::sendReceivedInput(const QString &source, const QString &keycode, bool pressDown)
 {
-  emit receivedInput(source, keycode, amount);
+  emit receivedInput(source, keycode, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

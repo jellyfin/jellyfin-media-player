@@ -109,6 +109,12 @@ if(APPLE)
     set_source_files_properties(${UPDATER_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   endif(HAVE_UPDATER)
 
+  set_source_files_properties(
+    input/apple/HIDRemote/HIDRemote.h
+    input/apple/HIDRemote/HIDRemote.m
+    PROPERTIES COMPILE_FLAGS -fno-objc-arc
+  )
+
   set(PLISTPARSER plistparser)
 endif()
 

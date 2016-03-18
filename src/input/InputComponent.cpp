@@ -24,6 +24,8 @@
 #include "InputCEC.h"
 #endif
 
+#define LONG_HOLD_MSEC 500
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_currentActionCount(0)
 {
@@ -151,7 +153,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 
     if (!m_currentLongPressAction.isEmpty())
     {
-      if (m_longHoldTimer.elapsed() > 1000)
+      if (m_longHoldTimer.elapsed() > LONG_HOLD_MSEC)
         handleAction(m_currentLongPressAction.value("long").toString(), false);
       else
         handleAction(m_currentLongPressAction.value("short").toString(), false);

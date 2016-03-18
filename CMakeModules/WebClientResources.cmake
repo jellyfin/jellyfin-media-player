@@ -4,7 +4,7 @@ option(SKIP_WEB_CLIENT "Skip downloading the web client" OFF)
 
 if(NOT SKIP_WEB_CLIENT)
   set(WEB_CLIENT_CPP plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp)
-  set(WEB_CLIENT_URL https://nightlies.plex.tv/directdl/plex-dependencies/plex-web-client-plexmediaplayer/latest/plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp.tbz2)
+  set(WEB_CLIENT_URL https://nightlies.plex.tv/directdl/plex-dependencies/plex-web-client-plexmediaplayer/${WEB_CLIENT_BUILDNR}/plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp.tbz2)
 
   message(STATUS "web-client version: ${WEB_CLIENT_VERSION}")
 

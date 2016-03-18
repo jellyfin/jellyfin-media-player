@@ -3,18 +3,18 @@
   "idmatcher": "AppleRemote.*",
   "mapping": 
   {
-      "KEY_LEFT": "left",
-      "KEY_LEFT_LONG": "cycle_subtitles_back",
-      "KEY_RIGHT": "right",
-      "KEY_RIGHT_LONG": "cycle_subtitles",
-      "KEY_UP": "up",
-      "KEY_UP_LONG": "cycle_audio",
-      "KEY_DOWN": "down",
-      "KEY_DOWN_LONG": "cycle_audio_back",
-      "KEY_SELECT": "enter",
-      "KEY_SELECT_LONG": "host:toggleDebug",
-      "KEY_MENU": "back",
-      "KEY_MENU_LONG": "home",
-      "KEY_PLAY": "play_pause"
+      "1": {
+        "short": "up",
+        "long": "cycle_audio"
+      },
+      "2": {
+        "short": "down",
+        "long": "cycle_audio_back"
+      },
+      "3": "left",
+      "4": "right",
+      "5": "enter",
+      "6": "back",
+      "7": "play_pause"
   }
 }

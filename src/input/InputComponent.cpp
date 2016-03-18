@@ -1,4 +1,3 @@
-
 #include "QsLog.h"
 #include "InputComponent.h"
 #include "settings/SettingsComponent.h"
@@ -63,7 +62,7 @@ bool InputComponent::addInput(InputBase* base)
     qint32 multiplier = qMin(5, qMax(1, m_currentActionCount / 5));
     m_autoRepeatTimer->setInterval(100 / multiplier);
   });
-  
+
   return true;
 }
 
@@ -95,6 +94,50 @@ bool InputComponent::componentInitialize()
   return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::handleAction(const QString& action, bool autoRepeat)
+{
+  if (action.startsWith("host:"))
+  {
+    QStringList argList = action.mid(5).split(" ");
+    QString hostCommand = argList.value(0);
+    QString hostArguments;
+
+    if (argList.size() > 1)
+    {
+      argList.pop_front();
+      hostArguments = argList.join(" ");
+    }
+
+    QLOG_DEBUG() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
+    if (m_hostCommands.contains(hostCommand))
+    {
+      ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
+      if (recvSlot)
+      {
+        QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
+        QGenericArgument arg0 = QGenericArgument();
+        if (recvSlot->hasArguments)
+          arg0 = Q_ARG(const QString&, hostArguments);
+        QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
+                                  Qt::AutoConnection, arg0);
+      }
+    }
+    else
+    {
+      QLOG_WARN() << "No such host command:" << hostCommand;
+    }
+  }
+  else
+  {
+    m_currentAction = action;
+    emit receivedAction(action);
+
+    if (autoRepeat)
+      m_autoRepeatTimer->start(500);
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputComponent::remapInput(const QString &source, const QString &keycode, bool pressDown)
 {
@@ -105,57 +148,46 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
     m_autoRepeatTimer->stop();
     m_currentAction.clear();
     m_currentActionCount = 0;
+
+    if (!m_currentLongPressAction.isEmpty())
+    {
+      if (m_longHoldTimer.elapsed() > 1000)
+        handleAction(m_currentLongPressAction.value("long").toString(), false);
+      else
+        handleAction(m_currentLongPressAction.value("short").toString(), false);
+
+      m_currentLongPressAction.clear();
+    }
+
     return;
   }
 
   // hide mouse if it's visible.
   SystemComponent::Get().setCursorVisibility(false);
 
-  QString action = m_mappings->mapToAction(source, keycode);
-  if (!action.isEmpty())
-  {
-    if (action.startsWith("host:"))
-    {
-      QStringList argList = action.mid(5).split(" ");
-      QString hostCommand = argList.value(0);
-      QString hostArguments;
-
-      if (argList.size() > 1)
-      {
-        argList.pop_front();
-        hostArguments = argList.join(" ");
-      }
-
-      QLOG_DEBUG() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
-      if (m_hostCommands.contains(hostCommand))
-      {
-        ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
-        if (recvSlot)
-        {
-          QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
-          QGenericArgument arg0 = QGenericArgument();
-          if (recvSlot->hasArguments)
-            arg0 = Q_ARG(const QString&, hostArguments);
-          QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
-                                    Qt::AutoConnection, arg0);
-        }
-      }
-      else
-      {
-        QLOG_WARN() << "No such host command:" << hostCommand;
-      }
-    }
-    else
-    {
-      m_currentAction = action;
-      emit receivedAction(action);
-
-      m_autoRepeatTimer->start(500);
-    }
-  }
-  else
+  QVariant action = m_mappings->mapToAction(source, keycode);
+  if (action.isNull())
   {
     QLOG_WARN() << "Could not map:" << source << keycode << "to any useful action";
+    return;
+  }
+
+  if (action.type() == QVariant::String)
+  {
+    handleAction(action.toString());
+  }
+  else if (action.type() == QVariant::Map)
+  {
+    QVariantMap map = action.toMap();
+    if (map.contains("long"))
+    {
+      m_longHoldTimer.start();
+      m_currentLongPressAction = map;
+    }
+    else if (map.contains("short"))
+    {
+      handleAction(map.value("short").toString());
+    }
   }
 }
 

@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QVariantMap>
 #include <QTimer>
+#include <QTime>
 #include "ComponentManager.h"
 #include "InputMapping.h"
 
@@ -95,13 +96,17 @@ private Q_SLOTS:
 private:
   InputComponent(QObject *parent = 0);
   bool addInput(InputBase* input);
+  void handleAction(const QString& action, bool autoRepeat = true);
 
   QHash<QString, ReceiverSlot*> m_hostCommands;
   QList<InputBase*> m_inputs;
   InputMapping* m_mappings;
   QTimer* m_autoRepeatTimer;
-  QString m_currentAction;
+  QVariantMap m_currentLongPressAction;
   qint32 m_currentActionCount;
+
+  QTime m_longHoldTimer;
+  QString m_currentAction;
 };
 
 #endif // INPUTADAPTER_H

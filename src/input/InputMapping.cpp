@@ -52,7 +52,7 @@ bool InputMapping::loadMappings()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString InputMapping::mapToAction(const QString& source, const QString& keycode)
+QVariant InputMapping::mapToAction(const QString& source, const QString& keycode)
 {
   // if the source is direct we will just use the keycode as the action
   if (source == "direct")
@@ -64,9 +64,7 @@ QString InputMapping::mapToAction(const QString& source, const QString& keycode)
   {
     QVariant action = m_inputMatcher.value(sourceName.toString())->match(keycode);
     if (action.isValid())
-    {
-      return action.toString();
-    }
+      return action;
   }
   return QString();
 }

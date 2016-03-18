@@ -9,8 +9,10 @@
     "(Shift\\+)?Up": "up",
     "(Shift\\+)?Down": "down",
     "(Return|Enter)": "enter",
-    "Space": "space",
-    "(Esc|Backspace)": "back",
+    "(Esc|Backspace)": {
+      "short": "back",
+      "long": "exitDialog"
+    },
 
     // map X and Shift+X to X. This allows normal number input
     "(?:Shift\\+)?([0-9])": "%1",

@@ -16,4 +16,6 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
     )
 
   endif()
+else()
+  message(STATUS "clang-tidy not enabled, pass -DCMAKE_EXPORT_COMPILE_COMMANDS=on to cmake to enable it")
 endif()

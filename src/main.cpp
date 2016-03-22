@@ -20,6 +20,7 @@
 #include "settings/SettingsSection.h"
 #include "ui/KonvergoWindow.h"
 #include "ui/KonvergoEngine.h"
+#include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
 #include "utils/HelperLauncher.h"
 #include "utils/Log.h"
@@ -224,11 +225,11 @@ int main(int argc, char *argv[])
     QLOG_FATAL() << "Unhandled FatalException:" << qPrintable(e.message());
     QApplication errApp(argc, argv);
 
-    QErrorMessage* msg = new QErrorMessage;
-    msg->showMessage("Plex Media Player encountered a fatal error and will now quit: " + e.message());
-    QObject::connect(msg, &QErrorMessage::finished, []() { qApp->exit(1); });
+    ErrorMessage* msg = new ErrorMessage(e.message(), true);
+    msg->show();
 
     errApp.exec();
+
     return 1;
   }
 }

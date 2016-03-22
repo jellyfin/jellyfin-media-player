@@ -69,7 +69,13 @@ public:
 
   // A hack to load a value from the config file at very early init time, before
   // the SettingsComponent is created.
+  //
   static QVariant readPreinitValue(const QString& sectionID, const QString& key);
+
+  // Moves the current settings file to plexmediaplayer.conf.old to make way for new
+  // configuration.
+  //
+  static bool resetAndSaveOldConfiguration();
 
 private:
   explicit SettingsComponent(QObject *parent = 0);

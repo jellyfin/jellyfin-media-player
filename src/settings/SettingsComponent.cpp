@@ -588,5 +588,12 @@ void SettingsComponent::setUserRoleList(const QStringList& userRoles)
   }
 
   updatePossibleValues(SETTINGS_SECTION_MAIN, "updateChannel", values);
-
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool SettingsComponent::resetAndSaveOldConfiguration()
+{
+  QFile settingsFile(Paths::dataDir("plexmediaplayer.conf"));
+  return settingsFile.rename(Paths::dataDir("plexmediaplayer.conf.old"));
+}
+

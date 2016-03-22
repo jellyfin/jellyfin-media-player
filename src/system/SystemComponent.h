@@ -23,7 +23,7 @@ public:
 
   Q_INVOKABLE QVariantMap systemInformation() const;
   Q_INVOKABLE void exit();
-  Q_INVOKABLE void restart();
+  Q_INVOKABLE static void restart();
 
   Q_INVOKABLE void info(QString text);
 

@@ -1,11 +1,11 @@
-project(PlexMediaPlayer CXX C)
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+project(PlexMediaPlayer CXX C)
 
 cmake_policy(SET CMP0020 NEW)
-if (POLICY CMP0058)
-cmake_policy(SET CMP0058 NEW)
-endif()
 cmake_policy(SET CMP0017 NEW)
+if (POLICY CMP0058)
+  cmake_policy(SET CMP0058 NEW)
+endif()
 
 option(OPENELEC "Make an OpenELEC build" OFF)
 

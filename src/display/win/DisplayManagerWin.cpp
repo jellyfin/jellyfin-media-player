@@ -16,17 +16,17 @@
 static DMVideoMode convertDevMode(const DEVMODEW& devmode)
 {
   DMVideoMode mode = {};
-  mode.height = devmode.dmPelsHeight;
-  mode.width = devmode.dmPelsWidth;
-  mode.refreshRate = devmode.dmDisplayFrequency;
-  mode.bitsPerPixel = devmode.dmBitsPerPel;
-  mode.interlaced = !!(devmode.dmDisplayFlags & DM_INTERLACED);
+  mode.m_height = devmode.dmPelsHeight;
+  mode.m_width = devmode.dmPelsWidth;
+  mode.m_refreshRate = devmode.dmDisplayFrequency;
+  mode.m_bitsPerPixel = devmode.dmBitsPerPel;
+  mode.m_interlaced = !!(devmode.dmDisplayFlags & DM_INTERLACED);
 
   // Windows just returns integer refresh rate so let's fudge it
-  if (mode.refreshRate == 59 ||
-      mode.refreshRate == 29 ||
-      mode.refreshRate == 23)
-      mode.refreshRate = (float)(mode.refreshRate + 1) / 1.001f;
+  if (mode.m_refreshRate == 59 ||
+      mode.m_refreshRate == 29 ||
+      mode.m_refreshRate == 23)
+      mode.m_refreshRate = (float)(mode.m_refreshRate + 1) / 1.001f;
 
   return mode;
 }
@@ -34,11 +34,11 @@ static DMVideoMode convertDevMode(const DEVMODEW& devmode)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static bool modeEquals(const DMVideoMode& m1, const DMVideoMode& m2)
 {
-  return m1.height == m2.height &&
-         m1.width == m2.width &&
-         fabs(m1.refreshRate - m2.refreshRate) < 1e-9 &&
-         m1.bitsPerPixel == m2.bitsPerPixel &&
-         m1.interlaced == m2.interlaced;
+  return m1.m_height == m2.m_height &&
+         m1.m_width == m2.m_width &&
+         fabs(m1.m_refreshRate - m2.m_refreshRate) < 1e-9 &&
+         m1.m_bitsPerPixel == m2.m_bitsPerPixel &&
+         m1.m_interlaced == m2.m_interlaced;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,18 +59,18 @@ bool DisplayManagerWin::initialize()
 
       // add the display
       DMDisplayPtr display = DMDisplayPtr(new DMDisplay);
-      display->id = displayId;
-      display->name = QString::fromWCharArray(displayInfo.DeviceString);
+      display->m_id = displayId;
+      display->m_name = QString::fromWCharArray(displayInfo.DeviceString);
       m_displays[display->m_id] = DMDisplayPtr(display);
-      m_displayAdapters[display->id] = QString::fromWCharArray(displayInfo.DeviceName);
+      m_displayAdapters[display->m_id] = QString::fromWCharArray(displayInfo.DeviceName);
 
       while (getModeInfo(displayId, modeId, modeInfo))
       {
         // add the videomode to the display
         DMVideoModePtr videoMode = DMVideoModePtr(new DMVideoMode);
         *videoMode = convertDevMode(modeInfo);
-        videoMode->id = modeId;
-        display->videoModes[videoMode->id] = videoMode;
+        videoMode->m_id = modeId;
+        display->m_videoModes[videoMode->m_id] = videoMode;
 
         modeId++;
       }
@@ -141,9 +141,9 @@ int DisplayManagerWin::getCurrentDisplayMode(int display)
   DMVideoMode mode = convertDevMode(modeInfo);
 
   // check if current mode info matches on of our modes
-  for (int modeId = 0; modeId < displays[display]->videoModes.size(); modeId++)
+  for (int modeId = 0; modeId < m_displays[display]->m_videoModes.size(); modeId++)
   {
-    if (modeEquals(mode, *displays[display]->videoModes[modeId]))
+    if (modeEquals(mode, * m_displays[display]->m_videoModes[modeId]))
       return modeId;
   }
 
@@ -174,7 +174,7 @@ DisplayManagerWin::~DisplayManagerWin()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerWin::getDisplayFromPoint(int x, int y)
 {
-  foreach (int displayId, displays.keys())
+  foreach (int displayId, m_displays.keys())
   {
     QString dispName = m_displayAdapters[displayId];
 

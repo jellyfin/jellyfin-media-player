@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerX11::initialize()
 {
-  displays.clear();
+  m_displays.clear();
 
   if (!xdisplay)
     xdisplay = XOpenDisplay(NULL);
@@ -33,10 +33,10 @@ bool DisplayManagerX11::initialize()
 
     {
       DMDisplayPtr display = DMDisplayPtr(new DMDisplay());
-      display->id = displays.size();
-      display->name = out->name;
-      display->priv_id = o;
-      displays[display->id] = display;
+      display->m_id = m_displays.size();
+      display->m_name = out->name;
+      display->m_privId = o;
+      m_displays[display->m_id] = display;
 
       for (int om = 0; om < out->nmode; om++) {
         RRMode xm = out->modes[om];
@@ -46,22 +46,22 @@ bool DisplayManagerX11::initialize()
             continue;
 
           DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode());
-          mode->priv_id = n;
-          mode->id = display->videoModes.size();
-          display->videoModes[mode->id] = mode;
+          mode->m_privId = n;
+          mode->m_id = display->m_videoModes.size();
+          display->m_videoModes[mode->m_id] = mode;
 
-          mode->interlaced = m.modeFlags & RR_Interlace;
+          mode->m_interlaced = m.modeFlags & RR_Interlace;
 
           double vTotal = m.vTotal;
           if (m.modeFlags & RR_DoubleScan)
             vTotal *= 2;
           if (m.modeFlags & RR_Interlace)
             vTotal /= 2;
-          mode->refreshRate = m.dotClock / (m.hTotal * vTotal);
+          mode->m_refreshRate = m.dotClock / (m.hTotal * vTotal);
 
-          mode->width = m.width;
-          mode->height = m.height;
-          mode->bitsPerPixel = 0; // we can't know; depth is not managed by xrandr
+          mode->m_width = m.width;
+          mode->m_height = m.height;
+          mode->m_bitsPerPixel = 0; // we can't know; depth is not managed by xrandr
         }
       }
     }
@@ -72,7 +72,7 @@ bool DisplayManagerX11::initialize()
       XRRFreeOutputInfo(out);
   }
 
-  if (displays.empty())
+  if (m_displays.empty())
     return false;
   else
     return DisplayManager::initialize();
@@ -84,11 +84,11 @@ bool DisplayManagerX11::setDisplayMode(int display, int mode)
   if (!isValidDisplayMode(display, mode) || !resources)
     return false;
 
-  DMDisplayPtr displayptr = displays[display];
-  DMVideoModePtr videomode = displayptr->videoModes[mode];
+  DMDisplayPtr displayptr = m_displays[display];
+  DMVideoModePtr videomode = displayptr->m_videoModes[mode];
 
-  RROutput output = resources->outputs[displayptr->priv_id];
-  RRMode xrmode = resources->modes[videomode->priv_id].id;
+  RROutput output = resources->outputs[displayptr->m_privId];
+  RRMode xrmode = resources->modes[videomode->m_privId].id;
 
   bool success = false;
   XRRCrtcInfo *crtc = NULL;
@@ -122,8 +122,8 @@ int DisplayManagerX11::getCurrentDisplayMode(int display)
   if (!isValidDisplay(display) || !resources)
     return -1;
 
-  DMDisplayPtr displayptr = displays[display];
-  RROutput output = resources->outputs[displayptr->priv_id];
+  DMDisplayPtr displayptr = m_displays[display];
+  RROutput output = resources->outputs[displayptr->m_privId];
 
   int videomode_id = -1;
   XRRCrtcInfo *crtc = NULL;
@@ -134,12 +134,12 @@ int DisplayManagerX11::getCurrentDisplayMode(int display)
   if (!crtc)
     goto done;
 
-  foreach (DMVideoModePtr mode, displayptr->videoModes)
+  foreach (DMVideoModePtr mode, displayptr->m_videoModes)
   {
-    XRRModeInfo m = resources->modes[mode->priv_id];
+    XRRModeInfo m = resources->modes[mode->m_privId];
     if (crtc->mode == m.id)
     {
-      videomode_id = mode->id;
+      videomode_id = mode->m_id;
       break;
     }
   }
@@ -165,9 +165,9 @@ int DisplayManagerX11::getMainDisplay()
   {
     if (main == resources->outputs[o])
     {
-      for (int displayid = 0; displayid < displays.size(); displayid++)
+      for (int displayid = 0; displayid < m_displays.size(); displayid++)
       {
-        if (displays[displayid]->priv_id == o)
+        if (m_displays[displayid]->m_privId == o)
           return displayid;
       }
       break;
@@ -179,9 +179,9 @@ int DisplayManagerX11::getMainDisplay()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerX11::getDisplayFromPoint(int x, int y)
 {
-  for (int displayid = 0; displayid < displays.size(); displayid++)
+  for (int displayid = 0; displayid < m_displays.size(); displayid++)
   {
-    RROutput output = resources->outputs[displays[displayid]->priv_id];
+    RROutput output = resources->outputs[m_displays[displayid]->m_privId];
     XRRCrtcInfo *crtc = NULL;
     XRROutputInfo *out = XRRGetOutputInfo(xdisplay, resources, output);
     bool matches = false;

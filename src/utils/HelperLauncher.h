@@ -38,7 +38,7 @@ private Q_SLOTS:
   bool killHelper();
 
 private:
-  explicit HelperLauncher(QObject* parent = 0);
+  explicit HelperLauncher(QObject* parent = nullptr);
 
   QProcess* m_helperProcess;
   LocalJsonClient* m_jsonClient;

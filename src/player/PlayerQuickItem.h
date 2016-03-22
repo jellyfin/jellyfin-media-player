@@ -45,7 +45,7 @@ class PlayerQuickItem : public QQuickItem
     friend class PlayerRenderer;
 
 public:
-    PlayerQuickItem(QQuickItem* parent = 0);
+    PlayerQuickItem(QQuickItem* parent = nullptr);
     virtual ~PlayerQuickItem();
     void initMpv(PlayerComponent* player);
     QString debugInfo() { return m_debugInfo; }

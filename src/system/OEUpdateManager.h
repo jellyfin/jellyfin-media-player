@@ -6,7 +6,7 @@
 class OEUpdateManager : public UpdateManager
 {
 public:
-  OEUpdateManager(QObject *parent = 0) {};
+  OEUpdateManager(QObject *parent = nullptr) {};
   ~OEUpdateManager() {};
 
   virtual QString HaveUpdate();

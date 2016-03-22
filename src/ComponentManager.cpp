@@ -23,7 +23,7 @@
 #include "QsLog.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-ComponentManager::ComponentManager() : QObject(0)
+ComponentManager::ComponentManager() : QObject(nullptr)
 {
 }
 

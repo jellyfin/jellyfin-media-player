@@ -12,7 +12,7 @@ class EventFilter : public QObject
 {
   Q_OBJECT
 public:
-  EventFilter(QObject* parent = 0) : QObject(parent) {}
+  EventFilter(QObject* parent = nullptr) : QObject(parent) {}
 
 protected:
   bool eventFilter(QObject* watched, QEvent* event);

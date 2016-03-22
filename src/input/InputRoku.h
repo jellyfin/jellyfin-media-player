@@ -14,7 +14,7 @@ class InputRoku : public InputBase
   Q_OBJECT
 
 public:
-  explicit InputRoku(QObject* parent = 0) : InputBase(parent) { }
+  explicit InputRoku(QObject* parent = nullptr) : InputBase(parent) { }
   virtual bool initInput() override;
   virtual const char* inputName() override { return "roku"; };
 

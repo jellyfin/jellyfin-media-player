@@ -84,10 +84,7 @@ bool DisplayManager::isRateMultipleOf(float refresh, float multiple, bool exact)
 
   int roundedRefresh = (int)round(refresh);
   int roundedMultiple = (int)round(multiple);
-  if (((roundedMultiple % roundedRefresh) == 0) && (!exact))
-    return true;
-
-  return false;
+  return ((roundedMultiple % roundedRefresh) == 0) && (!exact);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

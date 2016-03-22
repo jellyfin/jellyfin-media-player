@@ -24,7 +24,7 @@ public:
   }
 
 private:
-  explicit InputKeyboard(QObject* parent = 0) : InputBase(parent) {}
+  explicit InputKeyboard(QObject* parent = nullptr) : InputBase(parent) {}
 };
 
 #endif //KONVERGO_INPUTKEYBOARD_H

@@ -196,7 +196,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 /////////////////////////////////////////////////////////////////////////////////////////
 void InputComponent::registerHostCommand(const QString& command, QObject* receiver, const char* slot)
 {
-  ReceiverSlot* recvSlot = new ReceiverSlot;
+  auto  recvSlot = new ReceiverSlot;
   recvSlot->receiver = receiver;
   recvSlot->slot = QMetaObject::normalizedSignature(slot);
   recvSlot->hasArguments = false;

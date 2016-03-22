@@ -22,10 +22,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DisplayComponent::DisplayComponent(QObject* parent) : ComponentBase(parent), m_initTimer(this)
 {
-  m_displayManager = NULL;
+  m_displayManager = nullptr;
   m_lastVideoMode = -1;
   m_lastDisplay = -1;
-  m_applicationWindow = NULL;
+  m_applicationWindow = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

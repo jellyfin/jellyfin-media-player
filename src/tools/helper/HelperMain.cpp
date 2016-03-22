@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
   QCoreApplication::setOrganizationDomain("plex.tv");
 
-  UniqueApplication uapp(NULL, "pmpHelperUniqueApplication");
+  UniqueApplication uapp(nullptr, "pmpHelperUniqueApplication");
   if (!uapp.ensureUnique())
   {
     fprintf(stderr, "Other helper already running, refusing to start.\n");
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 
   QLOG_DEBUG() << "Helper (" << Version::GetVersionString() << ") up and running";
 
-  QObject* helperObject = new QObject;
+  auto  helperObject = new QObject;
 
   try
   {

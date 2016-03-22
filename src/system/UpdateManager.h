@@ -9,7 +9,7 @@ class UpdateManager : public QObject
 public:
   static bool CheckForUpdates();
 
-  explicit UpdateManager(QObject *parent = 0) {};
+  explicit UpdateManager(QObject *parent = nullptr) {};
   ~UpdateManager() {};
 
   static UpdateManager* Get();

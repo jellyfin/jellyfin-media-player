@@ -89,7 +89,7 @@ void InputSDLWorker::run()
           emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button));
           
           // set up the repeat timer for this button
-          QElapsedTimer* repeatTimer = new QElapsedTimer();
+          auto  repeatTimer = new QElapsedTimer();
           m_buttonTimestamps[event.jbutton.button] = repeatTimer;
           repeatTimer->start();
           // reset the repeat count for this button
@@ -249,7 +249,7 @@ void InputSDLWorker::refreshJoystickList()
 InputSDL::InputSDL(QObject* parent) : InputBase(parent)
 {
   m_thread = new QThread(this);
-  m_sdlworker = new InputSDLWorker(NULL);
+  m_sdlworker = new InputSDLWorker(nullptr);
   m_sdlworker->moveToThread(m_thread);
 
   connect(this, &InputSDL::run, m_sdlworker, &InputSDLWorker::run);

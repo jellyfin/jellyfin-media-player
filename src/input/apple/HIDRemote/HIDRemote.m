@@ -54,7 +54,7 @@
 // Callback Prototypes
 static void HIDEventCallback(	void * target, 
 				IOReturn result,
-				void * refcon,
+				void * refCon,
 				void * sender);
 
 static void ServiceMatchingCallback(	void *refCon,

@@ -28,7 +28,7 @@ public:
   virtual bool componentInitialize();
   virtual void componentPostInitialize();
   
-  explicit PlayerComponent(QObject* parent = 0);
+  explicit PlayerComponent(QObject* parent = nullptr);
   virtual ~PlayerComponent();
 
   // Deprecated. Corresponds to stop() + queueMedia().
@@ -47,7 +47,7 @@ public:
   // If you want to wipe everything, use stop().
   Q_INVOKABLE void clearQueue();
 
-  Q_INVOKABLE virtual void seekTo(qint64 milliseconds);
+  Q_INVOKABLE virtual void seekTo(qint64 ms);
 
   // Stop playback and clear all queued items.
   Q_INVOKABLE virtual void stop();

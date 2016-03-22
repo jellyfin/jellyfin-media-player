@@ -11,7 +11,7 @@ class InputAppleMediaKeys : public InputBase
 {
   Q_OBJECT
 public:
-  InputAppleMediaKeys(QObject* parent = 0) : InputBase(parent) { }
+  InputAppleMediaKeys(QObject* parent = nullptr) : InputBase(parent) { }
   bool initInput();
   const char* inputName() { return "AppleMediaKeys"; }
 

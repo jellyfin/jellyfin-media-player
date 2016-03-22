@@ -10,7 +10,7 @@
 class UpdateManagerWin32 : public UpdateManager
 {
 public:
-  UpdateManagerWin32(QObject *parent = 0) {};
+  UpdateManagerWin32(QObject *parent = nullptr) {};
   ~UpdateManagerWin32() {};
 
   virtual bool applyUpdate(const QString& version) override;

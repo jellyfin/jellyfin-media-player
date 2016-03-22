@@ -9,7 +9,7 @@
 int SignalManager::sigtermFd[2];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SignalManager::SignalManager(QGuiApplication* app) : QObject(NULL), m_app(app)
+SignalManager::SignalManager(QGuiApplication* app) : QObject(nullptr), m_app(app)
 {
   if (setupHandlers())
   {
@@ -36,14 +36,14 @@ int SignalManager::setupHandlers()
   sigemptyset(&term.sa_mask);
   term.sa_flags = SA_RESTART | SA_RESETHAND;
 
-  if (sigaction(SIGHUP, &term, 0) < 0)
+  if (sigaction(SIGHUP, &term, nullptr) < 0)
     return -1;
 
-  if (sigaction(SIGTERM, &term, 0) < 0)
+  if (sigaction(SIGTERM, &term, nullptr) < 0)
     return -2;
 
   term.sa_flags = SA_RESTART;
-  if (sigaction(SIGUSR1, &term, 0) < 0)
+  if (sigaction(SIGUSR1, &term, nullptr) < 0)
     return -3;
 
   return 0;

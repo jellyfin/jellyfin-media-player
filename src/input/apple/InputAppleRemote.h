@@ -16,7 +16,7 @@ typedef void delegate;
 class InputAppleRemote : public InputBase
 {
 public:
-  InputAppleRemote(QObject* parent = 0) : InputBase(parent) { }
+  InputAppleRemote(QObject* parent = nullptr) : InputBase(parent) { }
   virtual const char* inputName() { return "AppleRemote"; }
   virtual bool initInput();
   

@@ -7,7 +7,7 @@
 class PowerComponentMac : public PowerComponent
 {
 public:
-  PowerComponentMac() : PowerComponent(0), m_assertion(0) { }
+  PowerComponentMac() : PowerComponent(nullptr), m_assertion(0) { }
   virtual void doDisableScreensaver();
   virtual void doEnableScreensaver();
 

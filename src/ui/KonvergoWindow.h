@@ -37,7 +37,7 @@ class KonvergoWindow : public QQuickWindow
 public:
   static void RegisterClass();
 
-  KonvergoWindow(QWindow* parent = 0);
+  KonvergoWindow(QWindow* parent = nullptr);
   ~KonvergoWindow();
 
   bool isFullScreen()

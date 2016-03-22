@@ -221,7 +221,7 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
   }
   else if ((request->url().path() == "/player/timeline/poll"))
   {
-    if (m_subscriberMap.contains(identifier) == false)
+    if (!m_subscriberMap.contains(identifier))
       handleSubscription(request, response, true);
 
     RemotePollSubscriber *subscriber = (RemotePollSubscriber *)m_subscriberMap[identifier];
@@ -243,7 +243,7 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
 
 
   // handle commandID
-  if (headerMap.contains("x-plex-client-identifier") == false || queryMap.contains("commandID") == false)
+  if (!headerMap.contains("x-plex-client-identifier") || !queryMap.contains("commandID"))
   {
     QLOG_WARN() << "Can't find a X-Plex-Client-Identifier header";
     response->setStatusCode(qhttp::ESTATUS_NOT_ACCEPTABLE);
@@ -262,7 +262,7 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
 
   {
     QMutexLocker lk(&m_subscriberLock);
-    if (m_subscriberMap.contains(identifier) == false)
+    if (!m_subscriberMap.contains(identifier))
     {
       QLOG_WARN() << "Failed to lock up subscriber" << identifier;
       response->setStatusCode(qhttp::ESTATUS_NOT_ACCEPTABLE);
@@ -312,8 +312,8 @@ void RemoteComponent::responseDone()
 void RemoteComponent::commandResponse(const QVariantMap& responseArguments)
 {
   // check for minimum requirements in the responseArguments
-  if (responseArguments.contains("commandID") == false ||
-      responseArguments.contains("responseCode") == false)
+  if (!responseArguments.contains("commandID") ||
+      !responseArguments.contains("responseCode"))
   {
     QLOG_WARN() << "responseArguments did not contain a commandId or responseCode";
     return;
@@ -323,7 +323,7 @@ void RemoteComponent::commandResponse(const QVariantMap& responseArguments)
   uint responseCode = responseArguments["responseCode"].toUInt();
 
   QMutexLocker lk(&m_responseLock);
-  if (m_responseMap.contains(commandId) == false)
+  if (!m_responseMap.contains(commandId))
   {
     QLOG_WARN() << "Could not find responseId:" << commandId << " - maybe it was removed because of a timeout?";
     return;
@@ -358,8 +358,8 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   QVariantMap headers = HeaderToMap(request->headers());
 
   // check for required headers
-  if (headers.contains("x-plex-client-identifier") == false ||
-      headers.contains("x-plex-device-name") == false)
+  if (!headers.contains("x-plex-client-identifier") ||
+      !headers.contains("x-plex-device-name"))
   {
     QLOG_ERROR() << "Missing X-Plex headers in /timeline/subscribe request";
     response->setStatusCode(qhttp::ESTATUS_BAD_REQUEST);
@@ -370,7 +370,7 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   // check for required arguments
   QVariantMap query = QueryToMap(request->url());
 
-  if (query.contains("commandID") == false || ((query.contains("port") == false) && !poll))
+  if (!query.contains("commandID") || ((!query.contains("port")) && !poll))
   {
     QLOG_ERROR() << "Missing arguments to /timeline/subscribe request";
     response->setStatusCode(qhttp::ESTATUS_BAD_REQUEST);
@@ -381,7 +381,7 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   QString clientIdentifier(request->headers()["x-plex-client-identifier"]);
 
   QMutexLocker lk(&m_subscriberLock);
-  RemoteSubscriber* subscriber = 0;
+  RemoteSubscriber* subscriber = nullptr;
 
   if (m_subscriberMap.contains(clientIdentifier))
   {
@@ -482,7 +482,7 @@ void RemoteComponent::timelineFinished(QNetworkReply* reply)
     return;
 
   QMutexLocker lk(&m_subscriberLock);
-  if (m_subscriberMap.contains(identifier) == false)
+  if (!m_subscriberMap.contains(identifier))
   {
     QLOG_WARN() << "Got a networkreply with a identifier we don't know about:" << identifier;
     return;
@@ -498,7 +498,7 @@ void RemoteComponent::timelineFinished(QNetworkReply* reply)
 void RemoteComponent::subscriberRemove(const QString& identifier)
 {
   QMutexLocker lk(&m_subscriberLock);
-  if (m_subscriberMap.contains(identifier) == false)
+  if (!m_subscriberMap.contains(identifier))
   {
     QLOG_ERROR() << "Can't remove client:" << identifier << "since we don't know about it.";
     return;

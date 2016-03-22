@@ -11,7 +11,7 @@ class AudioSettingsController : public QObject
 {
   Q_OBJECT
 public:
-  AudioSettingsController(QObject* parent = 0);
+  AudioSettingsController(QObject* parent = nullptr);
   Q_SLOT void valuesUpdated(const QVariantMap& values);
   Q_SIGNAL void settingsUpdated(const QString& section, const QVariant& description);
 

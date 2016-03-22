@@ -17,7 +17,7 @@ class UniqueApplication : public QObject
 {
   Q_OBJECT
 public:
-  UniqueApplication(QObject* parent = 0, const QString& socketname = SOCKET_NAME) : QObject(parent)
+  UniqueApplication(QObject* parent = nullptr, const QString& socketname = SOCKET_NAME) : QObject(parent)
   {
     m_socketName = socketname;
   }

@@ -76,7 +76,7 @@ signals:
   void scaleChanged(qreal scale);
 
 private:
-  SystemComponent(QObject* parent = 0);
+  SystemComponent(QObject* parent = nullptr);
   static QMap<QString, QString> networkInterfaces();
 
   QTimer* m_mouseOutTimer;

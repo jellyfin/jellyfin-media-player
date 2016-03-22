@@ -10,7 +10,7 @@ class PowerComponent : public ComponentBase
 public:
   static PowerComponent& Get();
 
-  PowerComponent(QObject* parent = 0)
+  PowerComponent(QObject* parent = nullptr)
   : ComponentBase(parent),
     m_currentScreensaverEnabled(true),
     m_fullscreenState(false),

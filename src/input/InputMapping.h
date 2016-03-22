@@ -14,7 +14,7 @@ class InputMapping : public QObject
   Q_OBJECT
 
 public:
-  explicit InputMapping(QObject *parent = 0);
+  explicit InputMapping(QObject *parent = nullptr);
   bool loadMappings();
   QVariant mapToAction(const QString& source, const QString& keycode);
 

@@ -13,5 +13,5 @@ static inline bool BreakPad_MinidumpCallback(const char *dump_dir, const char *m
 void installBreakPadHandler(const QString& name, const QString& destPath)
 {
   Q_UNUSED(name);
-  new google_breakpad::ExceptionHandler(destPath.toStdString(), NULL, BreakPad_MinidumpCallback, NULL, true, NULL);
+  new google_breakpad::ExceptionHandler(destPath.toStdString(), nullptr, BreakPad_MinidumpCallback, nullptr, true, nullptr);
 }

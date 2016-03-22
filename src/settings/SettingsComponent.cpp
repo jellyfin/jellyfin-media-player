@@ -383,7 +383,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
 
   int platformMask = platformMaskFromObject(sectionObject);
 
-  SettingsSection* section = new SettingsSection(sectionName, (quint8)platformMask, m_sectionIndex ++, this);
+  auto  section = new SettingsSection(sectionName, (quint8)platformMask, m_sectionIndex ++, this);
   section->setHidden(sectionObject.value("hidden").toBool(false));
   section->setStorage(sectionObject.value("storage").toBool(false));
 
@@ -537,7 +537,7 @@ bool SettingsComponent::componentInitialize()
   // then run the signal the first time to make sure that we set the proper visibility
   // on the items from the start.
   //
-  AudioSettingsController* ctrl = new AudioSettingsController(this);
+  auto  ctrl = new AudioSettingsController(this);
   QVariantMap val;
   val.insert("devicetype", value(SETTINGS_SECTION_AUDIO, "devicetype"));
   val.insert("advanced", value(SETTINGS_SECTION_AUDIO, "advanced"));

@@ -142,7 +142,7 @@ bool UpdateManager::applyUpdate(const QString& version)
   QFile::remove(GetPath("_readyToApply", version, false));
 
   QLOG_DEBUG() << "Executing:" << updaterPath << args;
-  QProcess* process = new QProcess(NULL);
+  auto  process = new QProcess(nullptr);
   if (process->startDetached(updaterPath, args, QDir::temp().absolutePath()))
   {
     QLOG_DEBUG() << "Updater running, shutting down Plex Media Player";

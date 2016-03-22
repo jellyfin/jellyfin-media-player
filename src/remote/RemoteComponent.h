@@ -55,7 +55,7 @@ private Q_SLOTS:
   void responseDone();
 
 private:
-  RemoteComponent(QObject* parent = 0);
+  RemoteComponent(QObject* parent = nullptr);
   void handleSubscription(QHttpRequest * request, QHttpResponse * response, bool poll=false);
   void subscribeToWeb(bool subscribe);
 

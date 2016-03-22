@@ -18,7 +18,7 @@
 class RemoteSubscriber : public QObject
 {
 public:
-  RemoteSubscriber(const QString& clientIdentifier, const QString& deviceName, const QUrl& address, QObject* parent = 0);
+  RemoteSubscriber(const QString& clientIdentifier, const QString& deviceName, const QUrl& address, QObject* parent = nullptr);
   void reSubscribe();
   int lastSubscribe() const { return m_subscribeTime.elapsed(); }
 
@@ -73,7 +73,7 @@ protected:
 class RemotePollSubscriber : public RemoteSubscriber
 {
 public:
-  RemotePollSubscriber(const QString& clientIdentifier, const QString& deviceName, qhttp::server::QHttpResponse *response, QObject* parent = 0);
+  RemotePollSubscriber(const QString& clientIdentifier, const QString& deviceName, qhttp::server::QHttpResponse *response, QObject* parent = nullptr);
   void setHTTPResponse(qhttp::server::QHttpResponse *response);
   virtual void sendUpdate();
 

@@ -12,7 +12,7 @@ class InputBase : public QObject
 {
   Q_OBJECT
 public:
-  InputBase(QObject* parent = 0) : QObject(parent) { }
+  InputBase(QObject* parent = nullptr) : QObject(parent) { }
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
   
@@ -94,8 +94,8 @@ private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, bool pressDown = true);
   
 private:
-  InputComponent(QObject *parent = 0);
-  bool addInput(InputBase* input);
+  InputComponent(QObject *parent = nullptr);
+  bool addInput(InputBase* base);
   void handleAction(const QString& action, bool autoRepeat = true);
 
   QHash<QString, ReceiverSlot*> m_hostCommands;

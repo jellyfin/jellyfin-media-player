@@ -11,7 +11,7 @@ class LocalJsonClient : public QLocalSocket
 {
   Q_OBJECT
 public:
-  explicit LocalJsonClient(const QString serverPath, QObject* parent = 0);
+  explicit LocalJsonClient(const QString serverPath, QObject* parent = nullptr);
   void connectToServer();
   bool sendMessage(const QVariantMap& message);
 

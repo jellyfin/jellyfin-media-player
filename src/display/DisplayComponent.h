@@ -46,7 +46,7 @@ public:
   QString debugInformation();
 
 private:
-  DisplayComponent(QObject *parent = 0);
+  DisplayComponent(QObject *parent = nullptr);
   QString displayName(int display);
   QString modePretty(int display, int mode);
 

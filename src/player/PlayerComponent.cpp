@@ -34,7 +34,7 @@ static void wakeup_cb(void *context)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::PlayerComponent(QObject* parent)
-  : ComponentBase(parent), m_lastPositionUpdate(0.0), m_playbackAudioDelay(0), m_playbackStartSent(false), m_window(0), m_mediaFrameRate(0),
+  : ComponentBase(parent), m_lastPositionUpdate(0.0), m_playbackAudioDelay(0), m_playbackStartSent(false), m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false)
 {
@@ -60,7 +60,7 @@ void PlayerComponent::componentPostInitialize()
 PlayerComponent::~PlayerComponent()
 {
   if (m_mpv)
-    mpv_set_wakeup_callback(m_mpv, NULL, NULL);
+    mpv_set_wakeup_callback(m_mpv, nullptr, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

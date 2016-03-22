@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     {
       Q_UNUSED(url);
 
-      if (object == 0)
+      if (object == nullptr)
         throw FatalException(QObject::tr("Failed to parse application engine script."));
 
       QObject* rootObject = engine->rootObjects().first();
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
     QLOG_FATAL() << "Unhandled FatalException:" << qPrintable(e.message());
     QApplication errApp(argc, argv);
 
-    ErrorMessage* msg = new ErrorMessage(e.message(), true);
+    auto  msg = new ErrorMessage(e.message(), true);
     msg->show();
 
     errApp.exec();

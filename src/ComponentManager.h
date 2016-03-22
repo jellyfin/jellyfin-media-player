@@ -12,7 +12,7 @@
 class ComponentBase : public QObject
 {
 public:
-  ComponentBase(QObject* parent = 0) : QObject(parent) { }
+  ComponentBase(QObject* parent = nullptr) : QObject(parent) { }
   
   virtual bool componentInitialize() = 0;
   virtual const char* componentName() = 0;

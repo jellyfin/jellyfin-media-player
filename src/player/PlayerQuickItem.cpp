@@ -93,7 +93,7 @@ static void* __stdcall MPGetNativeDisplay(const char* name)
 // Unsupported or not needed. Also, not using Windows-specific calling convention.
 static void* MPGetNativeDisplay(const char* name)
 {
-  return NULL;
+  return nullptr;
 }
 #endif
 
@@ -104,7 +104,7 @@ static void* get_proc_address(void* ctx, const char* name)
 
   QOpenGLContext* glctx = QOpenGLContext::currentContext();
   if (!glctx)
-    return NULL;
+    return nullptr;
 
   void *res = (void *)glctx->getProcAddress(QByteArray(name));
   if (strcmp(name, "glMPGetNativeDisplay") == 0)
@@ -153,7 +153,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerRenderer::PlayerRenderer(mpv::qt::Handle mpv, QQuickWindow* window)
-: m_mpv(mpv), m_mpvGL(0), m_window(window), m_size(), m_hAvrtHandle(0)
+: m_mpv(mpv), m_mpvGL(nullptr), m_window(window), m_size(), m_hAvrtHandle(nullptr)
 {
   m_mpvGL = (mpv_opengl_cb_context *)mpv_get_sub_api(m_mpv, MPV_SUB_API_OPENGL_CB);
 }
@@ -170,7 +170,7 @@ bool PlayerRenderer::init()
 
   // Signals presence of MPGetNativeDisplay().
   const char *extensions = "GL_MP_MPGetNativeDisplay";
-  return mpv_opengl_cb_init_gl(m_mpvGL, extensions, get_proc_address, NULL) >= 0;
+  return mpv_opengl_cb_init_gl(m_mpvGL, extensions, get_proc_address, nullptr) >= 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +236,7 @@ void PlayerRenderer::on_update(void *ctx)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerQuickItem::PlayerQuickItem(QQuickItem* parent)
-: QQuickItem(parent), m_mpvGL(NULL), m_renderer(NULL)
+: QQuickItem(parent), m_mpvGL(nullptr), m_renderer(nullptr)
 {
   connect(this, &QQuickItem::windowChanged, this, &PlayerQuickItem::onWindowChanged, Qt::DirectConnection);
   connect(this, &PlayerQuickItem::onFatalError, this, &PlayerQuickItem::onHandleFatalError, Qt::QueuedConnection);
@@ -246,7 +246,7 @@ PlayerQuickItem::PlayerQuickItem(QQuickItem* parent)
 PlayerQuickItem::~PlayerQuickItem()
 {
   if (m_mpvGL)
-    mpv_opengl_cb_set_update_callback(m_mpvGL, NULL, NULL);
+    mpv_opengl_cb_set_update_callback(m_mpvGL, nullptr, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,7 +274,7 @@ void PlayerQuickItem::onSynchronize()
     if (!m_renderer->init())
     {
       delete m_renderer;
-      m_renderer = NULL;
+      m_renderer = nullptr;
       emit onFatalError(tr("Could not initialize OpenGL."));
       return;
     }
@@ -308,7 +308,7 @@ void PlayerQuickItem::onInvalidate()
 {
   if (m_renderer)
     delete m_renderer;
-  m_renderer = NULL;
+  m_renderer = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

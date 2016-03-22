@@ -33,7 +33,7 @@ class InputCECWorker : public QObject
 {
 Q_OBJECT
 public:
-  InputCECWorker(QObject* parent = 0) : QObject(parent), m_adapter(0), m_adapterPort("")
+  InputCECWorker(QObject* parent = nullptr) : QObject(parent), m_adapter(nullptr), m_adapterPort("")
   {
   }
 

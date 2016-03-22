@@ -21,8 +21,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 UpdaterComponent::UpdaterComponent(QObject *parent) : ComponentBase(parent), m_netManager(this)
 {
-  m_file = NULL;
-  m_manifest = NULL;
+  m_file = nullptr;
+  m_manifest = nullptr;
 
   connect(&m_netManager, &QNetworkAccessManager::finished,
           this, &UpdaterComponent::dlComplete);
@@ -104,8 +104,8 @@ bool UpdaterComponent::fileComplete(Update* update)
     delete m_file;
     delete m_manifest;
 
-    m_file = NULL;
-    m_manifest = NULL;
+    m_file = nullptr;
+    m_manifest = nullptr;
 
     return true;
   }
@@ -167,7 +167,7 @@ void UpdaterComponent::downloadUpdate(const QVariantMap& updateInfo)
 
   // this will first check if the files are done
   // and in that case emit the done signal.
-  if (fileComplete(NULL))
+  if (fileComplete(nullptr))
     return;
 
   if (!m_manifest->isReady() && m_hasManifest)
@@ -180,11 +180,8 @@ void UpdaterComponent::downloadUpdate(const QVariantMap& updateInfo)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool UpdaterComponent::isDownloading()
 {
-  if ((m_manifest && m_manifest->m_reply && m_manifest->m_reply->isRunning()) ||
-      (m_file && m_file->m_reply && m_file->m_reply->isRunning()))
-    return true;
-
-  return false;
+  return (m_manifest && m_manifest->m_reply && m_manifest->m_reply->isRunning()) ||
+      (m_file && m_file->m_reply && m_file->m_reply->isRunning());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

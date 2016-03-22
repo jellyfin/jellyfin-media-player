@@ -3,7 +3,7 @@
 
 #include <QQmlApplicationEngine>
 
-static QQmlApplicationEngine* g_qmlEngine = NULL;
+static QQmlApplicationEngine* g_qmlEngine = nullptr;
 
 class KonvergoEngine
 {

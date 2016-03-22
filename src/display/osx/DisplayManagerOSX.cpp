@@ -42,7 +42,7 @@ bool DisplayManagerOSX::initialize()
     display->name = QString("Display %1").arg(displayid);
     displays[display->id] = display;
 
-    m_osxDisplayModes[displayid] = CGDisplayCopyAllDisplayModes(m_osxDisplays[displayid], NULL);
+    m_osxDisplayModes[displayid] = CGDisplayCopyAllDisplayModes(m_osxDisplays[displayid], nullptr);
     if (!m_osxDisplayModes[displayid])
       continue;
 
@@ -98,7 +98,7 @@ bool DisplayManagerOSX::setDisplayMode(int display, int mode)
   CGDisplayModeRef displayMode =
   (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode);
 
-  CGError err = CGDisplaySetDisplayMode(m_osxDisplays[display], displayMode, NULL);
+  CGError err = CGDisplaySetDisplayMode(m_osxDisplays[display], displayMode, nullptr);
   if (err)
   {
     QLOG_ERROR() << "CGDisplaySetDisplayMode() returned failure:" << err;

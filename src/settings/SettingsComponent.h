@@ -75,7 +75,7 @@ public:
   static bool resetAndSaveOldConfiguration();
 
 private:
-  explicit SettingsComponent(QObject *parent = 0);
+  explicit SettingsComponent(QObject *parent = nullptr);
   bool loadDescription();
   void parseSection(const QJsonObject& sectionObject);
   int platformMaskFromObject(const QJsonObject& object);

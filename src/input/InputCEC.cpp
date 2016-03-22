@@ -52,7 +52,7 @@ InputCEC::InputCEC(QObject *parent) : InputBase(parent)
   m_cecThread = new QThread(this);
   m_cecThread->setObjectName("InputCEC");
 
-  m_cecWorker = new InputCECWorker(NULL);
+  m_cecWorker = new InputCECWorker(nullptr);
   m_cecWorker->moveToThread(m_cecThread);
 
   m_cecThread->start(QThread::LowPriority);
@@ -143,7 +143,7 @@ bool InputCECWorker::openAdapter()
 
   // try to find devices
   cec_adapter_descriptor devices[10];
-  int devicesCount = m_adapter->DetectAdapters(devices, 10, NULL, false);
+  int devicesCount = m_adapter->DetectAdapters(devices, 10, nullptr, false);
   if (devicesCount > 0)
   {
     // list devices

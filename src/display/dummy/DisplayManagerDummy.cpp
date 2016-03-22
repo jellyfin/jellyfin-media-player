@@ -4,28 +4,28 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DisplayManagerDummy::addMode(float rate)
 {
-  if (!displays.size())
+  if (!m_displays.size())
     return;
 
   DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode());
-  mode->id = displays[0]->videoModes.size();
-  mode->interlaced = false;
-  mode->refreshRate = rate;
-  mode->width = 1280;
-  mode->height = 720;
-  mode->bitsPerPixel = 0;
-  displays[0]->videoModes[mode->id] = mode;
+  mode->m_id = m_displays[0]->m_videoModes.size();
+  mode->m_interlaced = false;
+  mode->m_refreshRate = rate;
+  mode->m_width = 1280;
+  mode->m_height = 720;
+  mode->m_bitsPerPixel = 0;
+  m_displays[0]->m_videoModes[mode->m_id] = mode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerDummy::initialize()
 {
-  displays.clear();
+  m_displays.clear();
 
   DMDisplayPtr display = DMDisplayPtr(new DMDisplay());
-  display->id = displays.size();
-  display->name = "Dummy display";
-  displays[display->id] = display;
+  display->m_id = m_displays.size();
+  display->m_name = "Dummy display";
+  m_displays[display->m_id] = display;
 
   addMode(60);
 
@@ -38,12 +38,12 @@ bool DisplayManagerDummy::setDisplayMode(int display, int mode)
   if (!isValidDisplayMode(display, mode))
     return false;
 
-  DMDisplayPtr displayptr = displays[display];
-  DMVideoModePtr videomode = displayptr->videoModes[mode];
+  DMDisplayPtr displayptr = m_displays[display];
+  DMVideoModePtr videomode = displayptr->m_videoModes[mode];
 
-  QLOG_INFO() << "Switching to" << videomode->width << "x" << videomode->height << "@" << videomode->refreshRate;
+  QLOG_INFO() << "Switching to" << videomode->m_width << "x" << videomode->m_height << "@" << videomode->m_refreshRate;
 
-  m_currentMode = videomode->id;
+  m_currentMode = videomode->m_id;
 
   return true;
 }
@@ -66,7 +66,7 @@ int DisplayManagerDummy::getMainDisplay()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerDummy::getDisplayFromPoint(int x, int y)
 {
-  if (displays.size())
+  if (m_displays.size())
   {
     if (x >= 0 && y >= 0 && x < 1280 && y < 720)
       return 0;

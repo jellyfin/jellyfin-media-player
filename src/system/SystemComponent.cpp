@@ -21,7 +21,7 @@
 #define KONVERGO_PRODUCTID_OPENELEC 4
 
 // Platform types map
-QMap<SystemComponent::PlatformType, QString> platformTypeNames = { \
+QMap<SystemComponent::PlatformType, QString> g_platformTypeNames = { \
   { SystemComponent::platformTypeOsx, "macosx" }, \
   { SystemComponent::platformTypeWindows, "windows" },
   { SystemComponent::platformTypeLinux, "linux" },
@@ -30,7 +30,7 @@ QMap<SystemComponent::PlatformType, QString> platformTypeNames = { \
 };
 
 // platform Archictecture map
-QMap<SystemComponent::PlatformArch, QString> platformArchNames = { \
+QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = { \
   { SystemComponent::platformArchX86_64, "x86_64" }, \
   { SystemComponent::platformArchRpi2, "rpi2" },
   { SystemComponent::platformArchUnknown, "unknown" }
@@ -91,13 +91,13 @@ void SystemComponent::componentPostInitialize()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QString SystemComponent::getPlatformTypeString() const
 {
-  return platformTypeNames[m_platformType];
+  return g_platformTypeNames[m_platformType];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QString SystemComponent::getPlatformArchString() const
 {
-  return platformArchNames[m_platformArch];
+  return g_platformArchNames[m_platformArch];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

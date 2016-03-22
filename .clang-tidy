@@ -1,3 +1,22 @@
 # Don't use the C++ new,delete check since it doesn't work with Qt.
 # Enable a bunch of modernization checks
-Checks:          '-clang-analyzer-cplusplus.NewDeleteLeaks,misc-forward-declaration-namespace,modernize-use-auto,modernize-use-nullptr,modernize-redudant-void-arg,readability-inconsistent-declaration-parameter-name,readability-simplify-boolean-expr,readability-container-size-empty,performance-for-range-copy'
+Checks:          '-clang-analyzer-cplusplus.NewDeleteLeaks,misc-forward-declaration-namespace,modernize-use-auto,modernize-use-nullptr,modernize-redudant-void-arg,readability-inconsistent-declaration-parameter-name,readability-simplify-boolean-expr,readability-container-size-empty,performance-for-range-copy,readability-identifier-naming'
+CheckOptions:
+    - key: readability-identifier-naming.ClassCase
+      value: CamelCase
+    - key: readability-identifier-naming.EnumCase
+      value: CamelCase
+    - key: readability-identifier-naming.FunctionCase
+      value: lowerCase
+    - key: readability-identifier-naming.GlobalFunction
+      value: CamelCase
+    - key: readability-identifier-naming.GlobalVarableCase
+      value: camelBack
+    - key: readability-identifier-naming.GlobalVariablePrefix
+      value: g_
+    - key: readability-identifier-naming.VariableCase
+      value: camelBack
+    - key: readability-identifier-naming.MemberPrefix
+      value: m_
+    - key: readability-identifier-naming.MemberCase
+      value: camelBack

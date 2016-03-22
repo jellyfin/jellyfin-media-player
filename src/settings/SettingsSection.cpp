@@ -122,7 +122,7 @@ const QVariantMap SettingsSection::allValues() const
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-struct value_sort_order
+struct ValueSortOrder
 {
   inline bool operator()(SettingsValue* a, SettingsValue* b)
   {
@@ -138,7 +138,7 @@ const QVariantMap SettingsSection::descriptions() const
   map.insert("key", m_sectionID);
 
   QList<SettingsValue*> list = m_values.values();
-  std::sort(list.begin(), list.end(), value_sort_order());
+  std::sort(list.begin(), list.end(), ValueSortOrder());
 
   QVariantList settings;
   foreach(SettingsValue* value, list)

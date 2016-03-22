@@ -16,16 +16,16 @@ DisplayManager::DisplayManager(QObject* parent) : QObject(parent) {}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManager::initialize()
 {
-  QLOG_INFO() << QString("DisplayManager found %1 Display(s).").arg(displays.size());
+  QLOG_INFO() << QString("DisplayManager found %1 Display(s).").arg(m_displays.size());
 
   // list video modes
-  foreach(int displayid, displays.keys())
+  foreach(int displayid, m_displays.keys())
   {
-    DMDisplayPtr display = displays[displayid];
-    QLOG_INFO() << QString("Available modes for Display #%1 (%2)").arg(displayid).arg(display->name);
-    for (int modeid = 0; modeid < display->videoModes.size(); modeid++)
+    DMDisplayPtr display = m_displays[displayid];
+    QLOG_INFO() << QString("Available modes for Display #%1 (%2)").arg(displayid).arg(display->m_name);
+    for (int modeid = 0; modeid < display->m_videoModes.size(); modeid++)
     {
-      DMVideoModePtr mode = display->videoModes[modeid];
+      DMVideoModePtr mode = display->m_videoModes[modeid];
       QLOG_INFO() << QString("Mode %1: %2").arg(modeid, 2).arg(mode->getPrettyName());
     }
   }
@@ -38,7 +38,7 @@ bool DisplayManager::initialize()
     if (currentMode >= 0)
       QLOG_INFO() << QString("DisplayManager : Current Display Mode on Display #%1 is %2")
                      .arg(mainDisplay)
-                     .arg(displays[mainDisplay]->videoModes[currentMode]->getPrettyName());
+                     .arg(m_displays[mainDisplay]->m_videoModes[currentMode]->getPrettyName());
     else
       QLOG_ERROR() << "DisplayManager : unable to retrieve current video mode";
   }
@@ -55,19 +55,19 @@ DMVideoModePtr DisplayManager::getCurrentVideoMode(int display)
   DMVideoModePtr currentVideoMode;
 
   if (currentMode >= 0)
-    currentVideoMode = displays[display]->videoModes[currentMode];
+    currentVideoMode = m_displays[display]->m_videoModes[currentMode];
 
   return currentVideoMode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool DisplayManager::isValidDisplay(int display) { return displays.contains(display); }
+bool DisplayManager::isValidDisplay(int display) { return m_displays.contains(display); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManager::isValidDisplayMode(int display, int mode)
 {
   if (isValidDisplay(display))
-    if (mode >= 0 && mode < displays[display]->videoModes.size())
+    if (mode >= 0 && mode < m_displays[display]->m_videoModes.size())
       return true;
 
   return false;
@@ -100,49 +100,49 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
   // then fill a list
   DMVideoModeWeightMap weights;
 
-  DMVideoModeMap::const_iterator modeit = displays[display]->videoModes.constBegin();
+  DMVideoModeMap::const_iterator modeit = m_displays[display]->m_videoModes.constBegin();
 
-  while (modeit != displays[display]->videoModes.constEnd())
+  while (modeit != m_displays[display]->m_videoModes.constEnd())
   {
     DMVideoModePtr candidate = modeit.value();
 
-    weights[candidate->id] = DMVideoModeWeightPtr(new DMVideoModeWeight);
-    weights[candidate->id]->mode = candidate;
-    weights[candidate->id]->weight = 0;
+    weights[candidate->m_id] = DMVideoModeWeightPtr(new DMVideoModeWeight);
+    weights[candidate->m_id]->m_mode = candidate;
+    weights[candidate->m_id]->m_weight = 0;
 
     // Weight Resolution match
-    if ((candidate->width == currentVideoMode->width) &&
-        (candidate->height == currentVideoMode->height) &&
-        (candidate->bitsPerPixel == currentVideoMode->bitsPerPixel))
+    if ((candidate->m_width == currentVideoMode->m_width) &&
+        (candidate->m_height == currentVideoMode->m_height) &&
+        (candidate->m_bitsPerPixel == currentVideoMode->m_bitsPerPixel))
     {
-      weights[candidate->id]->weight += MATCH_WEIGHT_RES;
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_RES;
     }
 
     // weight refresh rate
     // exact Match
-    if (candidate->refreshRate == matchInfo.refreshRate)
-      weights[candidate->id]->weight += MATCH_WEIGHT_REFRESH_RATE_EXACT;
+    if (candidate->m_refreshRate == matchInfo.m_refreshRate)
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_REFRESH_RATE_EXACT;
 
     // exact multiple refresh rate
-    if (isRateMultipleOf(matchInfo.refreshRate, candidate->refreshRate, true))
-      weights[candidate->id]->weight += MATCH_WEIGHT_REFRESH_RATE_MULTIPLE;
+    if (isRateMultipleOf(matchInfo.m_refreshRate, candidate->m_refreshRate, true))
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_REFRESH_RATE_MULTIPLE;
 
     // close refresh match (less than 1 hz diff to match all 23.xxx modes to 24p)
-    if (fabs(candidate->refreshRate - matchInfo.refreshRate) <= 0.5)
+    if (fabs(candidate->m_refreshRate - matchInfo.m_refreshRate) <= 0.5)
     {
-      weights[candidate->id]->weight += MATCH_WEIGHT_REFRESH_RATE_CLOSE;
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_REFRESH_RATE_CLOSE;
     }
 
     // approx multiple refresh rate
-    if (isRateMultipleOf(matchInfo.refreshRate, candidate->refreshRate, false))
-      weights[candidate->id]->weight += MATCH_WEIGHT_REFRESH_RATE_MULTIPLE_CLOSE;
+    if (isRateMultipleOf(matchInfo.m_refreshRate, candidate->m_refreshRate, false))
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_REFRESH_RATE_MULTIPLE_CLOSE;
 
     // weight interlacing
-    if (candidate->interlaced == matchInfo.interlaced)
-      weights[candidate->id]->weight += MATCH_WEIGHT_INTERLACE;
+    if (candidate->m_interlaced == matchInfo.m_interlaced)
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_INTERLACE;
 
-    if (candidate->id == currentVideoMode->id)
-      weights[candidate->id]->weight += MATCH_WEIGHT_CURRENT;
+    if (candidate->m_id == currentVideoMode->m_id)
+      weights[candidate->m_id]->m_weight += MATCH_WEIGHT_CURRENT;
 
     modeit++;
   }
@@ -154,23 +154,23 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
   DMVideoModeWeightMap::const_iterator weightit = weights.constBegin();
   while (weightit != weights.constEnd())
   {
-    QLOG_DEBUG() << "Mode " << weightit.value()->mode->id << "("
-                 << weightit.value()->mode->getPrettyName() << ") has weight "
-                 << weightit.value()->weight;
-    if (weightit.value()->weight > maxWeight)
+    QLOG_DEBUG() << "Mode " << weightit.value()->m_mode->m_id << "("
+                 << weightit.value()->m_mode->getPrettyName() << ") has weight "
+                 << weightit.value()->m_weight;
+    if (weightit.value()->m_weight > maxWeight)
     {
       chosen = weightit.value();
-      maxWeight = chosen->weight;
+      maxWeight = chosen->m_weight;
     }
 
     weightit++;
   }
 
-  if ((chosen) && (chosen->weight > MATCH_WEIGHT_RES))
+  if ((chosen) && (chosen->m_weight > MATCH_WEIGHT_RES))
   {
     QLOG_INFO() << "DisplayManager RefreshMatch : found a suitable mode : "
-                << chosen->mode->getPrettyName();
-    return chosen->mode->id;
+                << chosen->m_mode->getPrettyName();
+    return chosen->m_mode->m_id;
   }
 
   QLOG_INFO() << "DisplayManager RefreshMatch : found no suitable videomode";
@@ -180,40 +180,40 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManager::findBestMode(int display)
 {
-  int best_mode = -1;
+  int bestMode = -1;
 
-  foreach (auto mode, displays[display]->videoModes)
+  foreach (auto mode, m_displays[display]->m_videoModes)
   {
-    if (best_mode < 0)
+    if (bestMode < 0)
     {
-      best_mode = mode->id;
+      bestMode = mode->m_id;
     }
     else
     {
-      DMVideoModePtr best = displays[display]->videoModes[best_mode];
+      DMVideoModePtr best = m_displays[display]->m_videoModes[bestMode];
       DMVideoModePtr candidate = mode;
 
       // Highest priority: prefer non-interlaced modes.
-      if (!best->interlaced && candidate->interlaced)
+      if (!best->m_interlaced && candidate->m_interlaced)
         continue;
 
-      if (best->bitsPerPixel > candidate->bitsPerPixel)
+      if (best->m_bitsPerPixel > candidate->m_bitsPerPixel)
         continue;
 
-      if (best->width > candidate->width)
+      if (best->m_width > candidate->m_width)
         continue;
 
-      if (best->height > candidate->height)
+      if (best->m_height > candidate->m_height)
         continue;
 
-      if (best->refreshRate > candidate->refreshRate)
+      if (best->m_refreshRate > candidate->m_refreshRate)
         continue;
 
-      best_mode = candidate->id;
+      bestMode = candidate->m_id;
     }
   }
 
-  return best_mode;
+  return bestMode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

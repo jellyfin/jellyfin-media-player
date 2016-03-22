@@ -303,7 +303,7 @@ void SettingsComponent::resetToDefault()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-struct section_order_index
+struct SectionOrderIndex
 {
   inline bool operator ()(SettingsSection* a, SettingsSection* b)
   {
@@ -317,7 +317,7 @@ QVariantList SettingsComponent::settingDescriptions()
   QJsonArray desc;
 
   QList<SettingsSection*> sectionList = m_sections.values();
-  std::sort(sectionList.begin(), sectionList.end(), section_order_index());
+  std::sort(sectionList.begin(), sectionList.end(), SectionOrderIndex());
 
   foreach(SettingsSection* section, sectionList)
   {

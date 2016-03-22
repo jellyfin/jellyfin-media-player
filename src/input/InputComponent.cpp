@@ -117,11 +117,11 @@ void InputComponent::handleAction(const QString& action, bool autoRepeat)
       ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
       if (recvSlot)
       {
-        QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
+        QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
         QGenericArgument arg0 = QGenericArgument();
-        if (recvSlot->hasArguments)
+        if (recvSlot->m_hasArguments)
           arg0 = Q_ARG(const QString&, hostArguments);
-        QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
+        QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
                                   Qt::AutoConnection, arg0);
       }
     }
@@ -197,22 +197,23 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 void InputComponent::registerHostCommand(const QString& command, QObject* receiver, const char* slot)
 {
   auto  recvSlot = new ReceiverSlot;
-  recvSlot->receiver = receiver;
-  recvSlot->slot = QMetaObject::normalizedSignature(slot);
-  recvSlot->hasArguments = false;
+  recvSlot->m_receiver = receiver;
+  recvSlot->m_slot = QMetaObject::normalizedSignature(slot);
+  recvSlot->m_hasArguments = false;
 
-  QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to" << qPrintable(QString(receiver->metaObject()->className()) + "::" + recvSlot->slot);
+  QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to"
+               << qPrintable(QString(receiver->metaObject()->className()) + "::" + recvSlot->m_slot);
 
   m_hostCommands.insert(command, recvSlot);
 
-  auto slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->slot)).toLatin1();
-  auto slotWithoutArgs = QString("%1()").arg(QString::fromLatin1(recvSlot->slot)).toLatin1();
-  if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithArgs.data()) != -1)
+  auto slotWithArgs = QString("%1(QString)").arg(QString::fromLatin1(recvSlot->m_slot)).toLatin1();
+  auto slotWithoutArgs = QString("%1()").arg(QString::fromLatin1(recvSlot->m_slot)).toLatin1();
+  if (recvSlot->m_receiver->metaObject()->indexOfMethod(slotWithArgs.data()) != -1)
   {
     QLOG_DEBUG() << "Host command maps to method with an argument.";
-    recvSlot->hasArguments = true;
+    recvSlot->m_hasArguments = true;
   }
-  else if (recvSlot->receiver->metaObject()->indexOfMethod(slotWithoutArgs.data()) != -1)
+  else if (recvSlot->m_receiver->metaObject()->indexOfMethod(slotWithoutArgs.data()) != -1)
   {
     QLOG_DEBUG() << "Host command maps to method without arguments.";
   }

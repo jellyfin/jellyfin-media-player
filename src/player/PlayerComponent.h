@@ -177,7 +177,7 @@ private:
 
   double m_lastPositionUpdate;
   qint64 m_playbackAudioDelay;
-  QString m_CurrentUrl;
+  QString m_currentUrl;
   bool m_playbackStartSent;
   QQuickWindow* m_window;
   float m_mediaFrameRate;

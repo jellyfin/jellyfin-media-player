@@ -19,21 +19,21 @@
 class DMVideoMode
 {
 public:
-  int id;
-  int width;
-  int height;
-  int bitsPerPixel;
-  float refreshRate;
-  bool interlaced;
+  int m_id;
+  int m_width;
+  int m_height;
+  int m_bitsPerPixel;
+  float m_refreshRate;
+  bool m_interlaced;
 
-  int priv_id;
+  int m_privId;
 
   inline QString getPrettyName()
   {
     QString name;
 
-    name = QString("%1 x%2%3").arg(width, 5).arg(height, 5).arg((interlaced ? "i" : " "));
-    name += QString("x %1bpp @%2Hz").arg(bitsPerPixel, 2).arg(refreshRate);
+    name = QString("%1 x%2%3").arg(m_width, 5).arg(m_height, 5).arg((m_interlaced ? "i" : " "));
+    name += QString("x %1bpp @%2Hz").arg(m_bitsPerPixel, 2).arg(m_refreshRate);
     return name;
   }
 };
@@ -46,12 +46,12 @@ typedef QMap<int, DMVideoModePtr> DMVideoModeMap;
 class DMDisplay
 {
 public:
-  int id;
-  QString name;
+  int m_id;
+  QString m_name;
 
-  int priv_id;
+  int m_privId;
 
-  DMVideoModeMap videoModes;
+  DMVideoModeMap m_videoModes;
 };
 
 typedef QSharedPointer<DMDisplay> DMDisplayPtr;
@@ -62,12 +62,12 @@ typedef QMap<int, DMDisplayPtr> DMDisplayMap;
 class DMMatchMediaInfo
 {
 public:
-  DMMatchMediaInfo() : refreshRate(0), interlaced(false) {};
+  DMMatchMediaInfo() : m_refreshRate(0), m_interlaced(false) {};
   DMMatchMediaInfo(float refreshRate, bool interlaced)
-    : refreshRate(refreshRate), interlaced(interlaced) {};
+    : m_refreshRate(refreshRate), m_interlaced(interlaced) {};
 
-  float refreshRate;
-  bool interlaced;
+  float m_refreshRate;
+  bool m_interlaced;
 };
 
 // Matching weights
@@ -87,8 +87,8 @@ public:
 class DMVideoModeWeight
 {
 public:
-  float weight;
-  DMVideoModePtr mode;
+  float m_weight;
+  DMVideoModePtr m_mode;
 };
 
 typedef QSharedPointer<DMVideoModeWeight> DMVideoModeWeightPtr;
@@ -103,7 +103,7 @@ public:
   DisplayManager(QObject* parent);
   virtual ~DisplayManager() {}
 
-  DMDisplayMap displays;
+  DMDisplayMap m_displays;
 
   // functions that should be implemented on each platform
   virtual bool initialize();

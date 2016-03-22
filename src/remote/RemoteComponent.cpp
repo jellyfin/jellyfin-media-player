@@ -12,7 +12,7 @@
 #include "utils/Utils.h"
 #include "Version.h"
 
-static QMap<QString, QString> resourceKeyMap = {
+static QMap<QString, QString> g_resourceKeyMap = {
   { "Name", "title" },
   { "Resource-Identifier", "machineIdentifier" },
   { "Product", "product" },
@@ -22,7 +22,7 @@ static QMap<QString, QString> resourceKeyMap = {
   { "Device-Class", "deviceClass" }
 };
 
-static QMap<QString, QString> headerKeyMap = {
+static QMap<QString, QString> g_headerKeyMap = {
   { "Name", "X-Plex-Device-Name" },
   { "Resource-Identifier", "X-Plex-Client-Identifier" },
   { "Product", "X-Plex-Product" },
@@ -60,8 +60,8 @@ QVariantMap RemoteComponent::HeaderInformation()
 
   foreach (const QString& key, gdmInfo.keys())
   {
-    if (headerKeyMap.contains(key))
-      headerInfo[headerKeyMap[key]] = gdmInfo[key];
+    if (g_headerKeyMap.contains(key))
+      headerInfo[g_headerKeyMap[key]] = gdmInfo[key];
   }
 
   headerInfo["X-Plex-Platform"] = QSysInfo::productType();
@@ -78,8 +78,8 @@ QVariantMap RemoteComponent::ResourceInformation()
 
   foreach (const QString& key, gdmInfo.keys())
   {
-    if (resourceKeyMap.contains(key))
-      resourceInfo[resourceKeyMap[key]] = gdmInfo[key];
+    if (g_resourceKeyMap.contains(key))
+      resourceInfo[g_resourceKeyMap[key]] = gdmInfo[key];
   }
 
   resourceInfo["platform"] = QSysInfo::productType();

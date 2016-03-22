@@ -62,11 +62,11 @@ void PowerComponent::setFullscreenState(bool fullscreen)
 /////////////////////////////////////////////////////////////////////////////////////////
 void PowerComponent::redecideScreeensaverState()
 {
-  bool enable_os_screensaver = !m_fullscreenState && !m_videoPlaying;
-  if (m_currentScreensaverEnabled != enable_os_screensaver)
+  bool enableOsScreensaver = !m_fullscreenState && !m_videoPlaying;
+  if (m_currentScreensaverEnabled != enableOsScreensaver)
   {
-    m_currentScreensaverEnabled = enable_os_screensaver;
-    if (enable_os_screensaver)
+    m_currentScreensaverEnabled = enableOsScreensaver;
+    if (enableOsScreensaver)
     {
       QLOG_DEBUG() << "Enabling OS screensaver";
       doEnableScreensaver();

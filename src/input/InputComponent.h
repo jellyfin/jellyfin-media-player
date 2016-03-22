@@ -70,9 +70,9 @@ signals:
 
 struct ReceiverSlot
 {
-  QObject* receiver;
-  QByteArray slot;
-  bool hasArguments;
+  QObject* m_receiver;
+  QByteArray m_slot;
+  bool m_hasArguments;
 };
 
 class InputComponent : public ComponentBase

@@ -48,7 +48,7 @@ bool DisplayManagerWin::initialize()
   int displayId = 0;
 
   m_displayAdapters.clear();
-  displays.clear();
+  m_displays.clear();
 
   while (getDisplayInfo(displayId, displayInfo))
   {
@@ -61,7 +61,7 @@ bool DisplayManagerWin::initialize()
       DMDisplayPtr display = DMDisplayPtr(new DMDisplay);
       display->id = displayId;
       display->name = QString::fromWCharArray(displayInfo.DeviceString);
-      displays[display->id] = DMDisplayPtr(display);
+      m_displays[display->m_id] = DMDisplayPtr(display);
       m_displayAdapters[display->id] = QString::fromWCharArray(displayInfo.DeviceName);
 
       while (getModeInfo(displayId, modeId, modeInfo))
@@ -79,7 +79,7 @@ bool DisplayManagerWin::initialize()
     displayId++;
   }
 
-  if (displays.size() == 0)
+  if (m_displays.isEmpty())
   {
     QLOG_DEBUG() << "No display found.";
     return false;
@@ -98,7 +98,7 @@ bool DisplayManagerWin::setDisplayMode(int display, int mode)
 
   if (getModeInfo(display, mode, modeInfo))
   {
-    QLOG_DEBUG() << "Switching to mode" << mode << "on display" << display << ":" << displays[display]->videoModes[mode]->getPrettyName();
+    QLOG_DEBUG() << "Switching to mode" << mode << "on display" << display << ":" << m_displays[display]->m_videoModes[mode]->getPrettyName();
 
     modeInfo.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY | DM_DISPLAYFLAGS;
 

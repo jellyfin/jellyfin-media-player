@@ -8,7 +8,7 @@
 
 @interface MediaKeysDelegate : NSObject
 {
-  SPMediaKeyTap* keyTap;
+  SPMediaKeyTap* m_keyTap;
   InputAppleMediaKeys* m_input;
 }
 -(instancetype)initWithInput:(InputAppleMediaKeys*)input;
@@ -21,9 +21,9 @@
   self = [super init];
   if (self) {
     m_input = input;
-    keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
+    m_keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
     if ([SPMediaKeyTap usesGlobalMediaKeyTap])
-      [keyTap startWatchingMediaKeys];
+      [m_keyTap startWatchingMediaKeys];
     else
       QLOG_WARN() << "Could not grab global media keys";
   }

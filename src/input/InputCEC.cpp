@@ -7,11 +7,11 @@
 class KeyAction
 {
 public:
-  QString action;
-  bool hasLongPress;
+  QString m_action;
+  bool m_hasLongPress;
 };
 
-static QMap<int, KeyAction> cecKeyMap   { \
+static QMap<int, KeyAction> g_cecKeyMap   { \
                                         { CEC_USER_CONTROL_CODE_SELECT , { INPUT_KEY_SELECT , false } } , \
                                         { CEC_USER_CONTROL_CODE_UP , { INPUT_KEY_UP , false } } , \
                                         { CEC_USER_CONTROL_CODE_DOWN , { INPUT_KEY_DOWN , false } } , \
@@ -195,12 +195,12 @@ QString InputCECWorker::getCommandString(cec_user_control_code code, unsigned in
 {
   QString key;
 
-  if (cecKeyMap.contains(code))
+  if (g_cecKeyMap.contains(code))
   {
-    KeyAction keyaction = cecKeyMap[code];
-    key = keyaction.action;
+    KeyAction keyaction = g_cecKeyMap[code];
+    key = keyaction.m_action;
 
-    if ((duration > CEC_LONGPRESS_DURATION) && keyaction.hasLongPress)
+    if ((duration > CEC_LONGPRESS_DURATION) && keyaction.m_hasLongPress)
     {
       key += "_LONG";
     }

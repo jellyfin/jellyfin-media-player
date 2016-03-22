@@ -96,13 +96,6 @@ public:
     m_possibleValues << entry;
   }
 
-  void addNumericRange(double min, double max, double step = 1.0)
-  {
-    QVariantList values;
-    for (double v = min; v <= max; v += step)
-      addPossibleValue(QString::number(v), v);
-  }
-
   // goes back to use the default
   void reset()
   {

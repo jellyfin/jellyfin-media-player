@@ -39,10 +39,7 @@ public:
 
   SettingsSection* getSection(const QString& sectionID)
   {
-    if (m_sections.contains(sectionID))
-      return m_sections.value(sectionID);
-    else
-      return nullptr;
+    return m_sections.value(sectionID, nullptr);
   }
 
   // JS interface

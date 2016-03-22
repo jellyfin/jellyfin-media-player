@@ -67,15 +67,14 @@ bool DisplayManagerOSX::initialize()
 
       CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(displayMode);
 
-      if (CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) ==
-          kCFCompareEqualTo)
+      if (CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
         mode->bitsPerPixel = 32;
-      else if (CFStringCompare(pixEnc, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) ==
-               kCFCompareEqualTo)
+      else if (CFStringCompare(pixEnc, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
         mode->bitsPerPixel = 16;
-      else if (CFStringCompare(pixEnc, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) ==
-               kCFCompareEqualTo)
+      else if (CFStringCompare(pixEnc, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
         mode->bitsPerPixel = 8;
+
+      CFRelease(pixEnc);
 
       mode->interlaced = (CGDisplayModeGetIOFlags(displayMode) & kDisplayModeInterlacedFlag) > 0;
 
@@ -126,9 +125,11 @@ int DisplayManagerOSX::getCurrentDisplayMode(int display)
   {
     if (currentMode == (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode))
     {
+      CFRelease(currentMode);
       return mode;
     }
   }
+  CFRelease(currentMode);
 
   return -1;
 };

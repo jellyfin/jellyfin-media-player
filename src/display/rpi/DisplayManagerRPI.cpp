@@ -103,7 +103,7 @@ bool DisplayManagerRPI::initialize()
     mode = DMVideoModePtr(new DMVideoMode(*mode));
     mode->m_id = n * 2 + 1;
     display->m_videoModes[mode->m_id] = mode;
-    mode->refreshRate /= 1.001;
+    mode->m_refreshRate /= 1.001;
   }
 
   if (m_modes.size() == 0)

@@ -37,6 +37,7 @@ include(PlayerConfiguration)
 include(InputConfiguration)
 include(FindBreakpad)
 include(BreakpadSymbols)
+include(ClangTidy)
 
 if(APPLE)
   include(AppleConfiguration)

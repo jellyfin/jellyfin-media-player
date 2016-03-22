@@ -143,7 +143,13 @@ wix_create_installer(PMP.msi
                      BASEDIR "${PROJECT_SOURCE_DIR}/bundle/win"
 )
 
-wix_create_installer(PlexMediaPlayer-${VERSION_STRING}-windows-x64.exe
+if (CMAKE_SIZEOF_VOID_P MATCHES 8)
+  set(INSTALLER_ARCH_STR windows-x64)
+else()
+  set(INSTALLER_ARCH_STR windows-x86)
+endif()
+
+wix_create_installer(PlexMediaPlayer-${VERSION_STRING}-${INSTALLER_ARCH_STR}.exe
                      TARGET PlexMediaPlayerInstaller
                      WXS_FILES "${PROJECT_SOURCE_DIR}/bundle/win/Bundle.wxs"
                      EXTENSIONS WixUtilExtension WixBalExtension

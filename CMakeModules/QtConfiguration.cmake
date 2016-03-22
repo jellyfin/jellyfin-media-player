@@ -1,17 +1,12 @@
 
 include(FetchDependencies)
 
-if(WIN32)
-  set(WINARCHSTR ARCHSTR windows-x86_64)
-endif(WIN32)
-
 if(NOT IS_DIRECTORY ${QTROOT})
   download_deps(
 		"plexmediaplayer-qt"
 		DIRECTORY dir
 		DEPHASH_VAR QT_DEPS_HASH
     ARTIFACTNAME konvergo-qt
-    ${WINARCHSTR}
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
 	)
   set(QTROOT ${dir})

@@ -16,14 +16,14 @@ if((APPLE OR WIN32) AND NOT DISABLE_BUNDLED_DEPS)
 endif(APPLE AND NOT DISABLE_BUNDLED_DEPS)
 
 if(WIN32)
-  download_deps(
-    "plexmediaplayer-windows-dependencies"
-    DIRECTORY dir
-    ARTIFACTNAME konvergo-depends-windows
-    ARCHSTR mingw32-x86_64
-    DEPHASH_VAR DEPS_HASH
-  )
   if(NOT EXISTS ${dir}/lib/mpv.lib)
+    if(ARCHSTR STREQUAL "windows-x86_64")
+      set(ENV{PMP_VC_ARCH} "amd64")
+      set(ENV{PMP_LIB_ARCH} "X64")
+    else()
+      set(ENV{PMP_VC_ARCH} "x86")
+      set(ENV{PMP_LIB_ARCH} "x86")
+    endif()
     execute_process(
       COMMAND ${PROJECT_SOURCE_DIR}/scripts/make_mpv_lib.bat
       WORKING_DIRECTORY ${dir}

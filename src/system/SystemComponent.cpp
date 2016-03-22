@@ -30,8 +30,9 @@ QMap<SystemComponent::PlatformType, QString> g_platformTypeNames = { \
 };
 
 // platform Archictecture map
-QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = { \
-  { SystemComponent::platformArchX86_64, "x86_64" }, \
+QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
+  { SystemComponent::platformArchX86_32, "i386" },
+  { SystemComponent::platformArchX86_64, "x86_64" },
   { SystemComponent::platformArchRpi2, "rpi2" },
   { SystemComponent::platformArchUnknown, "unknown" }
 };
@@ -115,7 +116,7 @@ QVariantMap SystemComponent::systemInformation() const
   int productid = KONVERGO_PRODUCTID_DEFAULT;
 
 #ifdef Q_OS_WIN
-  arch = "x86_64";
+  arch = (sizeof(void *) == 8) ? "x86_64" : "i386";
 #else
   arch = QSysInfo::currentCpuArchitecture();
 #endif

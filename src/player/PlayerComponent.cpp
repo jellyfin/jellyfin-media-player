@@ -186,7 +186,7 @@ void PlayerComponent::setWindow(QQuickWindow* window)
 {
   bool useRpi = false;
 #ifdef TARGET_RPI
-  use_rpi = true;
+  useRpi = true;
 #endif
 
   m_window = window;

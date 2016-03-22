@@ -74,13 +74,13 @@ bool DisplayManagerRPI::initialize()
 {
   bcm_host_init();
 
-  displays.clear();
+  m_displays.clear();
 
   // create the main display
   DMDisplayPtr display = DMDisplayPtr(new DMDisplay);
-  display->id = 0;
-  display->name = "Display";
-  displays[display->id] = display;
+  display->m_id = 0;
+  display->m_name = "Display";
+  m_displays[display->m_id] = display;
 
   // fills mode array with both CEA and DMT
   m_modes.resize(0);
@@ -91,18 +91,18 @@ bool DisplayManagerRPI::initialize()
   {
     TV_SUPPORTED_MODE_NEW_T* tvmode = &m_modes[n];
     DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode);
-    mode->id = n * 2 + 0;
-    display->videoModes[mode->id] = mode;
+    mode->m_id = n * 2 + 0;
+    display->m_videoModes[mode->m_id] = mode;
 
-    mode->height = tvmode->height;
-    mode->width = tvmode->width;
-    mode->refreshRate = tvmode->frame_rate;
-    mode->interlaced = (tvmode->scan_mode == 1);
-    mode->bitsPerPixel = 32;
+    mode->m_height = tvmode->height;
+    mode->m_width = tvmode->width;
+    mode->m_refreshRate = tvmode->frame_rate;
+    mode->m_interlaced = (tvmode->scan_mode == 1);
+    mode->m_bitsPerPixel = 32;
 
     mode = DMVideoModePtr(new DMVideoMode(*mode));
-    mode->id = n * 2 + 1;
-    display->videoModes[mode->id] = mode;
+    mode->m_id = n * 2 + 1;
+    display->m_videoModes[mode->m_id] = mode;
     mode->refreshRate /= 1.001;
   }
 
@@ -144,7 +144,7 @@ int DisplayManagerRPI::getCurrentDisplayMode(int display)
   if (vc_tv_get_state(&tvstate))
     return -1;
 
-  for (int mode = 0; mode < displays[display]->videoModes.size(); mode++)
+  for (int mode = 0; mode < m_displays[display]->m_videoModes.size(); mode++)
   {
     TV_SUPPORTED_MODE_NEW_T* tvmode = &m_modes[mode];
     if (tvmode->width == tvstate.width &&

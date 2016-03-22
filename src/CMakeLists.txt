@@ -2,6 +2,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/qhttp/src
   ${CMAKE_SOURCE_DIR}/external/qslog
   ${CMAKE_SOURCE_DIR}/external/SPMediaKeyTap
+  ${CMAKE_SOURCE_DIR}/external/HIDRemote
   ${CMAKE_SOURCE_DIR}/external/plistparser
   ${CMAKE_SOURCE_DIR}/src/player
   shared
@@ -110,7 +111,7 @@ if(APPLE)
   endif(HAVE_UPDATER)
 
   set_source_files_properties(
-    input/apple/HIDRemote/HIDRemote.h
+    /HIDRemote/HIDRemote.h
     input/apple/HIDRemote/HIDRemote.m
     PROPERTIES COMPILE_FLAGS -fno-objc-arc
   )

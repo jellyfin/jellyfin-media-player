@@ -2,7 +2,7 @@
 #define __APPLE_REMOTE_DELEGATE_H__
 
 #import <Cocoa/Cocoa.h>
-#import "HIDRemote/HIDRemote.h"
+#import "HIDRemote.h"
 
 class InputAppleRemote;
 

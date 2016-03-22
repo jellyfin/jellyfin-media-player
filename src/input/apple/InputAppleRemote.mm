@@ -1,7 +1,7 @@
 #include "InputAppleRemote.h"
 #include "QsLog.h"
 
-#include "HIDRemote/HIDRemote.h"
+#include "HIDRemote.h"
 #include "AppleRemoteDelegate.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

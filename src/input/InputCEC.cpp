@@ -77,7 +77,7 @@ bool InputCECWorker::init()
   m_verboseLogging = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "verbose_logging").toBool();
 
   m_configuration.clientVersion = LIBCEC_VERSION_CURRENT;
-  strcpy(m_configuration.strDeviceName, "Plex");
+  qstrcpy(m_configuration.strDeviceName, "Plex");
   m_configuration.bActivateSource = 0;
   m_callbacks.CBCecLogMessage = &CecLogMessage;
   m_callbacks.CBCecKeyPress = &CecKeyPress;

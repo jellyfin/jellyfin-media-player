@@ -1,0 +1,124 @@
+#ifndef CODECS_H
+#define CODECS_H
+
+#include <QObject>
+#include <QtCore/qglobal.h>
+#include <QList>
+#include <QSize>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QQueue>
+#include <QUrl>
+#include <QVariant>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+enum class CodecType {
+  Decoder,
+  Encoder,
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct CodecDriver {
+  CodecType type; // encoder/decoder
+  QString format; // e.g. "h264", the canonical FFmpeg name of the codec
+  QString driver; // specific implementation, e.g. "h264" (native) or "h264_mf" (MediaFoundation)
+  bool present;   // if false, it's a not-installed installable codec
+  bool external;  // marked as external in CodecManifest.h
+
+  // Driver name decorated with additional attributes, e.g. "h264_mf_decoder".
+  QString getMangledName() const;
+
+  // Filename of the DLL/SO including build version/type, without path.
+  // Only applies to external drivers.
+  QString getFileName() const;
+
+  // Like getFileName(), but includes full path.
+  // Only applies to external drivers.
+  QString getPath() const;
+
+  bool valid() { return format.size() > 0; }
+};
+
+struct StreamInfo {
+  bool isVideo, isAudio;
+  QString codec;
+  QString profile;
+  int audioChannels;
+  QSize videoResolution;
+};
+
+struct PlaybackInfo {
+  QList<StreamInfo> streams;            // information for _all_ streams the file has
+                                        // (even if not selected)
+  QSet<QString> audioPassthroughCodecs; // list of audio formats to pass through
+  bool enableAC3Transcoding;            // encode non-stereo to AC3
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class Downloader : public QObject
+{
+  Q_OBJECT
+public:
+  typedef QList<QPair<QString, QString>> HeaderList;
+  explicit Downloader(QVariant userData, const QUrl& url, const HeaderList& headers, QObject* parent);
+Q_SIGNALS:
+  void done(QVariant userData, bool success, const QByteArray& data);
+
+private Q_SLOTS:
+  void networkFinished(QNetworkReply* pReply);
+
+private:
+  QNetworkAccessManager m_WebCtrl;
+  QByteArray m_DownloadedData;
+  QVariant m_userData;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class CodecsFetcher : public QObject
+{
+  Q_OBJECT
+public:
+  // Download the given list of codecs (skip download for codecs already
+  // installed). Then call done(userData), regardless of success.
+  void installCodecs(const QList<CodecDriver>& codecs);
+
+  // For free use by the user of this object.
+  QVariant userData;
+
+Q_SIGNALS:
+  void done(CodecsFetcher* sender);
+
+private Q_SLOTS:
+  void codecInfoDownloadDone(QVariant userData, bool success, const QByteArray& data);
+  void codecDownloadDone(QVariant userData, bool success, const QByteArray& data);
+
+private:
+  bool codecNeedsDownload(const CodecDriver& codec);
+  bool processCodecInfoReply(const QByteArray& data, const CodecDriver& codec);
+  void processCodecDownloadDone(const QByteArray& data, const CodecDriver& codec);
+  void startNext();
+
+  QQueue<CodecDriver> m_Codecs;
+  QByteArray m_currentHash;
+};
+
+class Codecs
+{
+public:
+  static void preinitCodecs();
+
+  static inline bool sameCodec(const CodecDriver& a, const CodecDriver& b)
+  {
+    return a.type == b.type && a.format == b.format && a.driver == b.driver;
+  }
+
+  static void updateCachedCodecList();
+
+  static const QList<CodecDriver>& getCachecCodecList();
+
+  static QList<CodecDriver> findCodecsByFormat(const QList<CodecDriver>& list, CodecType type, const QString& format);
+  static QList<CodecDriver> determineRequiredCodecs(const PlaybackInfo& info);
+};
+
+#endif // CODECS_H

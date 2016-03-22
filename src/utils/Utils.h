@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QUrl>
+#include <QByteArray>
 #include <QVariant>
 #include <QException>
 #include <QtCore/qjsondocument.h>
@@ -54,6 +55,7 @@ namespace Utils
   QString ComputerName();
   QString PrimaryIPv4Address();
   QString ClientUUID();
+  bool safelyWriteFile(const QString& filename, const QByteArray& data);
 }
 
 #endif // UTILS_H

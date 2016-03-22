@@ -69,6 +69,8 @@ public:
 
   inline bool isOpenELEC() { return m_platformType == platformTypeOpenELEC; }
 
+  inline QString authenticationToken() { return m_authenticationToken; }
+
   Q_INVOKABLE void crashApp();
 
 signals:
@@ -84,6 +86,7 @@ private:
   PlatformArch m_platformArch;
   QString m_overridePlatform;
   bool m_doLogMessages;
+  QString m_authenticationToken;
 
 };
 

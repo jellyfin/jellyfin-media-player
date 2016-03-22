@@ -13,6 +13,7 @@
 #include "system/UpdateManager.h"
 #include "QsLog.h"
 #include "Paths.h"
+#include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
 #include "breakpad/CrashDumps.h"
 #include "Version.h"
@@ -157,6 +158,8 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_UNIX
     setlocale(LC_NUMERIC, "C");
 #endif
+
+    Codecs::preinitCodecs();
 
     // Initialize all the components. This needs to be done
     // early since most everything else relies on it

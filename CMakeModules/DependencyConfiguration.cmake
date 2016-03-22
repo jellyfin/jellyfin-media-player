@@ -3,10 +3,10 @@ option(DISABLE_BUNDLED_DEPS "Disable the bundled deps on certain platforms" OFF)
 
 include(FetchDependencies)
 
-if(APPLE AND NOT DISABLE_BUNDLED_DEPS)  
+if((APPLE OR WIN32) AND NOT DISABLE_BUNDLED_DEPS)
   download_deps(
-    "plexmediaplayer-dependencies"
-    ARTIFACTNAME konvergo-depends
+    "plexmediaplayer-dependencies-codecs"
+    ARTIFACTNAME konvergo-codecs-depends
     DIRECTORY dir
     DEPHASH_VAR DEPS_HASH
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py

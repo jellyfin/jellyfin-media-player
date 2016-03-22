@@ -1,7 +1,6 @@
 #include "Utils.h"
 #include <QtGlobal>
 #include <QStandardPaths>
-#include <QByteArray>
 #include <QCoreApplication>
 #include <QDir>
 #include <QProcess>
@@ -11,6 +10,8 @@
 #include <QVariant>
 #include <qnetworkinterface.h>
 #include <QUuid>
+#include <QFile>
+#include <QSaveFile>
 
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
@@ -129,4 +130,14 @@ QString Utils::ClientUUID()
     return newUUID;
   }
   return storedUUID;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool Utils::safelyWriteFile(const QString& filename, const QByteArray& data)
+{
+  QSaveFile file(filename);
+  if (!file.open(QIODevice::WriteOnly))
+    return false;
+  file.write(data);
+  return file.commit();
 }

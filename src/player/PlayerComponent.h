@@ -9,7 +9,10 @@
 #include <QTimer>
 #include <QTextStream>
 
+#include <functional>
+
 #include "ComponentManager.h"
+#include "CodecsComponent.h"
 
 #include <mpv/client.h>
 #include <mpv/qthelper.hpp>
@@ -95,6 +98,12 @@ public:
   // including unknown codec names.
   Q_INVOKABLE virtual bool checkCodecSupport(const QString& codec);
 
+  // Return list of currently installed codecs. Includes builtin codecs.
+  // Downloadable, but not yet installed codecs are excluded.
+  // May include codecs that do not work, like vc1_mmal on RPIs with no license.
+  // (checkCodecSupport() handles this specific case to a degree.)
+  Q_INVOKABLE virtual QList<CodecDriver> installedCodecs();
+
   Q_INVOKABLE void userCommand(QString command);
 
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
@@ -117,6 +126,7 @@ private Q_SLOTS:
   void onRestoreDisplay();
   void onRefreshRateChange();
   void onReloadAudio();
+  void onCodecsLoadingDone(CodecsFetcher* sender);
 
 Q_SIGNALS:
   void playing(const QString& url);
@@ -172,6 +182,8 @@ private:
   void checkCurrentAudioDevice(const QSet<QString>& old_devs, const QSet<QString>& new_devs);
   void appendAudioFormat(QTextStream& info, const QString& property) const;
   void initializeCodecSupport();
+  PlaybackInfo getPlaybackInfo();
+  void startCodecsLoading(std::function<void()> resume);
 
   mpv::qt::Handle m_mpv;
 
@@ -186,6 +198,9 @@ private:
   QSet<QString> m_audioDevices;
   bool m_streamSwitchImminent;
   QMap<QString, bool> m_codecSupport;
+  bool m_doAc3Transcoding;
+  QStringList m_passthroughCodecs;
+  QVariantMap m_serverMediaInfo;
 };
 
 #endif // PLAYERCOMPONENT_H

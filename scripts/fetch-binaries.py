@@ -17,7 +17,7 @@ import glob
 # Edit these to set a new default dependencies build
 default_tag = "auto"
 default_release_build_number = "109"
-default_release_dir = "plexmediaplayer-dependencies"
+default_release_dir = "plexmediaplayer-dependencies-codecs"
 default_branch = "master"
 
 def sha1_for_file(path):

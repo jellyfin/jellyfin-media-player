@@ -12,12 +12,12 @@ class DisplayComponent : public ComponentBase
   DEFINE_SINGLETON(DisplayComponent);
 
 public:
-  ~DisplayComponent();
+  ~DisplayComponent() override;
 
-  virtual const char* componentName() { return "display"; }
-  virtual bool componentExport() { return true; }
-  virtual bool componentInitialize();
-  virtual void componentPostInitialize();
+  const char* componentName() override { return "display"; }
+  bool componentExport() override { return true; }
+  bool componentInitialize() override;
+  void componentPostInitialize() override;
 
   inline DisplayManager* getDisplayManager() { return m_displayManager; }
   int getApplicationDisplay(bool silent = false);
@@ -46,7 +46,7 @@ public:
   QString debugInformation();
 
 private:
-  DisplayComponent(QObject *parent = nullptr);
+  explicit DisplayComponent(QObject *parent = nullptr);
   QString displayName(int display);
   QString modePretty(int display, int mode);
 

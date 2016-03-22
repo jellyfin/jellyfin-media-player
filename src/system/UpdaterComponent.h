@@ -19,7 +19,7 @@ class Update : public QObject
 {
   Q_OBJECT
 public:
-  Update(const QString& url = "", const QString& localPath = "",
+  explicit Update(const QString& url = "", const QString& localPath = "",
          const QString& hash = "", QObject* parent = nullptr) : QObject(parent)
   {
     m_url = url;
@@ -137,9 +137,9 @@ class UpdaterComponent : public ComponentBase
   DEFINE_SINGLETON(UpdaterComponent);
 
 public:
-  virtual bool componentExport() { return true; }
-  virtual const char* componentName() { return "updater"; }
-  virtual bool componentInitialize() { return true; }
+  bool componentExport() override { return true; }
+  const char* componentName() override { return "updater"; }
+  bool componentInitialize() override { return true; }
 
   Q_INVOKABLE void downloadUpdate(const QVariantMap &updateInfo);
   Q_INVOKABLE void doUpdate();

@@ -18,10 +18,10 @@ class InputCECWorker;
 class InputCEC : public InputBase
 {
 public:
-  InputCEC(QObject* parent);
+  explicit InputCEC(QObject* parent);
 
-  virtual const char* inputName() override { return CEC_INPUT_NAME; }
-  virtual bool initInput() override;
+  const char* inputName() override { return CEC_INPUT_NAME; }
+  bool initInput() override;
 
 private:
   QThread* m_cecThread;
@@ -33,11 +33,11 @@ class InputCECWorker : public QObject
 {
 Q_OBJECT
 public:
-  InputCECWorker(QObject* parent = nullptr) : QObject(parent), m_adapter(nullptr), m_adapterPort("")
+  explicit InputCECWorker(QObject* parent = nullptr) : QObject(parent), m_adapter(nullptr), m_adapterPort("")
   {
   }
 
-  ~InputCECWorker();
+  ~InputCECWorker() override;
 
   Q_SLOT bool init();
   Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, bool pressDown);

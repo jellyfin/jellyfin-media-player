@@ -10,7 +10,7 @@ public:
   static bool CheckForUpdates();
 
   explicit UpdateManager(QObject *parent = nullptr) {};
-  ~UpdateManager() {};
+  ~UpdateManager() override {};
 
   static UpdateManager* Get();
 

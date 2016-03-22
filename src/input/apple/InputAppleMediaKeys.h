@@ -11,9 +11,9 @@ class InputAppleMediaKeys : public InputBase
 {
   Q_OBJECT
 public:
-  InputAppleMediaKeys(QObject* parent = nullptr) : InputBase(parent) { }
-  bool initInput();
-  const char* inputName() { return "AppleMediaKeys"; }
+  explicit InputAppleMediaKeys(QObject* parent = nullptr) : InputBase(parent) { }
+  bool initInput() override;
+  const char* inputName() override { return "AppleMediaKeys"; }
 
 private:
   void* m_delegate;

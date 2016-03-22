@@ -75,7 +75,7 @@ class RemotePollSubscriber : public RemoteSubscriber
 public:
   RemotePollSubscriber(const QString& clientIdentifier, const QString& deviceName, qhttp::server::QHttpResponse *response, QObject* parent = nullptr);
   void setHTTPResponse(qhttp::server::QHttpResponse *response);
-  virtual void sendUpdate();
+  void sendUpdate() override;
 
 private :
    qhttp::server::QHttpResponse* m_response;

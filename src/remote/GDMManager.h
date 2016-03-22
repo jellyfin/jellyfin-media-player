@@ -12,7 +12,7 @@ class GDMManager : public QObject
   Q_OBJECT
 public:
   explicit GDMManager(QObject *parent = nullptr);
-  ~GDMManager() { stopAnnouncing(); }
+  ~GDMManager() override { stopAnnouncing(); }
   void startAnnouncing();
   void stopAnnouncing();
 

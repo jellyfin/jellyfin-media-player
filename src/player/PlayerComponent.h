@@ -23,13 +23,13 @@ class PlayerComponent : public ComponentBase
   DEFINE_SINGLETON(PlayerComponent);
 
 public:
-  virtual const char* componentName() { return "player"; }
-  virtual bool componentExport() { return true; }
-  virtual bool componentInitialize();
-  virtual void componentPostInitialize();
+  const char* componentName() override { return "player"; }
+  bool componentExport() override { return true; }
+  bool componentInitialize() override;
+  void componentPostInitialize() override;
   
   explicit PlayerComponent(QObject* parent = nullptr);
-  virtual ~PlayerComponent();
+  ~PlayerComponent() override;
 
   // Deprecated. Corresponds to stop() + queueMedia().
   Q_INVOKABLE bool load(const QString& url, const QVariantMap& options, const QVariantMap& metadata, const QString& audioStream = QString(), const QString& subtitleStream = QString());

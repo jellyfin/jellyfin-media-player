@@ -8,19 +8,28 @@ class PowerComponent : public ComponentBase
 {
   Q_OBJECT
 public:
+
+  enum PowerCapabilities
+  {
+    CAP_POWER_OFF,
+    CAP_REBOOT,
+    CAP_SUSPEND,
+    CAP_RELAUNCH
+  };
+
   static PowerComponent& Get();
 
-  PowerComponent(QObject* parent = nullptr)
+  explicit PowerComponent(QObject* parent = nullptr)
   : ComponentBase(parent),
     m_currentScreensaverEnabled(true),
     m_fullscreenState(false),
     m_videoPlaying(false)
     { }
 
-  virtual bool componentInitialize();
-  virtual bool componentExport() { return true; }
-  virtual const char* componentName() { return "power"; }
-  virtual void componentPostInitialize();
+  bool componentInitialize() override;
+  bool componentExport() override { return true; }
+  const char* componentName() override { return "power"; }
+  void componentPostInitialize() override;
 
   void setFullscreenState(bool fullscreen);
 

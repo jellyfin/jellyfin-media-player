@@ -10,8 +10,8 @@ class SignalManager : public QObject
   Q_OBJECT
 
 public:
-  SignalManager(QGuiApplication* app);
-  ~SignalManager() {}
+  explicit SignalManager(QGuiApplication* app);
+  ~SignalManager() override {}
 
   // Unix signal handlers.
   static void signalHandler(int signal_num);

@@ -31,11 +31,11 @@ class SettingsComponent : public ComponentBase
   DEFINE_SINGLETON(SettingsComponent);
 
 public:
-  bool componentInitialize();
+  bool componentInitialize() override;
   void componentPostInitalize();
 
-  const char* componentName() { return "settings"; }
-  bool componentExport() { return true; }
+  const char* componentName() override { return "settings"; }
+  bool componentExport() override { return true; }
 
   SettingsSection* getSection(const QString& sectionID)
   {

@@ -13,13 +13,13 @@ class SettingsValue : public QObject
   Q_OBJECT
 
 public:
-  SettingsValue(QObject* parent = nullptr)
+  explicit SettingsValue(QObject* parent = nullptr)
     : QObject(parent)
     , m_platform(PLATFORM_UNKNOWN)
     , m_hidden(true)
   {}
 
-  SettingsValue(const QString& _key, QVariant _defaultValue=QVariant(), quint8 platforms = PLATFORM_ANY, QObject* parent = nullptr)
+  explicit SettingsValue(const QString& _key, QVariant _defaultValue=QVariant(), quint8 platforms = PLATFORM_ANY, QObject* parent = nullptr)
     : QObject(parent)
     , m_key(_key)
     , m_value(QVariant())

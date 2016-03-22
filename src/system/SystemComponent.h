@@ -16,10 +16,10 @@ class SystemComponent : public ComponentBase
   DEFINE_SINGLETON(SystemComponent);
 
 public:
-  virtual bool componentExport() { return true; }
-  virtual const char* componentName() { return "system"; }
-  virtual bool componentInitialize();
-  virtual void componentPostInitialize();
+  bool componentExport() override { return true; }
+  const char* componentName() override { return "system"; }
+  bool componentInitialize() override;
+  void componentPostInitialize() override;
 
   Q_INVOKABLE QVariantMap systemInformation() const;
   Q_INVOKABLE void exit();
@@ -76,7 +76,7 @@ signals:
   void scaleChanged(qreal scale);
 
 private:
-  SystemComponent(QObject* parent = nullptr);
+  explicit SystemComponent(QObject* parent = nullptr);
   static QMap<QString, QString> networkInterfaces();
 
   QTimer* m_mouseOutTimer;

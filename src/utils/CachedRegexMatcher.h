@@ -16,7 +16,7 @@ typedef QList<MatcherValuePair> MatcherValueList;
 class CachedRegexMatcher : public QObject
 {
 public:
-  CachedRegexMatcher(QObject* parent = nullptr) : QObject(parent) {}
+  explicit CachedRegexMatcher(QObject* parent = nullptr) : QObject(parent) {}
 
   bool addMatcher(const QString& pattern, const QVariant& result);
   QVariant match(const QString& input);

@@ -100,8 +100,8 @@ class DisplayManager : public QObject
 {
   Q_OBJECT
 public:
-  DisplayManager(QObject* parent);
-  virtual ~DisplayManager() {}
+  explicit DisplayManager(QObject* parent);
+  ~DisplayManager() override {}
 
   DMDisplayMap m_displays;
 

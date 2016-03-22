@@ -26,9 +26,9 @@ class RemoteComponent : public ComponentBase
 public:
   QNetworkAccessManager* getNetworkAccessManager();
 
-  virtual bool componentInitialize();
-  virtual const char* componentName() { return "remote"; }
-  virtual bool componentExport() { return true; }
+  bool componentInitialize() override;
+  const char* componentName() override { return "remote"; }
+  bool componentExport() override { return true; }
 
   static QVariantMap ResourceInformation();
   static QVariantMap GDMInformation();
@@ -55,7 +55,7 @@ private Q_SLOTS:
   void responseDone();
 
 private:
-  RemoteComponent(QObject* parent = nullptr);
+  explicit RemoteComponent(QObject* parent = nullptr);
   void handleSubscription(QHttpRequest * request, QHttpResponse * response, bool poll=false);
   void subscribeToWeb(bool subscribe);
 

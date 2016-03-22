@@ -132,7 +132,7 @@ namespace {
 class RequestRepaintJob : public QRunnable
 {
 public:
-  RequestRepaintJob(QQuickWindow *window) : m_window(window) { }
+  explicit RequestRepaintJob(QQuickWindow *window) : m_window(window) { }
 
   void run() override
   {

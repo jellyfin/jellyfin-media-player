@@ -26,7 +26,7 @@ public:
   explicit FatalException(const QString& message) : m_message(message) {}
   const QString& message() const { return m_message; }
 
-  ~FatalException() throw() { }
+  ~FatalException() throw() override { }
 
 private:
   QString m_message;

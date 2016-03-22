@@ -6,12 +6,12 @@
 class OEUpdateManager : public UpdateManager
 {
 public:
-  OEUpdateManager(QObject *parent = nullptr) {};
-  ~OEUpdateManager() {};
+  explicit OEUpdateManager(QObject *parent = nullptr) {};
+  ~OEUpdateManager() override {};
 
-  virtual QString HaveUpdate();
-  virtual bool applyUpdate(const QString &version);
-  virtual void doUpdate(const QString& version);
+  QString HaveUpdate() override;
+  bool applyUpdate(const QString &version) override;
+  void doUpdate(const QString& version) override;
 
 private:
   bool isMiniUpdateArchive(QString archivePath);

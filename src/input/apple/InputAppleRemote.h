@@ -16,9 +16,9 @@ typedef void delegate;
 class InputAppleRemote : public InputBase
 {
 public:
-  InputAppleRemote(QObject* parent = nullptr) : InputBase(parent) { }
-  virtual const char* inputName() { return "AppleRemote"; }
-  virtual bool initInput();
+  explicit InputAppleRemote(QObject* parent = nullptr) : InputBase(parent) { }
+  const char* inputName() override { return "AppleRemote"; }
+  bool initInput() override;
   
   void remoteButtonEvent(quint8 code, bool pressed, const QString& name);
   

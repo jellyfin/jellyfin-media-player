@@ -32,7 +32,7 @@ class InputSDLWorker : public QObject
   Q_OBJECT
 
 public:
-  InputSDLWorker(QObject* parent) : QObject(parent) {}
+  explicit InputSDLWorker(QObject* parent) : QObject(parent) {}
 
 public slots:
   void run();
@@ -56,11 +56,11 @@ class InputSDL : public InputBase
 {
   Q_OBJECT
 public:
-  InputSDL(QObject* parent);
-  ~InputSDL();
+  explicit InputSDL(QObject* parent);
+  ~InputSDL() override;
   
-  virtual const char* inputName() { return "SDL"; }
-  virtual bool initInput();
+  const char* inputName() override { return "SDL"; }
+  bool initInput() override;
   
   void close();
 private:

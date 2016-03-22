@@ -13,7 +13,7 @@ class HttpServer : public QObject
 {
 Q_OBJECT
 public:
-  HttpServer(QObject* parent);
+  explicit HttpServer(QObject* parent);
   bool start();
 
 private slots:

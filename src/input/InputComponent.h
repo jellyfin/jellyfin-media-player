@@ -12,7 +12,7 @@ class InputBase : public QObject
 {
   Q_OBJECT
 public:
-  InputBase(QObject* parent = nullptr) : QObject(parent) { }
+  explicit InputBase(QObject* parent = nullptr) : QObject(parent) { }
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
   
@@ -81,9 +81,9 @@ class InputComponent : public ComponentBase
   DEFINE_SINGLETON(InputComponent);
 
 public:
-  virtual const char* componentName() { return "input"; }
-  virtual bool componentExport() { return true; }
-  virtual bool componentInitialize();
+  const char* componentName() override { return "input"; }
+  bool componentExport() override { return true; }
+  bool componentInitialize() override;
 
   void registerHostCommand(const QString& command, QObject* receiver, const char* slot);
 
@@ -94,7 +94,7 @@ private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, bool pressDown = true);
   
 private:
-  InputComponent(QObject *parent = nullptr);
+  explicit InputComponent(QObject *parent = nullptr);
   bool addInput(InputBase* base);
   void handleAction(const QString& action, bool autoRepeat = true);
 

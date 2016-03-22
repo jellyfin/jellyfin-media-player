@@ -14,7 +14,7 @@ class HelperSocket : public QObject
 {
   Q_OBJECT
 public:
-  HelperSocket(QObject* parent = nullptr);
+  explicit HelperSocket(QObject* parent = nullptr);
 
 private:
   Q_SLOT void clientConnected(QLocalSocket* socket);

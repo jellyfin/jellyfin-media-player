@@ -19,8 +19,8 @@ public:
     connect(m_server, &LocalJsonServer::messageReceived, this, &InputSocket::messageReceived);
   }
 
-  virtual bool initInput() override;
-  virtual const char* inputName() override { return "socket"; };
+  bool initInput() override;
+  const char* inputName() override { return "socket"; };
 
 private Q_SLOTS:
   void clientConnected(QLocalSocket* socket);

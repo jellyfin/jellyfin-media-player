@@ -12,10 +12,10 @@ class EventFilter : public QObject
 {
   Q_OBJECT
 public:
-  EventFilter(QObject* parent = nullptr) : QObject(parent) {}
+  explicit EventFilter(QObject* parent = nullptr) : QObject(parent) {}
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event);
+  bool eventFilter(QObject* watched, QEvent* event) override;
 };
 
 #endif //PLEXMEDIAPLAYER_EVENTFILTER_H

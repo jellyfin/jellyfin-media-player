@@ -23,7 +23,7 @@ class PlayerRenderer : public QObject
 
   PlayerRenderer(mpv::qt::Handle mpv, QQuickWindow* window);
   bool init();
-  virtual ~PlayerRenderer();
+  ~PlayerRenderer() override;
   void render();
   void swap();
 
@@ -45,8 +45,8 @@ class PlayerQuickItem : public QQuickItem
     friend class PlayerRenderer;
 
 public:
-    PlayerQuickItem(QQuickItem* parent = nullptr);
-    virtual ~PlayerQuickItem();
+    explicit PlayerQuickItem(QQuickItem* parent = nullptr);
+    ~PlayerQuickItem() override;
     void initMpv(PlayerComponent* player);
     QString debugInfo() { return m_debugInfo; }
 

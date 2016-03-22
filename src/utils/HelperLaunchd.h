@@ -12,7 +12,7 @@ class HelperLaunchd : public QObject
 {
   Q_OBJECT
 public:
-  HelperLaunchd(QObject* parent = nullptr);
+  explicit HelperLaunchd(QObject* parent = nullptr);
 
   void start();
   void stop();

@@ -37,8 +37,8 @@ class KonvergoWindow : public QQuickWindow
 public:
   static void RegisterClass();
 
-  KonvergoWindow(QWindow* parent = nullptr);
-  ~KonvergoWindow();
+  explicit KonvergoWindow(QWindow* parent = nullptr);
+  ~KonvergoWindow() override;
 
   bool isFullScreen()
   {
@@ -82,8 +82,8 @@ Q_SIGNALS:
   void reloadWebClient();
 
 protected:
-  virtual void focusOutEvent(QFocusEvent* ev) override;
-  virtual void resizeEvent(QResizeEvent* event) override;
+  void focusOutEvent(QFocusEvent* ev) override;
+  void resizeEvent(QResizeEvent* event) override;
 
 private slots:
   void closingWindow();

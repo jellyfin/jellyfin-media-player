@@ -8,8 +8,8 @@ class PowerComponentMac : public PowerComponent
 {
 public:
   PowerComponentMac() : PowerComponent(nullptr), m_assertion(0) { }
-  virtual void doDisableScreensaver();
-  virtual void doEnableScreensaver();
+  void doDisableScreensaver() override;
+  void doEnableScreensaver() override;
 
 private:
   IOPMAssertionID m_assertion = 0;

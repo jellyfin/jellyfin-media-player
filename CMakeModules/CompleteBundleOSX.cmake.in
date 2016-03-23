@@ -20,13 +20,6 @@ execute_process(
   WORKING_DIRECTORY @QTROOT@/bin
 )
 
-# Run the macdeploy command again to be able to fixup the linked paths for QtWebEngineProcess that
-# is deployed by the first run.
-execute_process(
-  COMMAND @QTROOT@/bin/macdeployqt ${app} -executable=${weprocess}/Contents/MacOS/QtWebEngineProcess
-  WORKING_DIRECTORY @QTROOT@/bin
-)
-
 #set(ENTITLEMENTS --entitlements @SOURCE_ROOT@/bundle/osx/Konvergo.entitlements)
 set(CODESIGN codesign ${ENTITLEMENTS} --force --sign "Developer ID Application: Plex Inc.")
 

@@ -32,6 +32,10 @@ def fix_install_name(path):
     for f in files:
       fpath = os.path.join(root, f)
 
+      if os.path.basename(f) == "QtWebEngineProcess":
+        print "-- Adding rpath (%s) to %s" % (os.path.join(path, "lib"), f)
+        exec_cmd(["install_name_tool", "-add_rpath", os.path.join(path, "lib"), fpath], supress_output=True)
+
       if (f.endswith(exts) or os.path.basename(f) in exes or (".framework/Versions/" in root and os.access(fpath, os.X_OK))) and not os.path.islink(fpath) and os.path.exists(fpath):
         # Fix permissions
         if not os.access(fpath, os.W_OK) or not os.access(fpath, os.R_OK) or not os.access(fpath, os.X_OK):

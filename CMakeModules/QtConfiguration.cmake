@@ -15,17 +15,16 @@ if(NOT IS_DIRECTORY ${QTROOT})
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
 	)
   set(QTROOT ${dir})
+  
+  # Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
+  set(QTCONFCONTENT "[Paths]
+    Prefix=${QTROOT}
+    ")
+  file(WRITE ${QTROOT}/bin/qt.conf ${QTCONFCONTENT})
 endif()
 list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})
 list(APPEND CMAKE_PREFIX_PATH ${QTROOT})
 include_directories(${QTROOT}/include)
-
-# Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
-set(QTCONFCONTENT "[Paths]
-Prefix=${QTROOT}
-")
-
-file(WRITE ${QTROOT}/bin/qt.conf ${QTCONFCONTENT})
 
 set(REQUIRED_QT_VERSION "5.6.0")
 

@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 
   QLOG_DEBUG() << "Helper (" << Version::GetVersionString() << ") up and running";
 
-  auto  helperObject = new QObject;
+  auto helperObject = new QObject;
 
   try
   {

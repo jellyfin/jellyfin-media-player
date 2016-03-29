@@ -45,8 +45,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   setColor(QColor("#111111"));
 #endif
 
-  loadGeometry();
-  notifyScale(size());
+  QRect loadedGeo = loadGeometry();
+  notifyScale(loadedGeo.size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
@@ -122,12 +122,14 @@ void KonvergoWindow::saveGeometry()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::loadGeometry()
+QRect KonvergoWindow::loadGeometry()
 {
   QRect rc = loadGeometryRect();
   QScreen* myScreen = loadLastScreen();
   if (!myScreen)
     myScreen = screen();
+
+  QRect nsize = rc;
 
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
   {
@@ -139,19 +141,20 @@ void KonvergoWindow::loadGeometry()
     // resolution for the screen (i.e. fullscreen) otherwise it will
     // just scale the webcontent to the minimum size we have defined
     //
-#ifdef Q_OS_MAC
-    setGeometry(rc);
-#else
-    setGeometry(myScreen->geometry());
+#ifndef Q_OS_MAC
+    nsize = myScreen->geometry();
 #endif
+    setGeometry(nsize);
     
     setScreen(myScreen);
   }
   else
   {
-    setGeometry(rc);
+    setGeometry(nsize);
     saveGeometry();
   }
+
+  return nsize;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +392,7 @@ qreal KonvergoWindow::CalculateScale(const QSize& size)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-qreal KonvergoWindow::CalculateWebScale(const QSize& size, qint32 devicePixelRatio)
+qreal KonvergoWindow::CalculateWebScale(const QSize& size, qreal devicePixelRatio)
 {
   qreal horizontalScale = (qreal)size.width() / (qreal)WEBUI_SIZE.width();
   qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();

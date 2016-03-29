@@ -30,6 +30,11 @@
   return self;
 }
 
+- (void)dealloc
+{
+  [super dealloc];
+}
+
 -(void)mediaKeyTap:(SPMediaKeyTap *)keyTap receivedMediaKeyEvent:(NSEvent *)event
 {
   int keyCode = (([event data1] & 0xFFFF0000) >> 16);

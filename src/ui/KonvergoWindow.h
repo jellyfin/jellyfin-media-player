@@ -71,7 +71,7 @@ public:
   QSize webUISize() { return WEBUI_SIZE; }
   QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
   static qreal CalculateScale(const QSize& size);
-  static qreal CalculateWebScale(const QSize& size, qint32 devicePixelRatio);
+  static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
 
 Q_SIGNALS:
   void fullScreenSwitched();
@@ -99,7 +99,7 @@ private slots:
 private:
   void notifyScale(const QSize& size);
   void saveGeometry();
-  void loadGeometry();
+  QRect loadGeometry();
   QRect loadGeometryRect();
   bool fitsInScreens(const QRect& rc);
   QScreen* loadLastScreen();

@@ -82,7 +82,7 @@ void CrashUploader::uploadCrashDump(const QString& version, const QString& path)
   QNetworkRequest req(QUrl(UPLOAD_URL));
   req.setRawHeader("X-Plex-Secret", CRASHDUMP_SECRET);
 
-  QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+  auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
   addFormField(multiPart, "version", version);
   addFormField(multiPart, "product", "plexmediaplayer");

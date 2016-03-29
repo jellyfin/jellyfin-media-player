@@ -43,8 +43,6 @@ PowerComponent& PowerComponent::Get()
 bool PowerComponent::componentInitialize()
 {
   PlayerComponent* player = &PlayerComponent::Get();
-  if (!player)
-    return false;
 
   connect(player, &PlayerComponent::playing, this, &PowerComponent::playbackStarted);
   connect(player, &PlayerComponent::playbackEnded, this, &PowerComponent::playbackEnded);

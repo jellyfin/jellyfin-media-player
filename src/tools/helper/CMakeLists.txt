@@ -32,3 +32,5 @@ add_custom_command(
 if(NOT APPLE)
   install(TARGETS ${HELPER_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 endif(NOT APPLE)
+
+clang_tidy(${HELPER_TARGET})

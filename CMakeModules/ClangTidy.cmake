@@ -1,21 +1,33 @@
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  find_program(CLANG_TIDY clang-tidy NAMES clang-tidy-3.9 clang-tidy-3.8 clang-tidy-3.7)
-  find_program(CLANG_REPLACE clang-apply-replacements NAMES clang-apply-replacements-3.9 clang-apply-replacements-3.8 clang-apply-replacements-3.7)
-  if(NOT CLANG_TIDY STREQUAL CLANG_TIDY-NOTFOUND)
+find_program(CLANG_TIDY clang-tidy NAMES clang-tidy-3.9 clang-tidy-3.8 clang-tidy-3.7)
+find_program(CLANG_REPLACE clang-apply-replacements NAMES clang-apply-replacements-3.9 clang-apply-replacements-3.8 clang-apply-replacements-3.7)
 
-    set(CLANG_TIDY_COMMAND ${PROJECT_SOURCE_DIR}/scripts/run-clang-tidy.py -clang-apply-replacements-binary ${CLANG_REPLACE} -clang-tidy-binary ${CLANG_TIDY} -header-filter=${PROJECT_SOURCE_DIR}/src/.*)
+if(CMAKE_EXPORT_COMPILE_COMMANDS AND NOT CLANG_TIDY STREQUAL CLANG_TIDY-NOTFOUND)
+  macro(clang_tidy target)
+    get_target_property(TARGET_SOURCES ${target} SOURCES)
+    get_target_property(TARGET_SOURCE_DIR ${target} SOURCE_DIR)
+    get_target_property(TARGET_BINARY_DIR ${target} BINARY_DIR)
+    
+    foreach(s ${TARGET_SOURCES})
+      get_filename_component(FILE_PATH ${s} ABSOLUTE BASE_DIR ${TARGET_SOURCE_DIR})
+      get_filename_component(FILE_NAME ${FILE_PATH} NAME)
+      get_source_file_property(FILE_LANG ${FILE_PATH} LANGUAGE)
+      get_source_file_property(FILE_GENERATED ${FILE_PATH} GENERATED)
 
-    add_custom_target(tidy
-      COMMAND ${CLANG_TIDY_COMMAND} ${PROJECT_SOURCE_DIR}/src
-      USES_TERMINAL
-    )
-
-    add_custom_target(tidy-fix
-      COMMAND ${CLANG_TIDY_COMMAND} -fix ${PROJECT_SOURCE_DIR}/src
-      USES_TERMINAL
-    )
-
-  endif()
+      if("${FILE_LANG}" STREQUAL "CXX" OR "${FILE_LANG}" STREQUAL "C" AND NOT FILE_GENERATED)
+        add_custom_command(OUTPUT ${TARGET_BINARY_DIR}/_tidy/${FILE_NAME}
+                           COMMAND ${CLANG_TIDY} -p "${CMAKE_BINARY_DIR}" ${FILE_PATH}
+                           COMMENT "clang-tidy ${FILE_NAME} ..."
+                           WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                          )
+        list(APPEND TIDY_TARGETS ${TARGET_BINARY_DIR}/_tidy/${FILE_NAME})
+      endif()
+    endforeach()
+    add_custom_target(${target}_tidy DEPENDS ${TIDY_TARGETS})
+  endmacro()  
 else()
-  message(STATUS "clang-tidy not enabled, pass -DCMAKE_EXPORT_COMPILE_COMMANDS=on to cmake to enable it")
+  macro(clang_tidy target)
+    message(STATUS "clang-tidy not enabled, pass -DCMAKE_EXPORT_COMPILE_COMMANDS=on to cmake to enable it")
+  endmacro()
 endif()
+
+add_custom_target(tidy_all DEPENDS ${MAIN_TARGET}_tidy ${HELPER_TARGET}_tidy shared_tidy)

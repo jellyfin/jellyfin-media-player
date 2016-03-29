@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(PlexMediaPlayer CXX C)
 
+# we want this to be able to run clang-tidy
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
+
 cmake_policy(SET CMP0020 NEW)
 cmake_policy(SET CMP0017 NEW)
 if (POLICY CMP0058)
@@ -9,14 +12,14 @@ endif()
 
 option(OPENELEC "Make an OpenELEC build" OFF)
 
-if (OPENELEC)
+if(OPENELEC)
   add_definitions(-DKONVERGO_OPENELEC=1)
   Message(STATUS "Making an OpenELEC build")
 endif(OPENELEC)
 
 option(BUILD_TARGET "Destination target for the build" "")
 
-if (BUILD_TARGET STREQUAL "RPI")
+if(BUILD_TARGET STREQUAL "RPI")
   add_definitions(-DTARGET_RPI=1)
   set(RPI_LIBS bcm_host)
   Message(STATUS "Build for Raspberry PI target")

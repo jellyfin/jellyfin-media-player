@@ -6,6 +6,9 @@ add_library(shared STATIC
   LocalJsonServer.cpp LocalJsonServer.h
   UniqueApplication.h
   ${CMAKE_BINARY_DIR}/src/Version.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h)
+  ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h
+)
 
 set_target_properties(shared PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED TRUE)
+
+clang_tidy(shared)

@@ -140,6 +140,8 @@ set_target_properties(${MAIN_TARGET} PROPERTIES
   CXX_STANDARD_REQUIRED TRUE
 )
 
+clang_tidy(${MAIN_TARGET})
+
 # copy the qt.conf so that when running PMP from a debugger it finds the plugins and QML files
 if(APPLE)
   add_custom_command(

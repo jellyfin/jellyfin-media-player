@@ -183,6 +183,10 @@ private:
   void appendAudioFormat(QTextStream& info, const QString& property) const;
   void initializeCodecSupport();
   PlaybackInfo getPlaybackInfo();
+  // Make the player prefer certain codecs over others.
+  void setPreferredCodecs(const QList<CodecDriver>& codecs);
+  // Determine the required codecs and possibly download them.
+  // Call resume() when done.
   void startCodecsLoading(std::function<void()> resume);
 
   mpv::qt::Handle m_mpv;

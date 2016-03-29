@@ -20,7 +20,7 @@ option(ENABLE_CODECS "Enable CodecManifest downloading for Codecs on Demand" OFF
 if(ENABLE_CODECS)
   add_definitions(-DHAVE_CODEC_MANIFEST)
 
-  set(CODECS_BUILD_NUMBER 98)
+  set(CODECS_BUILD_NUMBER 117)
   message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h")
   file(
     DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h

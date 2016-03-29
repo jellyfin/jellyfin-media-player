@@ -265,6 +265,10 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   if (userAgent.size())
     extraArgs.insert("user-agent", userAgent);
 
+  // Make sure the list of requested codecs is reset.
+  extraArgs.insert("ad", "");
+  extraArgs.insert("vd", "");
+
   command << extraArgs;
 
   QLOG_DEBUG() << command;
@@ -959,6 +963,24 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
   return info;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setPreferredCodecs(const QList<CodecDriver>& codecs)
+{
+  QStringList items;
+  for (auto codec : codecs)
+  {
+    if (codec.type == CodecType::Decoder)
+    {
+      items << QString("lavc:") + codec.driver;
+    }
+  }
+  QString opt = items.join(",");
+  // For simplicity, we don't distinguish between audio and video. The player
+  // will ignore entries with mismatching media type.
+  mpv::qt::set_option_variant(m_mpv, "ad", opt);
+  mpv::qt::set_option_variant(m_mpv, "vd", opt);
+}
+
 // For QVariant.
 Q_DECLARE_METATYPE(std::function<void()>);
 
@@ -970,6 +992,7 @@ void PlayerComponent::startCodecsLoading(std::function<void()> resume)
   connect(fetcher, &CodecsFetcher::done, this, &PlayerComponent::onCodecsLoadingDone);
   Codecs::updateCachedCodecList();
   QList<CodecDriver> codecs = Codecs::determineRequiredCodecs(getPlaybackInfo());
+  setPreferredCodecs(codecs);
   fetcher->installCodecs(codecs);
 }
 

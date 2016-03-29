@@ -10,6 +10,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include "system/SystemComponent.h"
+#include "settings/SettingsComponent.h"
 #include "utils/Utils.h"
 #include "shared/Paths.h"
 #include "PlayerComponent.h"
@@ -36,6 +37,45 @@ static const Codec Encoders[] = {
     {"dummy", "dummy", nullptr, 1},
 };
 #endif
+
+// We might want to use Codec.quality to decide this one day.
+// But for now, it's better if we can quickly change these.
+static QSet<QString> g_systemVideoDecoderWhitelist = {
+  // definitely work
+  "h264_mmal",
+  "mpeg2_mmal",
+  "mpeg4_mmal",
+  "vc1_mmal",
+  // still sketchy at best, partially broken
+  "h264_mf",
+  "hevc_mf",
+  "vc1_mf",
+  "wmv1_mf",
+  "wmv2_mf",
+  "wmv3_mf",
+  "mpeg4_mf",
+  "msmpeg4v1_mf",
+  "msmpeg4v2_mf",
+  "msmpeg4v3_mf",
+};
+
+static QSet<QString> g_systemAudioDecoderWhitelist = {
+  // should work well
+  "aac_at",
+  "ac3_at",
+  "mp1_at",
+  "mp2_at",
+  "mp3_at",
+  "ac3_mf",
+  "eac3_mf",
+  "aac_mf",
+  "mp1_mf",
+  "mp2_mf",
+  "mp3_mf",
+};
+
+static QSet<QString> g_systemAudioEncoderWhitelist = {
+};
 
 static QString g_codecVersion;
 static QList<CodecDriver> g_cachedCodecList;
@@ -99,7 +139,8 @@ void Codecs::updateCachedCodecList()
       codec.format = plexNameToFF(list[i].codecName);
       codec.driver = list[i].name;
       codec.external = list[i].external;
-      g_cachedCodecList.append(codec);
+      if (!codec.isSystemCodec())
+        g_cachedCodecList.append(codec);
     }
   }
 
@@ -154,6 +195,38 @@ QString CodecDriver::getFileName() const
 QString CodecDriver::getPath() const
 {
   return QDir(codecsPath()).absoluteFilePath(getFileName());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool CodecDriver::isSystemCodec() const
+{
+  // MS Windows
+  if (driver.endsWith("_mf"))
+    return true;
+  // OSX
+  if (driver.endsWith("_at"))
+    return true;
+  // Linux on RPI
+  if (driver.endsWith("_mmal"))
+    return true;
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool CodecDriver::isWhitelistedSystemAudioCodec() const
+{
+  if (type == CodecType::Decoder)
+    return g_systemAudioDecoderWhitelist.contains(driver);
+  else
+    return g_systemAudioEncoderWhitelist.contains(driver);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool CodecDriver::isWhitelistedSystemVideoCodec() const
+{
+  if (type == CodecType::Decoder)
+    return g_systemVideoDecoderWhitelist.contains(driver);
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -427,23 +500,51 @@ void Downloader::networkFinished(QNetworkReply* pReply)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static CodecDriver selectBestCodec(const StreamInfo& stream)
+static bool useSystemAudioDecoders()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useSystemAudioCodecs2").toBool();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool useSystemVideoDecoders()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useSystemVideoCodecs").toBool();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static CodecDriver selectBestDecoder(const StreamInfo& stream)
 {
   QList<CodecDriver> codecs = Codecs::findCodecsByFormat(Codecs::getCachecCodecList(), CodecType::Decoder, stream.codec);
-  CodecDriver best = {}, secondBest = {};
-  // For now, pick the first working one, or the first installable one.
-  // In future, it might need to be more clever.
+  CodecDriver best = {};
+  int bestScore = -1;
   for (auto codec : codecs)
   {
-    if (codec.present)
+    int score = -1;
+
+    if (codec.isSystemCodec())
+    {
+      // we always want to avoid using non-whitelisted system codecs
+      // on the other hand, always prefer whitelisted system codecs
+      if ((codec.isWhitelistedSystemAudioCodec() && useSystemAudioDecoders()) ||
+          (codec.isWhitelistedSystemVideoCodec() && useSystemVideoDecoders()))
+        score = 15;
+    }
+    else
+    {
+      // prefer codecs which do not have to be downloaded over others
+      if (codec.present)
+        score = 10;
+      else
+        score = 5;
+    }
+
+    if (score > bestScore)
     {
       best = codec;
-      break;
+      bestScore = score;
     }
-    if (!secondBest.valid())
-      secondBest = codec;
   }
-  return best.valid() ? best : secondBest;
+  return best;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +553,13 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
   QList<CodecDriver> result;
 
   bool needAC3Encoder = false;
+
+  QLOG_INFO() << "Using system audio decoders:" << useSystemAudioDecoders();
+  QLOG_INFO() << "Using system video decoders:" << useSystemVideoDecoders();
+
+#if !defined(HAVE_CODEC_MANIFEST)
+  QLOG_INFO() << "Not using on-demand codecs.";
+#endif
 
   for (auto stream : info.streams)
   {
@@ -476,7 +584,7 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
     if (info.enableAC3Transcoding)
       needAC3Encoder = true;
 
-    CodecDriver best = selectBestCodec(stream);
+    CodecDriver best = selectBestDecoder(stream);
     if (best.valid())
     {
       result.append(best);
@@ -493,7 +601,7 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
     CodecDriver encoder = {};
     for (auto codec : codecs)
     {
-      if (codec.present)
+      if (codec.present && (!codec.isSystemCodec() || codec.isWhitelistedSystemAudioCodec()))
       {
         encoder = codec;
         break;

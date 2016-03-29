@@ -98,6 +98,27 @@
           ["yes", "yes"],
           ["minimized", "minimized"]
         ]
+      },
+      {
+        // Warning: we should make this hidden or remove it later on
+        "value": "useSystemVideoCodecs",
+        "default": [
+          {
+            "value": true,
+            // MMAL works just fine
+            "platforms": [ "oe" ]
+          },
+          {
+            "value": false
+          }
+        ],
+        "hidden": false
+      },
+      {
+        // Warning: we should make this hidden or remove it later on
+        "value": "useSystemAudioCodecs2",
+        "default": true,
+        "hidden": false
       }
     ]
   },

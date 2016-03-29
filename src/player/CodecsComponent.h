@@ -36,6 +36,15 @@ struct CodecDriver {
   // Only applies to external drivers.
   QString getPath() const;
 
+  // Return whether the codec is provided by the OS or the hardware. They are
+  // distinct from FFmpeg-native codecs and usually have weaker capabilities.
+  // While they are also always available, they might fail in various ways
+  // depending on input media and OS version.
+  bool isSystemCodec() const;
+
+  bool isWhitelistedSystemAudioCodec() const;
+  bool isWhitelistedSystemVideoCodec() const;
+
   bool valid() { return format.size() > 0; }
 };
 

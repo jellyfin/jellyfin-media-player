@@ -13,8 +13,6 @@ Special Qt requirements (if you build it yourself):
 * On OSX, you should apply ``qt-patches/0002-qtbase-Don-t-show-the-menu-bar-at-all-in-lion-style-fullscr.patch``
   to improve the user experience in fullscreen.
 
-  Without them, video playback will not work.
-
 ## Building on Mac OS X
 
 Configure

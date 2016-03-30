@@ -111,10 +111,7 @@ QString Utils::PrimaryIPv4Address()
       for(const QHostAddress& addr : addresses)
       {
         if (!addr.isLoopback() && !addr.isMulticast() && addr.protocol() == QAbstractSocket::IPv4Protocol)
-        {
-          QLOG_DEBUG() << "I think that" << addr.toString() << "is my primary address";
           return addr.toString();
-        }
       }
     }
   }

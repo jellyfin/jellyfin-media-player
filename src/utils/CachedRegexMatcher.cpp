@@ -27,7 +27,7 @@ QVariant CachedRegexMatcher::match(const QString& input)
     return m_matcherCache.value(input);
 
   // otherwise try to iterate our list and find a match
-  foreach(const MatcherValuePair& matcher, m_matcherList)
+  for(const MatcherValuePair& matcher : m_matcherList)
   {
     QRegExp re(matcher.first);
 

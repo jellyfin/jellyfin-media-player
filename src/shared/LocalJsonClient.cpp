@@ -29,6 +29,6 @@ bool LocalJsonClient::sendMessage(const QVariantMap& message)
 void LocalJsonClient::readyRead()
 {
   QVariantList list = LocalJsonServer::readFromSocket(this);
-  foreach (const QVariant& msg, list)
+  for(const QVariant& msg : list)
     emit messageReceived(msg.toMap());
 }

@@ -69,7 +69,7 @@ bool DisplayComponent::componentInitialize()
     connect(app, SIGNAL(screenAdded(QScreen*)), this, SLOT(monitorChange()));
     connect(app, SIGNAL(screenRemoved(QScreen*)), this,  SLOT(monitorChange()));
 
-    foreach (QScreen *screen, app->screens())
+    for(QScreen *screen : app->screens())
     {
       connect(screen, SIGNAL(refreshRateChanged(qreal)), this, SLOT(monitorChange()));
       connect(screen, SIGNAL(geometryChanged(QRect)), this, SLOT(monitorChange()));
@@ -352,7 +352,7 @@ void DisplayComponent::switchCommand(QString command)
   DMVideoMode mode = currentMode;
   int bestMode = -1; // if -1, select it by using the mode variable above
 
-  foreach (QString a, command.split(" "))
+  for(QString a : command.split(" "))
   {
     a = a.trimmed();
     if (a == "p")
@@ -402,7 +402,7 @@ void DisplayComponent::switchCommand(QString command)
   {
     QLOG_INFO() << "Mode requested by command:" << mode.getPrettyName();
 
-    foreach (auto cur, m_displayManager->m_displays[currentDisplay]->m_videoModes)
+    for(auto cur : m_displayManager->m_displays[currentDisplay]->m_videoModes)
     {
       // "Score" according to what was requested
       float dCur = modeDistance(*cur, mode);

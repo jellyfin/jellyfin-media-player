@@ -26,7 +26,7 @@
 void CrashUploader::deleteOldCrashDumps()
 {
   QDir dir(m_old);
-  foreach (const QString& entry, dir.entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot))
+  for(const QString& entry : dir.entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot))
   {
     if (entry != Version::GetCanonicalVersionString())
     {
@@ -161,7 +161,7 @@ void CrashUploader::uploadAndDeleteCrashDumps()
   watchCrashDir(false);
 
   // loop over all incoming directories, should give us version numbers in d
-  foreach (const QString& version, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+  for(const QString& version : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
   {
     QDir versionDir(dir);
     versionDir.cd(version);
@@ -169,7 +169,7 @@ void CrashUploader::uploadAndDeleteCrashDumps()
     QLOG_DEBUG() << "Scanning:" << versionDir.path();
 
     int numUploads = 0;
-    foreach (const QString& entry, versionDir.entryList(filters, QDir::Files))
+    for(const QString& entry : versionDir.entryList(filters, QDir::Files))
     {
       // we only upload 20 crash reports per version
       if (numUploads > 20)

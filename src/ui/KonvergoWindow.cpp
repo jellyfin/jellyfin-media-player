@@ -95,7 +95,7 @@ KonvergoWindow::~KonvergoWindow()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool KonvergoWindow::fitsInScreens(const QRect& rc)
 {
-  foreach (QScreen *screen, QGuiApplication::screens())
+  for(QScreen *screen : QGuiApplication::screens())
   {
     if (screen->virtualGeometry().contains(rc))
       return true;

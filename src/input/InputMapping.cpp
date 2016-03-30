@@ -145,7 +145,7 @@ bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
           // get the input map and add it to a new CachedMatcher
           QVariantMap inputMap = mapping.second.value("mapping").toMap();
           auto  inputMatcher = new CachedRegexMatcher(this);
-          foreach(const QString& pattern, inputMap.keys())
+          for(const QString& pattern : inputMap.keys())
             inputMatcher->addMatcher("^" + pattern + "$", inputMap.value(pattern));
 
           m_inputMatcher.insert(mapping.first, inputMatcher);

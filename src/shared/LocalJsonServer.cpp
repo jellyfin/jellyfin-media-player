@@ -72,7 +72,7 @@ void LocalJsonServer::clientReadyRead()
     return;
 
   QVariantList messages = readFromSocket(socket);
-  foreach (const QVariant& msg, messages)
+  for(const QVariant& msg : messages)
     emit messageReceived(msg.toMap());
 }
 

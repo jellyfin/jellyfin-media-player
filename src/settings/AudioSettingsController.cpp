@@ -18,7 +18,7 @@ AudioSettingsController::AudioSettingsController(QObject* parent) : QObject(pare
 void AudioSettingsController::setHiddenPassthrough(const QStringList& codecs, bool hidden)
 {
   SettingsSection* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO);
-  foreach(const QString& codec, codecs)
+  for(const QString& codec : codecs)
     audioSection->setValueHidden("passthrough." + codec, hidden);
 }
 

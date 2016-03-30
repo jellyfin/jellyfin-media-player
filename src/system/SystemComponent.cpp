@@ -220,7 +220,7 @@ QString SystemComponent::debugInformation()
   stream << endl;
 
   stream << "Network Addresses" << endl;
-  foreach (const QString& addr, networkAddresses())
+  for(const QString& addr : networkAddresses())
   {
     stream << "  " << addr << endl;
   }
@@ -240,7 +240,7 @@ int SystemComponent::networkPort() const
 QStringList SystemComponent::networkAddresses() const
 {
   QStringList list;
-  foreach(const QHostAddress& address, QNetworkInterface::allAddresses())
+  for(const QHostAddress& address : QNetworkInterface::allAddresses())
   {
     if (! address.isLoopback() && (address.protocol() == QAbstractSocket::IPv4Protocol ||
                                    address.protocol() == QAbstractSocket::IPv6Protocol))
@@ -258,7 +258,7 @@ QStringList SystemComponent::networkAddresses() const
 void SystemComponent::userInformation(const QVariantMap& userModel)
 {
   QStringList roleList;
-  foreach (const QVariant& role, userModel.value("roles").toList())
+  for(const QVariant& role : userModel.value("roles").toList())
   { 
     roleList << role.toMap().value("id").toString();
   }

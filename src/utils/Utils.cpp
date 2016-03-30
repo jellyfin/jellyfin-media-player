@@ -103,12 +103,12 @@ QString Utils::CurrentUserId()
 QString Utils::PrimaryIPv4Address()
 {
   QList<QNetworkInterface> ifs = QNetworkInterface::allInterfaces();
-  foreach(const QNetworkInterface& iface, ifs)
+  for(const QNetworkInterface& iface : ifs)
   {
     if (iface.isValid() && iface.flags() & QNetworkInterface::IsUp)
     {
       QList<QHostAddress> addresses = iface.allAddresses();
-      foreach(const QHostAddress& addr, addresses)
+      for(const QHostAddress& addr : addresses)
       {
         if (!addr.isLoopback() && !addr.isMulticast() && addr.protocol() == QAbstractSocket::IPv4Protocol)
         {

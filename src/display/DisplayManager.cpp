@@ -19,7 +19,7 @@ bool DisplayManager::initialize()
   QLOG_INFO() << QString("DisplayManager found %1 Display(s).").arg(m_displays.size());
 
   // list video modes
-  foreach(int displayid, m_displays.keys())
+  for(int displayid : m_displays.keys())
   {
     DMDisplayPtr display = m_displays[displayid];
     QLOG_INFO() << QString("Available modes for Display #%1 (%2)").arg(displayid).arg(display->m_name);
@@ -182,7 +182,7 @@ int DisplayManager::findBestMode(int display)
 {
   int bestMode = -1;
 
-  foreach (auto mode, m_displays[display]->m_videoModes)
+  for(auto mode : m_displays[display]->m_videoModes)
   {
     if (bestMode < 0)
     {

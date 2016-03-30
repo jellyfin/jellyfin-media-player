@@ -49,7 +49,7 @@ QVariant SettingsComponent::allValues(const QString& section)
   if (section.isEmpty())
   {
     QVariantMap all;
-    foreach (const QString& sname, m_sections.keys())
+    for(const QString& sname : m_sections.keys())
       all[sname] = m_sections[sname]->allValues();
     return all;
   }
@@ -139,7 +139,7 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 
   QJsonObject jsonSections = json["sections"].toObject();
 
-  foreach (const QString& section, jsonSections.keys())
+  for(const QString& section : jsonSections.keys())
   {
     QJsonObject jsonSection = jsonSections[section].toObject();
 
@@ -157,7 +157,7 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
       continue;
     }
 
-    foreach (const QString& setting, jsonSection.keys())
+    for(const QString& setting : jsonSection.keys())
       sec->setValue(setting, jsonSection.value(setting).toVariant());
   }
 }
@@ -167,7 +167,7 @@ void SettingsComponent::saveSettings()
 {
   QVariantMap sections;
 
-  foreach(SettingsSection* section, m_sections.values())
+  for(SettingsSection* section : m_sections.values())
   {
     if (!section->isStorage())
       sections.insert(section->sectionName(), section->allValues());
@@ -184,7 +184,7 @@ void SettingsComponent::saveStorage()
 {
   QVariantMap storage;
 
-  foreach(SettingsSection* section, m_sections.values())
+  for(SettingsSection* section : m_sections.values())
   {
     if (section->isStorage())
       storage.insert(section->sectionName(), section->allValues());
@@ -296,7 +296,7 @@ void SettingsComponent::removeValue(const QString &sectionOrKey)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::resetToDefault()
 {
-  foreach(SettingsSection *section, m_sections)
+  for(SettingsSection *section : m_sections)
   {
    section->resetToDefault();
   }
@@ -319,7 +319,7 @@ QVariantList SettingsComponent::settingDescriptions()
   QList<SettingsSection*> sectionList = m_sections.values();
   std::sort(sectionList.begin(), sectionList.end(), SectionOrderIndex());
 
-  foreach(SettingsSection* section, sectionList)
+  for(SettingsSection* section : sectionList)
   {
     if (!section->isHidden())
       desc.push_back(QJsonValue::fromVariant(section->descriptions()));
@@ -347,7 +347,7 @@ bool SettingsComponent::loadDescription()
 
   m_sectionIndex = 0;
 
-  foreach(const QJsonValue& val, doc.array())
+  for(const QJsonValue& val : doc.array())
   {
     if (!val.isObject())
     {
@@ -389,7 +389,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
 
   auto values = sectionObject.value("values").toArray();
   int order = 0;
-  foreach(auto val, values)
+  for(auto val : values)
   {
     if (!val.isObject())
       continue;
@@ -404,7 +404,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     {
       defaultval = QVariant();
       // Whichever default matches the current platform first is used.
-      foreach(const auto& v, defaults.toArray())
+      for(const auto& v : defaults.toArray())
       {
         auto vobj = v.toObject();
         int defPlatformMask = platformMaskFromObject(vobj);
@@ -427,7 +427,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     if (valobj.contains("possible_values") && valobj.value("possible_values").isArray())
     {
       auto list = valobj.value("possible_values").toArray();
-      foreach(const auto& v, list)
+      for(const auto& v : list)
       {
         int platform = PLATFORM_ANY;
 
@@ -469,7 +469,7 @@ int SettingsComponent::platformMaskFromObject(const QJsonObject& object)
     // platforms can be both array or a single string
     if (platforms.isArray())
     {
-      foreach(const QJsonValue& pl, platforms.toArray())
+      for(const QJsonValue& pl : platforms.toArray())
       {
         if (!pl.isString())
           continue;
@@ -487,7 +487,7 @@ int SettingsComponent::platformMaskFromObject(const QJsonObject& object)
     QJsonValue val = object.value("platforms_excluded");
     if (val.isArray())
     {
-      foreach(const QJsonValue& pl, val.toArray())
+      for(const QJsonValue& pl : val.toArray())
       {
         if (!pl.isString())
           continue;
@@ -559,7 +559,7 @@ void SettingsComponent::setUserRoleList(const QStringList& userRoles)
 
   values << stable;
 
-  foreach(const QString& role, userRoles)
+  for(const QString& role : userRoles)
   {
     QVariantMap channel;
     int value = 0;

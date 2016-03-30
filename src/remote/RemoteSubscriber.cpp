@@ -62,7 +62,7 @@ void RemoteSubscriber::sendUpdate()
   request.setAttribute(QNetworkRequest::User, m_clientIdentifier);
 
   QVariantMap headers = RemoteComponent::HeaderInformation();
-  foreach (const QString& key, headers.keys())
+  for(const QString& key : headers.keys())
   {
     request.setRawHeader(key.toUtf8(), headers[key].toString().toUtf8());
   }

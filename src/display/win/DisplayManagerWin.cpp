@@ -174,7 +174,7 @@ DisplayManagerWin::~DisplayManagerWin()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerWin::getDisplayFromPoint(int x, int y)
 {
-  foreach (int displayId, m_displays.keys())
+  for(int displayId : m_displays.keys())
   {
     QString dispName = m_displayAdapters[displayId];
 

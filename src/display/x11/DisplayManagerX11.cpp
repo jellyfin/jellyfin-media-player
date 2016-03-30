@@ -134,7 +134,7 @@ int DisplayManagerX11::getCurrentDisplayMode(int display)
   if (!crtc)
     goto done;
 
-  foreach (DMVideoModePtr mode, displayptr->m_videoModes)
+  for(DMVideoModePtr mode : displayptr->m_videoModes)
   {
     XRRModeInfo m = resources->modes[mode->m_privId];
     if (crtc->mode == m.id)

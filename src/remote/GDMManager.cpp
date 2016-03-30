@@ -69,7 +69,7 @@ QByteArray GDMManager::getPacket()
 
   QVariantMap headers = RemoteComponent::GDMInformation();
 
-  foreach (const QString& key, headers.keys())
+  for(const QString& key : headers.keys())
     packetData.append(key + ": " + headers[key].toString() + "\r\n");
 
   // terminate header

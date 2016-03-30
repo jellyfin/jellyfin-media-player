@@ -668,7 +668,7 @@ void PlayerComponent::updateAudioDeviceList()
   QVariantList settingList;
   QVariant list = getAudioDeviceList();
   QSet<QString> devices;
-  foreach (const QVariant& d, list.toList())
+  for(const QVariant& d : list.toList())
   {
     Q_ASSERT(d.type() == QVariant::Map);
     QVariantMap dmap = d.toMap();
@@ -729,7 +729,7 @@ void PlayerComponent::setAudioConfiguration()
     else if (deviceType == AUDIO_DEVICE_TYPE_HDMI && audioSection->value("advanced").toBool())
       codecs = AudioCodecsAll();
 
-    foreach (const QString& key, codecs)
+    for(const QString& key : codecs)
     {
       if (audioSection->value("passthrough." + key).toBool())
         enabledCodecs << key;

@@ -59,7 +59,7 @@ char** appendCommandLineArguments(int argc, char **argv, const QStringList& args
   memcpy(newArgv, argv, (size_t)(argc * sizeof(char*)));
 
   int pos = argc;
-  foreach(const QString& str, args)
+  for(const QString& str : args)
     newArgv[pos++] = qstrdup(str.toUtf8().data());
 
   return newArgv;

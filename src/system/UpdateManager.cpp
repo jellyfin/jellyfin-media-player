@@ -50,7 +50,7 @@ QString UpdateManager::HaveUpdate()
   // sort update directories, sort by the newest directory first, that way
   // we apply the latest update downloaded.
   //
-  foreach (const QString& dir, updateDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::Time))
+  for(const QString& dir : updateDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::Time))
   {
     // check if this version has been applied
     QString readyFile(GetPath("_readyToApply", dir, false));

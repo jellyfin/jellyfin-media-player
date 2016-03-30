@@ -28,13 +28,13 @@ void SettingsSection::setValues(const QVariant& values)
   QVariantMap updatedValues;
 
   // values not included in the map are reset to default
-  foreach (const QString& key, m_values.keys())
+  for(const QString& key : m_values.keys())
   {
     if (!map.contains(key))
       map[key] = m_values[key]->defaultValue();
   }
 
-  foreach (const QString& key, map.keys())
+  for(const QString& key : map.keys())
   {
     if (key.isEmpty())
       continue;
@@ -85,7 +85,7 @@ bool SettingsSection::setValue(const QString& key, const QVariant& value)
 
   QVariantMap values;
   // populate with default values (setValues() resets missing values)
-  foreach (const QString& entry, m_values.keys())
+  for(const QString& entry : m_values.keys())
     values[entry] = m_values[entry]->value();
 
   values[key] = value;
@@ -115,7 +115,7 @@ const QVariantMap SettingsSection::allValues() const
 {
   QVariantMap values;
 
-  foreach (SettingsValue* val, m_values.values())
+  for(SettingsValue* val : m_values.values())
     values[val->key()] = val->value();
 
   return values;
@@ -141,7 +141,7 @@ const QVariantMap SettingsSection::descriptions() const
   std::sort(list.begin(), list.end(), ValueSortOrder());
 
   QVariantList settings;
-  foreach(SettingsValue* value, list)
+  for(SettingsValue* value : list)
   {
     if (!value->isHidden())
       settings.push_back(value->descriptions());
@@ -153,7 +153,7 @@ const QVariantMap SettingsSection::descriptions() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsSection::resetToDefault()
 {
-  foreach (const QString& key, m_values.keys())
+  for(const QString& key : m_values.keys())
     m_values[key]->reset();
 }
 

@@ -74,14 +74,14 @@ void ComponentManager::initialize()
   registerComponent(&OESystemComponent::Get());
 #endif
 
-  foreach(ComponentBase* component, m_components.values())
+  for(ComponentBase* component : m_components.values())
     component->componentPostInitialize();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void ComponentManager::setWebChannel(QWebChannel* webChannel)
 {
-  foreach(ComponentBase* comp, m_components.values())
+  for(ComponentBase* comp : m_components.values())
   {
     if (comp->componentExport())
     {

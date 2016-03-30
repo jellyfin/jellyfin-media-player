@@ -80,7 +80,6 @@ bool InputCECWorker::init()
   qstrcpy(m_configuration.strDeviceName, "Plex");
   m_configuration.bActivateSource = 0;
   m_callbacks.CBCecLogMessage = &CecLogMessage;
-  m_callbacks.CBCecKeyPress = &CecKeyPress;
   m_callbacks.CBCecCommand = &CecCommand;
   m_callbacks.CBCecAlert = &CecAlert;
   m_configuration.callbackParam = this;
@@ -187,11 +186,11 @@ void InputCECWorker::checkAdapter()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputCECWorker::sendReceivedInput(const QString &source, const QString &keycode, bool pressDown)
 {
-  emit receivedInput(source, keycode, true);
+  emit receivedInput(source, keycode, pressDown);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-QString InputCECWorker::getCommandString(cec_user_control_code code, unsigned int duration)
+QString InputCECWorker::getCommandString(cec_user_control_code code)
 {
   QString key;
 
@@ -199,11 +198,6 @@ QString InputCECWorker::getCommandString(cec_user_control_code code, unsigned in
   {
     KeyAction keyaction = g_cecKeyMap[code];
     key = keyaction.m_action;
-
-    if ((duration > CEC_LONGPRESS_DURATION) && keyaction.m_hasLongPress)
-    {
-      key += "_LONG";
-    }
   }
 
   return key;
@@ -248,39 +242,6 @@ int InputCECWorker::CecLogMessage(void* cbParam, const cec_log_message message)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int InputCECWorker::CecKeyPress(void *cbParam, const cec_keypress key)
-{
-  static int lastKeyPressed = -1;
-
-  auto *cec = static_cast<InputCECWorker*>(cbParam);
-
-  Q_ASSERT(cec);
-
-  if (cec->m_verboseLogging)
-  {
-    QLOG_DEBUG() << QString("CecKeyPress : Got key %1 (%2), last was %3").arg(key.keycode).arg(key.duration).arg(lastKeyPressed);
-  }
-
-  if (cec && lastKeyPressed != key.keycode)
-  {
-    QString cmdString = cec->getCommandString(key.keycode, key.duration);
-
-    if (!cmdString.isEmpty())
-      cec->sendReceivedInput(CEC_INPUT_NAME, cmdString);
-    else
-      QLOG_DEBUG() << "Unknown keycode in keypress" << key.keycode;
-
-    lastKeyPressed = key.keycode;
-  }
-
-  // reset the last key on a up info (duration > 0)
-  if (key.duration)
-    lastKeyPressed = -1;
-
-  return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 QString InputCECWorker::getCommandParamsList(cec_command command)
 {
   QString output = QString("%1 parameter(s) :").arg(command.parameters.size);
@@ -288,7 +249,7 @@ QString InputCECWorker::getCommandParamsList(cec_command command)
   if (command.parameters.size)
   {
     for (int i=0; i<command.parameters.size; i++)
-      output += QString("[%1]=%2 ").arg(i).arg(command.parameters[i]);
+      output += QString("[%1]=%2").arg(i).arg(QString::number(command.parameters[i], 16).toUpper());
   }
 
   return output;
@@ -297,12 +258,13 @@ QString InputCECWorker::getCommandParamsList(cec_command command)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
 {
+  QString cmdString;
   auto cec = static_cast<InputCECWorker*>(cbParam);
   Q_ASSERT(cec);
 
   if (cec->m_verboseLogging)
   {
-    QLOG_DEBUG() << "CecCommand received " << cec->getCommandParamsList(command);
+    QLOG_DEBUG() << "CecCommand received " << QString::number(command.opcode, 16).toUpper() << "," << cec->getCommandParamsList(command);
   }
 
   switch(command.opcode)
@@ -335,7 +297,20 @@ int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
       break;
 
     case CEC_OPCODE_VENDOR_REMOTE_BUTTON_DOWN:
-      if (command.parameters.size)
+    case CEC_OPCODE_USER_CONTROL_PRESSED:
+    case CEC_OPCODE_USER_CONTROL_RELEASE:
+    case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP:
+    {
+      bool down = (command.opcode == CEC_OPCODE_VENDOR_REMOTE_BUTTON_DOWN) ||
+                  (command.opcode == CEC_OPCODE_USER_CONTROL_PRESSED);
+
+
+      if (cec->m_verboseLogging)
+      {
+        QLOG_DEBUG() << "CecCommand button (Down= " << down << ")" << cec->getCommandParamsList(command);
+      }
+
+      if (command.parameters.size && down)
       {
         switch(command.parameters[0])
         {
@@ -349,11 +324,14 @@ int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
             break;
         }
       }
+
+      cmdString = cec->getCommandString((cec_user_control_code)command.parameters[0]);
+
+      if (!cmdString.isEmpty())
+        cec->sendReceivedInput(CEC_INPUT_NAME, cmdString, down);
+    }
       break;
 
-    case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP: // ignore those commands as they are handled in CecKeypress
-    case CEC_OPCODE_USER_CONTROL_PRESSED:
-    case CEC_OPCODE_USER_CONTROL_RELEASE:
     case CEC_OPCODE_GIVE_OSD_NAME:          // ignore those known commands (only pollng from TV)
     case CEC_OPCODE_GIVE_PHYSICAL_ADDRESS:
       break;

@@ -51,13 +51,12 @@ private:
   bool openAdapter();
   void closeAdapter();
 
-  QString getCommandString(cec_user_control_code code, unsigned int duration);
+  QString getCommandString(cec_user_control_code code);
   void sendReceivedInput(const QString& source, const QString& keycode, bool pressDown = true);
   QString getCommandParamsList(cec_command command);
 
   // libcec callbacks
   static int CecLogMessage(void* cbParam, const cec_log_message message);
-  static int CecKeyPress(void* cbParam, const cec_keypress key);
   static int CecCommand(void* cbParam, const cec_command command);
   static int CecAlert(void* cbParam, const libcec_alert type, const libcec_parameter param);
 

@@ -46,7 +46,6 @@ private:
   void refreshJoystickList();
   QString nameForId(SDL_JoystickID id);
 
-  SDLTimeStampMap m_buttonTimestamps;
   SDLJoystickMap m_joysticks;
   QByteArray  m_axisState;
 };

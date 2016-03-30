@@ -42,8 +42,8 @@ KonvergoWindow
     profile.httpUserAgent: components.system.getUserAgent()
     transformOrigin: Item.TopLeft
 
-    width: parent.width
-    height: parent.height
+    width: Math.round(Math.min((parent.height * 16) / 9, parent.width))
+    height: Math.round(Math.min((parent.width * 9) / 16, parent.height))
     
     scale:
     {
@@ -153,7 +153,7 @@ KonvergoWindow
       function windowDebug()
       {
         var dbg = mainWindow.debugInfo + "Window and web\n";
-        dbg += "  Window size: " + parent.width + "x" + parent.height + "\n";
+        dbg += "  Window size: " + parent.width + "x" + parent.height + " - " + web.width + "x" + web.height + "\n";
         dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
         dbg += "  Web Max Height: " + (webHeightMax / Screen.devicePixelRatio) + " / Max scale: " + mainWindow.maxWebScale() + "\n";
         dbg += "  Web scale: " + webScale + " / Window scale: " + windowScale + "\n";

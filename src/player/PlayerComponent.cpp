@@ -163,6 +163,20 @@ bool PlayerComponent::componentInitialize()
   initializeCodecSupport();
   Codecs::updateCachedCodecList();
 
+  QString codecInfo;
+  for (auto codec : Codecs::getCachecCodecList())
+  {
+    if (codec.present)
+    {
+      if (codecInfo.size())
+        codecInfo += " ";
+      codecInfo += codec.driver;
+      if (codec.type == CodecType::Encoder)
+        codecInfo += "(enc)";
+    }
+  }
+  QLOG_INFO() << "Present codecs:" << qPrintable(codecInfo);
+
   return true;
 }
 

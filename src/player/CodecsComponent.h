@@ -117,6 +117,8 @@ class Codecs
 public:
   static void preinitCodecs();
 
+  static QString plexNameToFF(QString plex);
+
   static inline bool sameCodec(const CodecDriver& a, const CodecDriver& b)
   {
     return a.type == b.type && a.format == b.format && a.driver == b.driver;

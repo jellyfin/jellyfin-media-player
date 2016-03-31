@@ -92,7 +92,7 @@ static QString getBuildType()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static QString plexNameToFF(QString plex)
+QString Codecs::plexNameToFF(QString plex)
 {
   if (plex == "dca")
     return "dts";
@@ -136,7 +136,7 @@ void Codecs::updateCachedCodecList()
     {
       CodecDriver codec = {};
       codec.type = type;
-      codec.format = plexNameToFF(list[i].codecName);
+      codec.format = Codecs::plexNameToFF(list[i].codecName);
       codec.driver = list[i].name;
       codec.external = list[i].external;
       if (!codec.isSystemCodec())

@@ -480,8 +480,11 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
-          QLOG_INFO() << "resuming loading";
-          mpv::qt::command_variant(m_mpv, QStringList() << "hook-ack" << resumeId);
+          QLOG_INFO() << "checking codecs";
+          startCodecsLoading([=] {
+            QLOG_INFO() << "resuming loading";
+            mpv::qt::command_variant(m_mpv, QStringList() << "hook-ack" << resumeId);
+          });
         };
         if (switchDisplayFrameRate())
         {
@@ -952,7 +955,7 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
   info.enableAC3Transcoding = m_doAc3Transcoding;
 
   auto tracks = mpv::qt::get_property_variant(m_mpv, "track-list");
-  foreach (const QVariant& track, tracks.toList())
+  for (auto track : tracks.toList())
   {
     QVariantMap map = track.toMap();
     QString type = map["type"].toString();
@@ -972,6 +975,29 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
     }
 
     info.streams.append(stream);
+  }
+
+  // If we're in an early stage where we don't have streams yet, try to get the
+  // info from the PMS metadata.
+  if (!info.streams.size())
+  {
+    for (auto partInfo : m_serverMediaInfo["Part"].toList())
+    {
+      for (auto streamInfo : partInfo.toMap()["Stream"].toList())
+      {
+        auto streamInfoMap = streamInfo.toMap();
+
+        StreamInfo stream = {};
+        stream.isVideo = streamInfoMap["width"].isValid();
+        stream.isAudio = streamInfoMap["channels"].isValid();
+        stream.codec = Codecs::plexNameToFF(streamInfoMap["codec"].toString());
+        stream.audioChannels = streamInfoMap["channels"].toInt();
+        stream.videoResolution = QSize(streamInfoMap["width"].toInt(), streamInfoMap["height"].toInt());
+        stream.profile = streamInfoMap["profile"].toString();
+
+        info.streams.append(stream);
+      }
+    }
   }
 
   return info;

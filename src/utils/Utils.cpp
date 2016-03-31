@@ -15,7 +15,6 @@
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 
-#include "osx/OSXUtils.h"
 #include "QsLog.h"
 
 

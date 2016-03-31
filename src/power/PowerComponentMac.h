@@ -11,6 +11,14 @@ public:
   void doDisableScreensaver() override;
   void doEnableScreensaver() override;
 
+  virtual bool canPowerOff() override { return true; }
+  virtual bool canReboot() override { return true; }
+  virtual bool canSuspend() override { return IOPMSleepEnabled(); }
+
+  virtual bool PowerOff() override;
+  virtual bool Reboot() override;
+  virtual bool Suspend() override;
+
 private:
   IOPMAssertionID m_assertion = 0;
 };

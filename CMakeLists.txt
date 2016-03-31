@@ -31,11 +31,12 @@ set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME Core)
 
 add_definitions(-DQS_LOG_LINE_NUMBERS)
 
+include(utils)
+include(CompilerFlags)
 include(DependencyConfiguration)
 include(QtConfiguration)
 include(VersionConfiguration)
 include(NameConfiguration)
-include(utils)
 include(PlayerConfiguration)
 include(InputConfiguration)
 include(FindBreakpad)
@@ -49,13 +50,6 @@ elseif(WIN32)
 elseif(UNIX AND (NOT APPLE))
   include(LinuxConfiguration)
 endif(APPLE)
-
-if(CMAKE_COMPILER_IS_GNUCC)
-  include(GCCConfiguration)
-endif(CMAKE_COMPILER_IS_GNUCC)
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNINGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS}")
 
 if (Qt5_POSITION_INDEPENDENT_CODE)
   SET(CMAKE_POSITION_INDEPENDENT_CODE ON)

@@ -56,7 +56,12 @@ Once you've unpacked the Qt 5.6.0 beta package:
 * ``make``
 * ``sudo make install``
 
-That should do it for Qt. It's worth noting that, on a Core i7-950 with 24GB of RAM, this took more than three hours to build.
+That should do it for Qt. It's worth noting that, on a Core i7-950 with 24GB of RAM, this took more than three hours to build. Also, you can prefix `./configure` with a [make](http://linux.die.net/man/1/make) flag definition such as "`MAKEFLAGS="-j$(nproc)"`", where `nproc` is the number of parallel builds desired. This will significantly speed up compile time. It is [suggested](http://www.makelinux.net/books/lkd2/ch02lev1sec3) to use a number 1 to 2x the # of cores you have. For more, also see [this article](http://www.math-linux.com/linux/tip-of-the-day/article/speedup-gnu-make-build-and-compilation-process).
+
+Example:
+```
+MAKEFLAGS="-j$(nproc)" ./configure -confirm-license -opensource
+```
 
 ### Building mpv
 

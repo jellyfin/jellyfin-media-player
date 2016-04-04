@@ -19,12 +19,12 @@ public:
   explicit CachedRegexMatcher(QObject* parent = nullptr) : QObject(parent) {}
 
   bool addMatcher(const QString& pattern, const QVariant& result);
-  QVariant match(const QString& input);
+  QVariantList match(const QString& input);
   void clear();
 
 private:
   MatcherValueList m_matcherList;
-  QHash<QString, QVariant> m_matcherCache;
+  QHash<QString, QVariantList> m_matcherCache;
 };
 
 #endif //KONVERGO_CACHEDREGEXMATCHER_H

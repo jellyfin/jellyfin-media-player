@@ -167,28 +167,31 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
   // hide mouse if it's visible.
   SystemComponent::Get().setCursorVisibility(false);
 
-  QVariant action = m_mappings->mapToAction(source, keycode);
-  if (action.isNull())
+  auto actions = m_mappings->mapToAction(source, keycode);
+  if (actions.isEmpty())
   {
     QLOG_WARN() << "Could not map:" << source << keycode << "to any useful action";
     return;
   }
 
-  if (action.type() == QVariant::String)
+  for (auto action : actions)
   {
-    handleAction(action.toString());
-  }
-  else if (action.type() == QVariant::Map)
-  {
-    QVariantMap map = action.toMap();
-    if (map.contains("long"))
+    if (action.type() == QVariant::String)
     {
-      m_longHoldTimer.start();
-      m_currentLongPressAction = map;
+      handleAction(action.toString());
     }
-    else if (map.contains("short"))
+    else if (action.type() == QVariant::Map)
     {
-      handleAction(map.value("short").toString());
+      QVariantMap map = action.toMap();
+      if (map.contains("long"))
+      {
+        m_longHoldTimer.start();
+        m_currentLongPressAction = map;
+      }
+      else if (map.contains("short"))
+      {
+        handleAction(map.value("short").toString());
+      }
     }
   }
 }

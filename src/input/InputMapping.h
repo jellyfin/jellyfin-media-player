@@ -16,7 +16,7 @@ class InputMapping : public QObject
 public:
   explicit InputMapping(QObject *parent = nullptr);
   bool loadMappings();
-  QVariant mapToAction(const QString& source, const QString& keycode);
+  QVariantList mapToAction(const QString& source, const QString& keycode);
 
 private Q_SLOTS:
   void dirChange();

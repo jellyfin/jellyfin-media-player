@@ -45,9 +45,10 @@
     "PgDown": "seek_forward",
     "Home": "step_backward",
     "End": "step_forward",
+    "Ctrl\\+F": "search",
 
     // application shortcuts
-    "Ctrl\\+F": "host:fullscreen",
+    "Ctrl\\+Shift\\+F": "host:fullscreen",
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",

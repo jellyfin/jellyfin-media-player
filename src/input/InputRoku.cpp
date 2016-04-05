@@ -108,14 +108,9 @@ void InputRoku::handleRequest(QHttpRequest* request, QHttpResponse* response)
   {
     handleQueryDeviceInfo(request, response);
   }
-  else if (path.startsWith("/keypress/") || path.startsWith("/keydown/"))
+  else if (path.startsWith("/keypress/") || path.startsWith("/keydown/") || path.startsWith("/keyup/"))
   {
     handleKeyPress(request, response);
-  }
-  else if (path.startsWith("/keyup/"))
-  {
-    response->setStatusCode(qhttp::ESTATUS_OK);
-    response->end();
   }
   else
   {
@@ -206,7 +201,11 @@ void InputRoku::handleKeyPress(QHttpRequest* request, QHttpResponse* response)
     return;
   }
 
-  emit receivedInput("roku", pathsplit.value(2));
+  auto url = request->url().toString();
+  if (url.startsWith("/keydown/") || url.startsWith("/keypress/"))
+    emit receivedInput("roku", pathsplit.value(2), true);
+  if (url.startsWith("/keyup/") || url.startsWith("/keypress/"))
+    emit receivedInput("roku", pathsplit.value(2), false);
 
   response->setStatusCode(qhttp::ESTATUS_OK);
   response->end();

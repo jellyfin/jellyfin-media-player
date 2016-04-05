@@ -19,7 +19,7 @@
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 #include "ui/KonvergoWindow.h"
-#include "ui/KonvergoEngine.h"
+#include "ui/Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
 #include "utils/HelperLauncher.h"
@@ -179,9 +179,10 @@ int main(int argc, char *argv[])
     HelperLauncher::Get().connectToHelper();
 
     // load QtWebChannel so that we can register our components with it.
-    QQmlApplicationEngine *engine = KonvergoEngine::Get();
+    QQmlApplicationEngine *engine = Globals::Engine();
+
     KonvergoWindow::RegisterClass();
-    engine->rootContext()->setContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
+    Globals::SetContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see
     // if we get a valid object passed to it. Any error messages will be reported on stderr
@@ -194,16 +195,13 @@ int main(int argc, char *argv[])
       if (object == nullptr)
         throw FatalException(QObject::tr("Failed to parse application engine script."));
 
-      QObject* rootObject = engine->rootObjects().first();
+      KonvergoWindow* window = Globals::MainWindow();
 
-      QObject* webChannel = qvariant_cast<QObject*>(rootObject->property("webChannel"));
+      QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));
 
-      KonvergoWindow* window = qobject_cast<KonvergoWindow*>(rootObject);
-      Q_ASSERT(window);
       QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, &KonvergoWindow::otherAppFocus);
-
     });
     engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
 
@@ -212,8 +210,8 @@ int main(int argc, char *argv[])
     // run our application
     int ret = app.exec();
 
-    delete KonvergoEngine::Get();
     delete uniqueApp;
+    Globals::EngineDestroy();
 
     return ret;
   }

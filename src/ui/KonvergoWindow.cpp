@@ -15,7 +15,7 @@
 #include "QsLog.h"
 #include "power/PowerComponent.h"
 #include "utils/Utils.h"
-#include "KonvergoEngine.h"
+#include "Globals.h"
 #include "EventFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

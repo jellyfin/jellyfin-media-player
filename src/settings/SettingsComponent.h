@@ -16,6 +16,7 @@
 #define SETTINGS_SECTION_OVERRIDES "overrides"
 #define SETTINGS_SECTION_CEC "cec"
 #define SETTINGS_SECTION_OPENELEC "openelec"
+#define SETTINGS_SECTION_APPLEREMOTE "appleremote"
 
 #define AUDIO_DEVICE_TYPE_BASIC "basic"
 #define AUDIO_DEVICE_TYPE_SPDIF "spdif"

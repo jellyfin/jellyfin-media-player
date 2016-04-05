@@ -1,20 +1,67 @@
+// This keymap handles two different kind of apple remotes,
+// the standard one that you pick up for your appletv or old mac mini
+// and the old PHT style harmony remote. PHT had a interesting hack that
+// changed the device-id between keypresses to be able to emulate more
+// buttons than was physically on the remote. In PMP we emulate this mode
+// by sending the deviceID (XXX) first in the keycode like: XXX-Y
+//
+// The harmony sends out deviceId's between 150 and 160 for this mode so
+// the host code makes sure that deviceId comes through on those ranges
+// but not on any other deviceID, then we just emit the keycode.
+//
 {
   "name": "Apple Remote",
   "idmatcher": "AppleRemote.*",
-  "mapping": 
-  {
-      "1": {
-        "short": "up",
-        "long": "cycle_audio"
-      },
-      "2": {
-        "short": "down",
-        "long": "cycle_audio_back"
-      },
-      "3": "left",
-      "4": "right",
-      "5": "enter",
-      "6": "back",
-      "7": "play_pause"
+  "mapping": {
+    // Standard Apple Remote mapping
+    "1": {
+      "short": "up",
+      "long": "cycle_audio"
+    },
+    "2": {
+      "short": "down",
+      "long": "cycle_audio_back"
+    },
+    "3": "left",
+    "4": "right",
+    "5": "enter",
+    "6": "back",
+    "7": "play_pause",
+
+    // PHT harmony emulation in format "DEVICEID-KEYCODE"
+    "150-1": "up",
+    "150-2": "down",
+    "150-3": "left",
+    "150-4": "right",
+    "150-5": "enter",
+    "150-6": "back",
+    "151-1": "1",
+    "151-2": "2",
+    "151-3": "3",
+    "151-4": "4",
+    "152-3": "5",
+    "152-4": "6",
+    "153-3": "7",
+    "153-4": "8",
+    "154-3": "9",
+    "154-4": "0",
+    "153-2": "back",
+    "151-5": "stop",
+    "151-6": "play",
+    "152-6": "pause",
+    "154-1": "step_backward",
+    "154-2": "step_forward",
+    "155-1": "home",
+    "153-1": "host:toggleDebug",
+    "154-6": "host:suspend",
+    "158-1": "seek_backward",
+    "158-2": "seek_forward"
+
+    // Keys that are mapped in the harmony but not used in PMP
+    //"157-1": "aspect",
+    //"154-5": "clear",
+    //"157-6": "power toggle",
+    //"153-6": "enter",
+    //"157-2": "queue"
   }
 }

@@ -55,15 +55,22 @@ fromHardwareWithAttributes:(NSMutableDictionary *)attributes
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void) hidRemote:(HIDRemote *)hidRemote releasedHardwareWithAttributes:(NSMutableDictionary *)attributes
+- (void)hidRemote:(HIDRemote *)hidRemote releasedHardwareWithAttributes:(NSMutableDictionary *)attributes
 {
   m_remoteHandler->removeRemote([self remoteNameFromAttributes:attributes]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void) hidRemote:(HIDRemote *)hidRemote failedNewHardwareWithError:(NSError *)error
+- (void)hidRemote:(HIDRemote *)hidRemote failedNewHardwareWithError:(NSError *)error
 {
   m_remoteHandler->addRemoteFailed(QString([[error localizedDescription] UTF8String]));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+- (void)hidRemote:(HIDRemote *)hidRemote remoteIDChangedOldID:(SInt32)old newID:(SInt32)newID
+                                    forHardwareWithAttributes:(NSMutableDictionary *)attributes
+{
+  m_remoteHandler->changeRemoteID(newID);
 }
 
 @end

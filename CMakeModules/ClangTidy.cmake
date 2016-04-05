@@ -1,5 +1,6 @@
-find_program(CLANG_TIDY clang-tidy NAMES clang-tidy-3.9 clang-tidy-3.8 clang-tidy-3.7)
-find_program(CLANG_REPLACE clang-apply-replacements NAMES clang-apply-replacements-3.9 clang-apply-replacements-3.8 clang-apply-replacements-3.7)
+get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY CACHE)
+find_program(CLANG_TIDY clang-tidy NAMES clang-tidy clang-tidy-3.9 clang-tidy-3.8 clang-tidy-3.7 HINTS ${CXX_COMPILER_DIR})
+find_program(CLANG_REPLACE clang-apply-replacements NAMES clang-apply-replacements clang-apply-replacements-3.9 clang-apply-replacements-3.8 clang-apply-replacements-3.7 HINTS ${CXX_COMPILER_DIR})
 
 if(CMAKE_EXPORT_COMPILE_COMMANDS AND NOT CLANG_TIDY STREQUAL CLANG_TIDY-NOTFOUND)
   macro(clang_tidy target)

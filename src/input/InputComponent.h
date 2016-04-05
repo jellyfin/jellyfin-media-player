@@ -1,12 +1,15 @@
 #ifndef INPUTADAPTER_H
 #define INPUTADAPTER_H
 
+#include "ComponentManager.h"
+#include "InputMapping.h"
+
 #include <QThread>
 #include <QVariantMap>
 #include <QTimer>
 #include <QTime>
-#include "ComponentManager.h"
-#include "InputMapping.h"
+
+#include <functional>
 
 class InputBase : public QObject
 {
@@ -70,6 +73,7 @@ signals:
 
 struct ReceiverSlot
 {
+  std::function<void(void)> m_function;
   QObject* m_receiver;
   QByteArray m_slot;
   bool m_hasArguments;
@@ -86,8 +90,13 @@ public:
   bool componentInitialize() override;
 
   void registerHostCommand(const QString& command, QObject* receiver, const char* slot);
+  void registerHostCommand(const QString& command, std::function<void(void)> function);
 
 signals:
+  // Always emitted when any input arrives
+  void receivedInput();
+
+  // Emitted when we have managed to map input to a action
   void receivedAction(const QString& action);
 
 private Q_SLOTS:

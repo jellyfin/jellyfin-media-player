@@ -71,6 +71,10 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 bool SystemComponent::componentInitialize()
 {
   QDir().mkpath(Paths::dataDir("scripts"));
+
+  // Hide mouse pointer on any keyboard input
+  connect(&InputComponent::Get(), &InputComponent::receivedInput, [=]() { setCursorVisibility(false); });
+
   return true;
 }
 

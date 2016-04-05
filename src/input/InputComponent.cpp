@@ -117,12 +117,22 @@ void InputComponent::handleAction(const QString& action, bool autoRepeat)
       ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
       if (recvSlot)
       {
-        QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
-        QGenericArgument arg0 = QGenericArgument();
-        if (recvSlot->m_hasArguments)
-          arg0 = Q_ARG(const QString&, hostArguments);
-        QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
-                                  Qt::AutoConnection, arg0);
+        if (recvSlot->m_function)
+        {
+          QLOG_DEBUG() << "Invoking anonymous function";
+          recvSlot->m_function();
+        }
+        else
+        {
+          QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
+          QGenericArgument arg0 = QGenericArgument();
+
+          if (recvSlot->m_hasArguments)
+            arg0 = Q_ARG(const QString&, hostArguments);
+
+          QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
+                                    Qt::AutoConnection, arg0);
+        }
       }
     }
     else
@@ -145,6 +155,8 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 {
   QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode << "pressed:" << (pressDown ? "down" : "release");
 
+  emit receivedInput();
+
   if (!pressDown)
   {
     m_autoRepeatTimer->stop();
@@ -163,9 +175,6 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 
     return;
   }
-
-  // hide mouse if it's visible.
-  SystemComponent::Get().setCursorVisibility(false);
 
   auto actions = m_mappings->mapToAction(source, keycode);
   if (actions.isEmpty())
@@ -224,4 +233,13 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
   {
     QLOG_ERROR() << "Slot for host command missing, or has incorrect signature!";
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::registerHostCommand(const QString& command, std::function<void(void)> function)
+{
+  auto recvSlot = new ReceiverSlot;
+  recvSlot->m_function = function;
+  QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to anonymous function";
+  m_hostCommands.insert(command, recvSlot);
 }

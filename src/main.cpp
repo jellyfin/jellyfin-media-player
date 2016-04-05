@@ -75,6 +75,9 @@ void ShowLicenseInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-gpu"};
+
+/////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
   try
@@ -85,13 +88,8 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addOptions({{{"l", "licenses"}, "Show license information"}});
 
-    char **newArgv = appendCommandLineArguments(argc, argv, {"--enable-viewport", "--enable-viewport-meta"});
-    argc += 2;
-
-#ifdef KONVERGO_OPENELEC
-    newArgv = appendCommandLineArguments(argc, newArgv, {"--disable-gpu"});
-    argc ++;
-#endif
+    char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
+    argc += g_qtFlags.size();
 
     // Suppress SSL related warnings on OSX
     // See https://bugreports.qt.io/browse/QTBUG-43173 for more info
@@ -117,10 +115,9 @@ int main(int argc, char *argv[])
     // Get the arguments from the app, this is the parsed version of newArgc and newArgv
     QStringList args = app.arguments();
 
-    // Remove the viewport arguments so that the parser doesn't barf
-    args.removeAll("--enable-viewport");
-    args.removeAll("--enable-viewport-meta");
-    args.removeAll("--disable-gpu");
+    // Remove the qt flags above so that our command line parser doesn't get cranky.
+    for (auto flag : g_qtFlags)
+      args.removeAll(flag);
 
     // Now parse the command line.
     parser.process(args);

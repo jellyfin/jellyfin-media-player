@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QString>
+#include <QMimeDatabase>
+
 #include "qhttpserverrequest.hpp"
 #include "qhttpserver.hpp"
 #include "qhttpserverresponse.hpp"
@@ -26,12 +28,12 @@ private slots:
 
 private:
   bool writeFile(const QString& file, QHttpResponse* response);
+  void handleSoundsRequest(QHttpRequest* request, QHttpResponse* response);
 
   QHttpServer* m_server;
-
   QString m_baseUrl;
-
   quint16 m_port;
+  QMimeDatabase m_mime;
 };
 
 #endif // HTTPSERVER_H

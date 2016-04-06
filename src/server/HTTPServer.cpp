@@ -73,8 +73,13 @@ bool HttpServer::writeFile(const QString& file, QHttpResponse* response)
     QFile fp(file);
     if (fp.open(QFile::ReadOnly))
     {
+      auto mime = m_mime.mimeTypeForFile(fp);
+
       response->setStatusCode(qhttp::ESTATUS_OK);
+      response->addHeader("Content-Type", mime.name().toUtf8());
+      response->addHeader("Content-Length", QByteArray::number(fp.size()));
       response->write(fp.readAll());
+
       fp.close();
       return true;
     }
@@ -141,6 +146,20 @@ void HttpServer::handleFilesRequest(QHttpRequest* request, QHttpResponse* respon
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+void HttpServer::handleSoundsRequest(QHttpRequest* request, QHttpResponse* response)
+{
+  auto sound = QFileInfo(request->url().path()).fileName();
+  auto soundPath = Paths::soundsPath(sound);
+
+  if (soundPath.isEmpty())
+    writeError(response, qhttp::ESTATUS_NOT_FOUND);
+  else
+    writeFile(Paths::soundsPath(sound), response);
+
+  response->end();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void HttpServer::handleRequest(QHttpRequest* request, QHttpResponse* response)
 {
   QLOG_DEBUG() << "Incoming request to:" << request->url().toString() << "from" << request->remoteAddress();
@@ -162,6 +181,10 @@ void HttpServer::handleRequest(QHttpRequest* request, QHttpResponse* response)
   {
     handleFilesRequest(request, response);
   }
+  else if (path.startsWith("/sounds"))
+  {
+    handleSoundsRequest(request, response);
+  }
   else if (path == "/")
   {
     response->setStatusCode(qhttp::ESTATUS_OK);
@@ -173,4 +196,3 @@ void HttpServer::handleRequest(QHttpRequest* request, QHttpResponse* response)
     response->end();
   }
 }
-

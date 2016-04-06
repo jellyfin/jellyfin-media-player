@@ -90,3 +90,23 @@ QString Paths::socketName(const QString& serverName)
   return QString("pmp_%1_%2.sock").arg(serverName).arg(userName);
 #endif
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::soundsPath(const QString& sound)
+{
+  // check local filesystem first
+  auto localSound = dataDir("sounds/" + sound);
+
+  QFileInfo f(localSound);
+  if (f.exists())
+    return f.absoluteFilePath();
+
+  f = QFileInfo(":/sounds/" + sound);
+  if (!f.exists())
+  {
+    QLOG_WARN() << "Can't find sound:" << sound;
+    return QString();
+  }
+
+  return f.absoluteFilePath();
+}

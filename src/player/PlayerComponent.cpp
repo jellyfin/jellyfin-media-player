@@ -849,8 +849,19 @@ void PlayerComponent::updateVideoSettings()
 {
   QVariant syncMode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "sync_mode");
   mpv::qt::set_option_variant(m_mpv, "video-sync", syncMode);
-  QVariant hardwareDecoding = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "hardware_decoding");
-  mpv::qt::set_property_variant(m_mpv, "hwdec", hardwareDecoding.toBool() ? "auto" : "no");
+
+  QString hardwareDecodingMode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "hardwareDecoding").toString();
+  bool hwdecEnabled = false;
+  QString hwdecVTFormat = "nv12";
+  if (hardwareDecodingMode == "enabled") {
+    hwdecEnabled = true;
+  } else if (hardwareDecodingMode == "osx_compat") {
+    hwdecEnabled = true;
+    hwdecVTFormat = "uyvy422";
+  }
+  mpv::qt::set_property_variant(m_mpv, "hwdec", hwdecEnabled);
+  mpv::qt::set_option_variant(m_mpv, "videotoolbox-format", hwdecVTFormat);
+
   QVariant deinterlace = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "deinterlace");
   mpv::qt::set_option_variant(m_mpv, "deinterlace", deinterlace.toBool() ? "yes" : "no");
 

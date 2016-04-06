@@ -213,15 +213,21 @@
         "hidden": true
       },
       {
-        "value": "hardware_decoding",
+        "value": "hardwareDecoding",
         "default": [
           {
-            "value": true,
+            "value": "enabled",
             "platforms": [ "oe" ]
           },
           {
-            "value": false
+            "value": "disabled"
           }
+        ],
+        "possible_values": [
+          [ "enabled", "Enabled", { "platforms_excluded": "osx" } ],
+          [ "enabled", "Enabled (modern hardware)", { "platforms": "osx" } ],
+          [ "osx_compat", "Enabled (older hardware)", { "platforms": "osx" } ],
+          [ "disabled", "Disabled" ]
         ],
         "platforms_excluded": "oe_rpi"
       },

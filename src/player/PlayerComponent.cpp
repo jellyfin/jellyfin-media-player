@@ -1153,6 +1153,7 @@ QString PlayerComponent::videoInformation() const
   info << "Seconds: " << MPV_PROPERTY("demuxer-cache-duration") << endl;
   info << "Extra readahead: " << MPV_PROPERTY("cache-used") << endl;
   info << "Buffering: " << MPV_PROPERTY("cache-buffering-state") << endl;
+  info << "Speed: " << MPV_PROPERTY("cache-speed") << endl;
   info << endl;
   info << "Misc: " << endl;
   info << "Time: " << MPV_PROPERTY("playback-time") << " / "

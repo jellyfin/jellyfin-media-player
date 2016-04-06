@@ -44,7 +44,8 @@ void Globals::SetContextProperty(const QString& property, const QVariant& value)
 /////////////////////////////////////////////////////////////////////////////////////////
 void Globals::EngineDestroy()
 {
-  delete g_qmlEngine;
+  if (g_qmlEngine)
+    delete g_qmlEngine;
   g_qmlEngine = nullptr;
 }
 

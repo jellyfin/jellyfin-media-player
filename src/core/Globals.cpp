@@ -3,7 +3,7 @@
 //
 
 #include "Globals.h"
-#include "KonvergoWindow.h"
+#include "ui/KonvergoWindow.h"
 
 #include <QQmlContext>
 

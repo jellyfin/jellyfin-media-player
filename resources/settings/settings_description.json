@@ -89,6 +89,15 @@
         "value": "clientUUID",
         "default": "",
         "hidden": true
+      },
+      {
+        "value": "autostart",
+        "default": "no",
+        "possible_values": [
+          ["no", "no"],
+          ["yes", "yes"],
+          ["minimized", "minimized"]
+        ]
       }
     ]
   },

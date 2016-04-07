@@ -36,4 +36,4 @@ else()
   set(CANONICAL_VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_NANO}-${GIT_REVISION}")
 endif()
 
-configure_file(src/Version.cpp.in src/Version.cpp)
+configure_file(src/core/Version.cpp.in src/core/Version.cpp)

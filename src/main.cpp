@@ -19,7 +19,7 @@
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 #include "ui/KonvergoWindow.h"
-#include "ui/Globals.h"
+#include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
 #include "utils/HelperLauncher.h"

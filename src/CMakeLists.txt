@@ -5,6 +5,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/HIDRemote
   ${CMAKE_SOURCE_DIR}/external/plistparser
   ${CMAKE_SOURCE_DIR}/src/player
+  core
   shared
 )
 
@@ -24,6 +25,7 @@ if(BREAKPAD_FOUND)
 endif()
 
 add_subdirectory(shared)
+add_subdirectory(core)
 add_subdirectory(display)
 add_subdirectory(player)
 add_subdirectory(utils)
@@ -38,20 +40,7 @@ add_subdirectory(remote)
 add_subdirectory(tools)
 
 get_property(ALL_SRCS GLOBAL PROPERTY SRCS_LIST)
-set(MAIN_SRCS
-  Version.h
-  ComponentManager.cpp
-  ComponentManager.h
-  main.cpp
-)
-
-# add unix signal management classes
-if (UNIX)
-  set(MAIN_SRCS ${MAIN_SRCS}
-    SignalManager.h
-    SignalManager.cpp
-  )
-endif()
+set(MAIN_SRCS main.cpp)
 
 source_group("Source Files" FILES ${MAIN_SRCS})
 set(SOURCES ${MAIN_SRCS} ${ALL_SRCS})

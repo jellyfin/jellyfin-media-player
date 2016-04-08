@@ -33,6 +33,7 @@ class SettingsComponent : public ComponentBase
 
 public:
   bool componentInitialize() override;
+  void componentPostInitialize() override;
 
   const char* componentName() override { return "settings"; }
   bool componentExport() override { return true; }
@@ -50,6 +51,9 @@ public:
   Q_INVOKABLE void removeValue(const QString& sectionOrKey);
   Q_INVOKABLE void resetToDefault();
   Q_INVOKABLE QVariantList settingDescriptions();
+
+  // host commands
+  Q_SLOT void cycleSetting(const QString& args);
 
   void updatePossibleValues(const QString& sectionID, const QString& key, const QVariantList& possibleValues);
 

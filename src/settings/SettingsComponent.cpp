@@ -18,6 +18,53 @@ SettingsComponent::SettingsComponent(QObject *parent) : ComponentBase(parent), m
 {
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::componentPostInitialize()
+{
+  InputComponent::Get().registerHostCommand("cycle_setting", this, "cycleSetting");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::cycleSetting(const QString& args)
+{
+  QString settingName = args;
+  QStringList sub = settingName.split(".");
+  if (sub.size() != 2)
+  {
+    QLOG_ERROR() << "Setting must be in the form section.name but got:" << settingName;
+    return;
+  }
+  QString sectionID = sub[0];
+  QString valueName = sub[1];
+  SettingsSection* section = getSection(sectionID);
+  if (!section)
+  {
+    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    return;
+  }
+  QVariantList values = section->possibleValues(valueName);
+  if (values.size() == 0)
+  {
+    QLOG_ERROR() << "Setting" << settingName << "is unknown or is not cycleable.";
+    return;
+  }
+  QVariant currentValue = section->value(valueName);
+  int nextValueIndex = 0;
+  for (int n = 0; n < values.size(); n++)
+  {
+    if (currentValue == values[n].toMap()["value"])
+    {
+      nextValueIndex = n + 1;
+      break;
+    }
+  }
+  if (nextValueIndex >= values.size())
+    nextValueIndex = 0;
+  QVariant nextValue = values[nextValueIndex].toMap()["value"];
+  QLOG_DEBUG() << "Setting" << settingName << "to" << nextValue;
+  setValue(sectionID, valueName, nextValue);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::updatePossibleValues(const QString &sectionID, const QString &key, const QVariantList &possibleValues)
 {

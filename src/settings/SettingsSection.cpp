@@ -78,6 +78,14 @@ void SettingsSection::updatePossibleValues(const QString &key, const QVariantLis
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+QVariantList SettingsSection::possibleValues(const QString& key)
+{
+  if (m_values.contains(key))
+    return m_values[key]->possibleValues();
+  return QVariantList();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsSection::setValue(const QString& key, const QVariant& value)
 {
   if (key == "index")

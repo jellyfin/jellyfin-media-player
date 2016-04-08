@@ -5,7 +5,7 @@ add_library(shared STATIC
   LocalJsonClient.cpp LocalJsonClient.h
   LocalJsonServer.cpp LocalJsonServer.h
   UniqueApplication.h
-  ${CMAKE_BINARY_DIR}/src/Version.cpp
+  ${CMAKE_BINARY_DIR}/src/core/Version.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h
 )
 

@@ -47,7 +47,10 @@ private:
   QString nameForId(SDL_JoystickID id);
 
   SDLJoystickMap m_joysticks;
-  QByteArray  m_axisState;
+
+  // map axis to up = true or down = false
+  QHash<quint8, bool> m_axisState;
+  QString m_lastHat;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

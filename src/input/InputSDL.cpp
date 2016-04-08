@@ -26,6 +26,7 @@ bool InputSDLWorker::initialize()
     return false;
   }
 
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
   SDL_JoystickEventState(SDL_ENABLE);
 
   refreshJoystickList();
@@ -42,9 +43,7 @@ void InputSDLWorker::close()
 
     // we need to close all the openned joysticks here and then exit the thread
     for (int joyid = 0; joyid < m_joysticks.size(); joyid++)
-    {
       SDL_JoystickClose(m_joysticks[joyid]);
-    }
 
     SDL_Quit();
   }
@@ -81,21 +80,13 @@ void InputSDLWorker::run()
 
         case SDL_JOYBUTTONDOWN:
         {
-          QLOG_DEBUG() << "SDL Got button down for button #" << event.jbutton.button
-                       << " on Joystick #" << event.jbutton.which;
-
           emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button, true));
-          
           break;
         }
 
         case SDL_JOYBUTTONUP:
         {
-          QLOG_DEBUG() << "SDL Got button up for button #" << event.jbutton.button
-                       << " on Joystick #" << event.jbutton.which;
-
           emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button), false);
-
           break;
         }
 
@@ -113,33 +104,76 @@ void InputSDLWorker::run()
           break;
         }
 
-        case SDL_JOYAXISMOTION:
+        case SDL_JOYHATMOTION:
         {
 
-          // handle the Digital conversion of the analog axis
-          if (std::abs(event.jaxis.value) > 32768 / 2)
-          {
-            if (!m_axisState[event.jaxis.axis])
-            {
-              m_axisState[event.jaxis.axis] = 1;
+          QString hatName("KEY_HAT_");
+          bool pressed = true;
 
-              if (event.jaxis.value > 0)
-                emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_UP").arg(event.jaxis.axis), true);
+          switch (event.jhat.value)
+          {
+            case SDL_HAT_CENTERED:
+              if (!m_lastHat.isEmpty())
+                hatName = m_lastHat;
               else
-                emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_DOWN").arg(event.jaxis.axis), true);
-            }
+                hatName += "CENTERED";
+              pressed = false;
+              break;
+            case SDL_HAT_UP:
+              hatName += "UP";
+              break;
+            case SDL_HAT_DOWN:
+              hatName += "DOWN";
+              break;
+            case SDL_HAT_RIGHT:
+              hatName += "RIGHT";
+              break;
+            case SDL_HAT_LEFT:
+              hatName += "LEFT";
+              break;
+            default:
+              break;
           }
-          else
+
+          m_lastHat = hatName;
+
+          emit receivedInput(nameForId(event.jhat.which), hatName, pressed);
+
+          break;
+        }
+
+        case SDL_JOYAXISMOTION:
+        {
+          auto axis = event.jaxis.axis;
+          auto value = event.jaxis.value;
+
+          QLOG_DEBUG() << "JoyAxisMotion:" << axis << value;
+
+          // handle the Digital conversion of the analog axis
+          if (std::abs(value) > 32768 / 2)
           {
-            if (m_axisState[event.jaxis.axis])
+            bool up = value < 0;
+            if (!m_axisState.contains(axis))
             {
-              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_UP").arg(event.jaxis.axis), false);
-              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_DOWN").arg(event.jaxis.axis), false);
+              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(up ? "UP" : "DOWN"), true);
+              m_axisState.insert(axis, up);
             }
-
-            m_axisState[event.jaxis.axis] = 0;
+            else if (m_axisState.value(axis) != up)
+            {
+              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(m_axisState.value(axis) ? "UP" : "DOWN"), false);
+              m_axisState.remove(axis);
+            }
           }
-
+          else if (std::abs(value) < 10000 && m_axisState.contains(axis)) // back to the center.
+          {
+            emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(m_axisState.value(axis) ? "UP" : "DOWN"), false);
+            m_axisState.remove(axis);
+          }
+          break;
+        }
+        default:
+        {
+          QLOG_WARN() << "Unhandled SDL event:" << event.type;
           break;
         }
       }
@@ -181,7 +215,6 @@ void InputSDLWorker::refreshJoystickList()
                   << "axes";
       m_joysticks[instanceid] = joystick;
       m_axisState.clear();
-      m_axisState.resize(SDL_JoystickNumAxes(joystick));
     }
   }
 }

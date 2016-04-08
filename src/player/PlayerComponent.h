@@ -188,6 +188,7 @@ private:
   // Determine the required codecs and possibly download them.
   // Call resume() when done.
   void startCodecsLoading(std::function<void()> resume);
+  void updateVideoAspectSettings();
 
   mpv::qt::Handle m_mpv;
 

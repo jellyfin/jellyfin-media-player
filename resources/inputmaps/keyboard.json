@@ -57,6 +57,7 @@
     "I": "host:toggleDebug",
     "W": "toggle_watched",
     "\\\\": "host:fullscreen",
+    "Z": "host:cycle_setting video.aspect",
 
     // media keys from the FLIRC and on Linux keyboards
     "Toggle Media Play\\/Pause": "play_pause",

@@ -845,6 +845,46 @@ void PlayerComponent::updateSubtitleSettings()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::updateVideoAspectSettings()
+{
+  QVariant mode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "aspect").toString();
+  bool disableScaling = false;
+  bool keepAspect = true;
+  QString forceAspect = "-1";
+  double panScan = 0.0;
+  if (mode == "custom")
+  {
+    // in particular, do not restore anything - the intention is not to touch the user's mpv.conf settings, or whatever
+    return;
+  }
+  else if (mode == "zoom")
+  {
+    panScan = 1.0;
+  }
+  else if (mode == "force_4_3")
+  {
+    forceAspect = "4:3";
+  }
+  else if (mode == "force_16_9")
+  {
+    forceAspect = "16:9";
+  }
+  else if (mode == "stretch")
+  {
+    keepAspect = false;
+  }
+  else if (mode == "noscaling")
+  {
+    disableScaling = true;
+  }
+
+  mpv::qt::set_property_variant(m_mpv, "video-unscaled", disableScaling);
+  mpv::qt::set_property_variant(m_mpv, "video-aspect", forceAspect);
+  mpv::qt::set_option_variant(m_mpv, "keepaspect", keepAspect);
+  mpv::qt::set_property_variant(m_mpv, "panscan", panScan);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::updateVideoSettings()
 {
   QVariant syncMode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "sync_mode");
@@ -874,6 +914,8 @@ void PlayerComponent::updateVideoSettings()
 
   QVariant cache = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "cache");
   mpv::qt::set_option_variant(m_mpv, "cache", cache.toInt() * 1024);
+
+  updateVideoAspectSettings();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

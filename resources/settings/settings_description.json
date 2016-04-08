@@ -282,6 +282,19 @@
           [ 150, "Large (150 MB)", { "platforms_excluded": "oe_rpi" } ],
           [ 500, "Very Large (500 MB)", { "platforms_excluded": "oe_rpi" } ]
         ]
+      },
+      {
+        "value": "aspect",
+        "default": "normal",
+        "possible_values": [
+          [ "normal", "Display normally" ],
+          [ "zoom", "Zoom (can crop off video)" ],
+          [ "force_4_3", "Force video to 4:3" ],
+          [ "force_16_9", "Force video to 16:9" ],
+          [ "stretch", "Stretch video to screen" ],
+          [ "noscaling", "Disable all scaling" ],
+          [ "custom", "Custom" ]
+        ]
       }
     ]
   },

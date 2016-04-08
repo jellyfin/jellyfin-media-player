@@ -13,7 +13,7 @@ if((APPLE OR WIN32) AND NOT DISABLE_BUNDLED_DEPS)
   )
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT ${dir})
-endif(APPLE AND NOT DISABLE_BUNDLED_DEPS)
+endif()
 
 if(WIN32)
   if(NOT EXISTS ${dir}/lib/mpv.lib)

@@ -1,6 +1,6 @@
 {
   "name": "Xbox Controller",
-  "idmatcher": "XInput.*|XBOX360.*|.*360.*Controller",
+  "idmatcher": "XInput.*|Microsoft.*joystick driver",
   "mapping": 
   {
     // A
@@ -17,6 +17,7 @@
 
     // Y
     "KEY_BUTTON_3": "cycle_subtitle",
+    "KEY_BUTTON_3": "search",
 
     // LB
     "KEY_BUTTON_4": "seek_backward",
@@ -25,16 +26,16 @@
     "KEY_BUTTON_5": "seek_forward",
 
     // left thumbstick press
-    "KEY_BUTTON_6": "",
+    "KEY_BUTTON_6": "host:toggleDebug",
 
     // right thumbstick press
-    "KEY_BUTTON_7": "",
+    "KEY_BUTTON_7": "host:fullscreen",
 
     // start
-    "KEY_BUTTON_8": "host:fullscreen",
+    "KEY_BUTTON_8": "",
 
     // back
-    "KEY_BUTTON_9": "host:toggleDebug",
+    "KEY_BUTTON_9": "",
 
     // Windows button
     "KEY_BUTTON_10": {
@@ -55,15 +56,22 @@
     "KEY_AXIS_1_DOWN": "down",
 
     // right thumbstick axis
-    "KEY_AXIS_4_UP": "increase_volume",
-    "KEY_AXIS_4_DOWN": "decrease_volume",
-    "KEY_AXIS_3_UP": "decrease_audio_delay",
-    "KEY_AXIS_3_DOWN": "increase_audio_delay",
+    "KEY_AXIS_3_UP": "increase_volume",
+    "KEY_AXIS_3_DOWN": "decrease_volume",
+    "KEY_AXIS_5_UP": "decrease_audio_delay",
+    "KEY_AXIS_5_DOWN": "increase_audio_delay",
 
     // left trigger
     "KEY_AXIS_2_UP": "",
 
     // right trigger
-    "KEY_AXIS_5_UP": ""
+    "KEY_AXIS_5_UP": "",
+    
+    // D-Pad with JoyHat events
+    "KEY_HAT_DOWN": "down",
+    "KEY_HAT_UP": "up",
+    "KEY_HAT_RIGHT": "right",
+    "KEY_HAT_LEFT": "left"
+
   }
 }

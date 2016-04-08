@@ -18,18 +18,6 @@ SettingsComponent::SettingsComponent(QObject *parent) : ComponentBase(parent), m
 {
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-void SettingsComponent::componentPostInitalize()
-{
-  InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullScreen");
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void SettingsComponent::toggleFullScreen(const QString& args)
-{
-  setValue(SETTINGS_SECTION_MAIN, "fullscreen", !value(SETTINGS_SECTION_MAIN, "fullscreen").toBool());
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::updatePossibleValues(const QString &sectionID, const QString &key, const QVariantList &possibleValues)
 {

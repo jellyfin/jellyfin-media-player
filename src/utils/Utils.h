@@ -10,6 +10,8 @@
 
 #ifdef Q_OS_MAC
   #include "osx/OSXUtils.h"
+#elif defined(Q_OS_WIN)
+  #include "win/WinUtils.h"
 #endif
 
 #define DEFINE_SINGLETON(cls) \

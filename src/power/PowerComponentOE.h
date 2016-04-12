@@ -10,10 +10,18 @@ class PowerComponentOE : public PowerComponent
     ~PowerComponentOE() {};
 
   public Q_SLOTS:
-    virtual bool canPowerOff() { return isPowerMethodAvailable("CanPowerOff"); }
-    virtual bool canReboot() { return isPowerMethodAvailable("CanReboot"); }
-    virtual bool canSuspend() { return isPowerMethodAvailable("CanSuspend"); }
-    virtual bool canRelaunch() { return true; }
+
+  virtual int getPowerCapabilities() override
+  {
+    int flags = 0;
+    if (isPowerMethodAvailable("CanPowerOff"))
+      flags |= CAP_POWER_OFF;
+    if (isPowerMethodAvailable("CanReboot"))
+      flags |= CAP_REBOOT;
+    if (isPowerMethodAvailable("CanSuspend"))
+      flags |= CAP_SUSPEND;
+    return flags;
+  }
 
     virtual bool PowerOff() { return callPowerMethod("PowerOff"); }
     virtual bool Reboot() { return callPowerMethod("Reboot"); }

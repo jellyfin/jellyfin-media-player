@@ -5,6 +5,7 @@
 #include "PowerComponent.h"
 #include "player/PlayerComponent.h"
 #include "input/InputComponent.h"
+#include "settings/SettingsComponent.h"
 
 #ifdef Q_OS_MAC
 #include "PowerComponentMac.h"
@@ -100,3 +101,14 @@ void PowerComponent::componentPostInitialize()
   InputComponent::Get().registerHostCommand("reboot", this, "Reboot");
   InputComponent::Get().registerHostCommand("suspend", this, "Suspend");
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool PowerComponent::checkCap(PowerCapabilities capability)
+{
+  if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "showPowerOptions").toBool())
+    return false;
+
+  return (getPowerCapabilities() & capability);
+}
+
+

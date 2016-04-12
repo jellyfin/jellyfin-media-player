@@ -11,9 +11,11 @@ public:
   void doDisableScreensaver() override;
   void doEnableScreensaver() override;
 
-  virtual bool canPowerOff() override { return true; }
-  virtual bool canReboot() override { return true; }
-  virtual bool canSuspend() override { return IOPMSleepEnabled(); }
+  virtual int getPowerCapabilities() override
+  {
+    int flags = IOPMSleepEnabled() ? CAP_SUSPEND : 0;
+    return flags | CAP_POWER_OFF | CAP_REBOOT;
+  }
 
   virtual bool PowerOff() override;
   virtual bool Reboot() override;

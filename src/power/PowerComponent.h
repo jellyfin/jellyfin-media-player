@@ -11,10 +11,10 @@ public:
 
   enum PowerCapabilities
   {
-    CAP_POWER_OFF,
-    CAP_REBOOT,
-    CAP_SUSPEND,
-    CAP_RELAUNCH
+    CAP_POWER_OFF = 0x01,
+    CAP_REBOOT = 0x02,
+    CAP_SUSPEND = 0x04,
+    CAP_RELAUNCH = 0x08
   };
 
   static PowerComponent& Get();
@@ -34,10 +34,14 @@ public:
   void setFullscreenState(bool fullscreen);
 
 public Q_SLOTS:
-  virtual bool canPowerOff() { return false; }
-  virtual bool canReboot() { return false; }
-  virtual bool canSuspend() { return false; }
-  virtual bool canRelaunch() { return false; }
+  bool checkCap(PowerCapabilities capability);
+
+  bool canPowerOff() { return checkCap(CAP_POWER_OFF); }
+  bool canReboot() { return checkCap(CAP_REBOOT); }
+  bool canSuspend() { return checkCap(CAP_SUSPEND); }
+  bool canRelaunch() { return checkCap(CAP_RELAUNCH); }
+
+  virtual int getPowerCapabilities() { return CAP_RELAUNCH; }
 
   virtual bool PowerOff() { return false; }
   virtual bool Reboot() { return false; }

@@ -11,9 +11,13 @@ public:
   virtual void doDisableScreensaver();
   virtual void doEnableScreensaver();
 
-  virtual bool canPowerOff() override { return m_hasPrivileges; }
-  virtual bool canReboot() override { return m_hasPrivileges; }
-  virtual bool canSuspend() override { return true; }
+  virtual int getPowerCapabilities() override
+  {
+    int flags = CAP_SUSPEND;
+    if (m_hasPrivileges)
+      flags |= CAP_POWER_OFF | CAP_REBOOT;
+    return flags;
+  }
 
   virtual bool PowerOff() override;
   virtual bool Reboot() override;

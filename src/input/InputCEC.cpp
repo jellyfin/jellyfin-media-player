@@ -4,11 +4,10 @@
 #include "settings/SettingsComponent.h"
 #include "power/PowerComponent.h"
 
-class KeyAction
+struct KeyAction
 {
-public:
-  QString m_action;
-  bool m_hasLongPress;
+  QString action;
+  bool hasLongPress;
 };
 
 static QMap<int, KeyAction> g_cecKeyMap   { \
@@ -197,7 +196,7 @@ QString InputCECWorker::getCommandString(cec_user_control_code code)
   if (g_cecKeyMap.contains(code))
   {
     KeyAction keyaction = g_cecKeyMap[code];
-    key = keyaction.m_action;
+    key = keyaction.action;
   }
 
   return key;

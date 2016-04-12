@@ -8,22 +8,22 @@
 
 @interface MediaKeysDelegate : NSObject
 {
-  SPMediaKeyTap* m_keyTap;
-  InputAppleMediaKeys* m_input;
+  SPMediaKeyTap* keyTap;
+  InputAppleMediaKeys* input;
 }
 -(instancetype)initWithInput:(InputAppleMediaKeys*)input;
 @end
 
 @implementation MediaKeysDelegate
 
-- (instancetype)initWithInput:(InputAppleMediaKeys*)input
+- (instancetype)initWithInput:(InputAppleMediaKeys*)input_
 {
   self = [super init];
   if (self) {
-    m_input = input;
-    m_keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
+    input = input_;
+    keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
     if ([SPMediaKeyTap usesGlobalMediaKeyTap])
-      [m_keyTap startWatchingMediaKeys];
+      [keyTap startWatchingMediaKeys];
     else
       QLOG_WARN() << "Could not grab global media keys";
   }
@@ -65,7 +65,7 @@
         // More cases defined in hidsystem/ev_keymap.h
     }
 
-    emit m_input->receivedInput("AppleMediaKeys", keyPressed);
+    emit input->receivedInput("AppleMediaKeys", keyPressed);
   }
 }
 

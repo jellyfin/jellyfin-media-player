@@ -15,6 +15,16 @@ bool CachedRegexMatcher::addMatcher(const QString& pattern, const QVariant& resu
     return false;
   }
 
+  // Remove older mapping if it exists.
+  if (!m_allowMultiplePatterns)
+  {
+    auto newEnd = std::remove_if(m_matcherList.begin(),m_matcherList.end(), [pattern](auto mp)
+    {
+      return mp.first.pattern() == pattern;
+    });
+    m_matcherList.erase(newEnd, m_matcherList.end());
+  }
+
   m_matcherList.push_back(qMakePair(matcher, result));
   return true;
 }

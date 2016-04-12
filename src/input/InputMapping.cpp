@@ -12,7 +12,7 @@
 #include "utils/Utils.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InputMapping::InputMapping(QObject *parent) : QObject(parent)
+InputMapping::InputMapping(QObject *parent) : QObject(parent), m_sourceMatcher(false)
 {
   m_watcher = new QFileSystemWatcher(this);
   connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &InputMapping::dirChange);
@@ -142,7 +142,7 @@ bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
         {
           // get the input map and add it to a new CachedMatcher
           QVariantMap inputMap = mapping.second.value("mapping").toMap();
-          auto  inputMatcher = new CachedRegexMatcher(this);
+          auto inputMatcher = new CachedRegexMatcher(true, this);
           for(const QString& pattern : inputMap.keys())
             inputMatcher->addMatcher("^" + pattern + "$", inputMap.value(pattern));
 

@@ -16,7 +16,8 @@ typedef QList<MatcherValuePair> MatcherValueList;
 class CachedRegexMatcher : public QObject
 {
 public:
-  explicit CachedRegexMatcher(QObject* parent = nullptr) : QObject(parent) {}
+  explicit CachedRegexMatcher(bool allowMultiplePatterns = true, QObject* parent = nullptr)
+    : QObject(parent), m_allowMultiplePatterns(allowMultiplePatterns) {}
 
   bool addMatcher(const QString& pattern, const QVariant& result);
   QVariantList match(const QString& input);
@@ -25,6 +26,7 @@ public:
 private:
   MatcherValueList m_matcherList;
   QHash<QString, QVariantList> m_matcherCache;
+  bool m_allowMultiplePatterns;
 };
 
 #endif //KONVERGO_CACHEDREGEXMATCHER_H

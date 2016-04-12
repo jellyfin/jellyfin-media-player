@@ -291,17 +291,19 @@ void RemoteComponent::responseDone()
   {
     QMutexLocker lk(&m_responseLock);
 
-    int foundId = -1;
-    for(int responseId : m_responseMap.keys())
+    bool found = false;
+    quint64 foundId = 0;
+    for(auto responseId : m_responseMap.keys())
     {
       if (m_responseMap[responseId] == response)
       {
         foundId = responseId;
+        found = true;
         break;
       }
     }
 
-    if (foundId != -1)
+    if (found)
       m_responseMap.remove(foundId);
   }
 }

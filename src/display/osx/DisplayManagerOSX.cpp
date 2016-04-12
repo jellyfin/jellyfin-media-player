@@ -61,9 +61,9 @@ bool DisplayManagerOSX::initialize()
       CGDisplayModeRef displayMode =
       (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[displayid], modeid);
 
-      mode->m_height = CGDisplayModeGetHeight(displayMode);
-      mode->m_width = CGDisplayModeGetWidth(displayMode);
-      mode->m_refreshRate = CGDisplayModeGetRefreshRate(displayMode);
+      mode->m_height = (int)CGDisplayModeGetHeight(displayMode);
+      mode->m_width = (int)CGDisplayModeGetWidth(displayMode);
+      mode->m_refreshRate = (float)CGDisplayModeGetRefreshRate(displayMode);
 
       CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(displayMode);
 

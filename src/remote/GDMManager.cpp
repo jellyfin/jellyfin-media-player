@@ -41,7 +41,7 @@ void GDMManager::readData()
   while (m_socket.hasPendingDatagrams())
   {
     QByteArray datagram;
-    datagram.resize(m_socket.pendingDatagramSize());
+    datagram.resize((int)m_socket.pendingDatagramSize());
 
     QHostAddress sender;
     quint16 senderPort;

@@ -11,7 +11,7 @@
 bool PlatformUtils::isProcessAlive(Q_PID pid)
 {
 #ifdef Q_OS_UNIX
-  int ret = kill(pid, 0);
+  int ret = kill((pid_t)pid, 0);
   return ret == 0;
 #endif
 

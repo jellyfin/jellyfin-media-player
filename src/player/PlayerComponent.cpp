@@ -456,7 +456,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       size_t len = strlen(msg->text);
       if (len > 0 && msg->text[len - 1] == '\n')
         len -= 1;
-      QString logline = QString::fromUtf8(msg->prefix) + ": " + QString::fromUtf8(msg->text, len);
+      QString logline = QString::fromUtf8(msg->prefix) + ": " + QString::fromUtf8(msg->text, (int)len);
       if (msg->log_level >= MPV_LOG_LEVEL_V)
         QLOG_DEBUG() << qPrintable(logline);
       else if (msg->log_level >= MPV_LOG_LEVEL_INFO)

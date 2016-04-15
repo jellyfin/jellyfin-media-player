@@ -12,6 +12,12 @@ elseif(WIN32)
   else()
     set(ARCHSTR "windows-i386")
   endif()
+elseif(OPENELEC)
+  if (OE_ARCH STREQUAL "x86_64")
+    set(ARCHSTR "linux-openelec-x86_64")
+  elseif(OE_ARCH STREQUAL "armv7")
+    set(ARCHSTR "linux-openelec-armv7")
+  endif()
 elseif(UNIX)
   set(ARCHSTR ${PLEX_BUILD_TARGET})
 endif(APPLE)
@@ -20,12 +26,21 @@ option(ENABLE_CODECS "Enable CodecManifest downloading for Codecs on Demand" OFF
 if(ENABLE_CODECS)
   add_definitions(-DHAVE_CODEC_MANIFEST)
 
-  set(CODECS_BUILD_NUMBER 117)
-  message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h")
-  file(
-    DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h
-    STATUS DL_STATUS
-  )
+  if(OPENELEC)
+    set(CODECS_BUILD_NUMBER 11)
+    message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h")
+    file(
+      DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h
+      STATUS DL_STATUS
+    )
+  elseif()
+    set(CODECS_BUILD_NUMBER 117)
+    message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h")
+    file(
+      DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h
+      STATUS DL_STATUS
+    )
+  endif()
   message(STATUS "Result: ${DL_STATUS}")
 endif()
 

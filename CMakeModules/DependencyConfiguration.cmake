@@ -3,9 +3,14 @@ option(DISABLE_BUNDLED_DEPS "Disable the bundled deps on certain platforms" OFF)
 
 include(FetchDependencies)
 
-if((APPLE OR WIN32) AND NOT DISABLE_BUNDLED_DEPS)
+if(NOT DISABLE_BUNDLED_DEPS)
+  if(OPENELEC)
+    set(DEPENDCY_FOLDER plexmediaplayer-openelec-codecs)
+  elseif(APPLE OR WIN32)
+    set(DEPENDCY_FOLDER plexmediaplayer-dependencies-codecs)
+  endif()
   download_deps(
-    "plexmediaplayer-dependencies-codecs"
+    "${DEPENDCY_FOLDER}"
     ARTIFACTNAME konvergo-codecs-depends
     DIRECTORY dir
     DEPHASH_VAR DEPS_HASH
@@ -13,7 +18,7 @@ if((APPLE OR WIN32) AND NOT DISABLE_BUNDLED_DEPS)
   )
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT ${dir})
-endif()
+endif(NOT DISABLE_BUNDLED_DEPS)
 
 if(WIN32)
   if(NOT EXISTS ${dir}/lib/mpv.lib)

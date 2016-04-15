@@ -4,20 +4,23 @@ option(DISABLE_BUNDLED_DEPS "Disable the bundled deps on certain platforms" OFF)
 include(FetchDependencies)
 
 if(NOT DISABLE_BUNDLED_DEPS)
+  set(DEPENDCY_FOLDER "")
   if(OPENELEC)
     set(DEPENDCY_FOLDER plexmediaplayer-openelec-codecs)
   elseif(APPLE OR WIN32)
     set(DEPENDCY_FOLDER plexmediaplayer-dependencies-codecs)
   endif()
-  download_deps(
-    "${DEPENDCY_FOLDER}"
-    ARTIFACTNAME konvergo-codecs-depends
-    DIRECTORY dir
-    DEPHASH_VAR DEPS_HASH
-    DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
-  )
-  message("dependencies are: ${dir}")
-  set(DEFAULT_ROOT ${dir})
+  if(NOT (DEPENDCY_FOLDER STREQUAL ""))
+    download_deps(
+      "${DEPENDCY_FOLDER}"
+      ARTIFACTNAME konvergo-codecs-depends
+      DIRECTORY dir
+      DEPHASH_VAR DEPS_HASH
+      DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
+    )
+    message("dependencies are: ${dir}")
+    set(DEFAULT_ROOT ${dir})
+  endif()
 endif(NOT DISABLE_BUNDLED_DEPS)
 
 if(WIN32)

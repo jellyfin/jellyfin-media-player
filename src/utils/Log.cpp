@@ -63,6 +63,9 @@ static void processLog(QString& msg)
 {
   elidePattern(msg, "X-Plex-Token=", 20);
   elidePattern(msg, "X-Plex-Token%3D", 20);
+  elidePattern(msg, "auth_token=", 20);
+  elidePattern(msg, "authenticationToken=\"", 20);
+  elidePattern(msg, "token=", 20);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

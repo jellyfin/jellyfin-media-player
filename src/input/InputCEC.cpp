@@ -257,7 +257,7 @@ QString InputCECWorker::getCommandParamsList(cec_command command)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
 {
-  QString cmdString;
+  QString cmdString, keyCode;
   auto cec = static_cast<InputCECWorker*>(cbParam);
   Q_ASSERT(cec);
 
@@ -270,6 +270,7 @@ int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
   {
     case CEC_OPCODE_PLAY:
       cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_PLAY);
+      cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_PLAY, false);
       break;
 
     case CEC_OPCODE_DECK_CONTROL:
@@ -278,19 +279,27 @@ int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
         switch(command.parameters[0])
         {
           case CEC_DECK_CONTROL_MODE_SKIP_FORWARD_WIND:
-            cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_SEEKFWD);
+            keyCode = INPUT_KEY_SEEKFWD;
             break;
 
           case CEC_DECK_CONTROL_MODE_SKIP_REVERSE_REWIND:
-            cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_SEEKBCK);
+            keyCode = INPUT_KEY_SEEKBCK;
             break;
 
           case CEC_DECK_CONTROL_MODE_STOP:
-            cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_STOP);
+            keyCode = INPUT_KEY_STOP;
             break;
 
           default:
             break;
+        }
+
+        if (!keyCode.isEmpty())
+        {
+          // We don't have up & down events for those special keys
+          // so we just fake them
+          cec->sendReceivedInput(CEC_INPUT_NAME, keyCode);
+          cec->sendReceivedInput(CEC_INPUT_NAME, keyCode, false);
         }
       }
       break;

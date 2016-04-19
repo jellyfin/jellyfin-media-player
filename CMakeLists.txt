@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+
+# use a toolchain file if any for Embedded
+if (EXISTS "${CMAKE_SOURCE_DIR}/toolchain.cmake")
+  set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/toolchain.cmake")
+endif()
+
 project(PlexMediaPlayer CXX C)
 
 # we want this to be able to run clang-tidy

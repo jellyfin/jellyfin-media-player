@@ -85,7 +85,7 @@ static QString getBuildType()
 {
 #ifdef Q_OS_MAC
   return "darwin-x86_64";
-#elseif defined(TARGET_RPI)
+#elif defined(TARGET_RPI)
   return "openelec-armv7";
 #else
   return SystemComponent::Get().getPlatformTypeString() + "-" +

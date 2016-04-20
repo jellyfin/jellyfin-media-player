@@ -993,6 +993,20 @@ QList<CodecDriver> PlayerComponent::installedCodecDrivers()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QStringList PlayerComponent::installedDecoderCodecs()
+{
+  QStringList formats;
+
+  for (auto driver : installedCodecDrivers())
+  {
+    if (driver.type == CodecType::Decoder)
+      formats.append(Codecs::plexNameFromFF(driver.format));
+  }
+
+  return formats;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 PlaybackInfo PlayerComponent::getPlaybackInfo()
 {
   PlaybackInfo info = {};

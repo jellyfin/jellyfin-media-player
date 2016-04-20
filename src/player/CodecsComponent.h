@@ -119,6 +119,8 @@ public:
 
   static QString plexNameToFF(QString plex);
 
+  static QString plexNameFromFF(QString ffname);
+
   static inline bool sameCodec(const CodecDriver& a, const CodecDriver& b)
   {
     return a.type == b.type && a.format == b.format && a.driver == b.driver;

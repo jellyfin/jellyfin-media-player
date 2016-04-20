@@ -104,6 +104,10 @@ public:
   // (checkCodecSupport() handles this specific case to a degree.)
   Q_INVOKABLE virtual QList<CodecDriver> installedCodecDrivers();
 
+  // Return list of codecs supported for decoding. This specifically returns
+  // the format and not decoder implementation (e.g. "h264" not "h264_mmal").
+  Q_INVOKABLE virtual QStringList installedDecoderCodecs();
+
   Q_INVOKABLE void userCommand(QString command);
 
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }

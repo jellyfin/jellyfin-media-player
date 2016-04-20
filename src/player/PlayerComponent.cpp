@@ -418,9 +418,9 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         emit playbackActive(!*(int *)prop->data);
       }
-      else if (strcmp(prop->name, "cache-buffering-state") == 0 && prop->format == MPV_FORMAT_INT64)
+      else if (strcmp(prop->name, "cache-buffering-state") == 0)
       {
-        int64_t percentage = *(int64_t *)prop->data;
+        int64_t percentage = prop->format == MPV_FORMAT_INT64 ? *(int64_t *)prop->data : 100;
         emit buffering(percentage);
       }
       else if (strcmp(prop->name, "playback-time") == 0 && prop->format == MPV_FORMAT_DOUBLE)

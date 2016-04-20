@@ -999,7 +999,7 @@ QStringList PlayerComponent::installedDecoderCodecs()
 
   for (auto driver : installedCodecDrivers())
   {
-    if (driver.type == CodecType::Decoder)
+    if (driver.type == CodecType::Decoder && checkCodecSupport(driver.format))
       formats.append(Codecs::plexNameFromFF(driver.format));
   }
 

@@ -982,7 +982,7 @@ QList<CodecDriver> convertCodecList(QVariant list, CodecType type)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QList<CodecDriver> PlayerComponent::installedCodecs()
+QList<CodecDriver> PlayerComponent::installedCodecDrivers()
 {
   QList<CodecDriver> codecs;
 

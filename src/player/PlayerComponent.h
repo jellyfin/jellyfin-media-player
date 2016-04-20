@@ -102,7 +102,7 @@ public:
   // Downloadable, but not yet installed codecs are excluded.
   // May include codecs that do not work, like vc1_mmal on RPIs with no license.
   // (checkCodecSupport() handles this specific case to a degree.)
-  Q_INVOKABLE virtual QList<CodecDriver> installedCodecs();
+  Q_INVOKABLE virtual QList<CodecDriver> installedCodecDrivers();
 
   Q_INVOKABLE void userCommand(QString command);
 

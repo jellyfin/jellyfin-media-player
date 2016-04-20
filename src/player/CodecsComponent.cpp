@@ -150,7 +150,7 @@ void Codecs::updateCachedCodecList()
   // on the CodecManifest.h list (system codecs, or when compiled  without
   // codec loading).
 
-  QList<CodecDriver> installed = PlayerComponent::Get().installedCodecs();
+  QList<CodecDriver> installed = PlayerComponent::Get().installedCodecDrivers();
 
   // Surely O(n^2) won't be causing trouble, right?
   for (const CodecDriver& installedCodec : installed)

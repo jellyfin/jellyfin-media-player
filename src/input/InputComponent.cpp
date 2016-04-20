@@ -27,7 +27,7 @@
 #define LONG_HOLD_MSEC 500
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_currentActionCount(0)
+InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_autoRepeatCount(0)
 {
   m_mappings = new InputMapping(this);
 }
@@ -55,13 +55,14 @@ bool InputComponent::addInput(InputBase* base)
   m_autoRepeatTimer = new QTimer(this);
   connect(m_autoRepeatTimer, &QTimer::timeout, [=]()
   {
-    if (!m_currentAction.isEmpty())
+    if (!m_autoRepeatActions.isEmpty())
     {
-      m_currentActionCount ++;
-      emit receivedAction(m_currentAction);
+      m_autoRepeatCount ++;
+      QLOG_DEBUG() << "Emit input action (autorepeat):" << m_autoRepeatActions;
+      emit hostInput(m_autoRepeatActions);
     }
 
-    qint32 multiplier = qMin(5, qMax(1, m_currentActionCount / 5));
+    qint32 multiplier = qMin(5, qMax(1, m_autoRepeatCount / 5));
     m_autoRepeatTimer->setInterval(100 / multiplier);
   });
 
@@ -97,7 +98,7 @@ bool InputComponent::componentInitialize()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void InputComponent::handleAction(const QString& action, bool autoRepeat)
+void InputComponent::handleAction(const QString& action)
 {
   if (action.startsWith("host:"))
   {
@@ -140,14 +141,6 @@ void InputComponent::handleAction(const QString& action, bool autoRepeat)
       QLOG_WARN() << "No such host command:" << hostCommand;
     }
   }
-  else
-  {
-    m_currentAction = action;
-    emit receivedAction(action);
-
-    if (autoRepeat)
-      m_autoRepeatTimer->start(500);
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,49 +153,74 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
   if (!pressDown)
   {
     m_autoRepeatTimer->stop();
-    m_currentAction.clear();
-    m_currentActionCount = 0;
+    m_autoRepeatActions.clear();
+    m_autoRepeatCount = 0;
 
     if (!m_currentLongPressAction.isEmpty())
     {
+      QString type;
       if (m_longHoldTimer.elapsed() > LONG_HOLD_MSEC)
-        handleAction(m_currentLongPressAction.value("long").toString(), false);
+        type = "long";
       else
-        handleAction(m_currentLongPressAction.value("short").toString(), false);
+        type = "short";
+
+      QString action = m_currentLongPressAction.value(type).toString();
 
       m_currentLongPressAction.clear();
+
+      QLOG_DEBUG() << "Emit input action (" + type + "):" << action;
+      emit hostInput(QStringList{action});
     }
 
     return;
   }
 
-  auto actions = m_mappings->mapToAction(source, keycode);
-  if (actions.isEmpty())
-  {
-    QLOG_WARN() << "Could not map:" << source << keycode << "to any useful action";
-    return;
-  }
+  QStringList queuedActions;
+  m_autoRepeatActions.clear();
 
+  auto actions = m_mappings->mapToAction(source, keycode);
   for (auto action : actions)
   {
     if (action.type() == QVariant::String)
     {
-      handleAction(action.toString());
+      queuedActions.append(action.toString());
+      m_autoRepeatActions.append(action.toString());
     }
     else if (action.type() == QVariant::Map)
     {
       QVariantMap map = action.toMap();
       if (map.contains("long"))
       {
-        m_longHoldTimer.start();
-        m_currentLongPressAction = map;
+        // Don't overwrite long actions if there was no key up event yet.
+        // (It could be a key autorepeated by Qt.)
+        if (m_currentLongPressAction.isEmpty())
+        {
+          m_longHoldTimer.start();
+          m_currentLongPressAction = map;
+        }
       }
       else if (map.contains("short"))
       {
-        handleAction(map.value("short").toString());
+        queuedActions.append(map.value("short").toString());
       }
     }
   }
+
+  if (!m_autoRepeatActions.isEmpty())
+    m_autoRepeatTimer->start(500);
+
+  if (!queuedActions.isEmpty())
+  {
+    QLOG_DEBUG() << "Emit input action:" << queuedActions;
+    emit hostInput(queuedActions);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::executeActions(const QStringList& actions)
+{
+  for (auto action : actions)
+    handleAction(action);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

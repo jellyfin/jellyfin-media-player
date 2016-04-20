@@ -92,12 +92,18 @@ public:
   void registerHostCommand(const QString& command, QObject* receiver, const char* slot);
   void registerHostCommand(const QString& command, std::function<void(void)> function);
 
+  // Called by web to actually execute pending actions. This is done in reaction
+  // to hostInput(). The actions parameter contains a list of actions which
+  // should be actually dispatched.
+  Q_INVOKABLE void executeActions(const QStringList& actions);
+
 signals:
   // Always emitted when any input arrives
   void receivedInput();
 
-  // Emitted when we have managed to map input to a action
-  void receivedAction(const QString& action);
+  // Emitted when new input arrives. Each entry is an action that matches
+  // in the keymap, such as "host:fullscreen".
+  void hostInput(const QStringList& actions);
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, bool pressDown = true);
@@ -105,17 +111,18 @@ private Q_SLOTS:
 private:
   explicit InputComponent(QObject *parent = nullptr);
   bool addInput(InputBase* base);
-  void handleAction(const QString& action, bool autoRepeat = true);
+  void handleAction(const QString& action);
 
   QHash<QString, ReceiverSlot*> m_hostCommands;
   QList<InputBase*> m_inputs;
   InputMapping* m_mappings;
-  QTimer* m_autoRepeatTimer;
-  QVariantMap m_currentLongPressAction;
-  qint32 m_currentActionCount;
 
+  QTimer* m_autoRepeatTimer;
+  QStringList m_autoRepeatActions;
+  qint32 m_autoRepeatCount;
+
+  QVariantMap m_currentLongPressAction;
   QTime m_longHoldTimer;
-  QString m_currentAction;
 };
 
 #endif // INPUTADAPTER_H

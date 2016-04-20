@@ -996,11 +996,22 @@ QList<CodecDriver> PlayerComponent::installedCodecDrivers()
 QStringList PlayerComponent::installedDecoderCodecs()
 {
   QStringList formats;
+  bool has_pcm = false;
 
   for (auto driver : installedCodecDrivers())
   {
     if (driver.type == CodecType::Decoder && checkCodecSupport(driver.format))
-      formats.append(Codecs::plexNameFromFF(driver.format));
+    {
+      QString name = Codecs::plexNameFromFF(driver.format);
+      if (name.startsWith("pcm_") && name != "pcm_bluray" && name != "pcm_dvd")
+      {
+        if (has_pcm)
+          continue;
+        has_pcm = true;
+        name = "pcm";
+      }
+      formats.append(name);
+    }
   }
 
   return formats;

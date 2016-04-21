@@ -33,7 +33,7 @@ if(ENABLE_CODECS)
       DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h
       STATUS DL_STATUS
     )
-  elseif()
+  else()
     set(CODECS_BUILD_NUMBER 117)
     message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h")
     file(

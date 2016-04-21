@@ -75,6 +75,7 @@ public:
 
 signals:
   void hostMessage(const QString& message);
+  void settingsMessage(const QString& setting, const QString& value);
   void scaleChanged(qreal scale);
 
 private:

@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QList>
 #include "input/InputComponent.h"
+#include "system/SystemComponent.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 SettingsComponent::SettingsComponent(QObject *parent) : ComponentBase(parent), m_settingsVersion(-1)
@@ -60,9 +61,11 @@ void SettingsComponent::cycleSetting(const QString& args)
   }
   if (nextValueIndex >= values.size())
     nextValueIndex = 0;
-  QVariant nextValue = values[nextValueIndex].toMap()["value"];
+  auto nextSetting = values[nextValueIndex].toMap();
+  auto nextValue = nextSetting["value"];
   QLOG_DEBUG() << "Setting" << settingName << "to" << nextValue;
   setValue(sectionID, valueName, nextValue);
+  emit SystemComponent::Get().settingsMessage(valueName, nextSetting["title"].toString());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -899,7 +899,7 @@ void PlayerComponent::updateVideoSettings()
     hwdecEnabled = true;
     hwdecVTFormat = "uyvy422";
   }
-  mpv::qt::set_property_variant(m_mpv, "hwdec", hwdecEnabled);
+  mpv::qt::set_property_variant(m_mpv, "hwdec", hwdecEnabled ? "auto" : "no");
   mpv::qt::set_option_variant(m_mpv, "videotoolbox-format", hwdecVTFormat);
 
   QVariant deinterlace = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "deinterlace");

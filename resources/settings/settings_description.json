@@ -125,19 +125,19 @@
         "value": "devicetype",
         "default": "basic",
         "possible_values": [
-          [ "basic", "Basic" ],
-          [ "spdif", "Optical (S/PDIF)" ],
-          [ "hdmi", "HDMI" ]
+          [ "basic", "audio.basic" ],
+          [ "spdif", "audio.spdif" ],
+          [ "hdmi", "audio.hdmi" ]
         ]
       },
       {
         "value": "channels",
         "default": "2.0",
         "possible_values": [
-          [ "auto", "Auto Select Channels" ],
-          [ "2.0", "Stereo" ],
-          [ "5.1", "5.1" ],
-          [ "7.1", "7.1" ]
+          [ "auto", "audio.auto" ],
+          [ "2.0", "audio.stereo" ],
+          [ "5.1", "audio.51" ],
+          [ "7.1", "audio.71" ]
         ]
       },
       {
@@ -220,10 +220,10 @@
           }
         ],
         "possible_values": [
-          [ "enabled", "Enabled", { "platforms_excluded": "osx" } ],
-          [ "enabled", "Enabled (modern hardware)", { "platforms": "osx" } ],
-          [ "osx_compat", "Enabled (older hardware)", { "platforms": "osx" } ],
-          [ "disabled", "Disabled" ]
+          [ "enabled", "video.decode.enabled", { "platforms_excluded": "osx" } ],
+          [ "enabled", "video.decode.enabled.modern", { "platforms": "osx" } ],
+          [ "osx_compat", "video.decode.enabled.old", { "platforms": "osx" } ],
+          [ "disabled", "video.decode.disabled" ]
         ],
         "platforms_excluded": "oe_rpi"
       },
@@ -244,9 +244,9 @@
         "value": "sync_mode",
         "default": "audio",
         "possible_values": [
-          [ "audio", "Audio" ],
-          [ "display-resample", "Display (resample audio)" ],
-          [ "display-adrop", "Display (drop/duplicate audio)" ]
+          [ "audio", "video.sync.audio" ],
+          [ "display-resample", "video.sync.resample" ],
+          [ "display-adrop", "video.sync.adrop" ]
         ]
       },
       {
@@ -273,23 +273,23 @@
         "value": "cache",
         "default": 75,
         "possible_values": [
-          [ 10, "Tiny (10 MB)" ],
-          [ 75, "Default (75 MB)" ],
-          [ 150, "Large (150 MB)", { "platforms_excluded": "oe_rpi" } ],
-          [ 500, "Very Large (500 MB)", { "platforms_excluded": "oe_rpi" } ]
+          [ 10, "video.cache.tiny" ],
+          [ 75, "video.cache.default" ],
+          [ 150, "video.cache.large", { "platforms_excluded": "oe_rpi" } ],
+          [ 500, "video.cache.vlarge", { "platforms_excluded": "oe_rpi" } ]
         ]
       },
       {
         "value": "aspect",
         "default": "normal",
         "possible_values": [
-          [ "normal", "Display normally" ],
-          [ "zoom", "Zoom (can crop off video)" ],
-          [ "force_4_3", "Force video to 4:3" ],
-          [ "force_16_9", "Force video to 16:9" ],
-          [ "stretch", "Stretch video to screen" ],
-          [ "noscaling", "Disable all scaling" ],
-          [ "custom", "Custom" ]
+          [ "normal", "video.aspect.normal" ],
+          [ "zoom", "video.aspect.zoom" ],
+          [ "force_4_3", "video.aspect.force43" ],
+          [ "force_16_9", "video.aspect.force169" ],
+          [ "stretch", "video.aspect.stretch" ],
+          [ "noscaling", "video.aspect.noscale" ],
+          [ "custom", "video.aspect.custom" ]
         ]
       }
     ]
@@ -301,34 +301,34 @@
         "value": "placement",
         "default": "center,bottom",
         "possible_values": [
-          [ "left,bottom", "Lower left" ],
-          [ "right,bottom", "Lower right" ],
-          [ "center,bottom", "Lower middle" ],
-          [ "left,top", "Upper left" ],
-          [ "right,top", "Upper right" ],
-          [ "center,top", "Upper middle" ]
+          [ "left,bottom", "subtitles.leftBottom" ],
+          [ "right,bottom", "subtitles.rightBottom" ],
+          [ "center,bottom", "subtitles.centerBottom" ],
+          [ "left,top", "subtitles.leftTop" ],
+          [ "right,top", "subtitles.rightTop" ],
+          [ "center,top", "subtitles.centerTop" ]
         ]
       },
       {
         "value": "color",
         "default": "#EEEEEE,#000000",
         "possible_values": [
-          [ "#EEEEEE,#000000", "Light grey" ],
-          [ "#CCCCCC,#000000", "Blended light grey" ],
-          [ "#FBF93E,#000000", "Yellow" ],
-          [ "#FFFFCC,#000000", "Light yellow" ],
-          [ "#EEEDB8,#000000", "Blended light yellow" ]
+          [ "#EEEEEE,#000000", "subtitles.lightGrey" ],
+          [ "#CCCCCC,#000000", "subtitles.blendedLightGrey" ],
+          [ "#FBF93E,#000000", "subtitles.yellow" ],
+          [ "#FFFFCC,#000000", "subtitles.lightYellow" ],
+          [ "#EEEDB8,#000000", "subtitles.blendedLightYellow" ]
         ]
       },
       {
         "value": "size",
         "default": 32,
         "possible_values": [
-          [ 18, "Tiny" ],
-          [ 24, "Small" ],
-          [ 32, "Normal" ],
-          [ 42, "Large" ],
-          [ 60, "Huge" ]
+          [ 18, "subtitles.tiny" ],
+          [ 24, "subtitles.small" ],
+          [ 32, "subtitles.normal" ],
+          [ 42, "subtitles.large" ],
+          [ 60, "subtitles.huge" ]
         ]
       }
     ]

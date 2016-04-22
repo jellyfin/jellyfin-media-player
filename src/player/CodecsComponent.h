@@ -128,7 +128,7 @@ public:
 
   static void updateCachedCodecList();
 
-  static const QList<CodecDriver>& getCachecCodecList();
+  static const QList<CodecDriver>& getCachedCodecList();
 
   static QList<CodecDriver> findCodecsByFormat(const QList<CodecDriver>& list, CodecType type, const QString& format);
   static QList<CodecDriver> determineRequiredCodecs(const PlaybackInfo& info);

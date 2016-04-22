@@ -172,7 +172,7 @@ void Codecs::updateCachedCodecList()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const QList<CodecDriver>& Codecs::getCachecCodecList()
+const QList<CodecDriver>& Codecs::getCachedCodecList()
 {
   return g_cachedCodecList;
 }
@@ -454,7 +454,7 @@ void CodecsFetcher::processCodecDownloadDone(const QByteArray& data, const Codec
 
   // This causes libmpv and eventually libavcodec to rescan and load new codecs.
   Codecs::updateCachedCodecList();
-  for (const CodecDriver& item : Codecs::getCachecCodecList())
+  for (const CodecDriver& item : Codecs::getCachedCodecList())
   {
     if (Codecs::sameCodec(item, codec) && !item.present)
     {
@@ -524,7 +524,7 @@ static bool useSystemVideoDecoders()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static CodecDriver selectBestDecoder(const StreamInfo& stream)
 {
-  QList<CodecDriver> codecs = Codecs::findCodecsByFormat(Codecs::getCachecCodecList(), CodecType::Decoder, stream.codec);
+  QList<CodecDriver> codecs = Codecs::findCodecsByFormat(Codecs::getCachedCodecList(), CodecType::Decoder, stream.codec);
   CodecDriver best = {};
   int bestScore = -1;
   for (auto codec : codecs)
@@ -607,7 +607,7 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
 
   if (needAC3Encoder)
   {
-    QList<CodecDriver> codecs = Codecs::findCodecsByFormat(Codecs::getCachecCodecList(), CodecType::Encoder, "ac3");
+    QList<CodecDriver> codecs = Codecs::findCodecsByFormat(Codecs::getCachedCodecList(), CodecType::Encoder, "ac3");
     CodecDriver encoder = {};
     for (auto codec : codecs)
     {

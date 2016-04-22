@@ -164,7 +164,7 @@ bool PlayerComponent::componentInitialize()
   Codecs::updateCachedCodecList();
 
   QString codecInfo;
-  for (auto codec : Codecs::getCachecCodecList())
+  for (auto codec : Codecs::getCachedCodecList())
   {
     if (codec.present)
     {

@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOptions({{{"l", "licenses"}, "Show license information"}});
+    parser.addOptions({{{"a", "from-auto-update"}, "When invoked from auto-update"}});
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     argc += g_qtFlags.size();

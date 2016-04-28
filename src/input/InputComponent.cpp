@@ -25,6 +25,7 @@
 #endif
 
 #define LONG_HOLD_MSEC 500
+#define INITAL_AUTOREPEAT_MSEC 650
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_autoRepeatCount(0)
@@ -48,7 +49,6 @@ bool InputComponent::addInput(InputBase* base)
   // needs to be remaped in remapInput and then finally send it out to JS land.
   //
   connect(base, &InputBase::receivedInput, this, &InputComponent::remapInput);
-
 
   // for auto-repeating inputs
   //
@@ -207,7 +207,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
   }
 
   if (!m_autoRepeatActions.isEmpty())
-    m_autoRepeatTimer->start(500);
+    m_autoRepeatTimer->start(INITAL_AUTOREPEAT_MSEC);
 
   if (!queuedActions.isEmpty())
   {

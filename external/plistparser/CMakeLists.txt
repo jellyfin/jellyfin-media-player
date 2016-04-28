@@ -6,3 +6,4 @@ add_library(plistparser STATIC
   plistserializer.cpp
   plistserializer.h
 )
+std_target_properties(plistparser)

@@ -38,5 +38,5 @@ void InputSocket::messageReceived(const QVariant& message)
   QLOG_DEBUG() << "Input from client:" << map.value("client").toString() << " - " <<
                map.value("source").toString() << map.value("keycode").toString();
 
-  emit receivedInput(map.value("source").toString(), map.value("keycode").toString(), 1);
+  emit receivedInput(map.value("source").toString(), map.value("keycode").toString(), KeyPressed);
 }

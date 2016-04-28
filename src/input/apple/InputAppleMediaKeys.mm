@@ -43,30 +43,28 @@
 
   QString keyPressed;
 
-  if (keyIsPressed) {
-    switch (keyCode) {
-      case NX_KEYTYPE_PLAY:
-        keyPressed = INPUT_KEY_PLAY;
-        break;
-      case NX_KEYTYPE_FAST:
-        keyPressed = "KEY_FAST";
-        break;
-      case NX_KEYTYPE_REWIND:
-        keyPressed = "KEY_REWIND";
-        break;
-      case NX_KEYTYPE_NEXT:
-        keyPressed = INPUT_KEY_NEXT;
-        break;
-      case NX_KEYTYPE_PREVIOUS:
-        keyPressed = INPUT_KEY_PREV;
-        break;
-      default:
-        break;
-        // More cases defined in hidsystem/ev_keymap.h
-    }
-
-    emit input->receivedInput("AppleMediaKeys", keyPressed);
+  switch (keyCode) {
+    case NX_KEYTYPE_PLAY:
+      keyPressed = INPUT_KEY_PLAY;
+      break;
+    case NX_KEYTYPE_FAST:
+      keyPressed = "KEY_FAST";
+      break;
+    case NX_KEYTYPE_REWIND:
+      keyPressed = "KEY_REWIND";
+      break;
+    case NX_KEYTYPE_NEXT:
+      keyPressed = INPUT_KEY_NEXT;
+      break;
+    case NX_KEYTYPE_PREVIOUS:
+      keyPressed = INPUT_KEY_PREV;
+      break;
+    default:
+      break;
+      // More cases defined in hidsystem/ev_keymap.h
   }
+
+  emit input->receivedInput("AppleMediaKeys", keyPressed, keyIsPressed ? InputBase::KeyDown : InputBase::KeyUp);
 }
 
 @end

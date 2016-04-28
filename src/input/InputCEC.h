@@ -40,7 +40,7 @@ public:
   ~InputCECWorker() override;
 
   Q_SLOT bool init();
-  Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, bool pressDown);
+  Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
 
 public slots:
   void checkAdapter();
@@ -52,7 +52,7 @@ private:
   void closeAdapter();
 
   QString getCommandString(cec_user_control_code code);
-  void sendReceivedInput(const QString& source, const QString& keycode, bool pressDown = true);
+  void sendReceivedInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
   QString getCommandParamsList(cec_command command);
 
   // libcec callbacks

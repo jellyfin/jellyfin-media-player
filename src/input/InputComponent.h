@@ -19,8 +19,16 @@ public:
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
   
+  enum InputkeyState
+  {
+    KeyDown,
+    KeyUp,
+    KeyPressed
+  };
+  Q_ENUM(InputkeyState)
+
 signals:
-  void receivedInput(const QString& source, const QString& keycode, bool pressDown = true);
+  void receivedInput(const QString& source, const QString& keycode, InputkeyState keystate);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +114,7 @@ signals:
   void hostInput(const QStringList& actions);
 
 private Q_SLOTS:
-  void remapInput(const QString& source, const QString& keycode, bool pressDown = true);
+  void remapInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
   
 private:
   explicit InputComponent(QObject *parent = nullptr);

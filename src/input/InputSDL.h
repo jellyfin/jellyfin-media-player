@@ -40,7 +40,7 @@ public slots:
   void close();
 
 signals:
-  void receivedInput(const QString& source, const QString& keycode, bool pressDown = true);
+  void receivedInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
 
 private:
   void refreshJoystickList();

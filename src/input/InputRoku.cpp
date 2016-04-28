@@ -202,10 +202,13 @@ void InputRoku::handleKeyPress(QHttpRequest* request, QHttpResponse* response)
   }
 
   auto url = request->url().toString();
-  if (url.startsWith("/keydown/") || url.startsWith("/keypress/"))
-    emit receivedInput("roku", pathsplit.value(2), true);
-  if (url.startsWith("/keyup/") || url.startsWith("/keypress/"))
-    emit receivedInput("roku", pathsplit.value(2), false);
+  if (url.startsWith("/keydown/"))
+    emit receivedInput("roku", pathsplit.value(2), KeyDown);
+  else if (url.startsWith("/keyup/"))
+    emit receivedInput("roku", pathsplit.value(2), KeyUp);
+  else if (url.startsWith("/keypress/"))
+    emit receivedInput("roku", pathsplit.value(2), KeyPressed);
+
 
   response->setStatusCode(qhttp::ESTATUS_OK);
   response->end();

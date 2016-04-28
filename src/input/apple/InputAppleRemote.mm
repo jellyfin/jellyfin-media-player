@@ -56,7 +56,7 @@ void InputAppleRemote::remoteButtonEvent(quint8 code, bool pressed, const QStrin
   else
     eventName = QString::number(code);
 
-  emit receivedInput("AppleRemote", eventName, pressed);
+  emit receivedInput("AppleRemote", eventName, pressed ? KeyDown : KeyUp);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

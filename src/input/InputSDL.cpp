@@ -80,13 +80,13 @@ void InputSDLWorker::run()
 
         case SDL_JOYBUTTONDOWN:
         {
-          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button, true));
+          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button), InputBase::KeyDown);
           break;
         }
 
         case SDL_JOYBUTTONUP:
         {
-          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button), false);
+          emit receivedInput(nameForId(event.jbutton.which), QString("KEY_BUTTON_%1").arg(event.jbutton.button), InputBase::KeyUp);
           break;
         }
 
@@ -137,7 +137,7 @@ void InputSDLWorker::run()
 
           m_lastHat = hatName;
 
-          emit receivedInput(nameForId(event.jhat.which), hatName, pressed);
+          emit receivedInput(nameForId(event.jhat.which), hatName, pressed ? InputBase::KeyDown : InputBase::KeyUp);
 
           break;
         }
@@ -155,18 +155,18 @@ void InputSDLWorker::run()
             bool up = value < 0;
             if (!m_axisState.contains(axis))
             {
-              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(up ? "UP" : "DOWN"), true);
+              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(up ? "UP" : "DOWN"), InputBase::KeyDown);
               m_axisState.insert(axis, up);
             }
             else if (m_axisState.value(axis) != up)
             {
-              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(m_axisState.value(axis) ? "UP" : "DOWN"), false);
+              emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(m_axisState.value(axis) ? "UP" : "DOWN"), InputBase::KeyUp);
               m_axisState.remove(axis);
             }
           }
           else if (std::abs(value) < 10000 && m_axisState.contains(axis)) // back to the center.
           {
-            emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(m_axisState.value(axis) ? "UP" : "DOWN"), false);
+            emit receivedInput(nameForId(event.jaxis.which), QString("KEY_AXIS_%1_%2").arg(axis).arg(m_axisState.value(axis) ? "UP" : "DOWN"), InputBase::KeyUp);
             m_axisState.remove(axis);
           }
           break;

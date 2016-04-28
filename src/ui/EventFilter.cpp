@@ -31,7 +31,12 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     // keyboard buttons to different events.
     //
 
-    bool pressed = event->type() == QEvent::KeyPress;
+    InputBase::InputkeyState keystatus;
+
+    if (event->type() == QEvent::KeyPress)
+      keystatus = InputBase::KeyDown;
+    else
+      keystatus = InputBase::KeyUp;
 
     QKeyEvent* kevent = dynamic_cast<QKeyEvent*>(event);
     if (kevent)
@@ -41,7 +46,7 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
       {
         // We ignore the KeypadModifier here since it's practically useless
         QKeySequence key(kevent->key() | (kevent->modifiers() &= ~Qt::KeypadModifier));
-        InputKeyboard::Get().keyPress(key, pressed);
+        InputKeyboard::Get().keyPress(key, keystatus);
         return true;
       }
     }

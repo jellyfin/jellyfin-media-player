@@ -18,9 +18,9 @@ public:
   bool initInput() override { return true; }
   const char* inputName() override { return "Keyboard"; }
 
-  void keyPress(const QKeySequence& sequence, bool press)
+  void keyPress(const QKeySequence& sequence, InputkeyState keyState)
   {
-    emit receivedInput("Keyboard", sequence.toString(), press);
+    emit receivedInput("Keyboard", sequence.toString(), keyState);
   }
 
 private:

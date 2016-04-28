@@ -144,13 +144,13 @@ void InputComponent::handleAction(const QString& action)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputComponent::remapInput(const QString &source, const QString &keycode, bool pressDown)
+void InputComponent::remapInput(const QString &source, const QString &keycode, InputBase::InputkeyState keyState)
 {
-  QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode << "pressed:" << (pressDown ? "down" : "release");
+  QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode << ":" << keyState;
 
   emit receivedInput();
 
-  if (!pressDown)
+  if (keyState == InputBase::KeyUp)
   {
     m_autoRepeatTimer->stop();
     m_autoRepeatActions.clear();
@@ -206,7 +206,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
     }
   }
 
-  if (!m_autoRepeatActions.isEmpty())
+  if (!m_autoRepeatActions.isEmpty() && keyState != InputBase::KeyPressed)
     m_autoRepeatTimer->start(INITAL_AUTOREPEAT_MSEC);
 
   if (!queuedActions.isEmpty())

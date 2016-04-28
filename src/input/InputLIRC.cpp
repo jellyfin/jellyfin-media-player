@@ -108,7 +108,7 @@ void InputLIRC::read(int handle)
       if ((repeatCount % 3) == 0)
       {
         bool up = (command.endsWith("_UP") && (command != "KEY_UP"));
-        emit receivedInput("LIRC", command, !up);
+        emit receivedInput("LIRC", command, up ? InputBase::KeyUp : InputBase::KeyDown);
       }
     }
     else

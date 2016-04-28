@@ -5,6 +5,7 @@
 #include "settings/SettingsComponent.h"
 #include <QGuiApplication>
 #include <QWindow>
+#include <math.h>
 
 #ifdef Q_OS_MAC
 #include "osx/DisplayManagerOSX.h"

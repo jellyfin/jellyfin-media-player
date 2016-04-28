@@ -34,7 +34,7 @@ static void wakeup_cb(void *context)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::PlayerComponent(QObject* parent)
-  : ComponentBase(parent), m_lastPositionUpdate(0.0), m_playbackAudioDelay(0), m_playbackStartSent(false), m_window(nullptr), m_mediaFrameRate(0),
+  : ComponentBase(parent), m_lastPositionUpdate(0.0), m_playbackAudioDelay(0), m_playbackStartSent(false), m_autoPlay(false),  m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false), m_doAc3Transcoding(false)
 {
@@ -273,7 +273,8 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   if (!audioStream.isEmpty())
     extraArgs.insert("ff-aid", audioStream);
 
-  extraArgs.insert("pause", options["autoplay"].toBool() ? "no" : "yes");
+  m_autoPlay = options["autoplay"].toBool();
+  extraArgs.insert("pause", m_autoPlay ? "no" : "yes");
 
   QString userAgent = metadata["headers"].toMap()["User-Agent"].toString();
   if (userAgent.size())
@@ -402,7 +403,11 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     {
       // it's also sent after seeks are completed
       if (!m_playbackStartSent)
+      {
+        mpv::qt::set_property_variant(m_mpv, "pause", !m_autoPlay);
+        emit paused(!m_autoPlay);
         emit playbackStarting();
+      }
       m_playbackStartSent = true;
       break;
     }

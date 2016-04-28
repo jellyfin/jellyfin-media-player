@@ -200,6 +200,7 @@ private:
   qint64 m_playbackAudioDelay;
   QString m_currentUrl;
   bool m_playbackStartSent;
+  bool m_autoPlay;
   QQuickWindow* m_window;
   float m_mediaFrameRate;
   QTimer m_restoreDisplayTimer;

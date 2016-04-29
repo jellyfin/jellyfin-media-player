@@ -314,3 +314,12 @@ void SystemComponent::runUserScript(QString script)
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::hello(const QString& version)
+{
+  QLOG_DEBUG() << QString("Web-client (%1) fully inited.").arg(version);
+  m_webClientVersion = version;
+}
+
+
+

@@ -601,7 +601,7 @@ bool SettingsComponent::componentInitialize()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::setupVersion()
 {
-  QSettings settings("Plex", "Plex Media Player");
+  QSettings settings;
   m_oldestPreviousVersion = settings.value(OLDEST_PREVIOUS_VERSION_KEY).toString();
   if (m_oldestPreviousVersion.isEmpty())
   {

@@ -211,8 +211,16 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, I
 
   if (!queuedActions.isEmpty())
   {
-    QLOG_DEBUG() << "Emit input action:" << queuedActions;
-    emit hostInput(queuedActions);
+    if (SystemComponent::Get().isWebClientConnected())
+    {
+      QLOG_DEBUG() << "Emit input action:" << queuedActions;
+      emit hostInput(queuedActions);
+    }
+    else
+    {
+      QLOG_DEBUG() << "Web Client has not connected, handling input in host instead.";
+      executeActions(queuedActions);
+    }
   }
 }
 

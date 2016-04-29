@@ -367,6 +367,7 @@ void CodecsFetcher::startNext()
   query.addQueryItem("deviceId", getDeviceID());
   query.addQueryItem("version", g_codecVersion);
   query.addQueryItem("build", getBuildType());
+  query.addQueryItem("oldestPreviousVersion", SettingsComponent::Get().oldestPreviousVersion());
   url.setQuery(query);
 
   QLOG_INFO() << "Codec info request:" << url.toString();

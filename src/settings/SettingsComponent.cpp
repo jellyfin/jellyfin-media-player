@@ -11,8 +11,12 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QList>
+#include <QSettings>
 #include "input/InputComponent.h"
 #include "system/SystemComponent.h"
+#include "Version.h"
+
+#define OLDEST_PREVIOUS_VERSION_KEY "oldestPreviousVersion"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 SettingsComponent::SettingsComponent(QObject *parent) : ComponentBase(parent), m_settingsVersion(-1)
@@ -203,6 +207,12 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::saveSettings()
 {
+  if (m_oldestPreviousVersion.isEmpty())
+  {
+    QLOG_ERROR() << "Not writing settings: uninitialized.\n";
+    return;
+  }
+
   QVariantMap sections;
 
   for(SettingsSection* section : m_sections.values())
@@ -569,6 +579,9 @@ bool SettingsComponent::componentInitialize()
   if (!loadDescription())
     return false;
 
+  // Must be called before we possibly write the config file.
+  setupVersion();
+
   load();
 
   // add our AudioSettingsController that will inspect audio settings and react.
@@ -583,6 +596,25 @@ bool SettingsComponent::componentInitialize()
   connect(ctrl, &AudioSettingsController::settingsUpdated, this, &SettingsComponent::groupUpdate);
 
   return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::setupVersion()
+{
+  QSettings settings("Plex", "Plex Media Player");
+  m_oldestPreviousVersion = settings.value(OLDEST_PREVIOUS_VERSION_KEY).toString();
+  if (m_oldestPreviousVersion.isEmpty())
+  {
+    // Version key was not present. It could still be a pre-1.1 PMP install,
+    // so here we try to find out whether this is the very first install, or
+    // if an older one exists.
+    QFile configFile(Paths::dataDir("plexmediaplayer.conf"));
+    if (configFile.exists())
+      m_oldestPreviousVersion = "legacy";
+    else
+      m_oldestPreviousVersion = Version::GetVersionString();
+    settings.setValue(OLDEST_PREVIOUS_VERSION_KEY, m_oldestPreviousVersion);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

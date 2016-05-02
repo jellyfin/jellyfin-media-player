@@ -23,8 +23,6 @@ if(OPENELEC)
   Message(STATUS "Making an OpenELEC build")
 endif(OPENELEC)
 
-option(BUILD_TARGET "Destination target for the build" "")
-
 if(BUILD_TARGET STREQUAL "RPI")
   add_definitions(-DTARGET_RPI=1)
   set(RPI_LIBS bcm_host)

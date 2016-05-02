@@ -178,7 +178,7 @@ KonvergoWindow
       anchors.bottomMargin: 54
       color: "white"
       font.pixelSize: width / 45
-      wrapMode: Text.NoWrap
+      wrapMode: Text.WrapAnywhere
 
       text: mainWindow.videoInfo
     }

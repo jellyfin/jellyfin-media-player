@@ -1,0 +1,22 @@
+NEW:
+  - Search window now handle keyboard input
+  - Emulated Roku 3 HTTP Input
+  - All inputs now handle accelerated auto-repeat
+  - Support for Plex Home Theater harmony mode
+  - Clock in both navigation and Player UI
+  - Cycle zoom options with the Z key
+  - Support for Power actions on OSX and Windows
+  - Support for hiding power options by editing the configuration file
+  - Some keymappings changed, fullscreen is now Ctrl/Cmd+Shift+F since we
+    we mapped Cmd/Ctrl+F to search
+  - Toggle for hardware acceleration mode on OS X. If you have older mac mini
+    hardware you need to select that in the hardware acceleration settings. In
+    addition the hardware acceleration setting was reset for platforms, so you
+    will need to re-enable it.
+  - [Source] PMP now requires a C++14 compatible compiler to build 
+  
+FIXED:
+  - Fixed a issue where the video rendering could be held up by activity on the
+    main thread. Should remove some of the stuttering under certain cirumstances
+  - Re-center the UI in the window on non 16:9 aspects
+  - Fixed an issue where the playback could start paused

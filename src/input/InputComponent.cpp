@@ -204,6 +204,10 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, I
         queuedActions.append(map.value("short").toString());
       }
     }
+    else if (action.type() == QVariant::List)
+    {
+      queuedActions.append(action.toStringList());
+    }
   }
 
   if (!m_autoRepeatActions.isEmpty() && keyState != InputBase::KeyPressed)

@@ -19,7 +19,7 @@
 
     // map X and Shift+X to X for letters, space to space. This allows normal text input
     "(?:Shift\\+)?([A-Z])": "%1",
-    "Space": "space",
+    "Space": ["space", "play_pause"],
 
     // map some other normal buttons that might be useful
     "(?:Shift\\+)?(\\.|\\:|\\_)": "%1",
@@ -27,7 +27,6 @@
     // map Shift+Letter to action jump+letter
     "Shift\\+([A-Z])": "jump+%1",
 
-    "Space": "play_pause",
     "P": "play_pause",
     "Ctrl\\+P": "pause",
     "X": "stop",

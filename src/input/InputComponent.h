@@ -15,7 +15,7 @@ class InputBase : public QObject
 {
   Q_OBJECT
 public:
-  explicit InputBase(QObject* parent = nullptr) : QObject(parent) { }
+  explicit InputBase(QObject* parent = nullptr) : QObject(parent) { qRegisterMetaType<InputBase::InputkeyState>("InputkeyState"); }
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
   

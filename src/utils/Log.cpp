@@ -59,7 +59,7 @@ static void elidePattern(QString& msg, const QString& substring, int chars)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-static void processLog(QString& msg)
+void Log::CensorAuthTokens(QString& msg)
 {
   elidePattern(msg, "X-Plex-Token=", 20);
   elidePattern(msg, "X-Plex-Token%3D", 20);
@@ -108,7 +108,7 @@ void Log::Init()
 
   Logger::instance().addDestination(dest);
   Logger::instance().setLoggingLevel(DebugLevel);
-  Logger::instance().setProcessingCallback(processLog);
+  Logger::instance().setProcessingCallback(Log::CensorAuthTokens);
 
   qInstallMessageHandler(qtMessageOutput);
 

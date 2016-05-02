@@ -7,6 +7,7 @@
 #include "settings/SettingsComponent.h"
 #include "system/SystemComponent.h"
 #include "utils/Utils.h"
+#include "utils/Log.h"
 #include "ComponentManager.h"
 #include "settings/SettingsSection.h"
 
@@ -1134,6 +1135,7 @@ static QString get_mpv_osd(mpv_handle *ctx, const QString& property)
     return "-";
   QString r = QString::fromUtf8(s);
   mpv_free(s);
+  Log::CensorAuthTokens(r);
   return r;
 }
 

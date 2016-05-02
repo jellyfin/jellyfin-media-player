@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include <QCoreApplication>
 #include <QOpenGLContext>
 #include <QRunnable>
 
@@ -34,6 +35,9 @@ void initD3DDevice(void)
   D3DPRESENT_PARAMETERS d3dpp = {};
   D3DDISPLAYMODE        d3ddm;
   UINT adapter = D3DADAPTER_DEFAULT;
+
+  if (QCoreApplication::testAttribute(Qt::AA_UseOpenGLES))
+    return;
 
   HMODULE d3dlib = LoadLibraryW(L"d3d9.dll");
   if (!d3dlib) {

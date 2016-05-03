@@ -370,8 +370,6 @@ void CodecsFetcher::startNext()
   query.addQueryItem("oldestPreviousVersion", SettingsComponent::Get().oldestPreviousVersion());
   url.setQuery(query);
 
-  QLOG_INFO() << "Codec info request:" << url.toString();
-
   Downloader *downloader = new Downloader(QVariant::fromValue(codec), url, getPlexHeaders(), this);
   connect(downloader, &Downloader::done, this, &CodecsFetcher::codecInfoDownloadDone);
 }
@@ -416,8 +414,6 @@ bool CodecsFetcher::processCodecInfoReply(const QByteArray& data, const CodecDri
     QLOG_ERROR() << "Hash value in unexpected format or missing:" << hash;
     return false;
   }
-
-  QLOG_INFO() << "Downloading codec:" << url;
 
   Downloader *downloader = new Downloader(QVariant::fromValue(codec), url, getPlexHeaders(), this);
   connect(downloader, &Downloader::done, this, &CodecsFetcher::codecDownloadDone);
@@ -485,25 +481,50 @@ void CodecsFetcher::codecDownloadDone(QVariant userData, bool success, const QBy
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 Downloader::Downloader(QVariant userData, const QUrl& url, const HeaderList& headers, QObject* parent)
-  : QObject(parent), m_userData(userData)
+  : QObject(parent), m_userData(userData), m_lastProgress(-1)
 {
+  QLOG_INFO() << "HTTP request:" << url.toDisplayString();
+  m_currentStartTime.start();
+
   connect(&m_WebCtrl, &QNetworkAccessManager::finished, this, &Downloader::networkFinished);
 
   QNetworkRequest request(url);
   for (int n = 0; n < headers.size(); n++)
     request.setRawHeader(headers[n].first.toUtf8(), headers[n].second.toUtf8());
-  m_WebCtrl.get(request);
+  QNetworkReply *reply = m_WebCtrl.get(request);
+  if (reply)
+  {
+    connect(reply, &QNetworkReply::downloadProgress, this, &Downloader::downloadProgress);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+  if (bytesTotal > 0)
+  {
+    int progress = bytesReceived * 100 / bytesTotal;
+    if (m_lastProgress < 0 || progress > m_lastProgress + 10)
+    {
+      m_lastProgress = progress;
+      QLOG_INFO() << "HTTP request at" << progress << "% (" << bytesReceived << "/" << bytesTotal << ")";
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void Downloader::networkFinished(QNetworkReply* pReply)
 {
+  QLOG_INFO() << "HTTP finished after" << (m_currentStartTime.elapsed() + 500) / 1000
+              << "seconds for a request of" << pReply->size() << "bytes.";
+
   if (pReply->error() == QNetworkReply::NoError)
   {
     emit done(m_userData, true, pReply->readAll());
   }
   else
   {
+    QLOG_ERROR() << "HTTP download error:" << pReply->errorString();
     emit done(m_userData, false, QByteArray());
   }
   pReply->deleteLater();

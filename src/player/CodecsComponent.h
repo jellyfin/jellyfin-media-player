@@ -76,11 +76,14 @@ Q_SIGNALS:
 
 private Q_SLOTS:
   void networkFinished(QNetworkReply* pReply);
+  void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 private:
   QNetworkAccessManager m_WebCtrl;
   QByteArray m_DownloadedData;
   QVariant m_userData;
+  QTime m_currentStartTime;
+  int m_lastProgress;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

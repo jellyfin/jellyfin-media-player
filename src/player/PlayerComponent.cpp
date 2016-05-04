@@ -1190,8 +1190,8 @@ QString PlayerComponent::videoInformation() const
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   info << "Display FPS: " << MPV_PROPERTY("display-fps")
                           << " (" << displayFps << ")" << endl;
-  info << "Hardware Decoding: " << MPV_PROPERTY("hwdec-active")
-                                << " (" << MPV_PROPERTY("hwdec-detected") << ")" << endl;
+  info << "Hardware Decoding: " << MPV_PROPERTY("hwdec-current")
+                                << " (" << MPV_PROPERTY("hwdec-interop") << ")" << endl;
   info << endl;
   info << "Audio: " << endl;
   info << "Codec: " << MPV_PROPERTY("audio-codec") << endl;

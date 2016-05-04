@@ -14,6 +14,10 @@
 #include "QsLog.h"
 #include "utils/Utils.h"
 
+#ifdef USE_X11EXTRAS
+#include <QX11Info>
+#endif
+
 #if defined(Q_OS_WIN32)
 
 #include <windows.h>
@@ -93,6 +97,14 @@ static void* __stdcall MPGetNativeDisplay(const char* name)
   return NULL;
 }
 // defined(Q_OS_WIN32)
+#elif defined(USE_X11EXTRAS)
+// Linux
+static void* MPGetNativeDisplay(const char* name)
+{
+  if (strcmp(name, "x11") == 0)
+    return QX11Info::display();
+  return nullptr;
+}
 #else
 // Unsupported or not needed. Also, not using Windows-specific calling convention.
 static void* MPGetNativeDisplay(const char* name)

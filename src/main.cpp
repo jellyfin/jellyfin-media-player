@@ -15,6 +15,7 @@
 #include "Paths.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
+#include "player/OpenGLDetect.h"
 #include "breakpad/CrashDumps.h"
 #include "Version.h"
 #include "settings/SettingsComponent.h"
@@ -98,16 +99,9 @@ int main(int argc, char *argv[])
     //
 #ifdef Q_OS_MAC
     qputenv("QT_LOGGING_RULES", "qt.network.ssl.warning=false");
-
-    // Request OpenGL 4.1 if possible on OSX, otherwise it defaults to 2.0
-    // This needs to be done before we create the QGuiApplication
-    //
-    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
-    format.setMajorVersion(3);
-    format.setMinorVersion(2);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
 #endif
+
+    detectOpenGL();
 
     preinitQt();
 

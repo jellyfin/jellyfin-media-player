@@ -2,16 +2,9 @@
 
 You need:
 
-* Qt 5.6 beta (on OSX and windows it will be automatically downloaded when you run CMake)
+* Qt 5.6 (on OSX and windows it will be automatically downloaded when you run CMake)
 * cmake 3.1 or newer
 * ninja is recommended for building
-
-Special Qt requirements (if you build it yourself):
-
-* On Windows, you must apply ``qt-patches/0003-Always-enable-viewport-stuff.patch``
-  for correct window scaling.
-* On OSX, you should apply ``qt-patches/0002-qtbase-Don-t-show-the-menu-bar-at-all-in-lion-style-fullscr.patch``
-  to improve the user experience in fullscreen.
 
 ## Building on Mac OS X
 
@@ -37,17 +30,21 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 ## Building on Linux
 
-### Building Qt 5.6.0 beta
+### Using the Qt 5.6 release
 
-You'll want to grab one of the Qt 5.6.0 beta packages from http://download.qt.io/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
+It is possible to use a pre-built Qt 5.6 from http://download.qt.io/official_releases/qt/5.6/. Just download and install one of the linux-x64 packages. If your distro packages this version, you might be able to use that. Keep in mind that Qt 5.5 or older will not work properly.
+
+### Building Qt 5.6.0
+
+You'll want to grab one of the Qt 5.6.0 (or later) packages from http://download.qt.io/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
 
 ``sudo dnf install libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel libcap-devel snappy-devel libsrtp-devel nss-devel pciutils-devel gperf``
 
 (The majority of the packages on this list came from http://code.qt.io/cgit/qt/qtbase.git/tree/src/plugins/platforms/xcb/README, but everything after xcb-util-keysyms-devel was trial-and-error in attempts build QtWebEngine; this list of packages may not be complete, but hopefully it provides a useful starting point.)
 
-Once you've unpacked the Qt 5.6.0 beta package:
+Once you've unpacked the Qt 5.6.0 package:
 
-* ``cd qt-everywhere-opensource-src-5.6.0-beta``
+* ``cd qt-everywhere-opensource-src-5.6.0``
 * ``./configure -confirm-license -opensource``
 * ``make``
 * ``sudo make install``
@@ -67,7 +64,8 @@ MAKEFLAGS="-j$(nproc)" ./configure -confirm-license -opensource
 
 mpv is a bit easier to build than Qt, and compiles much faster.
 
-Before you attempt to build mpv, make sure you have either ffmpeg 2.4.0 (and related development packages) or libav11 (and related devel packages) installed.
+Before you attempt to build mpv, make sure you have the required dependencies installed: https://github.com/mpv-player/mpv#compilation
+Some optional dependencies like ALSA or PulseAudio support are required for proper operation of Plex Media Player.
 
 * ``git clone git://github.com/mpv-player/mpv``
 * ``cd mpv``
@@ -86,6 +84,8 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 * ``cd build``
 * ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/usr/local/Qt-5.6.0 -DMPV_INCLUDE_DIR=/usr/local/include/mpv -DMPV_LIBRARY=/usr/local/lib/libmpv.so.1 -DCMAKE_INSTALL_PREFIX=output ..``
 * ``ninja-build``
+
+You may have to adjust the path passed to `-DQTROOT`. If you use your distro's Qt, omit this argument.
 
 Once ninja-build completes successfully, you should have a usable ``./src/plexmediaplayer`` binary. Run it and test it out! If it works as you expect, you should be able to run ``sudo install ./src/plexmediaplayer ./src/pmphelper /usr/local/bin`` so that the program is usable from anywhere on the system.
 

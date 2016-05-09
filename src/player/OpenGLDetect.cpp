@@ -1,15 +1,19 @@
 #include <QtGlobal>
 #include <QSurfaceFormat>
+#include <QCoreApplication>
+#include <QOpenGLContext>
 
 #include <mpv/client.h>
 #include <mpv/qthelper.hpp>
+
+#include "QsLog.h"
 
 #include "OpenGLDetect.h"
 
 #if defined(Q_OS_MAC)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void detectOpenGL()
+void detectOpenGLEarly()
 {
     // Request OpenGL 4.1 if possible on OSX, otherwise it defaults to 2.0
     // This needs to be done before we create the QGuiApplication
@@ -19,6 +23,11 @@ void detectOpenGL()
     format.setMinorVersion(2);
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void detectOpenGLLate()
+{
 }
 
 #elif defined(Q_OS_LINUX)
@@ -46,19 +55,62 @@ static QString probeHwdecInterop()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void detectOpenGL()
+void detectOpenGLEarly()
 {
   // The putenv call must happen before Qt initializes its platform stuff.
   if (probeHwdecInterop() == "vaapi-egl")
     qputenv("QT_XCB_GL_INTEGRATION", "xcb_egl");
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void detectOpenGLLate()
+{
+}
+
+#elif defined(Q_OS_WIN)
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void detectOpenGLEarly()
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void detectOpenGLLate()
+{
+  if (!QCoreApplication::testAttribute(Qt::AA_UseOpenGLES))
+    return;
+
+  // Workaround for broken QSGDefaultDistanceFieldGlyphCache::resizeTexture in ES 3 mode
+  qputenv("QML_USE_GLYPHCACHE_WORKAROUND", "1");
+
+  QList<int> versions = { 3, 2 };
+  for (auto version : versions)
+  {
+    QLOG_INFO() << "Trying GLES version" << version;
+    QSurfaceFormat fmt = QSurfaceFormat::defaultFormat();
+    fmt.setMajorVersion(version);
+    QOpenGLContext ctx;
+    ctx.setFormat(fmt);
+    if (ctx.create())
+    {
+      QLOG_INFO() << "Using GLES version" << version;
+      QSurfaceFormat::setDefaultFormat(fmt);
+      break;
+    }
+  }
+}
+
 #else
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void detectOpenGL()
+void detectOpenGLEarly()
 {
-  // nothing to do
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void detectOpenGLLate()
+{
 }
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef OPENGLDETECT_H
 #define OPENGLDETECT_H
 
-void detectOpenGL();
+void detectOpenGLEarly();
+void detectOpenGLLate();
 
 #endif // OPENGLDETECT_H

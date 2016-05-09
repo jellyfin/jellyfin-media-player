@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     qputenv("QT_LOGGING_RULES", "qt.network.ssl.warning=false");
 #endif
 
-    detectOpenGL();
+    detectOpenGLEarly();
 
     preinitQt();
 
@@ -146,12 +146,14 @@ int main(int argc, char *argv[])
       return 0;
     }
 
-#ifdef Q_OS_WIN32
-    initD3DDevice();
-#endif
-
 #ifdef Q_OS_UNIX
     setlocale(LC_NUMERIC, "C");
+#endif
+
+    detectOpenGLLate();
+
+#ifdef Q_OS_WIN32
+    initD3DDevice();
 #endif
 
     Codecs::preinitCodecs();

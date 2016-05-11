@@ -560,6 +560,12 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
       if ((codec.isWhitelistedSystemAudioCodec() && useSystemAudioDecoders()) ||
           (codec.isWhitelistedSystemVideoCodec() && useSystemVideoDecoders()))
         score = 15;
+      if (codec.format == "h264")
+      {
+        // Avoid using system video decoders for h264 profiles usually not supported.
+        if (stream.profile != "" && stream.profile != "main" && stream.profile != "baseline" && stream.profile != "high")
+          score = 1;
+      }
     }
     else
     {

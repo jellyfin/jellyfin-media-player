@@ -1051,11 +1051,20 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
     stream.audioChannels = map["demux-channel-count"].toInt();
     stream.videoResolution = QSize(map["demux-w"].toInt(), map["demux-h"].toInt());
 
+    // Get the profile from the server, because mpv can't determine it yet.
     if (stream.isVideo)
     {
-      // Assume there's only 1 video stream. We get the profile from the
-      // server because mpv can't be bothered to determine it.
-      stream.profile = m_serverMediaInfo["videoProfile"].toString();
+      int index = map["ff-index"].toInt();
+      for (auto partInfo : m_serverMediaInfo["Part"].toList())
+      {
+        for (auto streamInfo : partInfo.toMap()["Stream"].toList())
+        {
+          auto streamInfoMap = streamInfo.toMap();
+          bool ok = false;
+          if (streamInfoMap["index"].toInt(&ok) == index && ok)
+            stream.profile = streamInfoMap["profile"].toString();
+        }
+      }
     }
 
     info.streams.append(stream);

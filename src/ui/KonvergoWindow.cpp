@@ -60,9 +60,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   connect(&PlayerComponent::Get(), &PlayerComponent::windowVisible,
           this, &KonvergoWindow::playerWindowVisible);
 
-  connect(&PlayerComponent::Get(), &PlayerComponent::playbackStarting,
-          this, &KonvergoWindow::playerPlaybackStarting);
-
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
 
@@ -282,21 +279,6 @@ void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
     QLOG_DEBUG() << "minimizing window";
     showMinimized();
   }
-#endif
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::playerPlaybackStarting()
-{
-#if defined(Q_OS_MAC)
-  // On OSX, initializing VideoTooolbox (hardware decoder API) will mysteriously
-  // show the hidden mouse pointer again. The VTDecompressionSessionCreate API
-  // function does this, and we have no influence over its behavior. To make sure
-  // the cursor is gone again when starting playback, listen to the player's
-  // playbackStarting signal, at which point decoder initialization is guaranteed
-  // to be completed. Then we just have to set the cursor again on the Cocoa level.
-  if (QGuiApplication::overrideCursor())
-    QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 #endif
 }
 

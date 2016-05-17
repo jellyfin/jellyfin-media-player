@@ -3,6 +3,7 @@
 #include <Qt>
 #include <QDir>
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include "display/DisplayComponent.h"
 #include "settings/SettingsComponent.h"
 #include "system/SystemComponent.h"
@@ -35,7 +36,10 @@ static void wakeup_cb(void *context)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::PlayerComponent(QObject* parent)
-  : ComponentBase(parent), m_lastPositionUpdate(0.0), m_playbackAudioDelay(0), m_playbackStartSent(false), m_autoPlay(false),  m_window(nullptr), m_mediaFrameRate(0),
+  : ComponentBase(parent), m_state(State::stopped), m_paused(false), m_playbackActive(false),
+  m_inPlayback(false), m_bufferingPercentage(100), m_lastBufferingPercentage(-1),
+  m_lastPositionUpdate(0.0), m_playbackAudioDelay(0),
+  m_playbackStartSent(false), m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false), m_doAc3Transcoding(false)
 {
@@ -274,8 +278,7 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   if (!audioStream.isEmpty())
     extraArgs.insert("ff-aid", audioStream);
 
-  m_autoPlay = options["autoplay"].toBool();
-  extraArgs.insert("pause", m_autoPlay ? "no" : "yes");
+  extraArgs.insert("pause", options["autoplay"].toBool() ? "no" : "yes");
 
   QString userAgent = metadata["headers"].toMap()["User-Agent"].toString();
   if (userAgent.size())
@@ -356,59 +359,105 @@ void PlayerComponent::onRefreshRateChange()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::updatePlaybackState()
+{
+  State newState = m_state;
+
+  if (m_inPlayback) {
+    if (m_paused)
+    {
+      newState = State::paused;
+    }
+    else if (m_playbackActive)
+    {
+      newState = State::playing;
+    }
+    else
+    {
+      // Playback not active, but also not buffering means we're in some "other"
+      // waiting state. Pretend to web-client that we're buffering.
+      if (m_bufferingPercentage == 100)
+        m_bufferingPercentage = 0;
+      newState = State::buffering;
+    }
+  }
+  else
+  {
+    if (newState != State::error)
+      newState = State::stopped;
+  }
+
+  if (newState != m_state)
+  {
+    switch (newState) {
+    case State::paused:
+      QLOG_INFO() << "Entering state: paused";
+      emit paused();
+      break;
+    case State::playing:
+      QLOG_INFO() << "Entering state: playing";
+      emit playing();
+      break;
+    case State::stopped:
+      QLOG_INFO() << "Entering state: stopped";
+      emit stopped();
+      break;
+    case State::buffering:
+      QLOG_INFO() << "Entering state: buffering";
+      m_lastBufferingPercentage = -1; /* force update below */
+      break;
+    case State::error:
+      /* handled separately */
+      break;
+    }
+    m_state = newState;
+  }
+
+  if (m_state == State::buffering && m_lastBufferingPercentage != m_bufferingPercentage)
+    emit buffering(m_bufferingPercentage);
+  m_lastBufferingPercentage = m_bufferingPercentage;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::handleMpvEvent(mpv_event *event)
 {
   switch (event->event_id)
   {
     case MPV_EVENT_START_FILE:
     {
-      m_currentUrl = mpv::qt::get_property_variant(m_mpv, "path").toString();
       m_playbackStartSent = false;
-      break;
-    }
-    case MPV_EVENT_FILE_LOADED:
-    {
-      emit playing(m_currentUrl);
+      m_inPlayback = true;
       break;
     }
     case MPV_EVENT_END_FILE:
     {
       mpv_event_end_file *endFile = (mpv_event_end_file *)event->data;
-      switch (endFile->reason)
+      if (endFile->reason == MPV_END_FILE_REASON_ERROR)
       {
-        case MPV_END_FILE_REASON_EOF:
-          emit finished(m_currentUrl);
-          break;
-        case MPV_END_FILE_REASON_ERROR:
-          emit error(endFile->error, mpv_error_string(endFile->error));
-          break;
-        default:
-          emit stopped(m_currentUrl);
-          break;
+        QLOG_INFO() << "Entering state: error";
+        m_state = State::error;
+        emit error(mpv_error_string(endFile->error));
       }
 
-      emit playbackEnded(m_currentUrl);
-      m_currentUrl = "";
+      m_inPlayback = false;
 
       if (!m_streamSwitchImminent)
         m_restoreDisplayTimer.start(0);
       m_streamSwitchImminent = false;
       break;
     }
-    case MPV_EVENT_IDLE:
-    {
-      emit playbackAllDone();
-      break;
-    }
     case MPV_EVENT_PLAYBACK_RESTART:
     {
-      // it's also sent after seeks are completed
-      if (!m_playbackStartSent)
-      {
-        mpv::qt::set_property_variant(m_mpv, "pause", !m_autoPlay);
-        emit paused(!m_autoPlay);
-        emit playbackStarting();
-      }
+#if defined(Q_OS_MAC)
+      // On OSX, initializing VideoTooolbox (hardware decoder API) will mysteriously
+      // show the hidden mouse pointer again. The VTDecompressionSessionCreate API
+      // function does this, and we have no influence over its behavior. To make sure
+      // the cursor is gone again when starting playback, listen to the player's
+      // playbackStarting signal, at which point decoder initialization is guaranteed
+      // to be completed. Then we just have to set the cursor again on the Cocoa level.
+      if (!m_playbackStartSent && QGuiApplication::overrideCursor())
+        QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+#endif
       m_playbackStartSent = true;
       break;
     }
@@ -417,17 +466,16 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       mpv_event_property *prop = (mpv_event_property *)event->data;
       if (strcmp(prop->name, "pause") == 0 && prop->format == MPV_FORMAT_FLAG)
       {
-        int state = *(int *)prop->data;
-        emit paused(state);
+        m_paused = !!*(int *)prop->data;
       }
       else if (strcmp(prop->name, "core-idle") == 0 && prop->format == MPV_FORMAT_FLAG)
       {
-        emit playbackActive(!*(int *)prop->data);
+        m_playbackActive = !*(int *)prop->data;
+        emit playbackActive(m_playbackActive);
       }
       else if (strcmp(prop->name, "cache-buffering-state") == 0)
       {
-        int64_t percentage = prop->format == MPV_FORMAT_INT64 ? *(int64_t *)prop->data : 100;
-        emit buffering(percentage);
+        m_bufferingPercentage = prop->format == MPV_FORMAT_INT64 ? *(int64_t *)prop->data : 100;
       }
       else if (strcmp(prop->name, "playback-time") == 0 && prop->format == MPV_FORMAT_DOUBLE)
       {
@@ -534,6 +582,8 @@ void PlayerComponent::handleMpvEvents()
       break;
     handleMpvEvent(event);
   }
+  // Once we got all status updates, determine the new canonical state.
+  updatePlaybackState();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

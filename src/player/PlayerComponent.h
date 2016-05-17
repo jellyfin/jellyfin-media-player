@@ -118,6 +118,14 @@ public:
 
   static QStringList AudioCodecsAll() { return { "ac3", "dts", "eac3", "dts-hd", "truehd" }; };
   static QStringList AudioCodecsSPDIF() { return { "ac3", "dts" }; };
+
+  enum class State {
+    stopped,
+    error,
+    paused,
+    playing,
+    buffering,
+  };
   
 public Q_SLOTS:
   void setAudioConfiguration();
@@ -133,33 +141,19 @@ private Q_SLOTS:
   void onCodecsLoadingDone(CodecsFetcher* sender);
 
 Q_SIGNALS:
-  void playing(const QString& url);
-  void buffering(float);
-  // playback has stopped due to a stop() or loadMedia() request
-  void stopped(const QString& url);
-  // playback has stopped because the current media was fully played
-  void finished(const QString& url);
-  // playback has stopped due to any reason - this always happens if the
-  // playing() signal was emitted
-  void playbackEnded(const QString& url);
-  // emitted if playback has ended, and no more items are queued for playback
-  void playbackAllDone();
-  // emitted after playing(), and as soon as the the media is fully loaded, and
-  // playback starts normally
-  void playbackStarting();
-  void paused(bool paused);
-  // true if the video (or music) is actually
+  // The following signals correspond to the State enum above.
+  void playing();                 // playback is progressing (audio playing, pictures are moving)
+  void buffering(float percent);  // temporary state during "playing", or during media loading
+  void stopped();                 // playback finished successfully, or was stopped with stop()
+  void paused();                  // paused (covers all sub-states)
+  void error(const QString& msg); // playback stopped due to external error
+
+  // true if the video (or music) is actually playing
   // false if nothing is loaded, playback is paused, during seeking, or media is being loaded
   void playbackActive(bool active);
   void windowVisible(bool visible);
   // emitted as soon as the duration of the current file is known
   void updateDuration(qint64 milliseconds);
-
-  // an error happened during playback - this implies abort of playback
-  // the id is the (negative) error number, and the message parameter is a short
-  // English description of the error (always the same for the same id, no
-  // further information)
-  void error(int id, const QString& message);
 
   // current position in ms should be triggered 2 times a second
   // when position updates
@@ -179,6 +173,7 @@ private:
   void loadWithOptions(const QVariantMap& options);
   void setRpiWindow(QQuickWindow* window);
   void setQtQuickWindow(QQuickWindow* window);
+  void updatePlaybackState();
   void handleMpvEvent(mpv_event *event);
   // Potentially switch the display refresh rate, and return true if the refresh rate
   // was actually changed.
@@ -196,11 +191,15 @@ private:
 
   mpv::qt::Handle m_mpv;
 
+  State m_state;
+  bool m_paused;
+  bool m_playbackActive;
+  bool m_inPlayback;
+  int m_bufferingPercentage;
+  int m_lastBufferingPercentage;
   double m_lastPositionUpdate;
   qint64 m_playbackAudioDelay;
-  QString m_currentUrl;
   bool m_playbackStartSent;
-  bool m_autoPlay;
   QQuickWindow* m_window;
   float m_mediaFrameRate;
   QTimer m_restoreDisplayTimer;

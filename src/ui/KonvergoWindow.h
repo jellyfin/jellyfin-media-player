@@ -94,7 +94,6 @@ private slots:
   void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
-  void playerPlaybackStarting();
 
 private:
   void notifyScale(const QSize& size);

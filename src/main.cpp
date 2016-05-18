@@ -101,6 +101,13 @@ int main(int argc, char *argv[])
     qputenv("QT_LOGGING_RULES", "qt.network.ssl.warning=false");
 #endif
 
+    // Qt calls setlocale(LC_ALL, "") in a bunch of places, which breaks
+    // float/string processing in mpv and ffmpeg.
+#ifdef Q_OS_UNIX
+    qputenv("LC_ALL", "C");
+    qputenv("LC_NUMERIC", "C");
+#endif
+
     detectOpenGLEarly();
 
     preinitQt();
@@ -146,10 +153,6 @@ int main(int argc, char *argv[])
       return 0;
     }
 
-#ifdef Q_OS_UNIX
-    setlocale(LC_NUMERIC, "C");
-#endif
-
     detectOpenGLLate();
 
 #ifdef Q_OS_WIN32
@@ -168,12 +171,6 @@ int main(int argc, char *argv[])
       qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "0.0.0.0:9992");
 
     QtWebEngine::initialize();
-
-    // Qt and QWebEngineProfile set the locale, which breaks parsing and
-    // formatting float numbers in a few countries.
-#ifdef Q_OS_UNIX
-    setlocale(LC_NUMERIC, "C");
-#endif
 
     // start our helper
     HelperLauncher::Get().connectToHelper();

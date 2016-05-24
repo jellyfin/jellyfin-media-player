@@ -219,8 +219,13 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
   }
   else if ((request->url().path() == "/player/timeline/poll"))
   {
+    QMutexLocker lk(&m_subscriberLock);
     if (!m_subscriberMap.contains(identifier))
+    {
+      lk.unlock();
       handleSubscription(request, response, true);
+      lk.relock();
+    }
 
     RemotePollSubscriber *subscriber = (RemotePollSubscriber *)m_subscriberMap[identifier];
     if (subscriber)

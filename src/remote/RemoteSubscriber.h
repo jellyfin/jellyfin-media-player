@@ -6,6 +6,7 @@
 #define KONVERGO_REMOTESUBSCRIBER_H
 
 #include <QObject>
+#include <QPointer>
 #include <QUrl>
 #include <QDateTime>
 #include <QDomDocument>
@@ -78,7 +79,7 @@ public:
   void sendUpdate() override;
 
 private :
-   qhttp::server::QHttpResponse* m_response;
+   QPointer<qhttp::server::QHttpResponse> m_response;
 
 public Q_SLOTS:
    void responseDone();

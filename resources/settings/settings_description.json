@@ -392,6 +392,10 @@
       {
         "value": "activatesource",
         "default": true
+      },
+      {
+        "value": "usekeyupdown",
+        "default": false
       }
     ]
   },

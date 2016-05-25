@@ -210,7 +210,6 @@ private:
   bool m_doAc3Transcoding;
   QStringList m_passthroughCodecs;
   QVariantMap m_serverMediaInfo;
-  mutable QString m_cachedInterop;
 };
 
 #endif // PLAYERCOMPONENT_H

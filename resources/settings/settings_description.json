@@ -96,7 +96,6 @@
         "hidden": true
       },
       {
-        // Warning: we should make this hidden or remove it later on
         "value": "useSystemVideoCodecs",
         "default": [
           {
@@ -108,13 +107,7 @@
             "value": false
           }
         ],
-        "hidden": false
-      },
-      {
-        // Warning: we should make this hidden or remove it later on
-        "value": "useSystemAudioCodecs2",
-        "default": true,
-        "hidden": false
+        "hidden": true
       }
     ]
   },

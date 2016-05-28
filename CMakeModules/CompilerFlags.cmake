@@ -13,7 +13,11 @@ enable_if_supported(COMPILER_FLAGS_THIRD_PARTY "-Wno-shorten-64-to-32")
 enable_if_supported(COMPILER_FLAGS_THIRD_PARTY "/wd4244")
 enable_if_supported(COMPILER_FLAGS_THIRD_PARTY "/wd4267")
 
-enable_if_links(LINK_FLAGS "-flto")
+string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type_lower)
+if (NOT (build_type_lower MATCHES "debug"))
+  enable_if_links(LINK_FLAGS "-flto")
+endif()
+
 enable_if_links(LINK_FLAGS "-fuse-ld=gold")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILER_FLAGS}")

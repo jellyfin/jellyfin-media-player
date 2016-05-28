@@ -75,6 +75,7 @@ void SettingsSection::updatePossibleValues(const QString &key, const QVariantLis
 {
   if (m_values.contains(key))
     m_values[key]->setPossibleValues(possibleValues);
+  emit SettingsComponent::Get().groupUpdate(m_sectionID, descriptions());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

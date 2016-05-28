@@ -7,6 +7,7 @@ enable_if_supported(COMPILER_FLAGS "-Wshorten-64-to-32")
 enable_if_supported(COMPILER_FLAGS "-fno-omit-frame-pointer")
 enable_if_supported(COMPILER_FLAGS "-mmacosx-version-min=10.9")
 enable_if_supported(COMPILER_FLAGS "/Oy-")
+enable_if_supported(COMPILER_FLAGS "-fvisibility-inlines-hidden")
 
 # Flags only for external libs
 enable_if_supported(COMPILER_FLAGS_THIRD_PARTY "-Wno-shorten-64-to-32")

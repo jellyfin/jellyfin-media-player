@@ -5,6 +5,7 @@ You need:
 * Qt 5.6 (on OSX and windows it will be automatically downloaded when you run CMake)
 * cmake 3.1 or newer
 * ninja is recommended for building
+* FFmpeg 3.x and mpv from github
 
 ## Building on Mac OS X
 
@@ -12,6 +13,8 @@ Configure
 
 If you're happy just building from the command line then run CMake for the ninja build tool:
 
+* Install mpv and other dependencies with homebrew:
+  * ``brew install mpv --with-shared --HEAD``
 * ``mkdir build ; cd build``
 * ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=output ..``
 

@@ -27,7 +27,7 @@ if(ENABLE_CODECS)
   add_definitions(-DHAVE_CODEC_MANIFEST)
 
   if(OPENELEC)
-    set(CODECS_BUILD_NUMBER 41)
+    set(CODECS_BUILD_NUMBER 42)
     message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h")
     file(
       DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h

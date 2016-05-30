@@ -258,6 +258,7 @@ QString InputCECWorker::getCommandParamsList(cec_command command)
 int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
 {
   QString cmdString, keyCode;
+  bool useUpDown = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "usekeyupdown").toBool();
   auto cec = static_cast<InputCECWorker*>(cbParam);
   Q_ASSERT(cec);
 
@@ -322,7 +323,11 @@ int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
         {
           // samsung Return key
           case CEC_USER_CONTROL_CODE_AN_RETURN:
-            cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_BACK, down ? InputBase::KeyDown : InputBase::KeyUp);
+            if (useUpDown)
+              cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_BACK, down ? InputBase::KeyDown : InputBase::KeyUp);
+            else if (down)
+              cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_BACK, InputBase::KeyPressed);
+
             return 1;
             break;
 
@@ -334,7 +339,12 @@ int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
       cmdString = cec->getCommandString((cec_user_control_code)command.parameters[0]);
 
       if (!cmdString.isEmpty())
-        cec->sendReceivedInput(CEC_INPUT_NAME, cmdString, down ? InputBase::KeyDown : InputBase::KeyUp);
+      {
+        if (useUpDown)
+          cec->sendReceivedInput(CEC_INPUT_NAME, cmdString, down ? InputBase::KeyDown : InputBase::KeyUp);
+        else if (down)
+          cec->sendReceivedInput(CEC_INPUT_NAME, cmdString, InputBase::KeyPressed);
+      }
     }
       break;
 

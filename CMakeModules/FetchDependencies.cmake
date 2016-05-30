@@ -81,7 +81,7 @@ function(get_content_of_url)
 endfunction(get_content_of_url)
 
 function(download_deps DD_NAME)
-  set(ARGS DIRECTORY BUILD_NUMBER ARTIFACTNAME VARIANT DEPHASH_VAR ARCHSTR DYLIB_SCRIPT_PATH)
+  set(ARGS DIRECTORY BUILD_NUMBER ARTIFACTNAME VARIANT DEPHASH_VAR ARCHSTR DYLIB_SCRIPT_PATH TOKEN)
   cmake_parse_arguments(DD "" "${ARGS}" "" ${ARGN})
 
   if(NOT DEFINED DD_VARIANT)
@@ -104,7 +104,11 @@ function(download_deps DD_NAME)
     set(DD_ALWAYS_DOWNLOAD ALWAYS)
   endif()
 
-  set(BASE_URL "https://nightlies.plex.tv/directdl/plex-dependencies/${DD_NAME}/${DD_BUILD_NUMBER}")
+  if(NOT DEFINED DD_TOKEN)
+    set(DD_TOKEN plex-dependencies)
+  endif()
+
+  set(BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
   set(DEP_DIR ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/${DD_BUILD_NUMBER})
 
   set(HASH_FILENAME ${DD_NAME}-${DD_BUILD_NUMBER}-hash.txt)

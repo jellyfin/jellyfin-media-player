@@ -559,7 +559,7 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
       // on the other hand, always prefer whitelisted system codecs
       if ((codec.isWhitelistedSystemAudioCodec() && useSystemAudioDecoders()) ||
           (codec.isWhitelistedSystemVideoCodec() && useSystemVideoDecoders()))
-        score = 15;
+        score = 10;
       if (codec.format == "h264")
       {
         // Avoid using system video decoders for h264 profiles usually not supported.
@@ -571,7 +571,7 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
     {
       // prefer codecs which do not have to be downloaded over others
       if (codec.present)
-        score = 10;
+        score = 15;
       else
         score = 5;
     }

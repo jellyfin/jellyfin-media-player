@@ -49,7 +49,7 @@ def fix_install_name(path):
             l = l.rstrip().strip()
 
             # See if we need to fix it up.
-            if len(l) > 0 and (l.startswith("/Users/admin/") or (l[0] != '/' and not l.startswith("@rpath"))):
+            if len(l) > 0 and (l.startswith("/Volumes/CI-OSX/") or (l[0] != '/' and not l.startswith("@rpath"))):
               current_lib = l.split(" (compat")[0]
               current_basename = os.path.basename(current_lib)
               correct_lib = os.path.join(root, current_basename)

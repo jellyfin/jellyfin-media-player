@@ -1,0 +1,23 @@
+NEW:
+  - (Embedded) The embedded distribution is now based on LibreELEC instead of OpenELEC.
+    Embedded users will have to do a clean install because of this change. AutoUpdate is
+    disabled.
+  - (Embedded) Moved to a EFI bootloader - Some BIOS's may need enabling of EFI to find the install media
+  - (Embedded) Skylake support
+  - (Embedded) NVIDIA legacy build is deprecated and incorporated into the Generic build
+  - Improved hardware decoding on Windows and x86 Embedded.
+  - Qt bumped to version 5.6.1
+  - There has been some changes how PMP is built on Windows and OSX. We no longer bundle
+    ffmpeg and mpv with the build system and you need to download and install them yourself.
+    This only applies to people that build PMP by themself 
+  
+FIXED:
+  - There was an issue where the web-client and the playback engine could get out of state
+    and cause screensaver to show up during movies or not let you press play/pause. This is
+    now fixed.
+  - Non US locales could create problems with playback on Linux
+  - CEC keyhandling is now back to the default (no auto-repeat) beacuse of many incompatiblities.
+    If you have a CEC device that gives you press and release events you can enable autorepeat
+    by editing the configuration file.
+  - PMP should now install correctly on Windows 10N
+  - PMP can now be built with Qt 5.7

@@ -1255,12 +1255,12 @@ QString PlayerComponent::videoInformation() const
   info << "Audio: " << endl;
   info << "Codec: " << MPV_PROPERTY("audio-codec") << endl;
   info << "Bitrate: " << MPV_PROPERTY("audio-bitrate") << endl;
-  info << "Channels (input): ";
+  info << "Channels: ";
   appendAudioFormat(info, "audio-params");
-  info << endl;
-  info << "Channels (output): ";
+  info << " -> ";
   appendAudioFormat(info, "audio-out-params");
   info << endl;
+  info << "Output driver: " << MPV_PROPERTY("current-ao") << endl;
   info << endl;
   info << "Performance: " << endl;
   info << "A/V: " << MPV_PROPERTY("avsync") << endl;

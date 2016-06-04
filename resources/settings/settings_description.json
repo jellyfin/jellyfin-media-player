@@ -35,6 +35,10 @@
         "hidden": true
       },
       {
+        "value": "alwaysOnTop",
+        "default": false
+      },
+      {
         "value": "webserverport",
         "default": 32433,
         "hidden": true

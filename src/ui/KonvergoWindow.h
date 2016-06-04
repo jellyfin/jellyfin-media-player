@@ -33,6 +33,7 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(QSize webUISize READ webUISize NOTIFY webScaleChanged)
   Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
   Q_PROPERTY(QSize windowMinSize READ windowMinSize NOTIFY webScaleChanged)
+  Q_PROPERTY(bool alwaysOnTop READ isAlwaysOnTop WRITE setAlwaysOnTop)
 
 public:
   static void RegisterClass();
@@ -47,6 +48,17 @@ public:
 
   void setFullScreen(bool enable);
 
+  bool isAlwaysOnTop()
+  {
+    Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
+#ifdef Q_OS_LINUX
+    forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
+#endif
+    return (flags() & forceOnTopFlags);
+  }
+
+  void setAlwaysOnTop(bool enable);
+
   Q_SLOT void otherAppFocus()
   {
     setWindowState((Qt::WindowState)((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive));
@@ -58,6 +70,11 @@ public:
   Q_SLOT void toggleFullscreen()
   {
     setFullScreen(!isFullScreen());
+  }
+
+  Q_SLOT void toggleAlwaysOnTop()
+  {
+    setAlwaysOnTop(!isAlwaysOnTop());
   }
 
   Q_SLOT void reloadWeb()
@@ -91,6 +108,7 @@ private slots:
   void onVisibilityChanged(QWindow::Visibility visibility);
   void updateMainSectionSettings(const QVariantMap& values);
   void updateFullscreenState(bool saveGeo = true);
+  void updateAlwaysOnTopState();
   void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);

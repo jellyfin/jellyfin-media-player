@@ -112,13 +112,13 @@ QString Codecs::plexNameFromFF(QString ffname)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString codecsRootPath()
 {
-  return Paths::dataDir("codecs") + QDir::separator();
+  return Paths::plexCommonDataDir("codecs") + QDir::separator();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString codecsPath()
 {
-  return codecsRootPath() + getBuildType() + "-" + g_codecVersion + QDir::separator();
+  return codecsRootPath() + "pmp-" + getBuildType() + "-" + g_codecVersion + QDir::separator();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,33 @@ QString Paths::dataDir(const QString& file)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::plexCommonDataDir(const QString& file)
+{
+  // To spell it out: this is exactly what PMS does. Except we do not query
+  // PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR, and we use a different path
+  // on generic Unix.
+#ifdef Q_OS_MAC
+  QDir d(qgetenv("HOME"));
+  d.cd("Library");
+  d.cd("Application Support");
+#else
+  QDir d = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+#endif
+
+  if (!d.mkpath(d.absolutePath() + "/" + "Plex"))
+  {
+    QLOG_WARN() << "Failed to create directory:" << d.absolutePath();
+    return QString();
+  }
+
+  d.cd("Plex");
+
+  if (file.isEmpty())
+    return d.absolutePath();
+  return d.filePath(file);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 QString Paths::cacheDir(const QString& file)
 {
   QDir d = writableLocation(QStandardPaths::GenericCacheLocation);

@@ -108,6 +108,11 @@
           }
         ],
         "hidden": true
+      },
+      {
+        "value": "preventSystemScreensaver",
+        "default": false,
+        "hidden": true
       }
     ]
   },

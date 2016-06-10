@@ -60,7 +60,14 @@ void PowerComponent::setFullscreenState(bool fullscreen)
 /////////////////////////////////////////////////////////////////////////////////////////
 void PowerComponent::redecideScreeensaverState()
 {
-  bool enableOsScreensaver = !m_fullscreenState && !m_videoPlaying;
+  bool enableOsScreensaver = !m_videoPlaying;
+
+  // by default we don't allow the fullscreen state affect sleep state, but we want to
+  // have a hidden option to allow system sleep and screensaver when in fullscreen.
+  //
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "preventSystemScreensaver").toBool())
+    enableOsScreensaver &= !m_fullscreenState;
+
   if (m_currentScreensaverEnabled != enableOsScreensaver)
   {
     m_currentScreensaverEnabled = enableOsScreensaver;

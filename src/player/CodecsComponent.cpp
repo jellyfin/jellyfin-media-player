@@ -85,6 +85,8 @@ static QSize g_mediaFoundationH264MaxResolution;
 static QString g_codecVersion;
 static QList<CodecDriver> g_cachedCodecList;
 
+static QString g_deviceID;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString getBuildType()
 {
@@ -246,7 +248,7 @@ bool CodecDriver::isWhitelistedSystemVideoCodec() const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Returns "" on error.
-static QString getDeviceID()
+static QString loadDeviceID()
 {
   QFile path(QDir(codecsRootPath()).absoluteFilePath(".device-id"));
   if (path.exists())
@@ -303,7 +305,7 @@ void Codecs::preinitCodecs()
   qputenv("FFMPEG_EXTERNAL_LIBS", escapedPath.toUtf8().data());
 #endif
 
-  getDeviceID();
+  g_deviceID = loadDeviceID();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -355,6 +357,9 @@ static bool probeDecoder(QString decoder, QString resourceName)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void Codecs::probeCodecs()
 {
+  if (g_deviceID == "")
+    throw FatalException("Could not read device-id.");
+
 #ifdef Q_OS_WIN32
   if (probeDecoder("h264_mf", ":/testmedia/high_4096x2304.h264"))
     g_mediaFoundationH264MaxResolution = QSize(4096, 2304);
@@ -438,7 +443,7 @@ void CodecsFetcher::startNext()
   QString host = "https://plex.tv";
   QUrl url = QUrl(host + "/api/codecs/" + codec.getMangledName());
   QUrlQuery query;
-  query.addQueryItem("deviceId", getDeviceID());
+  query.addQueryItem("deviceId", g_deviceID);
   query.addQueryItem("version", g_codecVersion);
   query.addQueryItem("build", getBuildType());
   query.addQueryItem("oldestPreviousVersion", SettingsComponent::Get().oldestPreviousVersion());

@@ -247,6 +247,18 @@ bool CodecDriver::isWhitelistedSystemVideoCodec() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool useSystemAudioDecoders()
+{
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool useSystemVideoDecoders()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useSystemVideoCodecs").toBool();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Returns "" on error.
 static QString loadDeviceID()
 {
@@ -361,16 +373,19 @@ void Codecs::probeCodecs()
     throw FatalException("Could not read device-id.");
 
 #ifdef Q_OS_WIN32
-  if (probeDecoder("h264_mf", ":/testmedia/high_4096x2304.h264"))
-    g_mediaFoundationH264MaxResolution = QSize(4096, 2304);
-  else if (probeDecoder("h264_mf", ":/testmedia/high_4096x2160.h264"))
-    g_mediaFoundationH264MaxResolution = QSize(4096, 2160);
-  else if (probeDecoder("h264_mf", ":/testmedia/high_4096x1080.h264"))
-    g_mediaFoundationH264MaxResolution = QSize(4096, 1080);
-  else
-    g_systemVideoDecoderWhitelist.remove("h264_mf");
+  if (useSystemVideoDecoders())
+  {
+    if (probeDecoder("h264_mf", ":/testmedia/high_4096x2304.h264"))
+      g_mediaFoundationH264MaxResolution = QSize(4096, 2304);
+    else if (probeDecoder("h264_mf", ":/testmedia/high_4096x2160.h264"))
+      g_mediaFoundationH264MaxResolution = QSize(4096, 2160);
+    else if (probeDecoder("h264_mf", ":/testmedia/high_4096x1080.h264"))
+      g_mediaFoundationH264MaxResolution = QSize(4096, 1080);
+    else
+      g_systemVideoDecoderWhitelist.remove("h264_mf");
 
-  QLOG_DEBUG() << "h264_mf max. resolution:" << g_mediaFoundationH264MaxResolution;
+    QLOG_DEBUG() << "h264_mf max. resolution:" << g_mediaFoundationH264MaxResolution;
+  }
 #endif
 
 #ifdef Q_OS_MAC
@@ -608,18 +623,6 @@ void Downloader::networkFinished(QNetworkReply* pReply)
   }
   pReply->deleteLater();
   m_WebCtrl.clearAccessCache(); // make sure the TCP connection is closed
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-static bool useSystemAudioDecoders()
-{
-  return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-static bool useSystemVideoDecoders()
-{
-  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useSystemVideoCodecs").toBool();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

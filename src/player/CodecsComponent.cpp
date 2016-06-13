@@ -9,6 +9,8 @@
 #include <QUuid>
 #include <QUrl>
 #include <QUrlQuery>
+#include <QResource>
+#include <QSysInfo>
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "utils/Utils.h"
@@ -41,12 +43,12 @@ static const Codec Encoders[] = {
 // We might want to use Codec.quality to decide this one day.
 // But for now, it's better if we can quickly change these.
 static QSet<QString> g_systemVideoDecoderWhitelist = {
-  // definitely work
+  // RPI
   "h264_mmal",
   "mpeg2_mmal",
   "mpeg4_mmal",
   "vc1_mmal",
-  // still sketchy at best, partially broken
+  // Windows
   "h264_mf",
   "hevc_mf",
   "vc1_mf",
@@ -60,12 +62,13 @@ static QSet<QString> g_systemVideoDecoderWhitelist = {
 };
 
 static QSet<QString> g_systemAudioDecoderWhitelist = {
-  // should work well
+  // OSX
   "aac_at",
   "ac3_at",
   "mp1_at",
   "mp2_at",
   "mp3_at",
+  // Windows
   "ac3_mf",
   "eac3_mf",
   "aac_mf",
@@ -76,6 +79,8 @@ static QSet<QString> g_systemAudioDecoderWhitelist = {
 
 static QSet<QString> g_systemAudioEncoderWhitelist = {
 };
+
+static QSize g_mediaFoundationH264MaxResolution;
 
 static QString g_codecVersion;
 static QList<CodecDriver> g_cachedCodecList;
@@ -269,9 +274,7 @@ static QString getDeviceID()
 static QString getFFmpegVersion()
 {
   auto mpv = mpv::qt::Handle::FromRawHandle(mpv_create());
-  if (!mpv)
-    return "";
-  if (mpv_initialize(mpv) < 0)
+  if (!mpv || mpv_initialize(mpv) < 0)
     return "";
   return mpv::qt::get_property_variant(mpv, "ffmpeg-version").toString();
 }
@@ -301,6 +304,77 @@ void Codecs::preinitCodecs()
 #endif
 
   getDeviceID();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool probeDecoder(QString decoder, QString resourceName)
+{
+  QResource resource(resourceName);
+
+  QLOG_DEBUG() << "Testing decoding of" << resource.fileName();
+
+  if (!resource.isValid())
+    return false;
+
+  auto mpv = mpv::qt::Handle::FromRawHandle(mpv_create());
+
+  // Disable any output.
+  mpv::qt::set_option_variant(mpv, "vo", "null");
+
+  if (!mpv || mpv_initialize(mpv) < 0)
+    return false;
+
+  // Force the decoder. The ",-" means that if the first entry fails, the next codec in the global
+  // codec list will not be tried, and decoding fails.
+  mpv::qt::set_option_variant(mpv, "vd", "lavc:" + decoder + ",-");
+
+  // Attempt decoding, and return success.
+  auto data = QByteArray::fromRawData((const char *)resource.data(), resource.size());
+  if (resource.isCompressed())
+    data = qUncompress(data);
+  auto hex = data.toHex();
+  mpv::qt::command_variant(mpv, QVariantList{"loadfile", "hex://" + QString::fromLatin1(hex)});
+  bool result = false;
+  while (1) {
+    mpv_event *event = mpv_wait_event(mpv, 0);
+    if (event->event_id == MPV_EVENT_SHUTDOWN)
+      break;
+    if (event->event_id == MPV_EVENT_END_FILE)
+    {
+      mpv_event_end_file *endFile = (mpv_event_end_file *)event->data;
+      result = endFile->reason == MPV_END_FILE_REASON_EOF;
+      break;
+    }
+  }
+
+  QLOG_DEBUG() << "Result:" << result;
+
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void Codecs::probeCodecs()
+{
+#ifdef Q_OS_WIN32
+  if (probeDecoder("h264_mf", ":/testmedia/high_4096x2304.h264"))
+    g_mediaFoundationH264MaxResolution = QSize(4096, 2304);
+  else if (probeDecoder("h264_mf", ":/testmedia/high_4096x2160.h264"))
+    g_mediaFoundationH264MaxResolution = QSize(4096, 2160);
+  else if (probeDecoder("h264_mf", ":/testmedia/high_4096x1080.h264"))
+    g_mediaFoundationH264MaxResolution = QSize(4096, 1080);
+  else
+    g_systemVideoDecoderWhitelist.remove("h264_mf");
+
+  QLOG_DEBUG() << "h264_mf max. resolution:" << g_mediaFoundationH264MaxResolution;
+#endif
+
+#ifdef Q_OS_MAC
+  // Unsupported, but avoid picking up broken Perian decoders.
+  if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_10)
+    g_systemAudioDecoderWhitelist.remove("ac3_at");
+#endif
+
+  Codecs::updateCachedCodecList();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -565,6 +639,16 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
         // Avoid using system video decoders for h264 profiles usually not supported.
         if (stream.profile != "" && stream.profile != "main" && stream.profile != "baseline" && stream.profile != "high")
           score = 1;
+      }
+      if (codec.driver == "h264_mf")
+      {
+        if (!stream.videoResolution.isEmpty())
+        {
+          QSize res = stream.videoResolution;
+          if (res.width() > g_mediaFoundationH264MaxResolution.width() ||
+              res.height() > g_mediaFoundationH264MaxResolution.height())
+            score = 1;
+        }
       }
     }
     else

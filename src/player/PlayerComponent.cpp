@@ -166,7 +166,7 @@ bool PlayerComponent::componentInitialize()
           this, &PlayerComponent::setAudioConfiguration);
 
   initializeCodecSupport();
-  Codecs::updateCachedCodecList();
+  Codecs::probeCodecs();
 
   QString codecInfo;
   for (auto codec : Codecs::getCachedCodecList())
@@ -1112,7 +1112,10 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
           auto streamInfoMap = streamInfo.toMap();
           bool ok = false;
           if (streamInfoMap["index"].toInt(&ok) == index && ok)
+          {
             stream.profile = streamInfoMap["profile"].toString();
+            QLOG_DEBUG() << "h264profile:" << stream.profile;
+          }
         }
       }
     }

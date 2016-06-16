@@ -21,3 +21,5 @@ FIXED:
     by editing the configuration file.
   - PMP should now install correctly on Windows 10N
   - PMP can now be built with Qt 5.7
+  - PMP should no longer prevent sleeping on OSX / Windows
+  - Screensaver should be smooth again

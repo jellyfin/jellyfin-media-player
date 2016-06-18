@@ -13,6 +13,8 @@ Configure
 
 If you're happy just building from the command line then run CMake for the ninja build tool:
 
+* Install nina with homebrew:
+  * ``brew install ninja``
 * Install mpv and other dependencies with homebrew:
   * ``brew install mpv --with-shared --HEAD``
 * ``mkdir build ; cd build``

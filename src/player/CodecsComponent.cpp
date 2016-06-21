@@ -10,6 +10,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include <QResource>
+#include <QStandardPaths>
 #include <QSysInfo>
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
@@ -119,7 +120,7 @@ QString Codecs::plexNameFromFF(QString ffname)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString codecsRootPath()
 {
-  return Paths::plexCommonDataDir("codecs") + QDir::separator();
+  return Paths::dataDir("Codecs") + QDir::separator();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,30 +259,70 @@ static bool useSystemVideoDecoders()
   return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useSystemVideoCodecs").toBool();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Load the device ID, do some minimal verification, return "" on error.
+static QString loadDeviceID(QString filename)
+{
+  QFile path(filename);
+  path.open(QFile::ReadOnly);
+  auto res = QString::fromLatin1(path.readAll());
+  if (res.size() < 32 || res.size() > 512)
+    res = ""; // mark as invalid
+  return res;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+static QString findOldDeviceID()
+{
+  // First we try to reuse the ID from other Plex products (i.e. PMS) or older paths.
+  QStringList candidates = {
+#ifdef Q_OS_MAC
+    qgetenv("HOME") + "/Library/Application Support/Plex/Codecs/.device-id",
+    qgetenv("HOME") + "/Library/Application Support/Plex Media Server/Codecs/.device-id",
+#endif
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/.device-id",
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/.device-id",
+    Paths::dataDir() + "/codecs/.device-id",
+  };
+
+  for (auto candidate : candidates)
+  {
+    auto id = loadDeviceID(candidate);
+    if (!id.isEmpty())
+      return id;
+  }
+
+  return "";
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Returns "" on error.
 static QString loadDeviceID()
 {
-  QFile path(QDir(codecsRootPath()).absoluteFilePath(".device-id"));
-  if (path.exists())
+  QString deviceIDFilename = QDir(codecsRootPath()).absoluteFilePath(".device-id");
+
+  QString id = loadDeviceID(deviceIDFilename);
+  if (id.isEmpty())
   {
-    // TODO: Would fail consistently if the file is not readable. Should a new ID be generated?
-    //       What should we do if the file contains binary crap, not a text UUID?
-    path.open(QFile::ReadOnly);
-    return QString::fromLatin1(path.readAll());
+    id = findOldDeviceID();
+    if (id.isEmpty())
+    {
+      id = QUuid::createUuid().toString();
+      // The UUID should be e.g. "8f6ad954-0cb9-4dbb-a5e5-e0b085f07cf8"
+      if (id.startsWith("{"))
+        id = id.mid(1);
+      if (id.endsWith("}"))
+        id = id.mid(0, id.size() - 1);
+    }
+
+    Utils::safelyWriteFile(deviceIDFilename, id.toLatin1());
+
+    // We load it again to make sure writing it succeeded. If it doesn't, we'll
+    // error out at a later point.
+    id = loadDeviceID(deviceIDFilename);
   }
 
-  QString newUuid = QUuid::createUuid().toString();
-  // The UUID should be e.g. "8f6ad954-0cb9-4dbb-a5e5-e0b085f07cf8"
-  if (newUuid.startsWith("{"))
-    newUuid = newUuid.mid(1);
-  if (newUuid.endsWith("}"))
-    newUuid = newUuid.mid(0, newUuid.size() - 1);
-
-  if (!Utils::safelyWriteFile(path.fileName(), newUuid.toLatin1()))
-    return "";
-
-  return newUuid;
+  return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -369,7 +410,7 @@ static bool probeDecoder(QString decoder, QString resourceName)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void Codecs::probeCodecs()
 {
-  if (g_deviceID == "")
+  if (g_deviceID.isEmpty())
     throw FatalException("Could not read device-id.");
 
 #ifdef Q_OS_WIN32

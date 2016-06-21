@@ -281,6 +281,7 @@ static QString findOldDeviceID()
     QDir::home().path() + "/Library/Application Support/Plex Media Server/Codecs/.device-id",
 #endif
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/.device-id",
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/codecs/.device-id",
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/.device-id",
     Paths::dataDir() + "/codecs/.device-id",
   };

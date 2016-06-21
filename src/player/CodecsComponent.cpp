@@ -277,8 +277,8 @@ static QString findOldDeviceID()
   // First we try to reuse the ID from other Plex products (i.e. PMS) or older paths.
   QStringList candidates = {
 #ifdef Q_OS_MAC
-    qgetenv("HOME") + "/Library/Application Support/Plex/Codecs/.device-id",
-    qgetenv("HOME") + "/Library/Application Support/Plex Media Server/Codecs/.device-id",
+    QDir::home().path() + "/Library/Application Support/Plex/Codecs/.device-id",
+    QDir::home().path() + "/Library/Application Support/Plex Media Server/Codecs/.device-id",
 #endif
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/.device-id",
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/.device-id",

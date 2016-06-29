@@ -72,3 +72,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${QT5_CFLAGS}")
 
 set(CMAKE_REQUIRED_INCLUDES ${Qt5WebEngine_INCLUDE_DIRS};${Qt5WebEngine_PRIVATE_INCLUDE_DIRS})
 set(CMAKE_REQUIRED_LIBRARIES ${QT5_LIBRARIES})
+
+include(CheckCXXSourceCompiles)
+
+CHECK_CXX_SOURCE_COMPILES(
+"
+  #include <QSurfaceFormat>
+
+  int main(int argc, char** argv) {
+    QSurfaceFormat::FormatOption o = QSurfaceFormat::UseOptimalOrientation;
+    return 0;
+  }
+" QT5_HAVE_OPTIMALORIENTATION)
+
+if(QT5_HAVE_OPTIMALORIENTATION)
+  message(STATUS "QSurfaceFormat::UseOptimalOrientation found")
+  add_definitions(-DHAVE_OPTIMALORIENTATION)
+endif()

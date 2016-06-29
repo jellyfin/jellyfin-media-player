@@ -90,6 +90,9 @@ void detectOpenGLLate()
     QLOG_INFO() << "Trying GLES version" << version;
     QSurfaceFormat fmt = QSurfaceFormat::defaultFormat();
     fmt.setMajorVersion(version);
+#ifdef HAVE_OPTIMALORIENTATION
+    fmt.setOption(QSurfaceFormat::UseOptimalOrientation);
+#endif
     QOpenGLContext ctx;
     ctx.setFormat(fmt);
     if (ctx.create())

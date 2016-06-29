@@ -200,14 +200,21 @@ PlayerRenderer::~PlayerRenderer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerRenderer::render()
 {
+  QOpenGLContext *context = QOpenGLContext::currentContext();
+
   GLint fbo = 0;
-  QOpenGLContext::currentContext()->functions()->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+  context->functions()->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
 
   m_window->resetOpenGLState();
 
+  bool flip = true;
+#if HAVE_OPTIMALORIENTATION
+  flip = !(context->format().orientationFlags() & QSurfaceFormat::MirrorVertically);
+#endif
+
   // The negative height signals to mpv that the video should be flipped
   // (according to the flipped OpenGL coordinate system).
-  mpv_opengl_cb_draw(m_mpvGL, fbo, m_size.width(), -m_size.height());
+  mpv_opengl_cb_draw(m_mpvGL, fbo, m_size.width(), (flip ? -1 : 1) * m_size.height());
 
   m_window->resetOpenGLState();
 }

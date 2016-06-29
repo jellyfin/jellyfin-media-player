@@ -700,6 +700,12 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
             score = 1;
         }
       }
+      if (codec.driver == "aac_mf")
+      {
+        // Arbitrary but documented and enforced 6 channel limit by MS.
+        if (stream.audioChannels > 6)
+          score = 1;
+      }
     }
     else
     {

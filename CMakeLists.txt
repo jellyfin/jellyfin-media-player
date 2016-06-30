@@ -37,6 +37,7 @@ endmacro()
 set_policy(CMP0020 NEW)
 set_policy(CMP0017 NEW)
 set_policy(CMP0058 NEW)
+set_policy(CMP0026 OLD)
 
 include(utils)
 include(CompilerFlags)

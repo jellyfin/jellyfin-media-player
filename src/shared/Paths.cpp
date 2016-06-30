@@ -11,6 +11,7 @@
 #include <QsLog.h>
 #include <QtGui/qguiapplication.h>
 #include "Names.h"
+#include "Version.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 static QDir writableLocation(QStandardPaths::StandardLocation loc)
@@ -109,4 +110,11 @@ QString Paths::soundsPath(const QString& sound)
   }
 
   return f.absoluteFilePath();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::webClientPath()
+{
+  QString webName = QString("web-client-%1").arg(Version::GetWebVersion());
+  return resourceDir(webName + "/index.html");
 }

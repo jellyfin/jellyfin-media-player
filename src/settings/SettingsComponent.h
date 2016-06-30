@@ -51,6 +51,7 @@ public:
   Q_INVOKABLE void removeValue(const QString& sectionOrKey);
   Q_INVOKABLE void resetToDefault();
   Q_INVOKABLE QVariantList settingDescriptions();
+  Q_INVOKABLE QString getWebClientUrl();
 
   // host commands
   Q_SLOT void cycleSetting(const QString& args);

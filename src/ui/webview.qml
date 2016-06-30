@@ -63,7 +63,7 @@ KonvergoWindow
       backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
-      url = components.settings.value("path", "startupurl") + getInitialScaleArg();
+      url = components.settings.getWebClientUrl() + getInitialScaleArg();
     }
 
     onLoadingChanged:
@@ -81,8 +81,8 @@ KonvergoWindow
         errorLabel.visible = true
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
                           "You can try to <a href='reload'>reload</a> or head to our <a href='http://plex.tv/support'>support page</a><br><br>Actual Error: <pre>" +
-                          loadRequest.url + "\n" + loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
-                          "Provide the <a href='file://"+ components.system.logFilePath() + "'>logfile</a> as well."
+                          loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
+                          "Provide the <a href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
       }
     }
 
@@ -114,8 +114,8 @@ KonvergoWindow
     {
       if (link == "reload")
       {
-        web.reload()
         errorLabel.visible = false
+        web.reload()
       }
       else
       {

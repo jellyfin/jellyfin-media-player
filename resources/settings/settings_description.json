@@ -362,7 +362,7 @@
     "values": [
       {
         "value": "startupurl",
-        "default": "qrc:/konvergo/index.html"
+        "default": "bundled"
       },
       {
         "value": "helperprogram",

@@ -20,7 +20,7 @@ QString Version::GetBuildDate()
 
 QString Version::GetWebVersion()
 {
-  return QString("@WEB_CLIENT_VERSION@");
+  return QString("@WEB_CLIENT_VERSTR@");
 }
 
 QString Version::GetDependenciesVersion()

@@ -667,3 +667,21 @@ bool SettingsComponent::resetAndSaveOldConfiguration()
   return settingsFile.rename(Paths::dataDir("plexmediaplayer.conf.old"));
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SettingsComponent::getWebClientUrl()
+{
+  auto url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString();
+
+  // Transition to the new value so that old users are not screwed.
+  if (url == "qrc:/konvergo/index.html")
+  {
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_PATH, "startupurl", "bundled");
+    url = "bundled";
+  }
+
+  if (url == "bundled")
+    return "file://" + Paths::webClientPath();
+
+  return url;
+}
+

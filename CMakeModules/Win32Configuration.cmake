@@ -1,5 +1,5 @@
 set(INSTALL_BIN_DIR .)
-set(INSTALL_RESOURCE_DIR resources)
+set(INSTALL_RESOURCE_DIR .)
 set(HAVE_UPDATER 1)
 
 find_library(WINMM winmm)

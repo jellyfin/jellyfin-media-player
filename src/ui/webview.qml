@@ -78,6 +78,7 @@ KonvergoWindow
       }
       else if (loadRequest.status == WebEngineView.LoadFailedStatus)
       {
+        console.log("FAILED TO LOAD web-client successfully from: " + web.url);
         errorLabel.visible = true
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
                           "You can try to <a href='reload'>reload</a> or head to our <a href='http://plex.tv/support'>support page</a><br><br>Actual Error: <pre>" +

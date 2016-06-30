@@ -680,7 +680,12 @@ QString SettingsComponent::getWebClientUrl()
   }
 
   if (url == "bundled")
-    return "file://" + Paths::webClientPath();
+  {
+    auto path = Paths::webClientPath();
+    if (path.startsWith("/"))
+      return "file://" + path;
+    return "file:///" + path;
+  }
 
   return url;
 }

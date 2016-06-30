@@ -86,24 +86,22 @@ add_custom_command(OUTPUT qrc_resources.cpp
 )
 set_source_files_properties(qrc_resources.cpp PROPERTIES GENERATED TRUE)
 
-# handle Web-Client resource
-include(WebClientResources)
-
-set_source_files_properties(${PROJECT_SOURCE_DIR}/bundle/osx/Plex.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-list(APPEND RESOURCE_FILES qrc_resources.cpp ${WEB_CLIENT_CPP})
+list(APPEND RESOURCE_FILES qrc_resources.cpp)
 
 if(APPLE)
-  list(APPEND RESOURCE_FILES ${PROJECT_SOURCE_DIR}/bundle/osx/Plex.icns)
   if(HAVE_UPDATER)
-    list(APPEND RESOURCE_FILES ${UPDATER_PATH})
-    set_source_files_properties(${UPDATER_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    add_resources(TARGET ${MAIN_TARGET} SOURCES ${UPDATER_PATH} DEST Resources)
   endif(HAVE_UPDATER)
 
   set_source_files_properties(
-    /HIDRemote/HIDRemote.h
     input/apple/HIDRemote/HIDRemote.m
     PROPERTIES COMPILE_FLAGS -fno-objc-arc
   )
+
+  # copy the qt.conf so that when running PMP from a debugger it finds the plugins and QML files
+  if(EXISTS ${QTROOT}/bin/qt.conf)
+    add_resources(TARGET ${MAIN_TARGET} SOURCES ${QTROOT}/bin/qt.conf DEST Resources)
+  endif()
 
   set(PLISTPARSER plistparser)
 endif()
@@ -118,6 +116,8 @@ if(WIN32)
   list(APPEND RESOURCE_FILES ${CMAKE_SOURCE_DIR}/bundle/win/iconres.rc)
 endif()
 
+add_resources(TARGET ${MAIN_TARGET} SOURCES ${WEB_CLIENT_DIR} DEST Resources/web-client-${WEB_CLIENT_VERSTR})
+
 get_property(BUNDLED_FILES GLOBAL PROPERTY CONFIG_BUNDLED_FILES)
 add_executable(${MAIN_TARGET} WIN32 MACOSX_BUNDLE ${SOURCES} ${BUNDLED_FILES} ${RESOURCE_FILES})
 std_target_properties(${MAIN_TARGET})
@@ -126,17 +126,8 @@ set_target_properties(${MAIN_TARGET} PROPERTIES
   INSTALL_RPATH "${QTROOT}/lib"
   OUTPUT_NAME ${MAIN_NAME}
 )
-
+copy_resources(${MAIN_TARGET})
 clang_tidy(${MAIN_TARGET})
-
-# copy the qt.conf so that when running PMP from a debugger it finds the plugins and QML files
-if(APPLE AND EXISTS ${QTROOT}/bin/qt.conf)
-  add_custom_command(
-    TARGET ${MAIN_TARGET} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${QTROOT}/bin/qt.conf $<TARGET_FILE_DIR:${MAIN_TARGET}>/../Resources
-    COMMENT "Copy qt.conf to main bundle"
-  )
-endif()
 
 target_link_libraries(${MAIN_TARGET}
   shared

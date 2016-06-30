@@ -1,41 +1,37 @@
 include(WebClientVariables)
 
+set(WEB_CLIENT_VERSTR "${WEB_CLIENT_VERSION_NR}-${WEB_CLIENT_VERSION}")
 option(SKIP_WEB_CLIENT "Skip downloading the web client" OFF)
+set(WEB_CLIENT_FILE plex-web-client-pmp-${WEB_CLIENT_VERSTR}.tbz2)
+set(WEB_CLIENT_DIR ${CMAKE_BINARY_DIR}/web-client-${WEB_CLIENT_VERSTR})
+message(STATUS "web-client version: ${WEB_CLIENT_VERSTR}")
 
 if(NOT SKIP_WEB_CLIENT)
-  set(WEB_CLIENT_CPP plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp)
-  set(WEB_CLIENT_URL https://nightlies.plex.tv/directdl/plex-dependencies/plex-web-client-plexmediaplayer/${WEB_CLIENT_BUILDNR}/plex-web-client-konvergo-${WEB_CLIENT_VERSION}.cpp.tbz2)
+  set(WEB_CLIENT_URL https://nightlies.plex.tv/directdl/plex-dependencies/plex-web-client-plexmediaplayer/${WEB_CLIENT_BUILDNR}/${WEB_CLIENT_FILE})
+  if(NOT EXISTS ${WEB_CLIENT_DIR}/index.html)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/${WEB_CLIENT_FILE})
+      safe_download(${WEB_CLIENT_URL}
+        FILENAME ${CMAKE_BINARY_DIR}/${WEB_CLIENT_FILE}
+        SHOW_PROGRESS
+        SHA1 ${WEB_CLIENT_HASH}
+      )
+    endif()
 
-  message(STATUS "web-client version: ${WEB_CLIENT_VERSION}")
-
-  set(LOCAL_WEB_CLIENT false)
-  if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2")
-    file(SHA1 "${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2" EXISTING_HASH)
-    if("${EXISTING_HASH}" STREQUAL "${WEB_CLIENT_HASH}")
-        set(LOCAL_WEB_CLIENT true)
-    endif("${EXISTING_HASH}" STREQUAL "${WEB_CLIENT_HASH}")
-  endif(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2")
-
-  if(NOT LOCAL_WEB_CLIENT)
-    file(
-      DOWNLOAD ${WEB_CLIENT_URL} ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
-      EXPECTED_HASH SHA1=${WEB_CLIENT_HASH}
-      INACTIVITY_TIMEOUT 20
-      TIMEOUT 3600
-      SHOW_PROGRESS
+    file(MAKE_DIRECTORY ${WEB_CLIENT_DIR})
+    message(STATUS "Unpacking web-client...")
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E tar -xjf ${CMAKE_BINARY_DIR}/${WEB_CLIENT_FILE}
+      WORKING_DIRECTORY ${WEB_CLIENT_DIR}
+      RESULT_VARIABLE STATUS
     )
-  endif(NOT LOCAL_WEB_CLIENT)
 
-  add_custom_command(
-    OUTPUT ${WEB_CLIENT_CPP}
-    COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${WEB_CLIENT_CPP}.tbz2
-    COMMENT "Unpacking: ${WEB_CLIENT_CPP}.tbz2"
-  )
+    if(NOT STATUS EQUAL 0)
+      message(FATAL_ERROR "Failed to unpack web-client")
+      file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${WEB_CLIENT_FILE})
+    endif()
 
-  add_custom_target(UnpackWebClientResource
-    DEPENDS ${WEB_CLIENT_CPP}
-  )
+    file(REMOVE ${CMAKE_BINARY_DIR}/${WEB_CLIENT_FILE})
+  endif()
 else(NOT SKIP_WEB_CLIENT)
   message(WARNING "Skipping web-client, you will not a functioning end product")
 endif(NOT SKIP_WEB_CLIENT)

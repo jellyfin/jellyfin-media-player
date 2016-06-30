@@ -1,38 +1,89 @@
 #############################################################
-function(set_bundle_dir)
-  set(args SOURCES DEST EXCLUDE)
-  include(CMakeParseArguments)
-  cmake_parse_arguments(BD "" "" "${args}" ${ARGN})
+function(get_resources_source_list target var)
+  get_property(RESOURCE_LIST GLOBAL PROPERTY _${target}_RESOURCE_LIST)
+  foreach(RF ${RESOURCE_LIST})
+    string(REPLACE "|" ";" PARTS "${RF}")
+    list(GET PARTS 0 SOURCE_FILE)
+    list(APPEND _SF ${SOURCE_FILE})
+  endforeach()
+  set(${var} ${_SF} PARENT_SCOPE)
+endfunction()
 
-  foreach(_BDIR ${BD_SOURCES}) 
-    file(GLOB _DIRCONTENTS ${_BDIR}/*)
-    foreach(_BDFILE ${_DIRCONTENTS})
+#############################################################
+function(copy_resources target)
+  if(XCODE)
+    return()
+  endif()
+  
+  get_property(RESOURCE_LIST GLOBAL PROPERTY _${target}_RESOURCE_LIST)
+
+  # we read the LOCATION from the target instead of using a generator
+  # here since add_custom_command doesn't support generator expresessions
+  # in the output field, and this is still cleaner than hardcoding the path
+  # of the output binary.
+  #  
+  get_property(_LOC TARGET ${target} PROPERTY LOCATION)
+  if(APPLE)
+    get_filename_component(TARGET_DIR ${_LOC} DIRECTORY)
+    set(TARGET_LOC ${TARGET_DIR}/..)
+  endif()
+  
+  if(RESOURCE_LIST)
+    foreach(RF ${RESOURCE_LIST})
+      string(REPLACE "|" ";" PARTS "${RF}")
+      list(GET PARTS 0 SOURCE_FILE)
+      list(GET PARTS 1 _TARGET_FILE)
+      set(TARGET_FILE ${TARGET_LOC}/${_TARGET_FILE})
+      add_custom_command(OUTPUT ${TARGET_FILE}
+                         COMMAND ${CMAKE_COMMAND} -E copy "${SOURCE_FILE}" "${TARGET_FILE}"
+                         DEPENDS ${SOURCE_FILE}
+                         COMMENT "CopyResource (${target}): ${TARGET_FILE}")
+      list(APPEND RESOURCES ${TARGET_FILE})
+    endforeach()
+    add_custom_target(${target}_CopyResources DEPENDS ${RESOURCES})
+    add_dependencies(${target} ${target}_CopyResources)
+  endif(RESOURCE_LIST)
+endfunction()
+
+#############################################################
+function(add_resources)
+  set(args1 TARGET)
+  set(args2 SOURCES DEST EXCLUDE)
+  cmake_parse_arguments(BD "" "${args1}" "${args2}" ${ARGN})
+  
+  foreach(_BDFILE ${BD_SOURCES})
+    if(IS_DIRECTORY ${_BDFILE})
+      file(GLOB _DIRCONTENTS ${_BDFILE}/*)
+      foreach(_BDDFILE ${_DIRCONTENTS})
+        get_filename_component(_BDFILE_NAME ${_BDDFILE} NAME)
+
+        set(PROCESS_FILE 1)
+        foreach(EX_FILE ${BD_EXCLUDE})
+          string(REGEX MATCH ${EX_FILE} DID_MATCH ${_BDDFILE})
+          if(NOT "${DID_MATCH}" STREQUAL "")
+            set(PROCESS_FILE 0)
+          endif(NOT "${DID_MATCH}" STREQUAL "")
+        endforeach(EX_FILE ${BD_EXCLUDE})
+
+        if(PROCESS_FILE STREQUAL "1")
+          if(IS_DIRECTORY ${_BDDFILE})
+            set(DEST ${BD_DEST}/${_BDFILE_NAME})
+          else()
+            set(DEST ${BD_DEST})
+          endif()
+          
+          add_resources(SOURCES ${_BDDFILE} DEST ${DEST} EXCLUDE ${BD_EXCLUDE} TARGET ${BD_TARGET})
+        endif()
+      endforeach()
+    else()
       get_filename_component(_BDFILE_NAME ${_BDFILE} NAME)
-
-      set(PROCESS_FILE 1)
-      foreach(EX_FILE ${BD_EXCLUDE})
-        string(REGEX MATCH ${EX_FILE} DID_MATCH ${_BDFILE})
-        if(NOT "${DID_MATCH}" STREQUAL "")
-          set(PROCESS_FILE 0)
-        endif(NOT "${DID_MATCH}" STREQUAL "")
-      endforeach(EX_FILE ${BD_EXCLUDE})
-      
-      if(PROCESS_FILE STREQUAL "1")
-        if(IS_DIRECTORY ${_BDFILE})
-          set_bundle_dir(SOURCES ${_BDFILE} DEST ${BD_DEST}/${_BDFILE_NAME} EXCLUDE ${BD_EXCLUDE})
-        else(IS_DIRECTORY ${_BDFILE})
-          #message("set_bundle_dir : setting package_location ${_BDFILE} = ${BD_DEST}")
-          set_source_files_properties(${_BDFILE} PROPERTIES MACOSX_PACKAGE_LOCATION ${BD_DEST})
-          get_property(BUNDLED_FILES GLOBAL PROPERTY CONFIG_BUNDLED_FILES)
-          set_property(GLOBAL PROPERTY CONFIG_BUNDLED_FILES ${BUNDLED_FILES} ${_BDFILE})
-
-          string(REPLACE "/" "\\\\" GNAME ${BD_DEST})
-          source_group(${GNAME} FILES ${_BDFILE})
-        endif(IS_DIRECTORY ${_BDFILE})
+      set_property(GLOBAL APPEND PROPERTY _${BD_TARGET}_RESOURCE_LIST "${_BDFILE}|${BD_DEST}/${_BDFILE_NAME}")
+      if(XCODE)
+        set_source_files_properties(${_BDFILE} PROPERTIES MACOSX_PACKAGE_LOCATION ${BD_DEST})
       endif()
-    endforeach(_BDFILE ${_DIRCONTENTS})
-  endforeach(_BDIR ${BD_SOURCES})
-endfunction(set_bundle_dir)
+    endif()    
+  endforeach()
+endfunction()
 
 #############################################################
 macro(find_all_sources DIRECTORY VARIABLE)
@@ -170,4 +221,51 @@ ENDMACRO()
 #############################################################
 function(std_target_properties target)
   set_target_properties(${target} PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON)
+endfunction()
+
+#############################################################
+function(safe_download URL)
+  set(ARGS FILENAME SHA1)
+  cmake_parse_arguments(SD "SHOW_PROGRESS" "${ARGS}" "" ${ARGN})
+  if(NOT DEFINED SD_FILENAME)
+    get_filename_component(SD_FILENAME ${CU_URL} NAME)
+  endif(NOT DEFINED SD_FILENAME)
+
+  if(EXISTS "${SD_FILENAME}")
+    file(SHA1 "${SD_FILENAME}" CURRENT_SHA1)
+  endif()
+
+  if(NOT DEFINED SD_SHA1)
+    set(SD_SHA1 ${CURRENT_SHA1})
+  endif()
+
+  if(SD_SHOW_PROGRESS)
+    set(_SHOW_PROGRESS "SHOW_PROGRESS")
+  endif()
+
+  if(NOT CURRENT_SHA1 STREQUAL SD_SHA1)
+    message(STATUS "Downloading ${URL} to ${SD_FILENAME}...")
+    file(
+      DOWNLOAD ${URL} ${SD_FILENAME}
+      STATUS SD_STATUS
+      ${_SHOW_PROGRESS}
+    )
+    list(GET SD_STATUS 0 SD_SUCCESS)
+    if(NOT SD_SUCCESS EQUAL 0)
+      list(GET SD_STATUS 1 SD_ERROR)
+      file(REMOVE ${SD_FILENAME})
+      if("${SD_ERROR}" STREQUAL "\"Unsupported protocol\"")
+        message(FATAL_ERROR "Download failed and your cmake probably don't support SSL! Beware that cmake downloaded from cmake.org doesn't support SSL on all platforms, make sure to build it yourself.")
+      endif()
+      message(FATAL_ERROR "Failed to download: ${URL}: ${SD_ERROR}")
+    endif()
+
+    file(SHA1 "${SD_FILENAME}" NEW_SHA1)
+    if(DEFINED SD_SHA1)
+      if(NOT SD_SHA1 STREQUAL NEW_SHA1)
+        file(REMOVE ${SD_FILENAME})
+        message(FATAL_ERROR "Failed to verify SHA1 on ${SD_FILENAME}, expected '${SD_SHA1}' got '${NEW_SHA1}'")
+      endif()
+    endif()
+  endif()
 endfunction()

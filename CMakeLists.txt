@@ -10,12 +10,6 @@ project(PlexMediaPlayer CXX C)
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 
-cmake_policy(SET CMP0020 NEW)
-cmake_policy(SET CMP0017 NEW)
-if (POLICY CMP0058)
-  cmake_policy(SET CMP0058 NEW)
-endif()
-
 option(OPENELEC "Make an OpenELEC build" OFF)
 
 if(OPENELEC)
@@ -34,6 +28,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME Core)
 
 add_definitions(-DQS_LOG_LINE_NUMBERS -DQS_LOG_SEPARATE_THREAD)
+macro(set_policy _POLICY _VALUE)
+  if(POLICY ${_POLICY})
+    cmake_policy(SET ${_POLICY} ${_VALUE})
+  endif()
+endmacro()
+
+set_policy(CMP0020 NEW)
+set_policy(CMP0017 NEW)
+set_policy(CMP0058 NEW)
 
 include(utils)
 include(CompilerFlags)

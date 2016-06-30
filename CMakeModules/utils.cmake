@@ -22,10 +22,12 @@ function(copy_resources target)
   # in the output field, and this is still cleaner than hardcoding the path
   # of the output binary.
   #  
-  get_property(_LOC TARGET ${target} PROPERTY LOCATION)
+  get_property(TARGET_LOC TARGET ${target} PROPERTY LOCATION)
+  get_filename_component(TARGET_DIR ${TARGET_LOC} DIRECTORY)
   if(APPLE)
-    get_filename_component(TARGET_DIR ${_LOC} DIRECTORY)
     set(TARGET_LOC ${TARGET_DIR}/..)
+  else()
+    set(TARGET_LOC ${TARGET_DIR})
   endif()
   
   if(RESOURCE_LIST)

@@ -90,7 +90,7 @@ list(APPEND RESOURCE_FILES qrc_resources.cpp)
 
 if(APPLE)
   if(HAVE_UPDATER)
-    add_resources(TARGET ${MAIN_TARGET} SOURCES ${UPDATER_PATH} DEST Resources)
+    add_resources(TARGET ${MAIN_TARGET} SOURCES ${UPDATER_PATH} DEST ${INSTALL_RESOURCE_DIR})
   endif(HAVE_UPDATER)
 
   set_source_files_properties(
@@ -100,7 +100,7 @@ if(APPLE)
 
   # copy the qt.conf so that when running PMP from a debugger it finds the plugins and QML files
   if(EXISTS ${QTROOT}/bin/qt.conf)
-    add_resources(TARGET ${MAIN_TARGET} SOURCES ${QTROOT}/bin/qt.conf DEST Resources)
+    add_resources(TARGET ${MAIN_TARGET} SOURCES ${QTROOT}/bin/qt.conf DEST ${INSTALL_RESOURCE_DIR})
   endif()
 
   set(PLISTPARSER plistparser)
@@ -116,7 +116,10 @@ if(WIN32)
   list(APPEND RESOURCE_FILES ${CMAKE_SOURCE_DIR}/bundle/win/iconres.rc)
 endif()
 
-add_resources(TARGET ${MAIN_TARGET} SOURCES ${WEB_CLIENT_DIR} DEST Resources/web-client-${WEB_CLIENT_VERSTR})
+add_resources(TARGET ${MAIN_TARGET} SOURCES ${WEB_CLIENT_DIR} DEST ${INSTALL_RESOURCE_DIR}/web-client-${WEB_CLIENT_VERSTR})
+if(NOT APPLE)
+  install(DIRECTORY ${WEB_CLIENT_DIR} DESTINATION ${INSTALL_RESOURCE_DIR})
+endif()
 
 get_property(BUNDLED_FILES GLOBAL PROPERTY CONFIG_BUNDLED_FILES)
 add_executable(${MAIN_TARGET} WIN32 MACOSX_BUNDLE ${SOURCES} ${BUNDLED_FILES} ${RESOURCE_FILES})

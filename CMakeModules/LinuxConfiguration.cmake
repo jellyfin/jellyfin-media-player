@@ -14,4 +14,4 @@ if (NOT BUILD_TARGET STREQUAL "RPI")
 endif()
 
 set(INSTALL_BIN_DIR bin)
-set(INSTALL_RESOURCE_DIR .)
+set(INSTALL_RESOURCE_DIR share/plexmediaplayer)

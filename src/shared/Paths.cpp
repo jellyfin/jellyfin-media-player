@@ -29,16 +29,31 @@ static QDir writableLocation(QStandardPaths::StandardLocation loc)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Try a couple of different strategies to find the file we are looking for.
+// 1) By looking next to the application binary
+// 2) By looking in binary/../Resources
+// 3) By looking in PREFIX/share/plexmediaplayer
+// 4) By looking in PREFIX/plexmediaplayer
+//
 QString Paths::resourceDir(const QString& file)
 {
-  auto resourceDir = QDir(QGuiApplication::applicationDirPath());
+  auto appResourceDir = QGuiApplication::applicationDirPath() + "/";
+  auto prefixDir = QString(PREFIX);
 
-#ifdef Q_OS_MAC
-  resourceDir.cdUp();
-  resourceDir.cd("Resources");
-#endif
+  QStringList possibleResourceDirs = {
+    appResourceDir,
+    appResourceDir + "../Resources/",
+    prefixDir + "/share/plexmediaplayer/",
+    prefixDir + "/plexmediaplayer/"
+  };
 
-  return resourceDir.filePath(file);
+  for (const auto& fileStr : possibleResourceDirs)
+  {
+    if (QFile::exists(fileStr + file))
+      return fileStr + file;
+  }
+
+  return appResourceDir + file;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

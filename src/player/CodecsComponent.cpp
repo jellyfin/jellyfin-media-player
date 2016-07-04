@@ -454,11 +454,14 @@ bool CodecsFetcher::codecNeedsDownload(const CodecDriver& codec)
     if (Codecs::sameCodec(codec, m_Codecs[n]))
       return false;
   }
-  if (QFile(codec.getPath()).exists())
+  QFile codecFile(codec.getPath());
+  if (codecFile.exists())
   {
     QLOG_ERROR() << "Codec" << codec.driver << "exists on disk as" << codec.getPath()
-                 << "but is not known as installed - broken codec? Skipping download.";
-    return false;
+                 << "but is not known as installed - broken codec?";
+    if (!codecFile.remove())
+      return false;
+    QLOG_ERROR() << "Retrying download.";
   }
   return true;
 }

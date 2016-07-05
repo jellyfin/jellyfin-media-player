@@ -264,7 +264,8 @@ static bool useSystemVideoDecoders()
 static QString loadDeviceID(QString filename)
 {
   QFile path(filename);
-  path.open(QFile::ReadOnly);
+  if (!path.open(QFile::ReadOnly))
+    return "";
   auto res = QString::fromLatin1(path.readAll());
   if (res.size() < 32 || res.size() > 512)
     res = ""; // mark as invalid

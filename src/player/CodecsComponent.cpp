@@ -582,6 +582,8 @@ void CodecsFetcher::processCodecDownloadDone(const QByteArray& data, const Codec
     return;
   }
 
+  QLOG_INFO() << "Storing codec as" << codec.getPath();
+
   if (!Utils::safelyWriteFile(codec.getPath(), data))
   {
     QLOG_ERROR() << "Writing codec file failed.";

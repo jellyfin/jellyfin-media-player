@@ -352,7 +352,7 @@ void Codecs::preinitCodecs()
   QDir("").mkpath(path);
 
   // Follows the convention used by av_get_token().
-  QString escapedPath = path.replace("\\", "\\\\").replace(":", "\\:");
+  QString escapedPath = path.replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'");
   // This must be run before any threads are started etc. (for safety).
 #ifdef Q_OS_WIN
   SetEnvironmentVariableW(L"FFMPEG_EXTERNAL_LIBS", escapedPath.toStdWString().c_str());

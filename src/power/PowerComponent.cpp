@@ -65,7 +65,11 @@ void PowerComponent::redecideScreeensaverState()
   // by default we don't allow the fullscreen state affect sleep state, but we want to
   // have a hidden option to allow system sleep and screensaver when in fullscreen.
   //
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "preventSystemScreensaver").toBool())
+  bool preventSystemScreensaver = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "preventSystemScreensaver").toBool();
+#ifdef KONVERGO_OPENELEC
+  preventSystemScreensaver = true;
+#endif
+  if (preventSystemScreensaver)
     enableOsScreensaver &= !m_fullscreenState;
 
   if (m_currentScreensaverEnabled != enableOsScreensaver)

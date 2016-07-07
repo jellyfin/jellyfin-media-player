@@ -33,64 +33,62 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 ## Building on Linux
 
-### Using the Qt 5.6 release
+These instructions are for Ubuntu 16.04 LTS. They were tested on a fresh install without extra options and with auto-updates applied.
 
-It is possible to use a pre-built Qt 5.6 from http://download.qt.io/official_releases/qt/5.6/. Just download and install one of the linux-x64 packages. If your distro packages this version, you might be able to use that. Keep in mind that Qt 5.5 or older will not work properly.
+First, some preparations:
 
-### Building Qt 5.6.0
+* ``sudo apt install autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev
+    libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev
+    yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git
+    libgnutls-dev libgl1-mesa-dev cmake``
+* ``mkdir pmp``
+* ``cd pmp``
 
-You'll want to grab one of the Qt 5.6.0 (or later) packages from http://download.qt.io/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
+Systems not based on Debian/Ubuntu will have similar packages, but you'll need to figure out their names yourself.
 
-``sudo dnf install libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel libcap-devel snappy-devel libsrtp-devel nss-devel pciutils-devel gperf``
+### Downloading and installing Qt
 
-(The majority of the packages on this list came from http://code.qt.io/cgit/qt/qtbase.git/tree/src/plugins/platforms/xcb/README, but everything after xcb-util-keysyms-devel was trial-and-error in attempts build QtWebEngine; this list of packages may not be complete, but hopefully it provides a useful starting point.)
+If you distro provides Qt 5.6 or later packages, try to use them. Otherwise, proceed with these instructions.
 
-Once you've unpacked the Qt 5.6.0 package:
+* ``wget http://download.qt.io/official_releases/qt/5.6/5.6.1-1/qt-opensource-linux-x64-5.6.1-1.run``
+* ``chmod +x qt-opensource-linux-x64-5.6.1-1.run``
+* ``sudo ./qt-opensource-linux-x64-5.6.1-1.run``
 
-* ``cd qt-everywhere-opensource-src-5.6.0``
-* ``./configure -confirm-license -opensource``
-* ``make``
-* ``sudo make install``
-* ``cd qtwebengine``
-* ``qmake``
-* ``make``
-* ``sudo make install``
+A setup dialog should appear. Click through the installation. It should install itself at ``/opt/Qt5.6.1``. The instructions below assume this path, although you can change it if you know how.
 
-That should do it for Qt. It's worth noting that, on a Core i7-950 with 24GB of RAM, this took more than three hours to build. Also, you can prefix `./configure` with a [make](http://linux.die.net/man/1/make) flag definition such as "`MAKEFLAGS="-j$(nproc)"`", where `nproc` is the number of parallel builds desired. This will significantly speed up compile time. It is [suggested](http://www.makelinux.net/books/lkd2/ch02lev1sec3) to use a number 1 to 2x the # of cores you have. For more, also see [this article](http://www.math-linux.com/linux/tip-of-the-day/article/speedup-gnu-make-build-and-compilation-process).
+### Building mpv and ffmpeg
 
-Example:
-```
-MAKEFLAGS="-j$(nproc)" ./configure -confirm-license -opensource
-```
+While most distros have FFmpeg and mpv packages, they're often outdated. It's recommended to build a current version, or to get them from 3rd party sources (some are listed on https://mpv.io/installation/).
 
-### Building mpv
+Here are instructions how to build them locally. First you need to install some build prerequisites:
 
-mpv is a bit easier to build than Qt, and compiles much faster.
+* ``git clone https://github.com/mpv-player/mpv-build.git``
+* ``cd mpv-build``
+* ``echo --enable-libmpv-shared > mpv_options``
+* you can also add ``echo --disable-cplayer >> mpv_options`` to prevent mpv CLI from being built
+* ``./rebuild -j4`` (this steps checks out all sources and compiles them and takes a while)
+* ``sudo ./install``
+* ``sudo ldconfig``
 
-Before you attempt to build mpv, make sure you have the required dependencies installed: https://github.com/mpv-player/mpv#compilation
-Some optional dependencies like ALSA or PulseAudio support are required for proper operation of Plex Media Player.
+With this, libmpv should have been installed to ``/usr/local/``. It does not conflict with the system. In particular, it does not install or use FFmpeg libraries. (The FFmpeg libraries are statically linked in libmpv when using mpv-build.)
 
-* ``git clone git://github.com/mpv-player/mpv``
-* ``cd mpv``
-* ``./bootstrap.py``
-* ``./waf configure --enable-libmpv-shared``
-* ``./waf build``
-* ``sudo ./waf install``
+You can also attempt to skip the installation step, and change the paths in the PMP build step to the build directory. But then you also need to make sure PMP will somehow find libmpv.so at runtime.
 
-### Finally! Building plex-media-player
+### Building plex-media-player
 
 Assuming that everything else has installed correctly, building Plex Media Player should now be fairly straightforward:
 
+* ``cd ~/pmp/``
 * ``git clone git://github.com/plexinc/plex-media-player``
 * ``cd plex-media-player``
 * ``mkdir build``
 * ``cd build``
-* ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/usr/local/Qt-5.6.0 -DMPV_INCLUDE_DIR=/usr/local/include/mpv -DMPV_LIBRARY=/usr/local/lib/libmpv.so.1 -DCMAKE_INSTALL_PREFIX=output ..``
-* ``ninja-build``
+* ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.6.1/5.6/gcc_64/ -DMPV_INCLUDE_DIR=/usr/local/include/mpv -DMPV_LIBRARY=/usr/local/lib/libmpv.so.1 -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
+  If you use your distro's Qt, omit the `-DQTROOT` argument.
+* ``make -j4``
+* ``sudo make install``
 
-You may have to adjust the path passed to `-DQTROOT`. If you use your distro's Qt, omit this argument.
-
-Once ninja-build completes successfully, you should have a usable ``./src/plexmediaplayer`` binary. Run it and test it out! If it works as you expect, you should be able to run ``sudo install ./src/plexmediaplayer ./src/pmphelper /usr/local/bin`` so that the program is usable from anywhere on the system.
+You should now be able to start PMP as ``plexmediaplayer`` from the terminal.
 
 ## License
 

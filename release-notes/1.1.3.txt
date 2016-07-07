@@ -8,3 +8,4 @@ FIXED:
   - Fix playback failures with 7.1 AAC audio tracks on Windows.
   - (Embedded) fix installation on nVidia legacy hardware.
     Affected users should do a clean reinstall.
+  - (Embedded) screen saver was broken after first playback

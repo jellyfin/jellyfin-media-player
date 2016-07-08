@@ -48,7 +48,7 @@ Systems not based on Debian/Ubuntu will have similar packages, but you'll need t
 
 ### Downloading and installing Qt
 
-If you distro provides Qt 5.6 or later packages, try to use them. Otherwise, proceed with these instructions.
+If your distro provides Qt 5.6 or later packages, try to use them. Otherwise, proceed with these instructions.
 
 * ``wget http://download.qt.io/official_releases/qt/5.6/5.6.1-1/qt-opensource-linux-x64-5.6.1-1.run``
 * ``chmod +x qt-opensource-linux-x64-5.6.1-1.run``
@@ -72,7 +72,7 @@ Here are instructions how to build them locally. First you need to install some 
 
 With this, libmpv should have been installed to ``/usr/local/``. It does not conflict with the system. In particular, it does not install or use FFmpeg libraries. (The FFmpeg libraries are statically linked in libmpv when using mpv-build.)
 
-You can also attempt to skip the installation step, and change the paths in the PMP build step to the build directory. But then you also need to make sure PMP will somehow find libmpv.so at runtime.
+You can also attempt to skip the installation step, and change the paths in the PMP build step to the build directory, but this is more complicated.
 
 ### Building plex-media-player
 
@@ -83,12 +83,17 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 * ``cd plex-media-player``
 * ``mkdir build``
 * ``cd build``
-* ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.6.1/5.6/gcc_64/ -DMPV_INCLUDE_DIR=/usr/local/include/mpv -DMPV_LIBRARY=/usr/local/lib/libmpv.so.1 -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
-  If you use your distro's Qt, omit the `-DQTROOT` argument.
+* ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.6.1/5.6/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
 * ``make -j4``
 * ``sudo make install``
 
 You should now be able to start PMP as ``plexmediaplayer`` from the terminal.
+
+If you use your distro's Qt, omit the `-DQTROOT` argument.
+
+Normally, the Ninja generator (via ``-GNinja``) is preferred, but cmake + ninja support appears to be broken on Ubuntu 16.04.
+
+If you want, you can wipe the ``~/pmp/`` directory, as the PMP installation does not depend on it. Only Qt and libmpv are needed.
 
 ## License
 

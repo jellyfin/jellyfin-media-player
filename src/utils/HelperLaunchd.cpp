@@ -80,7 +80,7 @@ bool HelperLaunchd::writePlist()
 
   QVariantMap keepAlive;
   keepAlive.insert("SuccessfulExit", false);
-  launchPlist.insert("Keep-Alive", keepAlive);
+  launchPlist.insert("KeepAlive", keepAlive);
 
   launchPlist.insert("ProcessType", "Background");
   launchPlist.insert("Program", HelperLauncher::HelperPath());

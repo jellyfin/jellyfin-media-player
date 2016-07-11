@@ -1,0 +1,9 @@
+(To be released.)
+
+NEW:
+  -
+
+FIXED:
+  - changing aspect ratio during playback could halt playback
+  - fix volume up with "+" on some keyboards (fix as suggested by wayned42 on the forums)
+  -

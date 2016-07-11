@@ -83,7 +83,7 @@
 
     // volume
     "=": "increase_volume",
-    "\\+": "increase_volume",
+    "(Shift\\+)?\\+": "increase_volume",
     "\\-": "decrease_volume",
 
     // debug command to crash the host. for testing

@@ -11,7 +11,7 @@
     "(Return|Enter)": "enter",
     "(Esc|Backspace)": {
       "short": "back",
-      "long": "exitDialog"
+      "long": "exit"
     },
 
     // map X and Shift+X to X. This allows normal number input

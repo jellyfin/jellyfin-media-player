@@ -24,19 +24,6 @@ if(DEPENDENCY_TOKEN)
 endif(DEPENDENCY_TOKEN)
 
 if(WIN32)
-  if(NOT EXISTS ${dir}/lib/mpv.lib)
-    if(ARCHSTR STREQUAL "windows-x86_64")
-      set(ENV{PMP_VC_ARCH} "amd64")
-      set(ENV{PMP_LIB_ARCH} "X64")
-    else()
-      set(ENV{PMP_VC_ARCH} "x86")
-      set(ENV{PMP_LIB_ARCH} "x86")
-    endif()
-    execute_process(
-      COMMAND ${PROJECT_SOURCE_DIR}/scripts/make_mpv_lib.bat
-      WORKING_DIRECTORY ${dir}
-    )
-  endif(NOT EXISTS ${dir}/lib/mpv.lib)
   message("dependencies are: ${dir}")
   set(DEFAULT_ROOT "${dir}")
 

@@ -67,5 +67,6 @@ int main(int argc, char** argv)
 
   delete helperObject;
 
+  Logger::destroyInstance();
   return EXIT_SUCCESS;
 }

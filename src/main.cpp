@@ -210,6 +210,7 @@ int main(int argc, char *argv[])
     delete uniqueApp;
     Globals::EngineDestroy();
 
+    Log::Uninit();
     return ret;
   }
   catch (FatalException& e)
@@ -222,6 +223,7 @@ int main(int argc, char *argv[])
 
     errApp.exec();
 
+    Log::Uninit();
     return 1;
   }
 }

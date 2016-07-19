@@ -116,3 +116,10 @@ void Log::Init()
   QLOG_INFO() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
   QLOG_INFO() << "  Qt Version:" << QT_VERSION_STR << qPrintable(QString("[%1]").arg(QSysInfo::buildAbi()));
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Log::Uninit()
+{
+  qInstallMessageHandler(0);
+  Logger::destroyInstance();
+}

@@ -10,6 +10,7 @@
 namespace Log
 {
   void Init();
+  void Uninit();
   void UpdateLogLevel();
   void CensorAuthTokens(QString& msg);
 }

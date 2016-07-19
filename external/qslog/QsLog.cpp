@@ -187,6 +187,7 @@ Logger::~Logger()
 
 void Logger::addDestination(DestinationPtr destination)
 {
+    QMutexLocker lock(&d->logMutex);
     assert(destination.data());
     d->destList.push_back(destination);
 }

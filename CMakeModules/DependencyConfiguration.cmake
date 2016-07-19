@@ -13,6 +13,7 @@ if(DEPENDENCY_TOKEN)
     download_deps(
       "${DEPENDCY_FOLDER}"
       ARTIFACTNAME konvergo-codecs-depends
+      BUILD_NUMBER 152
       DIRECTORY dir
       DEPHASH_VAR DEPS_HASH
       DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py

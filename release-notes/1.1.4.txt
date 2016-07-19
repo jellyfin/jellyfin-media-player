@@ -8,4 +8,5 @@ FIXED:
   - fix volume up with "+" on some keyboards (fix as suggested by wayned42 on the forums)
   - playback sometimes did not end (for example playing mp3 music on OSX)
   - issues with msmpeg and wmv1 codecs on some platforms
+  - (OSX) Restore app icon
   - (Embedded) Fix multichannel PCM output on RPI

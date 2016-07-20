@@ -6,14 +6,16 @@ if(DEPENDENCY_TOKEN)
   set(DEPENDCY_FOLDER "")
   if(OPENELEC)
     set(DEPENDCY_FOLDER plexmediaplayer-openelec-codecs)
+    set(DEPS_BUILD_NUMBER 45)
   elseif(APPLE OR WIN32)
     set(DEPENDCY_FOLDER plexmediaplayer-dependencies-codecs)
+    set(DEPS_BUILD_NUMBER 152)
   endif()
   if(NOT (DEPENDCY_FOLDER STREQUAL ""))
     download_deps(
       "${DEPENDCY_FOLDER}"
       ARTIFACTNAME konvergo-codecs-depends
-      BUILD_NUMBER 152
+      BUILD_NUMBER ${DEPS_BUILD_NUMBER}
       DIRECTORY dir
       DEPHASH_VAR DEPS_HASH
       DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py

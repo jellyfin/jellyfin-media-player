@@ -22,26 +22,9 @@ elseif(UNIX)
   set(ARCHSTR ${PLEX_BUILD_TARGET})
 endif(APPLE)
 
-option(ENABLE_CODECS "Enable CodecManifest downloading for Codecs on Demand" OFF)
+option(ENABLE_CODECS "Enable downloading for Codecs on Demand" OFF)
 if(ENABLE_CODECS)
   add_definitions(-DHAVE_CODEC_MANIFEST)
-
-  if(OPENELEC)
-    set(CODECS_BUILD_NUMBER 45)
-    message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h")
-    file(
-      DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-openelec-${OE_ARCH}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h
-      STATUS DL_STATUS
-    )
-  else()
-    set(CODECS_BUILD_NUMBER 144)
-    message(STATUS "Downloading https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h")
-    file(
-      DOWNLOAD https://nightlies.plex.tv/codecs/${CODECS_BUILD_NUMBER}/CodecManifest-${ARCHSTR}.h  ${CMAKE_CURRENT_BINARY_DIR}/src/CodecManifest.h
-      STATUS DL_STATUS
-    )
-  endif()
-  message(STATUS "Result: ${DL_STATUS}")
 endif()
 
 function(get_content_of_url)

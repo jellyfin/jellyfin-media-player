@@ -48,9 +48,15 @@ void SettingsComponent::cycleSetting(const QString& args)
     return;
   }
   QVariantList values = section->possibleValues(valueName);
+  // If no possible values are set, assume that the setting is a simple
+  // checkbox and cycle through the boolean value.
   if (values.size() == 0)
   {
-    QLOG_ERROR() << "Setting" << settingName << "is unknown or is not cycleable.";
+    QVariant currentValue = section->value(valueName);
+    auto nextValue = currentValue.toBool() ? false : true;
+    setValue(sectionID, valueName, nextValue);
+    QLOG_DEBUG() << "Setting" << settingName << "to " << (nextValue ? "Enabled" : "Disabled");
+    emit SystemComponent::Get().settingsMessage(valueName, nextValue ? "Enabled" : "Disabled");
     return;
   }
   QVariant currentValue = section->value(valueName);

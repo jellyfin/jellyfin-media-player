@@ -240,9 +240,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
   }
 
   if (values.find("alwaysOnTop") != values.end())
-  {
     updateAlwaysOnTopState();
-  }
 
   if (values.find("fullscreen") == values.end())
     return;
@@ -278,14 +276,10 @@ void KonvergoWindow::updateAlwaysOnTopState()
   forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
 #endif
 
-  if(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "alwaysOnTop").toBool())
-  {
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "alwaysOnTop").toBool())
     setFlags(flags() | forceOnTopFlags);
-  }
   else
-  {
     setFlags(flags() & ~forceOnTopFlags);
-  }
 
   show();
 }

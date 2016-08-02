@@ -52,14 +52,14 @@
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",
-    "Ctrl\\+Shift\\+A": "host:alwaysOnTop",
+    "Ctrl\\+Shift\\+A": "host:cycle_setting main.alwaysOnTop",
 
     // emulate some of of PHT's behaviour
     "I": "host:toggleDebug",
     "W": "toggle_watched",
     "\\\\": "host:fullscreen",
     "Z": "host:cycle_setting video.aspect",
-    "T": "host:alwaysOnTop",
+    "T": "host:cycle_setting main.alwaysOnTop",
 
     // media keys from the FLIRC and on Linux keyboards
     "Toggle Media Play\\/Pause": "play_pause",

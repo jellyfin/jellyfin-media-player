@@ -36,7 +36,11 @@
       },
       {
         "value": "alwaysOnTop",
-        "default": false
+        "default": false,
+        "possible_values": [
+          [ false, "Disabled" ],
+          [ true, "Enabled" ]
+        ]
       },
       {
         "value": "webserverport",

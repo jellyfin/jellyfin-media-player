@@ -35,7 +35,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
-  InputComponent::Get().registerHostCommand("alwaysOnTop", this, "toggleAlwaysOnTop");
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,

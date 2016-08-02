@@ -272,7 +272,7 @@ void KonvergoWindow::updateAlwaysOnTopState()
 {
   QLOG_DEBUG() << "Changing always-on-top state";
   Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
-#ifdef Q_OS_LINUX
+#ifdef Q_WS_X11
   forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
 #endif
 

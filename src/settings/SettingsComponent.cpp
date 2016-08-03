@@ -48,16 +48,25 @@ void SettingsComponent::cycleSetting(const QString& args)
     return;
   }
   QVariantList values = section->possibleValues(valueName);
-  // If no possible values are set, assume that the setting is a simple
-  // checkbox and cycle through the boolean value.
+  // If no possible values are defined, check the type of the default value.
+  // In the case it's a boolean simply negate the current value to cycle through.
+  // Otherwise log an error message, that it's not possible to cycle through the value.
   if (values.size() == 0)
   {
-    QVariant currentValue = section->value(valueName);
-    auto nextValue = currentValue.toBool() ? false : true;
-    setValue(sectionID, valueName, nextValue);
-    QLOG_DEBUG() << "Setting" << settingName << "to " << (nextValue ? "Enabled" : "Disabled");
-    emit SystemComponent::Get().settingsMessage(valueName, nextValue ? "Enabled" : "Disabled");
-    return;
+    if (static_cast<QMetaType::Type>(section->defaultValue(valueName).type()) == QMetaType::Bool)
+    {
+      QVariant currentValue = section->value(valueName);
+      auto nextValue = currentValue.toBool() ? false : true;
+      setValue(sectionID, valueName, nextValue);
+      QLOG_DEBUG() << "Setting" << settingName << "to " << (nextValue ? "Enabled" : "Disabled");
+      emit SystemComponent::Get().settingsMessage(valueName, nextValue ? "Enabled" : "Disabled");
+      return;
+    }
+    else
+    {
+      QLOG_ERROR() << "Setting" << settingName << "is unknown or is not cycleable.";
+      return;
+    }
   }
   QVariant currentValue = section->value(valueName);
   int nextValueIndex = 0;

@@ -61,6 +61,16 @@ void SettingsSection::setValues(const QVariant& values)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+QVariant SettingsSection::defaultValue(const QString& key)
+{
+  if (m_values.contains(key))
+    return m_values[key]->defaultValue();
+
+  QLOG_WARN() << "Looking for defaultValue:" << key << "in section:" << m_sectionID << "but it can't be found";
+  return QVariant();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 QVariant SettingsSection::value(const QString& key)
 {
   if (m_values.contains(key))

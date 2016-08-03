@@ -27,6 +27,7 @@ public:
   bool isHidden() const;
 
   QVariant value(const QString& key);
+  QVariant defaultValue(const QString& key);
   QString sectionName() const { return m_sectionID; }
 
   const QVariantMap allValues() const;

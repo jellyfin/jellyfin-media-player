@@ -53,7 +53,7 @@ void SettingsComponent::cycleSetting(const QString& args)
   // Otherwise log an error message, that it's not possible to cycle through the value.
   if (values.size() == 0)
   {
-    if (static_cast<QMetaType::Type>(section->defaultValue(valueName).type()) == QMetaType::Bool)
+    if (section->defaultValue(valueName).type() == QVariant::Bool)
     {
       QVariant currentValue = section->value(valueName);
       auto nextValue = currentValue.toBool() ? false : true;

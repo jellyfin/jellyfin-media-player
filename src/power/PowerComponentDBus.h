@@ -1,13 +1,13 @@
-#ifndef POWERCOMPONENTOE_H
-#define POWERCOMPONENTOE_H
+#ifndef POWERCOMPONENTDBUS_H
+#define POWERCOMPONENTDBUS_H
 
 #include "PowerComponent.h"
 
-class PowerComponentOE : public PowerComponent
+class PowerComponentDBus : public PowerComponent
 {
   public:
-    PowerComponentOE() : PowerComponent(0) {};
-    ~PowerComponentOE() {};
+    PowerComponentDBus() : PowerComponent(0) {};
+    ~PowerComponentDBus() {};
 
   public Q_SLOTS:
 
@@ -32,4 +32,4 @@ class PowerComponentOE : public PowerComponent
     bool isPowerMethodAvailable(QString method);
 };
 
-#endif // POWERCOMPONENTOE_H
+#endif // POWERCOMPONENTDBUS_H

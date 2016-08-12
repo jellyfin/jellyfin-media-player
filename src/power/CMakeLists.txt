@@ -8,9 +8,9 @@ if(USE_X11POWER)
   add_sources(PowerComponentX11.cpp PowerComponentX11.h)
 endif(USE_X11POWER)
 
-if(OPENELEC)
-  add_sources(PowerComponentOE.cpp PowerComponentOE.h)
-endif(OPENELEC)
+if(LINUX_DBUS)
+  add_sources(PowerComponentDBus.cpp PowerComponentDBus.h)
+endif(LINUX_DBUS)
 
 if(WIN32)
   add_sources(PowerComponentWin.cpp PowerComponentWin.h)

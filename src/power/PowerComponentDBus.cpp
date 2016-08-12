@@ -2,14 +2,14 @@
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
 
-#include "PowerComponentOE.h"
+#include "PowerComponentDBus.h"
 
 #define DBUS_SERVICE_NAME "org.freedesktop.login1"
 #define DBUS_SERVICE_PATH "/org/freedesktop/login1"
 #define DBUS_INTERFACE "org.freedesktop.login1.Manager"
 
 /////////////////////////////////////////////////////////////////////////////////////////
-bool PowerComponentOE::callPowerMethod(QString method)
+bool PowerComponentDBus::callPowerMethod(QString method)
 {
   if (QDBusConnection::systemBus().isConnected())
   {
@@ -45,7 +45,7 @@ bool PowerComponentOE::callPowerMethod(QString method)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-bool PowerComponentOE::isPowerMethodAvailable(QString method)
+bool PowerComponentDBus::isPowerMethodAvailable(QString method)
 {
   if (QDBusConnection::systemBus().isConnected())
   {

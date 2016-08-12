@@ -38,9 +38,9 @@ if(UNIX AND (NOT APPLE) AND ((NOT BUILD_TARGET STREQUAL "RPI")))
   set(components ${components} X11Extras)
 endif()
 
-if(OPENELEC)
+if(LINUX_DBUS)
   set(components ${components} DBus)
-endif(OPENELEC)
+endif(LINUX_DBUS)
 
 foreach(COMP ${components})
 	set(mod Qt5${COMP})

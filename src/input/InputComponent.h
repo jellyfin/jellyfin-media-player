@@ -104,6 +104,7 @@ public:
   // to hostInput(). The actions parameter contains a list of actions which
   // should be actually dispatched.
   Q_INVOKABLE void executeActions(const QStringList& actions);
+  void cancelAutoRepeat();
 
 signals:
   // Always emitted when any input arrives

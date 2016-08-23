@@ -273,3 +273,9 @@ void InputComponent::registerHostCommand(const QString& command, std::function<v
   QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to anonymous function";
   m_hostCommands.insert(command, recvSlot);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::cancelAutoRepeat()
+{
+  m_autoRepeatTimer->stop();
+}

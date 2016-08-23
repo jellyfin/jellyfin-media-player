@@ -245,6 +245,8 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
   if (values.find("fullscreen") == values.end())
     return;
 
+  InputComponent::Get().cancelAutoRepeat();
+
   updateFullscreenState();
 }
 

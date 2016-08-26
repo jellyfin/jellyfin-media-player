@@ -12,6 +12,7 @@
 #include "QsLog.h"
 #include "settings/SettingsComponent.h"
 #include "ui/KonvergoWindow.h"
+#include "settings/SettingsSection.h"
 #include "Paths.h"
 #include "Names.h"
 
@@ -66,6 +67,11 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 #elif defined(Q_PROCESSOR_X86_64)
   m_platformArch = platformArchX86_64;
 #endif
+
+  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO), &SettingsSection::valuesUpdated, [=]()
+  {
+    emit capabilitiesChanged(getCapabilitiesString());
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -321,5 +327,30 @@ void SystemComponent::hello(const QString& version)
   m_webClientVersion = version;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+#define BASESTR "protocols=shoutcast,http-video;videoDecoders=h264{profile:high&resolution:2160&level:52};audioDecoders=mp3,aac,dts{bitrate:800000&channels:%1},ac3{bitrate:800000&channels:%2}"
 
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SystemComponent::getCapabilitiesString()
+{
+  auto capstring = QString(BASESTR);
+  auto channels = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "channels").toString();
+  auto dtsenabled = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.dts").toBool();
+  auto ac3enabled = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool();
+
+  // Assume that auto means that we want to select multi-channel tracks by default.
+  // So really only disable it when 2.0 is selected.
+  //
+  int ac3channels = 2;
+  int dtschannels = 2;
+
+  if (channels != "2.0")
+    dtschannels = ac3channels = 8;
+  else if (dtsenabled)
+    dtschannels = 8;
+  else if (ac3enabled)
+    ac3channels = 8;
+
+  return capstring.arg(dtschannels).arg(ac3channels);
+}
 

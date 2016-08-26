@@ -45,6 +45,9 @@ public:
   // called by the web-client when everything is properly inited
   Q_INVOKABLE void hello(const QString& version);
 
+  Q_INVOKABLE QString getCapabilitiesString();
+  Q_SIGNAL void capabilitiesChanged(const QString& capabilities);
+
   // possible os types type enum
   enum PlatformType
   {
@@ -92,6 +95,7 @@ private:
   bool m_doLogMessages;
   QString m_authenticationToken;
   QString m_webClientVersion;
+
 };
 
 #endif

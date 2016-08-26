@@ -68,11 +68,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 #ifdef KONVERGO_OPENELEC
   setVisibility(QWindow::FullScreen);
 #else
-  updateFullscreenState(false);
+  updateWindowState(false);
 #endif
-
-  // Check the always on top setting and activate it if necessary.
-  updateAlwaysOnTopState();
 
   emit enableVideoWindowSignal();
 }
@@ -239,19 +236,15 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
   }
 
-  if (values.find("alwaysOnTop") != values.end())
-    updateAlwaysOnTopState();
-
-  if (values.find("fullscreen") == values.end())
-    return;
-
-  InputComponent::Get().cancelAutoRepeat();
-
-  updateFullscreenState();
+  if (values.contains("alwaysOnTop") || values.contains("fullscreen"))
+  {
+    InputComponent::Get().cancelAutoRepeat();
+    updateWindowState();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::updateFullscreenState(bool saveGeo)
+void KonvergoWindow::updateWindowState(bool saveGeo)
 {
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
   {
@@ -266,24 +259,17 @@ void KonvergoWindow::updateFullscreenState(bool saveGeo)
   {
     setVisibility(QWindow::Windowed);
     loadGeometry();
-  }
-}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::updateAlwaysOnTopState()
-{
-  QLOG_DEBUG() << "Changing always-on-top state";
-  Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
+    Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
 #ifdef Q_WS_X11
-  forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
+    forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
 #endif
 
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "alwaysOnTop").toBool())
-    setFlags(flags() | forceOnTopFlags);
-  else
-    setFlags(flags() & ~forceOnTopFlags);
-
-  show();
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "alwaysOnTop").toBool())
+      setFlags(flags() | forceOnTopFlags);
+    else
+      setFlags(flags() &~ forceOnTopFlags);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -325,7 +311,7 @@ void KonvergoWindow::RegisterClass()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onScreenCountChanged(int newCount)
 {
-  updateFullscreenState(false);
+  updateWindowState(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

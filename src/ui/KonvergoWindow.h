@@ -107,8 +107,7 @@ private slots:
   void enableVideoWindow();
   void onVisibilityChanged(QWindow::Visibility visibility);
   void updateMainSectionSettings(const QVariantMap& values);
-  void updateFullscreenState(bool saveGeo = true);
-  void updateAlwaysOnTopState();
+  void updateWindowState(bool saveGeo = true);
   void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);

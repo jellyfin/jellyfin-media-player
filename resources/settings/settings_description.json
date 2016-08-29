@@ -138,8 +138,8 @@
         "possible_values": [
           [ "auto", "audio.auto" ],
           [ "2.0", "audio.stereo" ],
-          [ "5.1", "audio.51" ],
-          [ "7.1", "audio.71" ]
+          [ "5.1,2.0", "audio.51" ],
+          [ "7.1,5.1,2.0", "audio.71" ]
         ]
       },
       {

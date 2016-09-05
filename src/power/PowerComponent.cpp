@@ -45,7 +45,7 @@ bool PowerComponent::componentInitialize()
 {
   PlayerComponent* player = &PlayerComponent::Get();
 
-  connect(player, &PlayerComponent::playbackActive, this, &PowerComponent::playbackActive);
+  connect(player, &PlayerComponent::videoPlaybackActive, this, &PowerComponent::videoPlaybackActive);
 
   return true;
 }
@@ -91,7 +91,7 @@ void PowerComponent::redecideScreeensaverState()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void PowerComponent::playbackActive(bool active)
+void PowerComponent::videoPlaybackActive(bool active)
 {
   m_videoPlaying = active;
   redecideScreeensaverState();

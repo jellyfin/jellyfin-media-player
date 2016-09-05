@@ -28,7 +28,7 @@ class PlayerRenderer : public QObject
   void swap();
 
 public slots:
-  void onPlaybackActive(bool active);
+  void onVideoPlaybackActive(bool active);
 
 private:
   static void on_update(void *ctx);

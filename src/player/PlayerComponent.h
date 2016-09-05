@@ -150,7 +150,7 @@ Q_SIGNALS:
 
   // true if the video (or music) is actually playing
   // false if nothing is loaded, playback is paused, during seeking, or media is being loaded
-  void playbackActive(bool active);
+  void videoPlaybackActive(bool active);
   void windowVisible(bool visible);
   // emitted as soon as the duration of the current file is known
   void updateDuration(qint64 milliseconds);
@@ -194,6 +194,8 @@ private:
   State m_state;
   bool m_paused;
   bool m_playbackActive;
+  bool m_windowVisible;
+  bool m_videoPlaybackActive;
   bool m_inPlayback;
   int m_bufferingPercentage;
   int m_lastBufferingPercentage;

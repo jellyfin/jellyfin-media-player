@@ -226,7 +226,7 @@ void PlayerRenderer::swap()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerRenderer::onPlaybackActive(bool active)
+void PlayerRenderer::onVideoPlaybackActive(bool active)
 {
 #ifdef Q_OS_WIN32
   if (active && !m_hAvrtHandle)
@@ -303,7 +303,7 @@ void PlayerQuickItem::onSynchronize()
     }
     connect(window(), &QQuickWindow::beforeRendering, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
     connect(window(), &QQuickWindow::frameSwapped, m_renderer, &PlayerRenderer::swap, Qt::DirectConnection);
-    connect(&PlayerComponent::Get(), &PlayerComponent::playbackActive, m_renderer, &PlayerRenderer::onPlaybackActive, Qt::QueuedConnection);
+    connect(&PlayerComponent::Get(), &PlayerComponent::videoPlaybackActive, m_renderer, &PlayerRenderer::onVideoPlaybackActive, Qt::QueuedConnection);
     window()->setPersistentOpenGLContext(true);
     window()->setPersistentSceneGraph(true);
     window()->setClearBeforeRendering(false);

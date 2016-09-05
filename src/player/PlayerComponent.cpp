@@ -37,7 +37,8 @@ static void wakeup_cb(void *context)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::PlayerComponent(QObject* parent)
   : ComponentBase(parent), m_state(State::stopped), m_paused(false), m_playbackActive(false),
-  m_inPlayback(false), m_bufferingPercentage(100), m_lastBufferingPercentage(-1),
+  m_windowVisible(false), m_videoPlaybackActive(false), m_inPlayback(false),
+  m_bufferingPercentage(100), m_lastBufferingPercentage(-1),
   m_lastPositionUpdate(0.0), m_playbackAudioDelay(0),
   m_playbackStartSent(false), m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
@@ -416,6 +417,13 @@ void PlayerComponent::updatePlaybackState()
   if (m_state == State::buffering && m_lastBufferingPercentage != m_bufferingPercentage)
     emit buffering(m_bufferingPercentage);
   m_lastBufferingPercentage = m_bufferingPercentage;
+
+  bool is_videoPlaybackActive = m_state == State::playing && m_windowVisible;
+  if (m_videoPlaybackActive != is_videoPlaybackActive)
+  {
+    m_videoPlaybackActive = is_videoPlaybackActive;
+    emit videoPlaybackActive(m_videoPlaybackActive);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -471,7 +479,6 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       else if (strcmp(prop->name, "core-idle") == 0 && prop->format == MPV_FORMAT_FLAG)
       {
         m_playbackActive = !*(int *)prop->data;
-        emit playbackActive(m_playbackActive);
       }
       else if (strcmp(prop->name, "cache-buffering-state") == 0)
       {
@@ -490,7 +497,8 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       else if (strcmp(prop->name, "vo-configured") == 0)
       {
         int state = prop->format == MPV_FORMAT_FLAG ? *(int *)prop->data : 0;
-        emit windowVisible(state);
+        m_windowVisible = state;
+        emit windowVisible(m_windowVisible);
       }
       else if (strcmp(prop->name, "duration") == 0)
       {

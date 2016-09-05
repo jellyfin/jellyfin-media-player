@@ -48,7 +48,7 @@ public Q_SLOTS:
   virtual bool Suspend() { return false; }
 
 private Q_SLOTS:
-  void playbackActive(bool active);
+  void videoPlaybackActive(bool active);
 
 Q_SIGNALS:
   void screenSaverEnabled();

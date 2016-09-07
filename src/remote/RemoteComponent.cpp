@@ -227,7 +227,10 @@ void RemoteComponent::handleCommand(QHttpRequest* request, QHttpResponse* respon
       lk.relock();
     }
 
-    RemotePollSubscriber *subscriber = (RemotePollSubscriber *)m_subscriberMap[identifier];
+    if (!m_subscriberMap.contains(identifier))
+      return;
+
+    RemotePollSubscriber *subscriber = dynamic_cast<RemotePollSubscriber *>(m_subscriberMap[identifier]);
     if (subscriber)
     {
       subscriber->reSubscribe();

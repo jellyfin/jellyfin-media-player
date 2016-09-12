@@ -148,8 +148,8 @@ bool PlayerComponent::componentInitialize()
   // (See handler in handleMpvEvent() for details.)
   mpv::qt::command_variant(m_mpv, QStringList() << "hook-add" << "on_load" << "1" << "0");
 
-  // Setup a hook with the ID 1, which is run at a certain stage during loading.
-  // We use it to probe the codecs.
+  // Setup a hook with the ID 2, which is run at a certain stage during loading.
+  // We use it to initialize stream selections and to probe the codecs.
   mpv::qt::command_variant(m_mpv, QStringList() << "hook-add" << "on_preloaded" << "2" << "0");
 
   updateAudioDeviceList();
@@ -242,31 +242,15 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   if (startMilliseconds != 0)
     extraArgs.insert("start", "+" + QString::number(startMilliseconds / 1000.0));
 
-  // force default audio selection
-  extraArgs.insert("ff-aid", "auto");
-
-  // by default ignore all subtitles, unless overridden
+  // we're going to select these streams later, in the preloaded hook
+  extraArgs.insert("aid", "no");
   extraArgs.insert("sid", "no");
-  extraArgs.insert("ff-sid", "auto");
 
-  // detect subtitles
-  if (!subtitleStream.isEmpty())
-  {
-    // If the stream title starts with a #, then it's an index
-    if (subtitleStream.startsWith("#"))
-      extraArgs.insert("ff-sid", subtitleStream.mid(1));
-    else {
-      extraArgs.insert("sub-file", subtitleStream);
-      extraArgs.insert("sid", "auto"); // select the external one by default
-    }
-  }
+  m_currentSubtitleStream = subtitleStream;
+  m_currentAudioStream = audioStream;
 
   if (metadata["type"] == "music")
     extraArgs.insert("vid", "no");
-
-  // and then the audio stream
-  if (!audioStream.isEmpty())
-    extraArgs.insert("ff-aid", audioStream);
 
   extraArgs.insert("pause", options["autoplay"].toBool() ? "no" : "yes");
 
@@ -553,10 +537,12 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
         }
         break;
       }
-      // Start "on_preload" hook.
-      // Used to probe codecs.
+      // Start "on_preloaded" hook.
+      // Used initialize stream selections and to probe codecs.
       if (!strcmp(msg->args[1], "2"))
       {
+        reselectStream(m_currentSubtitleStream, MediaType::Subtitle);
+        reselectStream(m_currentAudioStream, MediaType::Audio);
         startCodecsLoading([=] {
           mpv::qt::command_variant(m_mpv, QStringList() << "hook-ack" << resumeId);
         });
@@ -675,30 +661,125 @@ bool PlayerComponent::muted()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setSubtitleStream(const QString &subtitleStream)
+QVariantList PlayerComponent::findStreamsForURL(const QString &url)
 {
-  if (subtitleStream.isEmpty())
+  bool isExternal = !url.isEmpty();
+  QVariantList res;
+
+  auto tracks = mpv::qt::get_property_variant(m_mpv, "track-list");
+  for (auto track : tracks.toList())
   {
-    mpv::qt::set_property_variant(m_mpv, "ff-sid", "no");
+    QVariantMap map = track.toMap();
+
+    if (map["external"].toBool() != isExternal)
+      continue;
+
+    if (!isExternal || map["external-filename"].toString() == url)
+      res += map;
   }
-  else if (subtitleStream.startsWith("#"))
+
+  return res;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::reselectStream(const QString &streamSelection, MediaType target)
+{
+  QString streamIdPropertyName;
+  QString streamAddCommandName;
+  QString mpvStreamTypeName;
+
+  switch (target)
   {
-    mpv::qt::set_property_variant(m_mpv, "ff-sid", subtitleStream.mid(1));
+  case MediaType::Subtitle:
+    mpvStreamTypeName = "sub";
+    streamIdPropertyName = "sid";
+    streamAddCommandName = "sub-add";
+    break;
+  case MediaType::Audio:
+    mpvStreamTypeName = "audio";
+    streamIdPropertyName = "aid";
+    streamAddCommandName = "audio-add";
+    break;
+  }
+
+  if (streamSelection.isEmpty())
+  {
+    mpv::qt::set_property_variant(m_mpv, streamIdPropertyName, "no");
+    return;
+  }
+
+  QString streamName;
+  QString streamID;
+
+  if (streamSelection.startsWith("#"))
+  {
+    int splitPos = streamSelection.indexOf(",");
+    if (splitPos < 0)
+    {
+      // Stream from the main file
+      streamID = streamSelection.mid(1);
+      streamName = "";
+    }
+    else
+    {
+      // Stream from an external file
+      streamID = streamSelection.mid(1, splitPos - 1);
+      streamName = streamSelection.mid(splitPos + 1);
+    }
   }
   else
   {
-    QStringList args = (QStringList() << "sub-add" << subtitleStream << "cached");
-    mpv::qt::command_variant(m_mpv, args);
+    if (target == MediaType::Audio)
+    {
+      // For some reason, audio stream selections never start with '#'.
+      streamID = streamSelection;
+      streamName = "";
+    }
+    else
+    {
+      // Legacy web-client single external subtitle
+      streamID = "0";
+      streamName = streamSelection;
+    }
   }
+
+  if (!streamName.isEmpty())
+  {
+    auto streams = findStreamsForURL(streamName);
+    if (streams.isEmpty())
+    {
+      QStringList args = (QStringList() << streamAddCommandName << streamName);
+      mpv::qt::command_variant(m_mpv, args);
+    }
+  }
+
+  for (auto stream : findStreamsForURL(streamName))
+  {
+    auto map = stream.toMap();
+
+    if (map["type"].toString() != mpvStreamTypeName)
+      continue;
+
+    if (map["ff-index"].toString() == streamID)
+    {
+      mpv::qt::set_property_variant(m_mpv, streamIdPropertyName, map["id"]);
+      break;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setSubtitleStream(const QString &subtitleStream)
+{
+  m_currentSubtitleStream = subtitleStream;
+  reselectStream(m_currentSubtitleStream, MediaType::Subtitle);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setAudioStream(const QString &audioStream)
 {
-  if (audioStream.isEmpty())
-    mpv::qt::set_property_variant(m_mpv, "ff-aid", "no");
-  else
-    mpv::qt::set_property_variant(m_mpv, "ff-aid", audioStream);
+  m_currentAudioStream = audioStream;
+  reselectStream(m_currentAudioStream, MediaType::Audio);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

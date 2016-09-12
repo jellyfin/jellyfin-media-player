@@ -126,6 +126,11 @@ public:
     playing,
     buffering,
   };
+
+  enum class MediaType {
+    Subtitle,
+    Audio,
+  };
   
 public Q_SLOTS:
   void setAudioConfiguration();
@@ -187,6 +192,8 @@ private:
   // Call resume() when done.
   void startCodecsLoading(std::function<void()> resume);
   void updateVideoAspectSettings();
+  QVariantList findStreamsForURL(const QString &url);
+  void reselectStream(const QString &streamSelection, MediaType target);
 
   mpv::qt::Handle m_mpv;
 
@@ -211,6 +218,8 @@ private:
   bool m_doAc3Transcoding;
   QStringList m_passthroughCodecs;
   QVariantMap m_serverMediaInfo;
+  QString m_currentSubtitleStream;
+  QString m_currentAudioStream;
 };
 
 #endif // PLAYERCOMPONENT_H

@@ -199,30 +199,19 @@ void PlayerComponent::setQtQuickWindow(QQuickWindow* window)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setRpiWindow(QQuickWindow* window)
-{
-  window->setFlags(Qt::FramelessWindowHint);
-
-  mpv_set_option_string(m_mpv, "vo", "rpi");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setWindow(QQuickWindow* window)
 {
-  bool useRpi = false;
-#ifdef TARGET_RPI
-  useRpi = true;
-#endif
-
   m_window = window;
   if (!window)
     return;
 
+#ifdef TARGET_RPI
+  window->setFlags(Qt::FramelessWindowHint);
+#endif
+
   QString forceVo = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "debug.force_vo").toString();
   if (forceVo.size())
     mpv::qt::set_option_variant(m_mpv, "vo", forceVo);
-  else if (useRpi)
-    setRpiWindow(window);
   else
     setQtQuickWindow(window);
 }
@@ -969,10 +958,8 @@ void PlayerComponent::updateVideoSettings()
   QVariant deinterlace = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "deinterlace");
   mpv::qt::set_option_variant(m_mpv, "deinterlace", deinterlace.toBool() ? "yes" : "no");
 
-#ifndef TARGET_RPI
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   mpv::qt::set_property_variant(m_mpv, "display-fps", displayFps);
-#endif
 
   setAudioDelay(m_playbackAudioDelay);
 

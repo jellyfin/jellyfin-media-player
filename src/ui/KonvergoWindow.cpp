@@ -19,7 +19,7 @@
 #include "EventFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugLayer(false), m_lastScale(1.0)
+KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugLayer(false), m_lastScale(1.0), m_ignoreFullscreenSettingsChange(0)
 {
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
@@ -230,6 +230,9 @@ void KonvergoWindow::playerWindowVisible(bool visible)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
+  if (m_ignoreFullscreenSettingsChange > 0)
+    return;
+
   // update mouse visibility if needed
   if (values.find("disablemouse") != values.end())
   {
@@ -273,12 +276,32 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+class ScopedDecrementer {
+  Q_DISABLE_COPY(ScopedDecrementer)
+
+  int* m_value;
+
+public:
+  ScopedDecrementer(int* value) : m_value(value) {}
+  ~ScopedDecrementer() { (*m_value)--; }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visbility set to " << visibility;
 
   if (visibility == QWindow::Windowed)
     loadGeometry();
+
+  bool fs = visibility == QWindow::FullScreen;
+
+  {
+    m_ignoreFullscreenSettingsChange++;
+    ScopedDecrementer decrement(&m_ignoreFullscreenSettingsChange);
+
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
+  }
 
   if (visibility == QWindow::FullScreen)
     PowerComponent::Get().setFullscreenState(true);

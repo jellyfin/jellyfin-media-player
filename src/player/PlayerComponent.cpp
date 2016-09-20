@@ -796,8 +796,10 @@ void PlayerComponent::setAudioDelay(qint64 milliseconds)
 
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   const char *audioDelaySetting = "audio_delay.normal";
-  if (fabs(displayFps - 24) < 1) // cover 24Hz, 23.976Hz, and values very close
+  if (fabs(displayFps - 24) < 0.5) // cover 24Hz, 23.976Hz, and values very close
     audioDelaySetting = "audio_delay.24hz";
+  else if (fabs(displayFps - 25) < 0.5)
+    audioDelaySetting = "audio_delay.25hz";
 
   double fixedDelay = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, audioDelaySetting).toFloat();
   mpv::qt::set_option_variant(m_mpv, "audio-delay", (fixedDelay + m_playbackAudioDelay) / 1000.0);

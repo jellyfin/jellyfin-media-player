@@ -272,6 +272,16 @@
         }
       },
       {
+        "value": "audio_delay.25hz",
+        "default": 0,
+        "hidden": true,
+        "possible_range": {
+          "min": -300,
+          "max": 300,
+          "step": 50
+        }
+      },
+      {
         "value": "cache",
         "default": 75,
         "possible_values": [

@@ -135,6 +135,7 @@ bool PlayerComponent::componentInitialize()
   mpv_observe_property(m_mpv, 0, "vo-configured", MPV_FORMAT_FLAG);
   mpv_observe_property(m_mpv, 0, "duration", MPV_FORMAT_DOUBLE);
   mpv_observe_property(m_mpv, 0, "audio-device-list", MPV_FORMAT_NODE);
+  mpv_observe_property(m_mpv, 0, "video-dec-params", MPV_FORMAT_NODE);
 
   connect(this, &PlayerComponent::onMpvEvents, this, &PlayerComponent::handleMpvEvents, Qt::QueuedConnection);
 
@@ -481,6 +482,12 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       else if (strcmp(prop->name, "audio-device-list") == 0)
       {
         updateAudioDeviceList();
+      }
+      else if (strcmp(prop->name, "video-dec-params") == 0)
+      {
+        // Aspect might be known now (or it changed during playback), so update settings
+        // dependent on the aspect ratio.
+        updateVideoAspectSettings();
       }
       break;
     }
@@ -1002,6 +1009,13 @@ void PlayerComponent::updateVideoAspectSettings()
   else if (mode == "force_16_9")
   {
     forceAspect = "16:9";
+  }
+  else if (mode == "force_16_9_if_4_3")
+  {
+    auto params = mpv::qt::get_property_variant(m_mpv, "video-dec-params").toMap();
+    auto aspect = params["aspect"].toFloat();
+    if (fabs(aspect - 4.0/3.0) < 0.1)
+      forceAspect = "16:9";
   }
   else if (mode == "stretch")
   {

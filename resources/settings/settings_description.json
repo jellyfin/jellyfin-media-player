@@ -289,6 +289,7 @@
           [ "zoom", "video.aspect.zoom" ],
           [ "force_4_3", "video.aspect.force43" ],
           [ "force_16_9", "video.aspect.force169" ],
+          [ "force_16_9_if_4_3", "video.aspect.force169if43" ],
           [ "stretch", "video.aspect.stretch" ],
           [ "noscaling", "video.aspect.noscale" ],
           [ "custom", "video.aspect.custom" ]

@@ -357,6 +357,15 @@ void SettingsComponent::removeValue(const QString &sectionOrKey)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::resetToDefault(const QString &sectionID)
+{
+  SettingsSection* section = getSection(sectionID);
+
+  if (section)
+    section->resetToDefault();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::resetToDefault()
 {
   for(SettingsSection *section : m_sections)

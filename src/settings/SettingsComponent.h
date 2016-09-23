@@ -50,6 +50,7 @@ public:
   Q_INVOKABLE QVariant allValues(const QString& section = "");
   Q_INVOKABLE void removeValue(const QString& sectionOrKey);
   Q_INVOKABLE void resetToDefault();
+  Q_INVOKABLE void resetToDefault(const QString& sectionID);
   Q_INVOKABLE QVariantList settingDescriptions();
   Q_INVOKABLE QString getWebClientUrl();
 

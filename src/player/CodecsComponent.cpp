@@ -2,6 +2,7 @@
 #include <QString>
 #include <Qt>
 #include <QDir>
+#include <QDirIterator>
 #include <QDomAttr>
 #include <QDomDocument>
 #include <QDomNode>
@@ -410,7 +411,7 @@ static bool probeDecoder(QString decoder, QString resourceName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void Codecs::probeCodecs()
+static void probeCodecs()
 {
   if (g_deviceID.isEmpty())
     throw FatalException("Could not read device-id.");
@@ -438,6 +439,49 @@ void Codecs::probeCodecs()
 #endif
 
   Codecs::updateCachedCodecList();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static void deleteOldCodecs()
+{
+  QStringList neededPaths = {
+    codecsPath(),
+  };
+
+  for (auto entry : QDir(codecsRootPath()).entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+  {
+    QDir entryPath = codecsRootPath();
+    if (!entryPath.cd(entry))
+      continue;
+
+    bool needed = false;
+
+    for (auto neededPath : neededPaths)
+    {
+      if (entryPath.absolutePath() == QDir(neededPath).absolutePath())
+      {
+        needed = true;
+        break;
+      }
+    }
+
+    if (needed)
+      continue;
+
+    // Same version, but different platform -> just keep it.
+    if (entry.startsWith(g_codecVersion + "-"))
+      continue;
+
+    QLOG_DEBUG() << "Deleting old directory: " << entryPath.absolutePath();
+    entryPath.removeRecursively();
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void Codecs::initCodecs()
+{
+  deleteOldCodecs();
+  probeCodecs();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

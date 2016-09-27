@@ -120,7 +120,7 @@ class Codecs
 public:
   static void preinitCodecs();
 
-  static void probeCodecs();
+  static void initCodecs();
 
   static QString plexNameToFF(QString plex);
 

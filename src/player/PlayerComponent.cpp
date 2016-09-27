@@ -168,7 +168,7 @@ bool PlayerComponent::componentInitialize()
           this, &PlayerComponent::setAudioConfiguration);
 
   initializeCodecSupport();
-  Codecs::probeCodecs();
+  Codecs::initCodecs();
 
   QString codecInfo;
   for (auto codec : Codecs::getCachedCodecList())

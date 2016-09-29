@@ -2,7 +2,6 @@
 #include <QString>
 #include <Qt>
 #include <QDir>
-#include <QDirIterator>
 #include <QDomAttr>
 #include <QDomDocument>
 #include <QDomNode>

@@ -52,7 +52,7 @@ public:
   //       declared in settings_descriptions.json. Also, sections are never removed, even if they
   //       remain empty.
   Q_INVOKABLE void removeValue(const QString& sectionOrKey);
-  Q_INVOKABLE void resetToDefault();
+  Q_INVOKABLE void resetToDefaultAll();
   Q_INVOKABLE void resetToDefault(const QString& sectionID);
   Q_INVOKABLE QVariantList settingDescriptions();
   Q_INVOKABLE QString getWebClientUrl();

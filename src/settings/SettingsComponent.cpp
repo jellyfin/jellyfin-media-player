@@ -369,7 +369,7 @@ void SettingsComponent::resetToDefault(const QString &sectionID)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void SettingsComponent::resetToDefault()
+void SettingsComponent::resetToDefaultAll()
 {
   for(SettingsSection *section : m_sections)
   {

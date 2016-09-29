@@ -131,8 +131,11 @@ void InputComponent::handleAction(const QString& action)
           if (recvSlot->m_hasArguments)
             arg0 = Q_ARG(const QString&, hostArguments);
 
-          QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
-                                    Qt::AutoConnection, arg0);
+          if (!QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
+                                         Qt::AutoConnection, arg0))
+          {
+            QLOG_ERROR() << "Invoking slot" << qPrintable(recvSlot->m_slot.data()) << "failed!";
+          }
         }
       }
     }

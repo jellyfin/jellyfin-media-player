@@ -20,9 +20,8 @@ public:
 
   void setValues(const QVariant& values);
   bool setValue(const QString& key, const QVariant& value);
-  void removeValue(const QString& key);
-  void removeValues();
-  void resetToDefault();
+  void resetValue(const QString& key);
+  void resetValues();
   void registerSetting(SettingsValue* value);
   bool isHidden() const;
 
@@ -56,6 +55,9 @@ public:
   Q_SIGNAL void valuesUpdated(const QVariantMap& values);
 
 protected:
+  // if the value is _not_ removed, _and_ changes, it's added to updatedValues
+  void resetValueNoNotify(const QString& key, QVariantMap& updatedValues);
+
   QHash<QString, SettingsValue*> m_values;
   QString m_sectionID;
   int m_orderIndex;

@@ -17,6 +17,8 @@ public:
     : QObject(parent)
     , m_platform(PLATFORM_UNKNOWN)
     , m_hidden(true)
+    , m_indexOrder(0)
+    , m_hasDescription(false)
   {}
 
   explicit SettingsValue(const QString& _key, QVariant _defaultValue=QVariant(), quint8 platforms = PLATFORM_ANY, QObject* parent = nullptr)
@@ -26,6 +28,8 @@ public:
     , m_defaultValue(_defaultValue)
     , m_platform(platforms)
     , m_hidden(true)
+    , m_indexOrder(0)
+    , m_hasDescription(false)
   {}
 
   const QString& key() const { return m_key; }
@@ -96,12 +100,6 @@ public:
     m_possibleValues << entry;
   }
 
-  // goes back to use the default
-  void reset()
-  {
-    m_value.clear();
-  }
-
   QVariantMap descriptions() const
   {
     QVariantMap ret;
@@ -123,6 +121,13 @@ public:
 
   int indexOrder() const { return m_indexOrder; }
 
+  void setHasDescription(bool hasDescription)
+  {
+    m_hasDescription = hasDescription;
+  }
+
+  bool hasDescription() { return m_hasDescription; }
+
 private:
   QString m_key;
   QVariant m_value;
@@ -133,6 +138,7 @@ private:
   QString m_inputType;
 
   int m_indexOrder;
+  bool m_hasDescription;
 };
 
 #endif //KONVERGO_SETTINGS_VALUE_H

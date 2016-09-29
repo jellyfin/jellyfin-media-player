@@ -315,7 +315,7 @@ void SettingsComponent::setValues(const QVariantMap& options)
     }
 
     if (values.isNull())
-      section->removeValues();
+      section->resetValues();
     else
       section->setValues(values);
 
@@ -343,7 +343,7 @@ void SettingsComponent::removeValue(const QString &sectionOrKey)
   {
     // we want to remove a full section
     // dont remove the section, but remove all keys
-    section->removeValues();
+    section->resetValues();
     saveSection(section);
   }
   else
@@ -351,7 +351,7 @@ void SettingsComponent::removeValue(const QString &sectionOrKey)
     // we want to remove a root key from webclient
     // which is stored in webclient section
     section = m_sections[SETTINGS_SECTION_WEBCLIENT];
-    section->removeValue(sectionOrKey);
+    section->resetValue(sectionOrKey);
     saveSection(section);
   }
 }
@@ -362,7 +362,10 @@ void SettingsComponent::resetToDefault(const QString &sectionID)
   SettingsSection* section = getSection(sectionID);
 
   if (section)
-    section->resetToDefault();
+  {
+    section->resetValues();
+    saveSection(section);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -370,7 +373,8 @@ void SettingsComponent::resetToDefault()
 {
   for(SettingsSection *section : m_sections)
   {
-   section->resetToDefault();
+    section->resetValues();
+    saveSection(section);
   }
 }
 
@@ -490,6 +494,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
 
     int vPlatformMask = platformMaskFromObject(valobj);
     SettingsValue* setting = new SettingsValue(valobj.value("value").toString(), defaultval, (quint8)vPlatformMask, this);
+    setting->setHasDescription(true);
     setting->setHidden(valobj.value("hidden").toBool(false));
     setting->setIndexOrder(order ++);
 

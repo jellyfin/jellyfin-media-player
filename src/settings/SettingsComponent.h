@@ -48,6 +48,9 @@ public:
   Q_INVOKABLE void setValues(const QVariantMap& options);
   Q_INVOKABLE QVariant value(const QString& sectionID, const QString& key);
   Q_INVOKABLE QVariant allValues(const QString& section = "");
+  // Note: the naming "remove" is a lie - it will remove the affected keys only if they are not
+  //       declared in settings_descriptions.json. Also, sections are never removed, even if they
+  //       remain empty.
   Q_INVOKABLE void removeValue(const QString& sectionOrKey);
   Q_INVOKABLE void resetToDefault();
   Q_INVOKABLE void resetToDefault(const QString& sectionID);

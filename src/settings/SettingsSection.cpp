@@ -27,11 +27,11 @@ void SettingsSection::setValues(const QVariant& values)
   QVariantMap map = values.toMap();
   QVariantMap updatedValues;
 
-  // values not included in the map are reset to default
+  // values not included in the map are "removed"
   for(const QString& key : m_values.keys())
   {
     if (!map.contains(key))
-      map[key] = m_values[key]->defaultValue();
+      resetValueNoNotify(key, updatedValues);
   }
 
   for(const QString& key : map.keys())
@@ -114,9 +114,21 @@ bool SettingsSection::setValue(const QString& key, const QVariant& value)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void SettingsSection::removeValue(const QString &key)
+void SettingsSection::resetValueNoNotify(const QString& key, QVariantMap& updatedValues)
 {
-  if (m_values.contains(key))
+  if (!m_values.contains(key))
+    return;
+
+  SettingsValue* val = m_values[key];
+
+  if (val->hasDescription())
+  {
+    if (val->value() == val->defaultValue())
+      return;
+    val->setValue(val->defaultValue());
+    updatedValues[key] = val->value();
+  }
+  else
   {
     m_values[key]->deleteLater();
     m_values.remove(key);
@@ -124,9 +136,26 @@ void SettingsSection::removeValue(const QString &key)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void SettingsSection::removeValues()
+void SettingsSection::resetValue(const QString &key)
 {
-  m_values.clear();
+  QVariantMap updatedValues;
+
+  resetValueNoNotify(key, updatedValues);
+
+  if (updatedValues.size() > 0)
+    emit valuesUpdated(updatedValues);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SettingsSection::resetValues()
+{
+  QVariantMap updatedValues;
+
+  for (auto key : m_values.keys())
+    resetValueNoNotify(key, updatedValues);
+
+  if (updatedValues.size() > 0)
+    emit valuesUpdated(updatedValues);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,13 +196,6 @@ const QVariantMap SettingsSection::descriptions() const
   }
   map.insert("settings", settings);
   return map;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void SettingsSection::resetToDefault()
-{
-  for(const QString& key : m_values.keys())
-    m_values[key]->reset();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

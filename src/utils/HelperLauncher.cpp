@@ -77,8 +77,7 @@ bool HelperLauncher::killHelper()
 /////////////////////////////////////////////////////////////////////////////////////////
 void HelperLauncher::gotMessage(const QVariantMap& message)
 {
-  if (message.value("version").toString() != Version::GetVersionString() ||
-      message.value("path").toString() != HelperPath())
+  if (message.value("version").toString() != Version::GetVersionString())
   {
     QLOG_WARN() << "Running helper does not match our current version. Killing it and starting a new one.";
     killHelper();

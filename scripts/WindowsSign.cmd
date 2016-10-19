@@ -16,47 +16,22 @@ if not exist "%TargetFile%" (
 )
 for %%i in ("%TargetFile%") do set TargetFileExtension="%%~xi"
 
-if "%SigningCertSha1%" == "" (
-  set SigningCertSha1=%~dp0PlexOfficialSPC_sha1.pfx
-)
 if "%SigningCertSha256%" == "" (
-  set SigningCertSha2=%~dp0PlexOfficialSPC_sha256.pfx
-)
-if not exist "%SigningCertSha1%" (
-  set SigningCertSha1=%~dp0PlexTestSPC.pfx
+  set SigningCertSha256=%~dp0PlexOfficialSPC_sha256.pfx
 )
 if not exist "%SigningCertSha256%" (
   set SigningCertSha256=%~dp0PlexTestSPC.pfx
 )
-echo Signing with %SigningCertSha1% and %SigningCertSha256%
+echo Signing with %SigningCertSha256%
 set TimestampErrors=0
 
 rem Create timestamp server lists... All servers on this list support both RFC 3161 and non-RFC variants
 set ServerListRfc3161=(http://timestamp.digicert.com,http://timestamp.globalsign.com/scripts/timestamp.dll,http://timestamp.comodoca.com)
-set ServerListNonRfc3161=%ServerListRfc3161%
 
-if %TargetFileExtension% == ".msi" (
-
-  rem To sign MSI files, which only support one signature, we sign SHA1 with the SHA256 cert.
-  rem This allows us to continue supporting Windows Vista.
-
-  echo Adding SHA1 signature to MSI file %TargetFile%...
-  call :SignFile "%SigningCertSha256%" "%SigningCertPasswordSha256%" sha1 0 "%TargetFile%" "%ServerListNonRfc3161%" 0 sha1
-  if errorlevel 1 goto SignFailed
-
-) else (
-
-  rem To sign normal files, which support multiple signatures, we sign SHA1 with the SHA1 cert and SHA256 with the SHA256 cert
-  rem This too allows us to continue supporting Windows Vista.
-
-  echo Adding SHA1 signature to %TargetFile%...
-  call :SignFile "%SigningCertSha1%" "%SigningCertPasswordSha1%" sha1 0 "%TargetFile%" "%ServerListNonRfc3161%" 0 sha1
-  if errorlevel 1 goto SignFailed
-
-  echo Adding SHA2 signature to %TargetFile%...
-  call :SignFile "%SigningCertSha256%" "%SigningCertPasswordSha256%" sha256 1 "%TargetFile%" "%ServerListRfc3161%" 1 sha256
-  if errorlevel 1 goto SignFailed
-)
+rem Signing files SHA256 with the SHA256 cert
+echo Adding SHA256 signature to %TargetFile%...
+call :SignFile "%SigningCertSha256%" "%SigningCertPasswordSha256%" sha256 0 "%TargetFile%" "%ServerListRfc3161%" sha256
+if errorlevel 1 goto SignFailed
 
 echo Verifying signature...
 signtool.exe verify /pa "%TargetFile%"
@@ -86,8 +61,7 @@ rem When running signtool, we redirect output to null because signtool.exe may i
   set AppendSignature=%4
   set TargetFilePath=%5
   set TimestampServerList=%~6
-  set UseRfc3161=%7
-  set Rfc3161HashAlgorithm=%8
+  set Rfc3161HashAlgorithm=%7
 
   rem Compute password args
   if "%CertPassword%" neq "" (
@@ -104,13 +78,8 @@ rem When running signtool, we redirect output to null because signtool.exe may i
   )
 
   rem Compute timestamp server args
-  if "%UseRfc3161%" == "1" (
-    set TimestampArg1=/tr
-    set TimestampArg2=/td %Rfc3161HashAlgorithm%
-  ) else (
-    set TimestampArg1=/t
-    set TimestampArg2=
-  )
+  set TimestampArg1=/tr
+  set TimestampArg2=/td %Rfc3161HashAlgorithm%
 
   for /L %%a in (1,1,300) do (
     for %%s in %TimestampServerList% do (

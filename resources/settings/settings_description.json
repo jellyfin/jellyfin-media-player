@@ -159,10 +159,6 @@
         "default": true
       },
       {
-        "value": "advanced",
-        "default": false
-      },
-      {
         "value": "exclusive",
         "default": false,
         "hidden": true,

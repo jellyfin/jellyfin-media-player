@@ -28,7 +28,7 @@ void AudioSettingsController::valuesUpdated(const QVariantMap& values)
   SettingsSection* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO);
   auto prevDescriptions = audioSection->descriptions();
 
-  bool advanced = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "advanced").toBool();
+  bool advanced = true;
   QString type = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
 
   audioSection->setValueHidden("channels", false);

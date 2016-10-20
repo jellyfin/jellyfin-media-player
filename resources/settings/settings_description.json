@@ -134,7 +134,15 @@
       },
       {
         "value": "channels",
-        "default": "2.0",
+        "default": [
+          {
+            "value": "auto",
+            "platforms": [ "osx" ]
+          },
+          {
+            "value": "2.0"
+          }
+        ],
         "possible_values": [
           [ "auto", "audio.auto" ],
           [ "2.0", "audio.stereo" ],
@@ -156,15 +164,7 @@
       },
       {
         "value": "exclusive",
-        "default": [
-          {
-            "value": true,
-            "platforms": [ "osx" ]
-          },
-          {
-            "value": false
-          }
-        ],
+        "default": false,
         "hidden": true,
         "platforms": [ "osx", "windows" ]
       },

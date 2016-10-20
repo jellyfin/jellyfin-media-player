@@ -74,17 +74,23 @@ bool DisplayManager::isValidDisplayMode(int display, int mode)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// refresh: video FPS
+// multiple: display FPS
 bool DisplayManager::isRateMultipleOf(float refresh, float multiple, bool exact)
 {
-  if (((int)refresh == 0) || ((int)multiple == 0))
+  int roundedRefresh = lrint(refresh);
+  int roundedMultiple = lrint(multiple);
+
+  if (roundedRefresh == 0)
       return false;
 
-  if (((int)multiple % (int)refresh) == 0)
-    return true;
+  float newRate = roundedMultiple / roundedRefresh * refresh;
+  if (newRate < 1)
+    return false;
 
-  int roundedRefresh = (int)round(refresh);
-  int roundedMultiple = (int)round(multiple);
-  return ((roundedMultiple % roundedRefresh) == 0) && (!exact);
+  float tolerance = exact ? 0.1 : 1;
+
+  return fabs(newRate - multiple) < tolerance;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

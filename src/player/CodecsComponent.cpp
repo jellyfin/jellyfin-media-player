@@ -333,7 +333,7 @@ static QString getFFmpegVersion()
   auto mpv = mpv::qt::Handle::FromRawHandle(mpv_create());
   if (!mpv || mpv_initialize(mpv) < 0)
     return "";
-  return mpv::qt::get_property_variant(mpv, "ffmpeg-version").toString();
+  return mpv::qt::get_property(mpv, "ffmpeg-version").toString();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -374,23 +374,22 @@ static bool probeDecoder(QString decoder, QString resourceName)
     return false;
 
   auto mpv = mpv::qt::Handle::FromRawHandle(mpv_create());
-
-  // Disable any output.
-  mpv::qt::set_option_variant(mpv, "vo", "null");
-
   if (!mpv || mpv_initialize(mpv) < 0)
     return false;
 
+  // Disable any output.
+  mpv::qt::set_property(mpv, "vo", "null");
+
   // Force the decoder. The ",-" means that if the first entry fails, the next codec in the global
   // codec list will not be tried, and decoding fails.
-  mpv::qt::set_option_variant(mpv, "vd", "lavc:" + decoder + ",-");
+  mpv::qt::set_property(mpv, "vd", "lavc:" + decoder + ",-");
 
   // Attempt decoding, and return success.
   auto data = QByteArray::fromRawData((const char *)resource.data(), resource.size());
   if (resource.isCompressed())
     data = qUncompress(data);
   auto hex = data.toHex();
-  mpv::qt::command_variant(mpv, QVariantList{"loadfile", "hex://" + QString::fromLatin1(hex)});
+  mpv::qt::command(mpv, QVariantList{"loadfile", "hex://" + QString::fromLatin1(hex)});
   bool result = false;
   while (1) {
     mpv_event *event = mpv_wait_event(mpv, 0);

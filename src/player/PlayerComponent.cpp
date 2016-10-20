@@ -188,26 +188,30 @@ void PlayerComponent::setQtQuickWindow(QQuickWindow* window)
   if (!video)
     throw FatalException(tr("Failed to load video element."));
 
-  mpv::qt::set_property(m_mpv, "vo", "opengl-cb");
-
   video->initMpv(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setWindow(QQuickWindow* window)
 {
+  QString vo = "opengl-cb";
+
+#ifdef TARGET_RPI
+  window->setFlags(Qt::FramelessWindowHint);
+  vo = "rpi";
+#endif
+
   m_window = window;
   if (!window)
     return;
 
-#ifdef TARGET_RPI
-  window->setFlags(Qt::FramelessWindowHint);
-#endif
-
   QString forceVo = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "debug.force_vo").toString();
   if (forceVo.size())
-    mpv::qt::set_property(m_mpv, "vo", forceVo);
-  else
+    vo = forceVo;
+
+  mpv::qt::set_property(m_mpv, "vo", vo);
+
+  if (vo == "opengl-cb")
     setQtQuickWindow(window);
 }
 
@@ -1049,8 +1053,10 @@ void PlayerComponent::updateVideoSettings()
   QVariant deinterlace = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "deinterlace");
   mpv::qt::set_property(m_mpv, "deinterlace", deinterlace.toBool() ? "yes" : "no");
 
+#ifndef TARGET_RPI
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   mpv::qt::set_property(m_mpv, "display-fps", displayFps);
+#endif
 
   setAudioDelay(m_playbackAudioDelay);
 

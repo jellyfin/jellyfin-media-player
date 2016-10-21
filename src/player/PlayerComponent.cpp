@@ -509,7 +509,6 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     case MPV_EVENT_CLIENT_MESSAGE:
     {
       mpv_event_client_message *msg = (mpv_event_client_message *)event->data;
-      printf("hook? %s \n", msg->args[0]);
       if (msg->num_args < 3 || strcmp(msg->args[0], "hook_run") != 0)
         break;
       QString resumeId = QString::fromUtf8(msg->args[2]);

@@ -57,7 +57,10 @@ void SettingsSection::setValues(const QVariant& values)
   }
 
   if (updatedValues.size() > 0)
+  {
     emit valuesUpdated(updatedValues);
+    emit SettingsComponent::Get().sectionValueUpdate(m_sectionID, updatedValues);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

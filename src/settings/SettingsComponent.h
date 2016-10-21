@@ -66,7 +66,14 @@ public:
   void saveStorage();
   void load();
 
+  // Fired when a section's description is updated.
   Q_SIGNAL void groupUpdate(const QString& section, const QVariant& description);
+
+  // Fired when a subset of a section's values are updated. The values parameter will
+  // contain the names of the changed values as keys, and the new settings values as
+  // map values. Settings which are part of the section, but did not change, are not
+  // part of the map.
+  Q_SIGNAL void sectionValueUpdate(const QString& section, const QVariantMap& values);
 
   void setUserRoleList(const QStringList& userRoles);
 

@@ -263,7 +263,6 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   command << extraArgs;
 
-  QLOG_DEBUG() << command;
   mpv::qt::command(m_mpv, command);
 }
 

@@ -758,6 +758,8 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
     }
   }
 
+  QString selection = "";
+
   for (auto stream : findStreamsForURL(streamName))
   {
     auto map = stream.toMap();
@@ -767,10 +769,17 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
     if (map["ff-index"].toString() == streamID)
     {
-      mpv::qt::set_property(m_mpv, streamIdPropertyName, map["id"]);
+      selection = map["id"].toString();
       break;
     }
   }
+
+  // Fallback to the first stream if none could be found.
+  // Useful if web-client uses wrong stream IDs when e.g. transcoding.
+  if (!streamID.isEmpty() && selection.isEmpty())
+    selection = "1";
+
+  mpv::qt::set_property(m_mpv, streamIdPropertyName, selection);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

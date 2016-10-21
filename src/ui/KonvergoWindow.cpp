@@ -13,7 +13,6 @@
 #include "player/PlayerQuickItem.h"
 #include "display/DisplayComponent.h"
 #include "QsLog.h"
-#include "power/PowerComponent.h"
 #include "utils/Utils.h"
 #include "Globals.h"
 #include "EventFilter.h"
@@ -302,11 +301,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     bool fs = visibility == QWindow::FullScreen;
     SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
   }
-
-  if (visibility == QWindow::FullScreen)
-    PowerComponent::Get().setFullscreenState(true);
-  else if (visibility == QWindow::Windowed)
-    PowerComponent::Get().setFullscreenState(false);
 
   notifyScale(size());
 }

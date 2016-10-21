@@ -20,18 +20,13 @@ public:
   static PowerComponent& Get();
 
   explicit PowerComponent(QObject* parent = nullptr)
-  : ComponentBase(parent),
-    m_currentScreensaverEnabled(true),
-    m_fullscreenState(false),
-    m_videoPlaying(false)
+  : ComponentBase(parent)
     { }
 
   bool componentInitialize() override;
   bool componentExport() override { return true; }
   const char* componentName() override { return "power"; }
   void componentPostInitialize() override;
-
-  void setFullscreenState(bool fullscreen);
 
 public Q_SLOTS:
   bool checkCap(PowerCapabilities capability);
@@ -47,23 +42,16 @@ public Q_SLOTS:
   virtual bool Reboot() { return false; }
   virtual bool Suspend() { return false; }
 
-private Q_SLOTS:
-  void videoPlaybackActive(bool active);
+  void setScreensaverEnabled(bool enabled);
 
 Q_SIGNALS:
+  // Short-term compatibility with old web-client. Does nothing.
   void screenSaverEnabled();
   void screenSaverDisabled();
 
 protected:
   virtual void doDisableScreensaver() {};
   virtual void doEnableScreensaver() {};
-
-private:
-  void redecideScreeensaverState();
-
-  bool m_currentScreensaverEnabled;
-  bool m_fullscreenState;
-  bool m_videoPlaying;
 };
 
 

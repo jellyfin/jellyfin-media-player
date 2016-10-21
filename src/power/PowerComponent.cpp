@@ -3,7 +3,6 @@
 //
 
 #include "PowerComponent.h"
-#include "player/PlayerComponent.h"
 #include "input/InputComponent.h"
 #include "settings/SettingsComponent.h"
 
@@ -43,58 +42,22 @@ PowerComponent& PowerComponent::Get()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool PowerComponent::componentInitialize()
 {
-  PlayerComponent* player = &PlayerComponent::Get();
-
-  connect(player, &PlayerComponent::videoPlaybackActive, this, &PowerComponent::videoPlaybackActive);
-
   return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void PowerComponent::setFullscreenState(bool fullscreen)
+void PowerComponent::setScreensaverEnabled(bool enabled)
 {
-  m_fullscreenState = fullscreen;
-  redecideScreeensaverState();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void PowerComponent::redecideScreeensaverState()
-{
-  bool enableOsScreensaver = !m_videoPlaying;
-
-  // by default we don't allow the fullscreen state affect sleep state, but we want to
-  // have a hidden option to allow system sleep and screensaver when in fullscreen.
-  //
-  bool preventSystemScreensaver = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "preventSystemScreensaver").toBool();
-#ifdef KONVERGO_OPENELEC
-  preventSystemScreensaver = true;
-#endif
-  if (preventSystemScreensaver)
-    enableOsScreensaver &= !m_fullscreenState;
-
-  if (m_currentScreensaverEnabled != enableOsScreensaver)
+  if (enabled)
   {
-    m_currentScreensaverEnabled = enableOsScreensaver;
-    if (enableOsScreensaver)
-    {
-      QLOG_DEBUG() << "Enabling OS screensaver";
-      doEnableScreensaver();
-      emit screenSaverEnabled();
-    }
-    else
-    {
-      QLOG_DEBUG() << "Disabling OS screensaver";
-      doDisableScreensaver();
-      emit screenSaverDisabled();
-    }
+    QLOG_DEBUG() << "Enabling OS screensaver";
+    doEnableScreensaver();
   }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void PowerComponent::videoPlaybackActive(bool active)
-{
-  m_videoPlaying = active;
-  redecideScreeensaverState();
+  else
+  {
+    QLOG_DEBUG() << "Disabling OS screensaver";
+    doDisableScreensaver();
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

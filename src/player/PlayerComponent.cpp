@@ -1337,7 +1337,7 @@ QString PlayerComponent::videoInformation() const
   info << "Codec: " << MPV_PROPERTY("video-codec") << endl;
   info << "Size: " << MPV_PROPERTY("video-params/dw") << "x"
                    << MPV_PROPERTY("video-params/dh") << endl;
-  info << "FPS (container): " << MPV_PROPERTY("fps") << endl;
+  info << "FPS (container): " << MPV_PROPERTY("container-fps") << endl;
   info << "FPS (filters): " << MPV_PROPERTY("estimated-vf-fps") << endl;
   info << "Aspect: " << MPV_PROPERTY("video-aspect") << endl;
   info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << endl;

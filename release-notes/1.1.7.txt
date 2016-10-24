@@ -1,0 +1,17 @@
+(To be released.)
+
+NEW:
+  - Some audio setting defaults were changed for OSX. Exclusive audio mode is disabled by
+    default, and the "Channels" option is now set to "auto" by default.
+    This does not affect existing installations, unless you delete or reset your
+    PMP config file.
+  - Removed the "Advanced" checkbox in the audio settings. PMP now behaves the same as if
+    "Advanced" was always enabled in previous versions.
+  - Added a new "copy-back" hardware decoding setting. Useful only in specific situations.
+
+FIXED:
+  - Fix screensaver behavior. In particular, the screensaver should now also start before
+    any videos were played.
+  - (Embedded) Fix performance regression on RPI
+  - Subtitle selection for vobsubs with multiple stream should now finally work
+  - Fix rate display mode auto switching with imprecise media FPS values values like 24.999

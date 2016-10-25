@@ -84,9 +84,6 @@ bool PlayerComponent::componentInitialize()
 
   mpv_set_wakeup_callback(m_mpv, wakeup_cb, this);
 
-  if (mpv_initialize(m_mpv) < 0)
-    throw FatalException(tr("Failed to initialize mpv."));
-
   // Disable native OSD if mpv_command_string() is used.
   mpv::qt::set_property(m_mpv, "osd-level", "0");
 
@@ -125,6 +122,9 @@ bool PlayerComponent::componentInitialize()
   // command in particular. We override the seek mode for normal "seek" commands.)
   mpv::qt::set_property(m_mpv, "hr-seek", "no");
 #endif
+
+  if (mpv_initialize(m_mpv) < 0)
+    throw FatalException(tr("Failed to initialize mpv."));
 
   mpv_observe_property(m_mpv, 0, "pause", MPV_FORMAT_FLAG);
   mpv_observe_property(m_mpv, 0, "core-idle", MPV_FORMAT_FLAG);

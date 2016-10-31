@@ -1,5 +1,3 @@
-(To be released.)
-
 NEW:
   - Some audio setting defaults were changed for OSX. Exclusive audio mode is disabled by
     default, and the "Channels" option is now set to "auto" by default.

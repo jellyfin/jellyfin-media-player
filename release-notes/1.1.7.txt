@@ -14,3 +14,5 @@ FIXED:
   - Subtitle selection for vobsubs with multiple stream should now finally work
   - Fix rate display mode auto switching with imprecise media FPS values values like 24.999
     (and the same for imprecise display refresh rates)
+  - Fix stream selection failure under certain circumstances. Requires at least server
+    version 1.2.1.

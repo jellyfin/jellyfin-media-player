@@ -364,10 +364,11 @@ void RemoteComponent::commandResponse(const QVariantMap& responseArguments)
 void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* response, bool poll)
 {
   QVariantMap headers = HeaderToMap(request->headers());
+  QVariantMap query = QueryToMap(request->url());
 
   // check for required headers
   if (!headers.contains("x-plex-client-identifier") ||
-      !headers.contains("x-plex-device-name"))
+      (!headers.contains("x-plex-device-name") && !query.contains("X-Plex-Device-Name")))
   {
     QLOG_ERROR() << "Missing X-Plex headers in /timeline/subscribe request";
     response->setStatusCode(qhttp::ESTATUS_BAD_REQUEST);
@@ -376,8 +377,6 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   }
 
   // check for required arguments
-  QVariantMap query = QueryToMap(request->url());
-
   if (!query.contains("commandID") || ((!query.contains("port")) && !poll))
   {
     QLOG_ERROR() << "Missing arguments to /timeline/subscribe request";

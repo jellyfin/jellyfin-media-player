@@ -91,7 +91,7 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 
 You should now be able to start PMP as ``plexmediaplayer`` from the terminal.
 
-If you use your distro's Qt, omit the `-DQTROOT` argument.
+If you use your distro's Qt, use `-DQTROOT=/usr` or similar.
 
 Normally, the Ninja generator (via ``-GNinja``) is preferred, but cmake + ninja support appears to be broken on Ubuntu 16.04.
 

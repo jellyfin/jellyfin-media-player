@@ -126,7 +126,7 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
 
     // weight refresh rate
     // exact Match
-    if (candidate->m_refreshRate == matchInfo.m_refreshRate)
+    if (fabs(candidate->m_refreshRate - matchInfo.m_refreshRate) <= 0.01)
       weights[candidate->m_id]->m_weight += MATCH_WEIGHT_REFRESH_RATE_EXACT;
 
     // exact multiple refresh rate

@@ -13,3 +13,4 @@ FIXED:
   - (Embedded) Fix performance regression on RPI
   - Subtitle selection for vobsubs with multiple stream should now finally work
   - Fix rate display mode auto switching with imprecise media FPS values values like 24.999
+    (and the same for imprecise display refresh rates)

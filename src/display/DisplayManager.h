@@ -73,7 +73,7 @@ public:
 // Matching weights
 #define MATCH_WEIGHT_RES 1000
 
-#define MATCH_WEIGHT_REFRESH_RATE_EXACT               100
+#define MATCH_WEIGHT_REFRESH_RATE_EXACT               200
 #define MATCH_WEIGHT_REFRESH_RATE_MULTIPLE            75
 #define MATCH_WEIGHT_REFRESH_RATE_CLOSE               50
 #define MATCH_WEIGHT_REFRESH_RATE_MULTIPLE_CLOSE      25

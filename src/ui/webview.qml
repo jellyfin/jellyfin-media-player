@@ -3,6 +3,7 @@ import Konvergo 1.0
 import QtWebEngine 1.1
 import QtWebChannel 1.0
 import QtQuick.Window 2.2
+import QtQuick.Controls 1.4
 
 KonvergoWindow
 {
@@ -41,12 +42,29 @@ KonvergoWindow
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
     transformOrigin: Item.TopLeft
+    url: mainWindow.webUrl
 
-    width: Math.round(Math.min((parent.height * 16) / 9, parent.width))
-    height: Math.round(Math.min((parent.width * 9) / 16, parent.height))
+    width: {
+      if (!mainWindow.webDesktopMode) {
+        return Math.round(Math.min((parent.height * 16) / 9, parent.width));
+      } else {
+        return parent.width;
+      }
+    }
+    height: {
+      if (!mainWindow.webDesktopMode) {
+        return Math.round(Math.min((parent.width * 9) / 16, parent.height));
+      } else {
+        return parent.height;
+      }
+
+    }
     
     scale:
     {
+      if (mainWindow.webDesktopMode)
+        return 1;
+
       if (mainWindow.windowScale < mainWindow.maxWebScale()) {
         // Web renders at windows scale, no scaling
         return 1;
@@ -63,7 +81,6 @@ KonvergoWindow
       backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
-      url = components.settings.getWebClientUrl() + getInitialScaleArg();
     }
 
     onLoadingChanged:

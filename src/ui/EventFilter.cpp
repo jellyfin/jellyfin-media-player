@@ -6,12 +6,19 @@
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "input/InputKeyboard.h"
+#include "KonvergoWindow.h"
 
 #include <QKeyEvent>
+#include <QObject>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool EventFilter::eventFilter(QObject* watched, QEvent* event)
 {
+  KonvergoWindow* window = qobject_cast<KonvergoWindow*>(parent());
+
+  if (window && window->property("webDesktopMode").toBool())
+    return QObject::eventFilter(watched, event);
+
   SystemComponent& system = SystemComponent::Get();
 
   // ignore mouse events if mouse is disabled

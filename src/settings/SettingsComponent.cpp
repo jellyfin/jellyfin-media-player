@@ -699,7 +699,13 @@ bool SettingsComponent::resetAndSaveOldConfiguration()
 /////////////////////////////////////////////////////////////////////////////////////////
 QString SettingsComponent::getWebClientUrl()
 {
-  auto url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString();
+  auto mode = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString();
+  QString url;
+
+  if (url == "desktop")
+    url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
+  else
+    url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_tv").toString();
 
   // Transition to the new value so that old users are not screwed.
   if (url == "qrc:/konvergo/index.html")
@@ -710,11 +716,13 @@ QString SettingsComponent::getWebClientUrl()
 
   if (url == "bundled")
   {
-    auto path = Paths::webClientPath();
+    auto path = Paths::webClientPath(mode);
     if (path.startsWith("/"))
-      return "file://" + path;
-    return "file:///" + path;
+      url = "file://" + path;
+    url = "file:///" + path;
   }
+
+  QLOG_DEBUG() << "Using web-client URL: " << url;
 
   return url;
 }

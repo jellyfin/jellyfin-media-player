@@ -58,7 +58,7 @@ public:
   Q_INVOKABLE QString getWebClientUrl();
 
   // host commands
-  Q_SLOT void cycleSetting(const QString& args);
+  Q_SLOT Q_INVOKABLE void cycleSetting(const QString& args);
 
   void updatePossibleValues(const QString& sectionID, const QString& key, const QVariantList& possibleValues);
 

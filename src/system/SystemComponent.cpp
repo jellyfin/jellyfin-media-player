@@ -183,6 +183,9 @@ void SystemComponent::info(QString text)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::setCursorVisibility(bool visible)
 {
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode") == "desktop")
+    visible = true;
+
   if (visible)
   {
     m_mouseOutTimer->start(MOUSE_TIMEOUT);

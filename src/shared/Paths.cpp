@@ -128,8 +128,8 @@ QString Paths::soundsPath(const QString& sound)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString Paths::webClientPath()
+QString Paths::webClientPath(const QString& mode)
 {
-  QString webName = QString("web-client-%1").arg(Version::GetWebVersion());
+  QString webName = QString("web-client/%1").arg(mode);
   return resourceDir(webName + "/index.html");
 }

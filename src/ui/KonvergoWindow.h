@@ -3,6 +3,7 @@
 
 #include <QQuickWindow>
 #include <QEvent>
+#include <settings/SettingsComponent.h>
 
 
 // This controls how big the web view will zoom using semantic zoom
@@ -34,6 +35,8 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
   Q_PROPERTY(QSize windowMinSize READ windowMinSize NOTIFY webScaleChanged)
   Q_PROPERTY(bool alwaysOnTop READ isAlwaysOnTop WRITE setAlwaysOnTop)
+  Q_PROPERTY(bool webDesktopMode MEMBER m_webDesktopMode NOTIFY webDesktopModeChanged)
+  Q_PROPERTY(QString webUrl READ webUrl NOTIFY webUrlChanged)
 
 public:
   static void RegisterClass();
@@ -89,6 +92,7 @@ public:
   QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
   static qreal CalculateScale(const QSize& size);
   static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
+  QString webUrl() { return SettingsComponent::Get().getWebClientUrl(); }
 
 Q_SIGNALS:
   void fullScreenSwitched();
@@ -97,6 +101,8 @@ Q_SIGNALS:
   void debugLayerChanged();
   void debugInfoChanged();
   void reloadWebClient();
+  void webDesktopModeChanged();
+  void webUrlChanged();
 
 protected:
   void focusOutEvent(QFocusEvent* ev) override;
@@ -125,6 +131,7 @@ private:
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
   int m_ignoreFullscreenSettingsChange;
+  bool m_webDesktopMode;
 };
 
 #endif // KONVERGOWINDOW_H

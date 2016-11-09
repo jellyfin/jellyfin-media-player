@@ -25,6 +25,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
   m_infoTimer = new QTimer(this);
   m_infoTimer->setInterval(1000);
+  m_webDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
 
   installEventFilter(new EventFilter(this));
 
@@ -242,6 +243,18 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
   {
     InputComponent::Get().cancelAutoRepeat();
     updateWindowState();
+  }
+
+  if (values.contains("webMode"))
+  {
+    m_webDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
+    emit webDesktopModeChanged();
+    emit webUrlChanged();
+  }
+
+  if (values.contains("startupurl"))
+  {
+    emit webUrlChanged();
   }
 }
 

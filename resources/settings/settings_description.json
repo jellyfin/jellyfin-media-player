@@ -19,6 +19,15 @@
     "section": "main",
     "values": [
       {
+        "value": "webMode",
+        "default": "tv",
+        "platforms": [ "windows", "macosx" ],
+        "possible_values": [
+          [ "desktop", "desktop" ],
+          [ "tv", "tv" ]
+        ]
+      },
+      {
         "value": "remoteInspector",
         "default": false,
         "hidden": true
@@ -372,7 +381,11 @@
     "hidden": true,
     "values": [
       {
-        "value": "startupurl",
+        "value": "startupurl_tv",
+        "default": "bundled"
+      },
+      {
+        "value": "startupurl_desktop",
         "default": "bundled"
       },
       {

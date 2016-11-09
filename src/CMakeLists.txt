@@ -125,9 +125,13 @@ if(APPLE)
   set(RESOURCE_ROOT Resources)
 endif()
 
-add_resources(TARGET ${MAIN_TARGET} SOURCES ${WEB_CLIENT_DIR} DEST ${RESOURCE_ROOT}/web-client-${WEB_CLIENT_VERSTR})
+if(NOT IS_DIRECTORY ${CMAKE_BINARY_DIR}/web-client)
+  message(FATAL_ERROR "No ${CMAKE_BINARY_DIR}/web-client! Did you forget conan install?")
+endif()
+
+add_resources(TARGET ${MAIN_TARGET} SOURCES ${CMAKE_BINARY_DIR}/web-client DEST ${RESOURCE_ROOT}/web-client)
 if(NOT APPLE)
-  install(DIRECTORY ${WEB_CLIENT_DIR} DESTINATION ${INSTALL_RESOURCE_DIR})
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/web-client} DESTINATION ${INSTALL_RESOURCE_DIR})
 endif()
 
 if(XCODE)

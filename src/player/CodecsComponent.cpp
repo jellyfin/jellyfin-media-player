@@ -56,6 +56,7 @@ static QSet<QString> g_systemVideoDecoderWhitelist = {
   "wmv1_mf",
   "wmv2_mf",
   "wmv3_mf",
+  "mpeg2_mf",
   "mpeg4_mf",
   "msmpeg4v1_mf",
   "msmpeg4v2_mf",

@@ -37,7 +37,7 @@ public:
   void handleResource(QHttpRequest* request, QHttpResponse* response);
   void handleCommand(QHttpRequest* request, QHttpResponse* response);
 
-  static QVariantMap HeaderToMap(const qhttp::THeaderHash& hash);
+  static QVariantMap HeaderToMap(const qhttp::THeaderHash& hash, const QUrl *url = nullptr);
   static QVariantMap QueryToMap(const QUrl& url);
 
   Q_INVOKABLE void commandResponse(const QVariantMap& responseArguments);

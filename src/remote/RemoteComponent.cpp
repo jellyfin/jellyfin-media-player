@@ -165,11 +165,24 @@ QVariantMap RemoteComponent::QueryToMap(const QUrl& url)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QVariantMap RemoteComponent::HeaderToMap(const qhttp::THeaderHash& hash)
+QVariantMap RemoteComponent::HeaderToMap(const qhttp::THeaderHash& hash, const QUrl *url)
 {
   QVariantMap variantMap;
   for(const QString& key : hash.keys())
-    variantMap.insert(key, hash.value(key.toUtf8()));
+    variantMap.insert(key.toLower(), hash.value(key.toUtf8()));
+
+  // add any eventual X-Plex- param that could be in query parameters
+  if (url)
+  {
+    QVariantMap paramsMap = QueryToMap(*url);
+    for(const QString &key : paramsMap.keys())
+    {
+      QString paramKey = key.toLower();
+      if ((paramKey.startsWith("x-plex-")) && (!variantMap.contains(paramKey)))
+        variantMap.insert(paramKey, paramsMap[key].toString());
+    }
+  }
+
   return variantMap;
 }
 
@@ -363,12 +376,11 @@ void RemoteComponent::commandResponse(const QVariantMap& responseArguments)
 /////////////////////////////////////////////////////////////////////////////////////////
 void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* response, bool poll)
 {
-  QVariantMap headers = HeaderToMap(request->headers());
-  QVariantMap query = QueryToMap(request->url());
+  QVariantMap headers = HeaderToMap(request->headers(), &request->url());
 
   // check for required headers
   if (!headers.contains("x-plex-client-identifier") ||
-      (!headers.contains("x-plex-device-name") && !query.contains("X-Plex-Device-Name")))
+      (!headers.contains("x-plex-device-name")))
   {
     QLOG_ERROR() << "Missing X-Plex headers in /timeline/subscribe request";
     response->setStatusCode(qhttp::ESTATUS_BAD_REQUEST);
@@ -377,6 +389,8 @@ void RemoteComponent::handleSubscription(QHttpRequest* request, QHttpResponse* r
   }
 
   // check for required arguments
+  QVariantMap query = QueryToMap(request->url());
+
   if (!query.contains("commandID") || ((!query.contains("port")) && !poll))
   {
     QLOG_ERROR() << "Missing arguments to /timeline/subscribe request";

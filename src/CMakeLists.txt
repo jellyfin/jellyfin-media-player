@@ -131,7 +131,7 @@ endif()
 
 add_resources(TARGET ${MAIN_TARGET} SOURCES ${CMAKE_BINARY_DIR}/web-client DEST ${RESOURCE_ROOT}/web-client)
 if(NOT APPLE)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/web-client} DESTINATION ${INSTALL_RESOURCE_DIR})
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/web-client DESTINATION ${INSTALL_RESOURCE_DIR})
 endif()
 
 if(XCODE)

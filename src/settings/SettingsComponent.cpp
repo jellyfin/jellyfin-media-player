@@ -702,7 +702,7 @@ QString SettingsComponent::getWebClientUrl()
   auto mode = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString();
   QString url;
 
-  if (url == "desktop")
+  if (mode == "desktop")
     url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
   else
     url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_tv").toString();

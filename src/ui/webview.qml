@@ -13,9 +13,86 @@ KonvergoWindow
   minimumHeight: windowMinSize.height
   minimumWidth: windowMinSize.width
 
-  function getInitialScaleArg()
+  function runWebAction(action)
   {
-    return "?initialScale=" + webScale
+    if (mainWindow.webDesktopMode)
+      web.triggerWebAction(action)
+  }
+
+  function actionEnable(enable)
+  {
+    action_escape.enabled = enable
+    action_switchmode.enabled = enable
+    action_copy.enabled = enable
+    action_cut.enabled = enable
+    action_paste.enabled = enable
+    action_undo.enabled = enable
+    action_redo.enabled = enable
+    action_selectall.enabled = enable
+  }
+
+  Action
+  {
+    id: action_escape
+    shortcut: "Escape"
+    onTriggered:
+    {
+      if (mainWindow.fullScreen)
+        mainWindow.setFullScreen(false)
+    }
+  }
+
+  Action
+  {
+    id: action_switchmode
+    shortcut: "Ctrl+M"
+    onTriggered:
+    {
+      if (mainWindow.webDesktopMode)
+        components.settings.cycleSetting("main.webMode")
+    }
+  }
+
+  Action
+  {
+    shortcut: StandardKey.Copy
+    onTriggered: runWebAction(WebEngineView.Copy)
+    id: action_copy
+  }
+
+  Action
+  {
+    shortcut: StandardKey.Cut
+    onTriggered: runWebAction(WebEngineView.Cut)
+    id: action_cut
+  }
+
+  Action
+  {
+    shortcut: StandardKey.Paste
+    onTriggered: runWebAction(WebEngineView.Paste)
+    id: action_paste
+  }
+
+  Action
+  {
+    shortcut: StandardKey.SelectAll
+    onTriggered: runWebAction(WebEngineView.SelectAll)
+    id: action_selectall
+  }
+
+  Action
+  {
+    shortcut: StandardKey.Undo
+    onTriggered: runWebAction(WebEngineView.Undo)
+    id: action_undo
+  }
+
+  Action
+  {
+    shortcut: StandardKey.Redo
+    onTriggered: runWebAction(WebEngineView.Redo)
+    id: action_redo
   }
 
   function maxWebScale()
@@ -43,18 +120,30 @@ KonvergoWindow
     profile.httpUserAgent: components.system.getUserAgent()
     transformOrigin: Item.TopLeft
     url: mainWindow.webUrl
+    focus: true
+    property string currentHoveredUrl: ""
+    onLinkHovered: web.currentHoveredUrl = hoveredUrl
 
-    width: {
-      if (!mainWindow.webDesktopMode) {
+    width:
+    {
+      if (!mainWindow.webDesktopMode)
+      {
         return Math.round(Math.min((parent.height * 16) / 9, parent.width));
-      } else {
+      }
+      else
+      {
         return parent.width;
       }
     }
-    height: {
-      if (!mainWindow.webDesktopMode) {
+
+    height:
+    {
+      if (!mainWindow.webDesktopMode)
+      {
         return Math.round(Math.min((parent.width * 9) / 16, parent.height));
-      } else {
+      }
+      else
+      {
         return parent.height;
       }
 
@@ -65,10 +154,13 @@ KonvergoWindow
       if (mainWindow.webDesktopMode)
         return 1;
 
-      if (mainWindow.windowScale < mainWindow.maxWebScale()) {
+      if (mainWindow.windowScale < mainWindow.maxWebScale())
+      {
         // Web renders at windows scale, no scaling
         return 1;
-      } else {
+      }
+      else
+      {
         // Web should max out at maximum scaling
         return mainWindow.windowScale / mainWindow.maxWebScale();
       }
@@ -81,6 +173,7 @@ KonvergoWindow
       backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
+      actionEnable(mainWindow.webDesktopMode)
     }
 
     onLoadingChanged:
@@ -100,8 +193,25 @@ KonvergoWindow
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
                           "You can try to <a href='reload'>reload</a> or head to our <a href='http://plex.tv/support'>support page</a><br><br>Actual Error: <pre>" +
                           loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
-                          "Provide the <a href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
+                          "Provide the <a target='_blank' href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
       }
+      actionEnable(mainWindow.webDesktopMode)
+    }
+
+    onNewViewRequested:
+    {
+      if (request.userInitiated)
+      {
+        console.log("Opening external URL: " + web.currentHoveredUrl)
+        components.system.openExternalUrl(web.currentHoveredUrl)
+      }
+    }
+
+    onFullScreenRequested:
+    {
+      console.log("Request fullscreen: " + request.toggleOn)
+      mainWindow.setFullScreen(request.toggleOn)
+      request.accept()
     }
 
     onJavaScriptConsoleMessage:

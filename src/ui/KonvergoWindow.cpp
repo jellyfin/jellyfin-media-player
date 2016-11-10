@@ -250,6 +250,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     m_webDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
     emit webDesktopModeChanged();
     emit webUrlChanged();
+    SystemComponent::Get().setCursorVisibility(true);
   }
 
   if (values.contains("startupurl"))

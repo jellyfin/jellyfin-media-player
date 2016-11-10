@@ -16,3 +16,6 @@ FIXED:
     (and the same for imprecise display refresh rates)
   - Fix stream selection failure under certain circumstances. Requires at least server
     version 1.2.1.
+  - Fixed remote control compatibility with latest version of Plex for iOS
+  - Progress when playing back mp3's didn't always update
+  - (Embedded) Remove the version string in the top left corner

@@ -453,4 +453,13 @@ QScreen* KonvergoWindow::loadLastScreen()
   return nullptr;
 }
 
+QString KonvergoWindow::webUrl()
+{
+  auto url = SettingsComponent::Get().getWebClientUrl();
+  if (m_webDesktopMode)
+    return url;
+
+  return url + QString("?initialScale=%0").arg(webScale());
+}
+
 

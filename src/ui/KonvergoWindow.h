@@ -49,7 +49,7 @@ public:
     return ((flags() & Qt::FramelessWindowHint) || (visibility() == QWindow::FullScreen));
   }
 
-  void setFullScreen(bool enable);
+  Q_INVOKABLE void setFullScreen(bool enable);
 
   bool isAlwaysOnTop()
   {
@@ -92,7 +92,7 @@ public:
   QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
   static qreal CalculateScale(const QSize& size);
   static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
-  QString webUrl() { return SettingsComponent::Get().getWebClientUrl(); }
+  QString webUrl();
 
 Q_SIGNALS:
   void fullScreenSwitched();

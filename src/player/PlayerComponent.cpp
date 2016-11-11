@@ -933,7 +933,7 @@ void PlayerComponent::setAudioConfiguration()
   if (deviceType == AUDIO_DEVICE_TYPE_SPDIF)
     layout = "2.0";
 
-  mpv::qt::set_property(m_mpv, "audio-channels", layout);
+  mpv::qt::set_option_variant(m_mpv, "audio-channels", layout);
 
   // if the user has indicated that PCM only works for stereo, and that
   // the receiver supports AC3, set this extra option that allows us to transcode

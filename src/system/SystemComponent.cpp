@@ -277,7 +277,7 @@ void SystemComponent::userInformation(const QVariantMap& userModel)
 
   SettingsComponent::Get().setUserRoleList(roleList);
 
-  m_authenticationToken = userModel.value("authenticationToken").toString();
+  m_authenticationToken = userModel.value("authToken").toString();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

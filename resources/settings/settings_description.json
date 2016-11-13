@@ -1,7 +1,7 @@
 [
   {
     "section": "__meta__",
-    "version": 3
+    "version": 4
   },
   {
     "section": "state",
@@ -20,7 +20,7 @@
     "values": [
       {
         "value": "webMode",
-        "default": "tv",
+        "default": "desktop",
         "platforms": [ "windows", "macosx" ],
         "possible_values": [
           [ "desktop", "desktop" ],
@@ -34,7 +34,7 @@
       },
       {
         "value": "fullscreen",
-        "default": true,
+        "default": false,
         "platforms_excluded": "oe"
       },
       {

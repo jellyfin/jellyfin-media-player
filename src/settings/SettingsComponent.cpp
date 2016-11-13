@@ -174,10 +174,20 @@ void SettingsComponent::load()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::loadConf(const QString& path, bool storage)
 {
+  bool migrateTvMode = false;
   QJsonObject json = loadJson(path);
 
   int version = json["version"].toInt(0);
-  if (version != m_settingsVersion)
+
+  // Migrate to settings version 4
+  if (version == 3 && m_settingsVersion == 4)
+  {
+    // We only need to make sure that old users have the
+    // webmode set to "tv" so that we don't flip their
+    // interface unnecessarly
+    migrateTvMode = true;
+  }
+  else if (version != m_settingsVersion)
   {
     QString backup = path + ".broken";
     QFile::remove(backup);
@@ -217,6 +227,9 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
     for(const QString& setting : jsonSection.keys())
       sec->setValue(setting, jsonSection.value(setting).toVariant());
   }
+
+  if (migrateTvMode)
+    getSection(SETTINGS_SECTION_MAIN)->setValue("webMode", "tv");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

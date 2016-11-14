@@ -1068,7 +1068,7 @@ void PlayerComponent::updateVideoSettings()
   setAudioDelay(m_playbackAudioDelay);
 
   QVariant cache = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "cache");
-  mpv::qt::set_property(m_mpv, "cache", cache.toInt() * 1024);
+  mpv::qt::set_option_variant(m_mpv, "cache", cache.toInt() * 1024);
 
   updateVideoAspectSettings();
 }

@@ -394,11 +394,19 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
 {
   QLOG_DEBUG() << "resize event:" << event->size();
 
+  // This next block was added at some point to workaround a problem with
+  // resizing on windows. Unfortunately it broke the desktop client behavior
+  // and when retried on Windows 10 with Qt5.7 the original bug seems to be
+  // gone. I'll keep this code around until such a time that we dont get any
+  // complaints about it.
+  //
+  #if 0
   // This next block should never really be needed in a prefect world...
   // Unfortunatly this is an imperfect world and on windows sometimes what
   // would happen on startup is that we got a resize event that would make
   // the window much smaller than fullscreen.
   //
+
   if (isFullScreen())
   {
     QSize fsSize = screen()->size();
@@ -408,6 +416,7 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
       return;
     }
   }
+  #endif
 
   notifyScale(event->size());
   QQuickWindow::resizeEvent(event);

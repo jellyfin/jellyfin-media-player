@@ -117,6 +117,7 @@ private slots:
   void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
+  void showUpdateDialog();
 
 private:
   void notifyScale(const QSize& size);
@@ -132,6 +133,7 @@ private:
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
   int m_ignoreFullscreenSettingsChange;
   bool m_webDesktopMode;
+  bool m_showedUpdateDialog;
 };
 
 #endif // KONVERGOWINDOW_H

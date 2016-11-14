@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
     preinitQt();
 
-    QGuiApplication app(argc, newArgv);
+    QApplication app(argc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));
 
     // Get the arguments from the app, this is the parsed version of newArgc and newArgv

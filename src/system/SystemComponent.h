@@ -47,6 +47,7 @@ public:
 
   Q_INVOKABLE QString getCapabilitiesString();
   Q_SIGNAL void capabilitiesChanged(const QString& capabilities);
+  Q_SIGNAL void userInfoChanged();
 
   // possible os types type enum
   enum PlatformType

@@ -141,9 +141,15 @@ public:
   const char* componentName() override { return "updater"; }
   bool componentInitialize() override { return true; }
 
-  Q_INVOKABLE void downloadUpdate(const QVariantMap &updateInfo);
+  // Disable old API for now
+  Q_INVOKABLE void downloadUpdate(const QVariantMap &updateInfo) { };
+
+  Q_INVOKABLE void checkForUpdate();
+  Q_INVOKABLE void startUpdateDownload(const QVariantHash& updateInfo);
+
   Q_INVOKABLE void doUpdate();
 
+  const QVariantHash& updateInfo() const { return m_updateInfo; }
 
 signals:
   void downloadError(const QString& error);
@@ -167,6 +173,14 @@ private:
   bool m_hasManifest;
 
   QNetworkAccessManager m_netManager;
+  QNetworkReply* m_checkReply;
+  QByteArray m_checkData;
+
+  QVariantHash parseUpdateData(const QByteArray& data);
+  QString getFinalUrl(const QString& path);
+
+  QVariantHash m_updateInfo;
+  QTime m_lastUpdateCheck;
 };
 
 #endif // UPDATERCOMPONENT_H

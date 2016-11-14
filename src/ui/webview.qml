@@ -21,7 +21,6 @@ KonvergoWindow
 
   function actionEnable(enable)
   {
-    action_escape.enabled = enable
     action_switchmode.enabled = enable
     action_copy.enabled = enable
     action_cut.enabled = enable
@@ -29,16 +28,16 @@ KonvergoWindow
     action_undo.enabled = enable
     action_redo.enabled = enable
     action_selectall.enabled = enable
+    action_fullscreen.enabled = enable
   }
 
   Action
   {
-    id: action_escape
-    shortcut: "Escape"
+    id: action_fullscreen
+    shortcut: "F11"
     onTriggered:
     {
-      if (mainWindow.fullScreen)
-        mainWindow.setFullScreen(false)
+      mainWindow.toggleFullscreen()
     }
   }
 

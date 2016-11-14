@@ -126,12 +126,13 @@ void UpdaterComponent::dlComplete(QNetworkReply* reply)
     QLOG_ERROR() << "Error downloading:" << reply->url() << "-" << reply->errorString();
     emit downloadError(reply->errorString());
 
-    if (m_hasManifest)
+    if (m_hasManifest && m_manifest)
     {
       m_manifest->abort();
     }
 
-    m_file->abort();
+    if (m_file)
+      m_file->abort();
   }
 }
 

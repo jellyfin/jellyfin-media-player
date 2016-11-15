@@ -50,6 +50,7 @@
 
     // application shortcuts
     "Ctrl\\+Shift\\+F": "host:fullscreen",
+    "Meta\\+Ctrl\\+F": "host:fullscreen",
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",

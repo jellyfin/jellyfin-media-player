@@ -28,13 +28,31 @@ KonvergoWindow
     action_undo.enabled = enable
     action_redo.enabled = enable
     action_selectall.enabled = enable
-    action_fullscreen.enabled = enable
+    action_fullscreen_win.enabled = enable
+    action_fullscreen_mac.enabled = enable
   }
 
   Action
   {
-    id: action_fullscreen
+    id: action_debug_overlay
+    shortcut: "Ctrl+Shift+D"
+    onTriggered: mainWindow.toggleDebug()
+  }
+
+  Action
+  {
+    id: action_fullscreen_win
     shortcut: "F11"
+    onTriggered:
+    {
+      mainWindow.toggleFullscreen()
+    }
+  }
+
+  Action
+  {
+    id: action_fullscreen_mac
+    shortcut: "Ctrl+Meta+F"
     onTriggered:
     {
       mainWindow.toggleFullscreen()

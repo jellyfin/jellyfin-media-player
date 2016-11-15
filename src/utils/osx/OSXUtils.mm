@@ -2,19 +2,33 @@
 #import <Cocoa/Cocoa.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void OSXUtils::SetMenuBarVisible(bool visible)
+unsigned long OSXUtils::GetPresentationOptionsForFullscreen(bool hideMenuAndDock)
 {
-  if(visible)
+  unsigned long flags = 0;
+  if (hideMenuAndDock)
   {
-    [[NSApplication sharedApplication]
-      setPresentationOptions:   NSApplicationPresentationDefault];
+    flags = flags & ~(NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar);
+    flags |= NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
   }
   else
   {
-    [[NSApplication sharedApplication]
-      setPresentationOptions:   NSApplicationPresentationHideMenuBar |
-                                NSApplicationPresentationHideDock];
+    flags = flags & ~(NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar);
+    flags |= NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar;
   }
+
+  return flags;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void OSXUtils::SetPresentationOptions(unsigned long flags)
+{
+  [[NSApplication sharedApplication] setPresentationOptions:flags];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+unsigned long OSXUtils::GetPresentationOptions()
+{
+  return [[NSApplication sharedApplication] presentationOptions];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

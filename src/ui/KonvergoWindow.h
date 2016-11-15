@@ -134,6 +134,8 @@ private:
   int m_ignoreFullscreenSettingsChange;
   bool m_webDesktopMode;
   bool m_showedUpdateDialog;
+
+  unsigned long m_osxPresentationOptions;
 };
 
 #endif // KONVERGOWINDOW_H

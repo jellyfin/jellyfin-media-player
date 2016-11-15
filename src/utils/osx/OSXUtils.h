@@ -6,9 +6,12 @@
 
 namespace OSXUtils
 {
-  void SetMenuBarVisible(bool visible);
   QString ComputerName();
   OSStatus SendAppleEventToSystemProcess(AEEventID eventToSendID);
+
+  void SetPresentationOptions(unsigned long flags);
+  unsigned long GetPresentationOptions();
+  unsigned long GetPresentationOptionsForFullscreen(bool hideMenuAndDock);
 };
 
 #endif /* OSXUTILS_H */

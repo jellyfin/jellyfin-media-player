@@ -27,7 +27,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   m_debugLayer(false),
   m_lastScale(1.0),
   m_ignoreFullscreenSettingsChange(0),
-  m_showedUpdateDialog(false)
+  m_showedUpdateDialog(false),
+  m_osxPresentationOptions(0)
 {
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
@@ -76,6 +77,10 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 
   connect(&UpdaterComponent::Get(), &UpdaterComponent::downloadComplete,
           this, &KonvergoWindow::showUpdateDialog);
+
+#ifdef Q_OS_MAC
+  m_osxPresentationOptions = OSXUtils::GetPresentationOptions();
+#endif
 
 #ifdef KONVERGO_OPENELEC
   setVisibility(QWindow::FullScreen);
@@ -310,6 +315,8 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     emit webDesktopModeChanged();
     emit webUrlChanged();
     SystemComponent::Get().setCursorVisibility(true);
+
+    updateWindowState();
   }
 
   if (values.contains("startupurl"))
@@ -329,6 +336,12 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
       saveGeometry();
 
     setVisibility(QWindow::FullScreen);
+
+#ifdef Q_OS_MAC
+    QTimer::singleShot(0, [&] {
+      OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
+    });
+#endif
   }
   else
   {
@@ -344,6 +357,10 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
       setFlags(flags() | forceOnTopFlags);
     else
       setFlags(flags() &~ forceOnTopFlags);
+
+#ifdef Q_OS_MAC
+    QTimer::singleShot(0, [&]{ OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
+#endif
   }
 }
 
@@ -365,7 +382,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 
   if (visibility == QWindow::Windowed)
     loadGeometry();
-
 
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed) {
     m_ignoreFullscreenSettingsChange++;
@@ -521,6 +537,7 @@ QScreen* KonvergoWindow::loadLastScreen()
   return nullptr;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 QString KonvergoWindow::webUrl()
 {
   auto url = SettingsComponent::Get().getWebClientUrl();

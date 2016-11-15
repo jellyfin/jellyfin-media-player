@@ -107,8 +107,8 @@ bool DisplayManagerOSX::setDisplayMode(int display, int mode)
 
   // HACK : on OSX, switching display mode can leave dock in a state where mouse cursor
   // will not hide on top of hidden dock, so we reset it state to fix this
-  OSXUtils::SetMenuBarVisible(true);
-  OSXUtils::SetMenuBarVisible(false);
+  OSXUtils::SetPresentationOptions(OSXUtils::GetPresentationOptionsForFullscreen(false));
+  OSXUtils::SetPresentationOptions(OSXUtils::GetPresentationOptionsForFullscreen(true));
 
   return true;
 }

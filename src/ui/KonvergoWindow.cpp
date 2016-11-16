@@ -303,7 +303,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
   }
 
-  if (values.contains("alwaysOnTop") || values.contains("fullscreen"))
+  if (values.contains("alwaysOnTop") || values.contains("fullscreen") || values.contains("webMode"))
   {
     InputComponent::Get().cancelAutoRepeat();
     updateWindowState();

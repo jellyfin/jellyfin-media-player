@@ -68,6 +68,17 @@ bool InputCEC::initInput()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+InputCEC::~InputCEC()
+{
+  QMetaObject::invokeMethod(m_cecWorker, "closeCec", Qt::BlockingQueuedConnection);
+
+  m_cecThread->exit(0);
+  m_cecThread->wait();
+
+  delete m_cecWorker;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 bool InputCECWorker::init()
 {
   m_configuration.Clear();
@@ -108,7 +119,7 @@ bool InputCECWorker::init()
   checkAdapter();
 
   // Start a timer to keep track of attached/removed adapters
-  m_timer = new QTimer(this);
+  m_timer = new QTimer(nullptr);
   m_timer->setInterval(10 * 1000);
   connect(m_timer, &QTimer::timeout, this, &InputCECWorker::checkAdapter);
   m_timer->start();
@@ -116,16 +127,15 @@ bool InputCECWorker::init()
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-InputCECWorker::~InputCECWorker()
-{
-  m_timer->stop();
-  closeCec();
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void InputCECWorker::closeCec()
 {
+  if (m_timer->isActive())
+  {
+    m_timer->stop();
+    delete m_timer;
+  }
+
   if (m_adapter)
   {
     QLOG_DEBUG() << "Closing libCEC.";

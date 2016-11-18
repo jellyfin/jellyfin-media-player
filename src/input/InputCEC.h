@@ -19,9 +19,11 @@ class InputCEC : public InputBase
 {
 public:
   explicit InputCEC(QObject* parent);
+  ~InputCEC();
 
   const char* inputName() override { return CEC_INPUT_NAME; }
   bool initInput() override;
+
 
 private:
   QThread* m_cecThread;
@@ -37,17 +39,14 @@ public:
   {
   }
 
-  ~InputCECWorker() override;
-
   Q_SLOT bool init();
   Q_SIGNAL void receivedInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
+  Q_SLOT void closeCec();
 
 public slots:
   void checkAdapter();
 
 private:
-  void closeCec();
-
   bool openAdapter();
   void closeAdapter();
 

@@ -140,32 +140,9 @@ KonvergoWindow
     focus: true
     property string currentHoveredUrl: ""
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
+    width: mainWindow.webUIWidth
+    height: mainWindow.webUIHeight
 
-    width:
-    {
-      if (!mainWindow.webDesktopMode)
-      {
-        return Math.round(Math.min((parent.height * 16) / 9, parent.width));
-      }
-      else
-      {
-        return parent.width;
-      }
-    }
-
-    height:
-    {
-      if (!mainWindow.webDesktopMode)
-      {
-        return Math.round(Math.min((parent.width * 9) / 16, parent.height));
-      }
-      else
-      {
-        return parent.height;
-      }
-
-    }
-    
     scale:
     {
       if (mainWindow.webDesktopMode)

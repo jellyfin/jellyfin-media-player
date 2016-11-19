@@ -31,12 +31,13 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(QString videoInfo MEMBER m_videoInfo NOTIFY debugInfoChanged)
   Q_PROPERTY(qreal webScale READ webScale NOTIFY webScaleChanged)
   Q_PROPERTY(qreal webHeightMax READ webHeightMax NOTIFY webScaleChanged)
-  Q_PROPERTY(QSize webUISize READ webUISize NOTIFY webScaleChanged)
   Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
   Q_PROPERTY(QSize windowMinSize READ windowMinSize NOTIFY webScaleChanged)
   Q_PROPERTY(bool alwaysOnTop READ isAlwaysOnTop WRITE setAlwaysOnTop)
   Q_PROPERTY(bool webDesktopMode MEMBER m_webDesktopMode NOTIFY webDesktopModeChanged)
   Q_PROPERTY(QString webUrl READ webUrl NOTIFY webUrlChanged)
+  Q_PROPERTY(qreal webUIWidth READ webUIWidth NOTIFY webScaleChanged)
+  Q_PROPERTY(qreal webUIHeight READ webUIHeight NOTIFY webScaleChanged)
 
 public:
   static void RegisterClass();
@@ -88,11 +89,24 @@ public:
   qreal windowScale() { return CalculateScale(size()); }
   qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
   qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }
-  QSize webUISize() { return WEBUI_SIZE; }
   QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
   static qreal CalculateScale(const QSize& size);
   static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
   QString webUrl();
+
+  qreal webUIWidth()
+  {
+    if (!m_webDesktopMode)
+      return qRound64(qMin((qreal)(height() * 16) / 9, (qreal)width()));
+    return width();
+  }
+
+  qreal webUIHeight()
+  {
+    if (!m_webDesktopMode)
+      return qRound64(qMin((qreal)(width() * 9) / 16, (qreal)height()));
+    return height();
+  }
 
 Q_SIGNALS:
   void fullScreenSwitched();

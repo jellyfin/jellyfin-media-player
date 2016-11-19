@@ -81,7 +81,7 @@ void ShowLicenseInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-gpu", "--disable-web-security"};
+QStringList g_qtFlags = {"--enable-viewport", "--disable-gpu", "--disable-web-security"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
@@ -92,8 +92,12 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("Plex Media Player");
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addOptions({{{"l", "licenses"}, "Show license information"}});
-    parser.addOptions({{{"a", "from-auto-update"}, "When invoked from auto-update"}});
+    parser.addOptions({{{"l", "licenses"},         "Show license information"},
+                       {{"a", "from-auto-update"}, "When invoked from auto-update"},
+                       {"desktop",                 "Start in desktop mode"},
+                       {"tv",                      "Start in TV mode"},
+                       {"windowed",                "Start in windowed mode"},
+                       {"fullscreen",              "Start in fullscreen"}});
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     argc += g_qtFlags.size();
@@ -169,6 +173,8 @@ int main(int argc, char *argv[])
     // early since most everything else relies on it
     //
     ComponentManager::Get().initialize();
+
+    SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
     // enable remote inspection if we have the correct setting for it.
     if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "remoteInspector").toBool())

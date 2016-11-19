@@ -740,3 +740,20 @@ QString SettingsComponent::getWebClientUrl()
   return url;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::setCommandLineValues(const QStringList& values)
+{
+  QLOG_DEBUG() << values;
+  for (const QString& value : values)
+  {
+    if (value == "fullscreen")
+      setValue(SETTINGS_SECTION_MAIN, "fullscreen", true);
+    else if (value == "windowed")
+      setValue(SETTINGS_SECTION_MAIN, "fullscreen", false);
+    else if (value == "desktop")
+      setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
+    else if (value == "tv")
+      setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
+  }
+}
+

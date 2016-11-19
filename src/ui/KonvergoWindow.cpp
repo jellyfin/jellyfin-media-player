@@ -222,9 +222,9 @@ QRect KonvergoWindow::loadGeometry()
 QRect KonvergoWindow::loadGeometryRect()
 {
   // if we dont have anything, default to 720p in the middle of the screen
-  QRect defaultRect = QRect((screen()->geometry().width() - webUISize().width()) / 2,
-                            (screen()->geometry().height() - webUISize().height()) / 2,
-                            webUISize().width(), webUISize().height());
+  QRect defaultRect = QRect((screen()->geometry().width() - WEBUI_SIZE.width()) / 2,
+                            (screen()->geometry().height() - WEBUI_SIZE.height()) / 2,
+                            WEBUI_SIZE.width(), WEBUI_SIZE.height());
 
   QVariantMap map = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "geometry").toMap();
   if (map.isEmpty())
@@ -303,7 +303,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
   }
 
-  if (values.contains("alwaysOnTop") || values.contains("fullscreen") || values.contains("webMode"))
+  if (values.contains("alwaysOnTop") || values.contains("fullscreen"))
   {
     InputComponent::Get().cancelAutoRepeat();
     updateWindowState();
@@ -311,12 +311,27 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
   if (values.contains("webMode"))
   {
+    InputComponent::Get().cancelAutoRepeat();
+    bool oldDesktopMode = m_webDesktopMode;
+
     m_webDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
     emit webDesktopModeChanged();
     emit webUrlChanged();
     SystemComponent::Get().setCursorVisibility(true);
-
     updateWindowState();
+    notifyScale(size());
+
+    bool fullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
+
+    if (oldDesktopMode && !m_webDesktopMode)
+      fullscreen = true;
+    else if (!oldDesktopMode && m_webDesktopMode)
+      fullscreen = false;
+
+    QTimer::singleShot(0, [=]
+    {
+      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
+    });
   }
 
   if (values.contains("startupurl"))

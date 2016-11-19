@@ -43,6 +43,8 @@ public:
     return m_sections.value(sectionID, nullptr);
   }
 
+  void setCommandLineValues(const QStringList& values);
+
   // JS interface
   Q_INVOKABLE void setValue(const QString& sectionID, const QString& key, const QVariant& value);
   Q_INVOKABLE void setValues(const QVariantMap& options);

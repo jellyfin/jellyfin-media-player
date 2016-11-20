@@ -39,7 +39,8 @@ static void preinitQt()
   QCoreApplication::setOrganizationDomain("plex.tv");
 
 #ifdef Q_OS_LINUX
-  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  if (qgetenv("QT_SCALE_FACTOR") == nullptr)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
 #ifdef Q_OS_WIN32

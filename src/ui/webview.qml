@@ -30,6 +30,23 @@ KonvergoWindow
     action_selectall.enabled = enable
     action_fullscreen_win.enabled = enable
     action_fullscreen_mac.enabled = enable
+    action_fullscreen_win_alt.enabled = enable
+    action_quit.enabled = enable
+    action_quit_win.enabled = enable
+  }
+
+  Action
+  {
+    id: action_quit
+    shortcut: "Ctrl+Q"
+    onTriggered: mainWindow.close()
+  }
+
+  Action
+  {
+    id: action_quit_win
+    shortcut: "Alt+F4"
+    onTriggered: mainWindow.close()
   }
 
   Action
@@ -41,22 +58,23 @@ KonvergoWindow
 
   Action
   {
+    id: action_fullscreen_win_alt
+    shortcut: "Alt+Return"
+    onTriggered: mainWindow.toggleFullscreen()
+  }
+
+  Action
+  {
     id: action_fullscreen_win
     shortcut: "F11"
-    onTriggered:
-    {
-      mainWindow.toggleFullscreen()
-    }
+    onTriggered: mainWindow.toggleFullscreen()
   }
 
   Action
   {
     id: action_fullscreen_mac
     shortcut: "Ctrl+Meta+F"
-    onTriggered:
-    {
-      mainWindow.toggleFullscreen()
-    }
+    onTriggered: mainWindow.toggleFullscreen()
   }
 
   Action

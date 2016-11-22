@@ -463,6 +463,7 @@ void PlayerComponent::updatePlaybackState()
       emit error(m_playbackError);
       break;
     }
+    emit stateChanged(newState, m_state);
     m_state = newState;
   }
 
@@ -1139,6 +1140,9 @@ void PlayerComponent::updateVideoAspectSettings()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::updateVideoSettings()
 {
+  if (!m_mpv)
+    return;
+
   QVariant syncMode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "sync_mode");
   mpv::qt::set_property(m_mpv, "video-sync", syncMode);
 

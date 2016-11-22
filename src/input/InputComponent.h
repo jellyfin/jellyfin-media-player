@@ -43,6 +43,7 @@ signals:
 #define INPUT_KEY_MENU      "KEY_MENU"
 #define INPUT_KEY_PLAY      "KEY_PLAY"
 #define INPUT_KEY_PAUSE     "KEY_PAUSE"
+#define INPUT_KEY_PLAY_PAUSE "KEY_PLAY_PAUSE"
 #define INPUT_KEY_STOP      "KEY_STOP"
 #define INPUT_KEY_DOWN      "KEY_DOWN"
 #define INPUT_KEY_BACK      "KEY_BACK"

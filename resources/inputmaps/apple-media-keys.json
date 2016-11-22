@@ -3,7 +3,9 @@
   "idmatcher": "AppleMediaKeys.*",
   "mapping":
   {
-    "KEY_PLAY": "play_pause",
+    "KEY_PLAY": "play",
+    "KEY_PAUSE": "pause",
+    "KEY_PLAY_PAUSE": "play_pause",
     "KEY_NEXT": "step_forward",
     "KEY_PREV": "step_backward",
     "KEY_FAST": "step_forward",

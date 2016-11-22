@@ -18,7 +18,7 @@ public:
   explicit InputBase(QObject* parent = nullptr) : QObject(parent) { qRegisterMetaType<InputBase::InputkeyState>("InputkeyState"); }
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
-  
+
   enum InputkeyState
   {
     KeyDown,
@@ -43,6 +43,7 @@ signals:
 #define INPUT_KEY_MENU      "KEY_MENU"
 #define INPUT_KEY_PLAY      "KEY_PLAY"
 #define INPUT_KEY_PAUSE     "KEY_PAUSE"
+#define INPUT_KEY_PLAY_PAUSE "KEY_PLAY_PAUSE"
 #define INPUT_KEY_STOP      "KEY_STOP"
 #define INPUT_KEY_DOWN      "KEY_DOWN"
 #define INPUT_KEY_BACK      "KEY_BACK"
@@ -116,7 +117,7 @@ signals:
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
-  
+
 private:
   explicit InputComponent(QObject *parent = nullptr);
   bool addInput(InputBase* base);

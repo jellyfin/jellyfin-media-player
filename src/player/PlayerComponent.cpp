@@ -909,7 +909,7 @@ void PlayerComponent::setAudioConfiguration()
     QStringList codecs;
     if (deviceType == AUDIO_DEVICE_TYPE_SPDIF)
       codecs = AudioCodecsSPDIF();
-    else if (deviceType == AUDIO_DEVICE_TYPE_HDMI && audioSection->value("advanced").toBool())
+    else if (deviceType == AUDIO_DEVICE_TYPE_HDMI)
       codecs = AudioCodecsAll();
 
     for(const QString& key : codecs)

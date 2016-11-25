@@ -313,24 +313,25 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
   {
     InputComponent::Get().cancelAutoRepeat();
     bool oldDesktopMode = m_webDesktopMode;
-
-    m_webDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
-    emit webDesktopModeChanged();
-    emit webUrlChanged();
-    SystemComponent::Get().setCursorVisibility(true);
-    updateWindowState();
-    notifyScale(size());
+    bool newDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
 
     bool fullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
 
-    if (oldDesktopMode && !m_webDesktopMode)
+    if (oldDesktopMode && !newDesktopMode)
       fullscreen = true;
-    else if (!oldDesktopMode && m_webDesktopMode)
+    else if (!oldDesktopMode && newDesktopMode)
       fullscreen = false;
 
     QTimer::singleShot(0, [=]
     {
       SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
+
+      m_webDesktopMode = newDesktopMode;
+      emit webDesktopModeChanged();
+      emit webUrlChanged();
+      SystemComponent::Get().setCursorVisibility(true);
+      updateWindowState();
+      notifyScale(size());
     });
   }
 
@@ -380,7 +381,8 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class ScopedDecrementer {
+class ScopedDecrementer
+{
   Q_DISABLE_COPY(ScopedDecrementer)
 
   int* m_value;

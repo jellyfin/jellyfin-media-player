@@ -319,7 +319,7 @@ bool PlayerComponent::switchDisplayFrameRate()
 void PlayerComponent::onRestoreDisplay()
 {
   // If the player will in fact start another file (or is playing one), don't restore.
-  if (mpv::qt::get_property(m_mpv, "idle").toBool())
+  if (mpv::qt::get_property(m_mpv, "idle-active").toBool())
     DisplayComponent::Get().restorePreviousVideoMode();
 }
 
@@ -839,7 +839,7 @@ void PlayerComponent::checkCurrentAudioDevice(const QSet<QString>& old_devs, con
   QLOG_DEBUG() << "Audio devices added:" << added;
   QLOG_DEBUG() << "Audio device selected:" << userDevice;
 
-  if (!mpv::qt::get_property(m_mpv, "idle").toBool() && userDevice.length())
+  if (!mpv::qt::get_property(m_mpv, "idle-active").toBool() && userDevice.length())
   {
     if (added.contains(userDevice))
     {
@@ -1330,7 +1330,7 @@ QString PlayerComponent::videoInformation() const
   QTextStream info(&infoStr);
 
   // check if video is playing
-  if (mpv::qt::get_property(m_mpv, "idle").toBool())
+  if (mpv::qt::get_property(m_mpv, "idle-active").toBool())
     return "";
 
   info << "File:" << endl;

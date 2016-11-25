@@ -28,7 +28,6 @@ void AudioSettingsController::valuesUpdated(const QVariantMap& values)
   SettingsSection* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO);
   auto prevDescriptions = audioSection->descriptions();
 
-  bool advanced = true;
   QString type = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
 
   audioSection->setValueHidden("channels", false);
@@ -39,7 +38,7 @@ void AudioSettingsController::valuesUpdated(const QVariantMap& values)
   }
   else if (type == AUDIO_DEVICE_TYPE_HDMI)
   {
-    setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), !advanced);
+    setHiddenPassthrough(PlayerComponent::AudioCodecsAll(), false);
   }
   else if (type == AUDIO_DEVICE_TYPE_SPDIF)
   {
@@ -47,8 +46,6 @@ void AudioSettingsController::valuesUpdated(const QVariantMap& values)
     setHiddenPassthrough(PlayerComponent::AudioCodecsSPDIF(), false);
     audioSection->setValueHidden("channels", true);
   }
-
-  audioSection->setValueHidden("exclusive", !advanced);
 
   auto newDescriptions = audioSection->descriptions();
   if (prevDescriptions != newDescriptions)

@@ -161,7 +161,6 @@
       {
         "value": "exclusive",
         "default": false,
-        "hidden": true,
         "platforms": [ "osx", "windows" ]
       },
       {

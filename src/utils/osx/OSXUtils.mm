@@ -1,4 +1,5 @@
 #include "OSXUtils.h"
+#include "QsLog.h"
 #import <Cocoa/Cocoa.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -22,13 +23,16 @@ unsigned long OSXUtils::GetPresentationOptionsForFullscreen(bool hideMenuAndDock
 /////////////////////////////////////////////////////////////////////////////////////////
 void OSXUtils::SetPresentationOptions(unsigned long flags)
 {
+  QLOG_DEBUG() << "Setting presentationOptions =" << flags;
   [[NSApplication sharedApplication] setPresentationOptions:flags];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 unsigned long OSXUtils::GetPresentationOptions()
 {
-  return [[NSApplication sharedApplication] presentationOptions];
+  unsigned long options = [[NSApplication sharedApplication] presentationOptions];
+  QLOG_DEBUG() << "Getting presentationOptions =" << options;
+  return options;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

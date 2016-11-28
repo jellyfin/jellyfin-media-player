@@ -391,13 +391,13 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
   {
     loadGeometry();
 #ifdef Q_OS_MAC
-    QTimer::singleShot(3 * 1000, [&] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
+    QTimer::singleShot(1 * 1000, [&] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
 #endif
   }
   else if (visibility == QWindow::FullScreen)
   {
 #ifdef Q_OS_MAC
-    QTimer::singleShot(3 * 1000, [&] {
+    QTimer::singleShot(1 * 1000, [&] {
       OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
     });
 #endif

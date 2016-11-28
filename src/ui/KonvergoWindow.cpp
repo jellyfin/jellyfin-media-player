@@ -352,12 +352,6 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
       saveGeometry();
 
     setVisibility(QWindow::FullScreen);
-
-#ifdef Q_OS_MAC
-    QTimer::singleShot(0, [&] {
-      OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
-    });
-#endif
   }
   else
   {
@@ -373,10 +367,6 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
       setFlags(flags() | forceOnTopFlags);
     else
       setFlags(flags() &~ forceOnTopFlags);
-
-#ifdef Q_OS_MAC
-    QTimer::singleShot(0, [&]{ OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
-#endif
   }
 }
 
@@ -398,9 +388,23 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
   QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visbility set to " << visibility;
 
   if (visibility == QWindow::Windowed)
+  {
     loadGeometry();
+#ifdef Q_OS_MAC
+    QTimer::singleShot(0, [&] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
+#endif
+  }
+  else if (visibility == QWindow::FullScreen)
+  {
+#ifdef Q_OS_MAC
+    QTimer::singleShot(0, [&] {
+      OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
+    });
+#endif
+  }
 
-  if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed) {
+  if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
+  {
     m_ignoreFullscreenSettingsChange++;
     ScopedDecrementer decrement(&m_ignoreFullscreenSettingsChange);
 

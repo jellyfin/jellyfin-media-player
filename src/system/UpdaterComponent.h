@@ -7,6 +7,7 @@
 #include <QCryptographicHash>
 #include <QFile>
 #include <QThread>
+#include <QTime>
 #include <time.h>
 
 #include "ComponentManager.h"

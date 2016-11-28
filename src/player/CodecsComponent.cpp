@@ -12,6 +12,7 @@
 #include <QResource>
 #include <QStandardPaths>
 #include <QSysInfo>
+#include <QCryptographicHash>
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "utils/Utils.h"

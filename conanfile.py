@@ -5,9 +5,9 @@ class PlexMediaPlayer(ConanFile):
   settings = "os", "compiler", "build_type", "arch"
   requires = (
     "web-client-desktop/2.11.1-db2136e@plex/stable",
-    "web-client-tv/2.10.8-719c7dd@plex/stable"
+    "web-client-tv/2.10.8-7d6b907@plex/stable"
   )
-  
+
   def imports(self):
     self.copy("*", dst="web-client/tv", src="tv")
     self.copy("*", dst="web-client/desktop", src="desktop")

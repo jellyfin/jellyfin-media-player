@@ -73,7 +73,10 @@ public:
 
   Q_SLOT void toggleFullscreen()
   {
-    setFullScreen(!isFullScreen());
+    if (!m_webDesktopMode && isFullScreen())
+      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
+    else
+      setFullScreen(!isFullScreen());
   }
 
   Q_SLOT void toggleAlwaysOnTop()
@@ -150,6 +153,8 @@ private:
   bool m_showedUpdateDialog;
 
   unsigned long m_osxPresentationOptions;
+
+  void setWebMode(bool newDesktopMode, bool fullscreen);
 };
 
 #endif // KONVERGOWINDOW_H

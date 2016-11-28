@@ -10,7 +10,7 @@ if(NOT IS_DIRECTORY ${QTROOT})
 		"plexmediaplayer-qt"
 		DIRECTORY dir
 		DEPHASH_VAR QT_DEPS_HASH
-    BUILD_NUMBER 77 # 77 is the last Qt5.7 build
+    BUILD_NUMBER 86
     ARTIFACTNAME konvergo-qt
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
 	)

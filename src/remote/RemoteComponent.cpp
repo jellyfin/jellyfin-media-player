@@ -92,7 +92,8 @@ QVariantMap RemoteComponent::ResourceInformation()
 QVariantMap RemoteComponent::GDMInformation()
 {
   QVariantMap headers = {
-    {"Name", Utils::ComputerName()},
+    {"Name", Utils::sanitizeForHttpSeparators(Utils::ComputerName())},
+    {"RawName", Utils::ComputerName()},
     {"Port", SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webserverport")},
     {"Version", Version::GetVersionString()},
     {"Product", "Plex Media Player"},

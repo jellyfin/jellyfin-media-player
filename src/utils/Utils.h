@@ -58,6 +58,7 @@ namespace Utils
   QString PrimaryIPv4Address();
   QString ClientUUID();
   bool safelyWriteFile(const QString& filename, const QByteArray& data);
+  QString sanitizeForHttpSeparators(const QString& input);
 }
 
 #endif // UTILS_H

@@ -18,6 +18,23 @@
 
 #include "QsLog.h"
 
+QList<QChar> httpSeparators = { '(', ')', '<', '>', '@', ',', ';', ':', '\\', '\"', '/', '[', ']', '?', '=', '{', '}' };
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Utils::sanitizeForHttpSeparators(const QString& input)
+{
+  auto output = input;
+
+  for (const QChar& c : httpSeparators)
+    output.replace(c, "");
+
+  for (int i = 0; i < output.size(); i ++)
+  {
+    if (!isalnum(output.at(i).toLatin1()))
+      output[i] = '_';
+  }
+  return output;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QString Utils::ComputerName()

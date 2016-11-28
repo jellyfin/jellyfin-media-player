@@ -79,7 +79,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
           this, &KonvergoWindow::showUpdateDialog);
 
 #ifdef Q_OS_MAC
-  m_osxPresentationOptions = OSXUtils::GetPresentationOptions();
+  m_osxPresentationOptions = 0;
 #endif
 
 #ifdef KONVERGO_OPENELEC

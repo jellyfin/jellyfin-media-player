@@ -67,6 +67,7 @@ static QSet<QString> g_systemAudioDecoderWhitelist = {
   // OSX
   "aac_at",
   "ac3_at",
+  "eac3_at",
   "mp1_at",
   "mp2_at",
   "mp3_at",

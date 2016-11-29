@@ -27,6 +27,10 @@
 #include "utils/HelperLauncher.h"
 #include "utils/Log.h"
 
+#ifdef Q_OS_MAC
+#include "PFMoveApplication.h"
+#endif
+
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
 #include "SignalManager.h"
 #endif
@@ -123,6 +127,10 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));
+
+#if defined(Q_OS_MAC) && defined(NDEBUG)
+    PFMoveToApplicationsFolderIfNecessary();
+#endif
 
     // Get the arguments from the app, this is the parsed version of newArgc and newArgv
     QStringList args = app.arguments();

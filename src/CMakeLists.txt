@@ -4,6 +4,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/SPMediaKeyTap
   ${CMAKE_SOURCE_DIR}/external/HIDRemote
   ${CMAKE_SOURCE_DIR}/external/plistparser
+  ${CMAKE_SOURCE_DIR}/external/letsmove
   ${CMAKE_SOURCE_DIR}/src/player
   core
   shared
@@ -109,7 +110,6 @@ if(APPLE)
     add_resources(TARGET ${MAIN_TARGET} SOURCES ${QTROOT}/bin/qt.conf DEST ${INSTALL_RESOURCE_DIR})
   endif()
 
-  set(PLISTPARSER plistparser)
 
   set(ICON_FILE ${CMAKE_SOURCE_DIR}/bundle/osx/${MACOSX_BUNDLE_ICON_FILE})
   list(APPEND RESOURCE_FILES ${ICON_FILE})
@@ -161,7 +161,6 @@ target_link_libraries(${MAIN_TARGET}
   shared
   qhttp
   qslog
-  ${PLISTPARSER}
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
   ${QT5_LIBRARIES}

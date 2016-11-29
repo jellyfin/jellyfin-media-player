@@ -5,7 +5,7 @@ find_library(COCOA Cocoa)
 find_Library(CARBON Carbon)
 find_library(SECURITY Security)
 
-set(OS_LIBS ${FOUNDATION} ${APPKIT} ${IOKIT} ${COCOA} ${SECURITY} ${CARBON} spmediakeytap hidremote)
+set(OS_LIBS ${FOUNDATION} ${APPKIT} ${IOKIT} ${COCOA} ${SECURITY} ${CARBON} spmediakeytap hidremote plistparser letsmove)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmacosx-version-min=10.9 -fno-omit-frame-pointer")
 set(WARNINGS "-Wall")

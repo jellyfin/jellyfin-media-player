@@ -125,11 +125,15 @@ if(APPLE)
   set(RESOURCE_ROOT Resources)
 endif()
 
-if(NOT IS_DIRECTORY ${CMAKE_BINARY_DIR}/web-client)
-  message(FATAL_ERROR "No ${CMAKE_BINARY_DIR}/web-client! Did you forget conan install?")
+if(NOT DEFINED CONAN_WEB-CLIENT-TV_ROOT)
+  message(FATAL_ERROR "Could not find the web-client! Run conan!")
 endif()
 
-add_resources(TARGET ${MAIN_TARGET} SOURCES ${CMAKE_BINARY_DIR}/web-client DEST ${RESOURCE_ROOT}/web-client)
+add_resources(TARGET ${MAIN_TARGET} SOURCES ${CONAN_WEB-CLIENT-TV_ROOT}/tv DEST ${RESOURCE_ROOT}/web-client/tv)
+if(DEFINED CONAN_WEB-CLIENT-DESKTOP_ROOT)
+  add_resources(TARGET ${MAIN_TARGET} SOURCES ${CONAN_WEB-CLIENT-DESKTOP_ROOT}/desktop DEST ${RESOURCE_ROOT}/web-client/desktop)
+endif()
+
 if(NOT APPLE)
   install(DIRECTORY ${CMAKE_BINARY_DIR}/web-client DESTINATION ${INSTALL_RESOURCE_DIR})
   install(FILES ${QTROOT}/resources/qtwebengine_devtools_resources.pak DESTINATION resources)

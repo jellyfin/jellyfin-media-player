@@ -7,6 +7,12 @@ endif()
 
 project(PlexMediaPlayer CXX C)
 
+if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+else()
+  message(WARNING "Could not find conanbuildinfo.cmake - could be a problem! Make sure to run conan install first")
+endif()
+
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 

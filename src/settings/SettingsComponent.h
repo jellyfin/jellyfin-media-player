@@ -57,7 +57,7 @@ public:
   Q_INVOKABLE void resetToDefaultAll();
   Q_INVOKABLE void resetToDefault(const QString& sectionID);
   Q_INVOKABLE QVariantList settingDescriptions();
-  Q_INVOKABLE QString getWebClientUrl();
+  Q_INVOKABLE QString getWebClientUrl(bool desktop);
 
   // host commands
   Q_SLOT Q_INVOKABLE void cycleSetting(const QString& args);

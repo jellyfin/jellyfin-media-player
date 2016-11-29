@@ -710,12 +710,11 @@ bool SettingsComponent::resetAndSaveOldConfiguration()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString SettingsComponent::getWebClientUrl()
+QString SettingsComponent::getWebClientUrl(bool desktop)
 {
-  auto mode = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString();
   QString url;
 
-  if (mode == "desktop")
+  if (desktop)
     url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
   else
     url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_tv").toString();
@@ -729,7 +728,7 @@ QString SettingsComponent::getWebClientUrl()
 
   if (url == "bundled")
   {
-    auto path = Paths::webClientPath(mode);
+    auto path = Paths::webClientPath(desktop ? "desktop" : "tv");
     if (path.startsWith("/"))
       url = "file://" + path;
     url = "file:///" + path;

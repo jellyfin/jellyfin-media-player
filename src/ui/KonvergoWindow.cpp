@@ -79,6 +79,9 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(&UpdaterComponent::Get(), &UpdaterComponent::downloadComplete,
           this, &KonvergoWindow::showUpdateDialog);
 
+  connect(this, &KonvergoWindow::webDesktopModeChanged,
+          &PlayerComponent::Get(), &PlayerComponent::stop);
+
 #ifdef Q_OS_MAC
   m_osxPresentationOptions = 0;
 #endif
@@ -337,9 +340,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
   }
 
   if (values.contains("startupurl"))
-  {
     emit webUrlChanged();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -565,7 +566,7 @@ QScreen* KonvergoWindow::loadLastScreen()
 /////////////////////////////////////////////////////////////////////////////////////////
 QString KonvergoWindow::webUrl()
 {
-  auto url = SettingsComponent::Get().getWebClientUrl();
+  auto url = SettingsComponent::Get().getWebClientUrl(m_webDesktopMode);
   if (m_webDesktopMode)
     return url;
 

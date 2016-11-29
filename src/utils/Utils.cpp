@@ -30,7 +30,7 @@ QString Utils::sanitizeForHttpSeparators(const QString& input)
 
   for (int i = 0; i < output.size(); i ++)
   {
-    if (!isalnum(output.at(i).toLatin1()) and output.at(i) != ' ')
+    if (!isalnum(output.at(i).toLatin1()) && output.at(i) != ' ')
       output[i] = '_';
   }
   return output;

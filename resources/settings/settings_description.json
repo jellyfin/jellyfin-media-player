@@ -21,6 +21,7 @@
       {
         "value": "webMode",
         "default": "desktop",
+        "hidden": true,
         "platforms": [ "windows", "macosx" ],
         "possible_values": [
           [ "desktop", "desktop" ],

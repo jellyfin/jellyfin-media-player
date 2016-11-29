@@ -136,9 +136,9 @@ endif()
 
 if(NOT APPLE)
   install(FILES ${QTROOT}/resources/qtwebengine_devtools_resources.pak DESTINATION resources)
-  install(DIRECTORY ${CONAN_WEB-CLIENT-TV_ROOT}/tv DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/tv)
+  install(DIRECTORY ${CONAN_WEB-CLIENT-TV_ROOT}/tv DESTINATION ${INSTALL_RESOURCE_DIR}/web-client)
   if(DEFINED CONAN_WEB-CLIENT-DESKTOP_ROOT)
-    install(DIRECTORY ${CONAN_WEB-CLIENT-DESKTOP_ROOT}/desktop DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/desktop)
+    install(DIRECTORY ${CONAN_WEB-CLIENT-DESKTOP_ROOT}/desktop DESTINATION ${INSTALL_RESOURCE_DIR}/web-client)
   endif()
 endif()
 

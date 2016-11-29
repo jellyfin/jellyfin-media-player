@@ -135,8 +135,11 @@ if(DEFINED CONAN_WEB-CLIENT-DESKTOP_ROOT)
 endif()
 
 if(NOT APPLE)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/web-client DESTINATION ${INSTALL_RESOURCE_DIR})
   install(FILES ${QTROOT}/resources/qtwebengine_devtools_resources.pak DESTINATION resources)
+  install(DIRECTORY ${CONAN_WEB-CLIENT-TV_ROOT}/tv DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/tv)
+  if(DEFINED CONAN_WEB-CLIENT-DESKTOP_ROOT)
+    install(DIRECTORY ${CONAN_WEB-CLIENT-DESKTOP_ROOT}/desktop DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/desktop)
+  endif()
 endif()
 
 if(XCODE)

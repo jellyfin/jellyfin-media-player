@@ -942,7 +942,7 @@ void PlayerComponent::setAudioConfiguration()
   // if we see user requests for it.
   //
   m_doAc3Transcoding = false;
-  if (layout == "2.0" &&
+  if (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
       SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool())
   {
     mpv::qt::command(m_mpv, QStringList() << "af" << "add" << "@ac3:lavcac3enc");

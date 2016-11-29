@@ -79,9 +79,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(&UpdaterComponent::Get(), &UpdaterComponent::downloadComplete,
           this, &KonvergoWindow::showUpdateDialog);
 
-  connect(this, &KonvergoWindow::webDesktopModeChanged,
-          &PlayerComponent::Get(), &PlayerComponent::stop);
-
 #ifdef Q_OS_MAC
   m_osxPresentationOptions = 0;
 #endif
@@ -326,6 +323,8 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     else if (!oldDesktopMode && newDesktopMode)
       fullscreen = false;
 
+    PlayerComponent::Get().stop();
+
     QTimer::singleShot(0, [=]
     {
       SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
@@ -333,6 +332,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
       m_webDesktopMode = newDesktopMode;
       emit webDesktopModeChanged();
       emit webUrlChanged();
+
       SystemComponent::Get().setCursorVisibility(true);
       updateWindowState();
       notifyScale(size());

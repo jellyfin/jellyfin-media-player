@@ -189,13 +189,17 @@ KonvergoWindow
       // it take a few moments for the webview to render
       // after it has loaded.
       //
-      if (loadRequest.status == WebEngineView.LoadSucceededStatus)
+      if (loadRequest.status == WebEngineView.LoadStartedStatus)
       {
-        console.log("Loaded web-client successfully from: " + web.url);
+        console.log("WebEngineLoadRequest starting: " + loadRequest.url);
+      }
+      else if (loadRequest.status == WebEngineView.LoadSucceededStatus)
+      {
+        console.log("WebEngineLoadRequest success: " + loadRequest.url);
       }
       else if (loadRequest.status == WebEngineView.LoadFailedStatus)
       {
-        console.log("FAILED TO LOAD web-client successfully from: " + web.url);
+        console.log("WebEngineLoadRequest failure: " + loadRequest.url + " error code: " + loadRequest.errorCode);
         errorLabel.visible = true
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
                           "You can try to <a href='reload'>reload</a> or head to our <a href='http://plex.tv/support'>support page</a><br><br>Actual Error: <pre>" +

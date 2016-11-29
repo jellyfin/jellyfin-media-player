@@ -65,7 +65,7 @@ void UpdaterComponent::checkForUpdate()
   // Use the next line for debugging.
   // query.addQueryItem("version", "1.1.5.405-43e1569b");
   query.addQueryItem("build", systemInfo["build"].toString());
-  query.addQueryItem("distro", systemInfo["dist"].toString());
+  query.addQueryItem("distribution", systemInfo["dist"].toString());
   query.addQueryItem("channel", SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "updateChannel").toString());
 
   auto authToken = SystemComponent::Get().authenticationToken();

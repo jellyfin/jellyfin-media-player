@@ -45,6 +45,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
+  InputComponent::Get().registerHostCommand("minimize", this, "minimizeWindow");
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
@@ -411,6 +412,9 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     bool fs = visibility == QWindow::FullScreen;
     SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
   }
+
+  if (visibility == QWindow::Minimized)
+    InputComponent::Get().cancelAutoRepeat();
 
   notifyScale(size());
 }

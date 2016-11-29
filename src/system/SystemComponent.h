@@ -15,6 +15,10 @@ class SystemComponent : public ComponentBase
   Q_OBJECT
   DEFINE_SINGLETON(SystemComponent);
 
+  Q_PROPERTY(bool isMacos READ platformIsMac CONSTANT)
+  Q_PROPERTY(bool isWindows READ platformIsWindows CONSTANT)
+  Q_PROPERTY(bool isLinux READ platformIsLinux CONSTANT)
+
 public:
   bool componentExport() override { return true; }
   const char* componentName() override { return "system"; }
@@ -89,6 +93,10 @@ signals:
 private:
   explicit SystemComponent(QObject* parent = nullptr);
   static QMap<QString, QString> networkInterfaces();
+
+  bool platformIsWindows() const { return m_platformType == platformTypeWindows; }
+  bool platformIsMac() const { return m_platformType == platformTypeOsx; }
+  bool platformIsLinux() const { return m_platformType == platformTypeLinux; }
 
   QTimer* m_mouseOutTimer;
   PlatformType m_platformType;

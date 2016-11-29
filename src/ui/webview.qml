@@ -19,73 +19,69 @@ KonvergoWindow
       web.triggerWebAction(action)
   }
 
-  function actionEnable(enable)
+  Action
   {
-    action_switchmode.enabled = enable
-    action_copy.enabled = enable
-    action_cut.enabled = enable
-    action_paste.enabled = enable
-    action_undo.enabled = enable
-    action_redo.enabled = enable
-    action_selectall.enabled = enable
-    action_fullscreen_win.enabled = enable
-    action_fullscreen_mac.enabled = enable
-    action_fullscreen_win_alt.enabled = enable
-    action_quit.enabled = enable
-    action_quit_win.enabled = enable
+    enabled: mainWindow.webDesktopMode
+    shortcut: {
+      if (components.system.isMacos) return "Ctrl+Shift+F";
+      return "Shift+F11";
+    }
+    onTriggered: components.settings.setValue("main", "webMode", "tv")
   }
 
   Action
   {
-    id: action_quit
-    shortcut: "Ctrl+Q"
+    enabled: mainWindow.webDesktopMode
+    shortcut: StandardKey.Close
     onTriggered: mainWindow.close()
   }
 
   Action
   {
-    id: action_quit_win
-    shortcut: "Alt+F4"
+    enabled: mainWindow.webDesktopMode
+    shortcut: {
+      if (components.system.isMacos) return "Ctrl+M";
+      return "Meta+Down";
+    }
+    onTriggered: mainWindow.minimizeWindow()
+  }
+
+  Action
+  {
+    enabled: mainWindow.webDesktopMode
+    shortcut: StandardKey.Quit
     onTriggered: mainWindow.close()
   }
 
   Action
   {
-    id: action_debug_overlay
     shortcut: "Ctrl+Shift+D"
+    enabled: mainWindow.webDesktopMode
     onTriggered: mainWindow.toggleDebug()
   }
 
   Action
   {
-    id: action_fullscreen_win_alt
     shortcut: "Alt+Return"
-    onTriggered: mainWindow.toggleFullscreen()
-  }
-
-  Action
-  {
-    id: action_fullscreen_win
-    shortcut: "F11"
-    onTriggered: mainWindow.toggleFullscreen()
-  }
-
-  Action
-  {
-    id: action_fullscreen_mac
-    shortcut: "Ctrl+Meta+F"
-    onTriggered: mainWindow.toggleFullscreen()
-  }
-
-  Action
-  {
-    id: action_switchmode
-    shortcut: "Ctrl+M"
-    onTriggered:
+    enabled:
     {
-      if (mainWindow.webDesktopMode)
-        components.settings.cycleSetting("main.webMode")
+      if (mainWindow.webDesktopMode && components.system.isWindows)
+        return true;
+      return false;
     }
+    onTriggered: mainWindow.toggleFullscreen()
+  }
+
+  Action
+  {
+    enabled: mainWindow.webDesktopMode
+    shortcut:
+    {
+      if (components.system.isMacos)
+        return "Ctrl+Meta+F"
+      return "F11"
+    }
+    onTriggered: mainWindow.toggleFullscreen()
   }
 
   Action
@@ -185,7 +181,6 @@ KonvergoWindow
       backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
-      actionEnable(mainWindow.webDesktopMode)
     }
 
     onLoadingChanged:
@@ -207,7 +202,6 @@ KonvergoWindow
                           loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
                           "Provide the <a target='_blank' href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
       }
-      actionEnable(mainWindow.webDesktopMode)
     }
 
     onNewViewRequested:

@@ -46,7 +46,8 @@
     "Home": "step_backward",
     "End": "step_forward",
     "Ctrl\\+F": "search",
-    "Ctrl\\+M": "host:cycle_setting main.webMode",
+    "Ctrl\\+M": "host:minimize",
+    "Meta\\+Down": "host:minimize",
 
     // application shortcuts
     "Ctrl\\+Shift\\+F": "host:fullscreen",

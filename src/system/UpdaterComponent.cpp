@@ -53,6 +53,10 @@ UpdaterComponent::UpdaterComponent(QObject* parent) :
 /////////////////////////////////////////////////////////////////////////////////////////
 void UpdaterComponent::checkForUpdate()
 {
+#if !defined(NDEBUG)
+  return;
+#endif
+
   auto systemInfo = SystemComponent::Get().systemInformation();
   QUrl baseUrl = QString("https://plex.tv/updater/products/%0/check.xml").arg(systemInfo["productid"].toInt());
   QUrlQuery query;

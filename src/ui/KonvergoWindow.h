@@ -89,6 +89,12 @@ public:
     emit reloadWebClient();
   }
 
+  Q_INVOKABLE Q_SLOT void minimizeWindow()
+  {
+    if (!isFullScreen())
+      setVisibility(QWindow::Minimized);
+  }
+
   qreal windowScale() { return CalculateScale(size()); }
   qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
   qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }

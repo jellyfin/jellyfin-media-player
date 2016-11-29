@@ -319,8 +319,8 @@ QVariantHash UpdaterComponent::parseUpdateData(const QByteArray& data)
           package["manifest"] = packageElement.attribute("manifest");
           package["manifestHash"] = packageElement.attribute("manifestHash");
 
-          package["file"] = packageElement.attribute("manifest");
-          package["fileHash"] = packageElement.attribute("manifestHash");
+          package["file"] = packageElement.attribute("file");
+          package["fileHash"] = packageElement.attribute("fileHash");
 
           package["fileName"] = packageElement.attribute("fileName");
 

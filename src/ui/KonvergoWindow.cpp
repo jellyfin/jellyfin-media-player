@@ -295,16 +295,16 @@ void KonvergoWindow::playerWindowVisible(bool visible)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
-  if (m_ignoreFullscreenSettingsChange > 0)
-    return;
-
   // update mouse visibility if needed
   if (values.find("disablemouse") != values.end())
   {
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
   }
 
-  if (values.contains("alwaysOnTop") || values.contains("fullscreen"))
+  if (values.contains("alwaysOnTop"))
+    updateWindowState();
+
+  if (values.contains("fullscreen") && !m_ignoreFullscreenSettingsChange)
   {
     InputComponent::Get().cancelAutoRepeat();
     updateWindowState();

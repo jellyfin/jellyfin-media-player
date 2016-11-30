@@ -322,6 +322,12 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
   if (values.contains("webMode"))
   {
+    if (m_resizeHack->isActive())
+    {
+      QLOG_ERROR() << "Warning! Ignoring webmode changes";
+      return;
+    }
+
     InputComponent::Get().cancelAutoRepeat();
     bool oldDesktopMode = m_webDesktopMode;
     bool newDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");

@@ -97,6 +97,12 @@ Normally, the Ninja generator (via ``-GNinja``) is preferred, but cmake + ninja 
 
 If you want, you can wipe the ``~/pmp/`` directory, as the PMP installation does not depend on it. Only Qt and libmpv are needed.
 
+Sometimes, PMP's cmake run mysteriously fails. It's possible that https://bugreports.qt.io/browse/QTBUG-54666 is causing this. Try the following:
+
+* locate ``Qt5CoreConfigExtras.cmake`` of your Qt build/installation
+* comment ``set_property(TARGET Qt5::Core PROPERTY INTERFACE_COMPILE_FEATURES cxx_decltype)`` with ``#``
+
+
 ## License
 
 Plex Media Player is licensed under GPL v2. See the ``LICENSE`` file.

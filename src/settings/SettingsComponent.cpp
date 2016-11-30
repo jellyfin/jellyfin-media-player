@@ -714,6 +714,10 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
 {
   QString url;
 
+#ifdef KONVERGO_OPENELEC
+  desktop = false;
+#endif
+
   if (desktop)
     url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
   else

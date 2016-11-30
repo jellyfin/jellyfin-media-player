@@ -398,7 +398,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
-  QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visbility set to " << visibility;
+  QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visibility set to " << visibility;
 
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
   {

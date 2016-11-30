@@ -37,9 +37,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   m_infoTimer->setInterval(1000);
   m_webDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
 
-  m_resizeHack = new QTimer(this);
-  m_resizeHack->setSingleShot(true);
-
   installEventFilter(new EventFilter(this));
 
   connect(m_infoTimer, &QTimer::timeout, this, &KonvergoWindow::updateDebugInfo);
@@ -309,15 +306,8 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
   if (values.contains("fullscreen") && !m_ignoreFullscreenSettingsChange)
   {
-    if (m_resizeHack->isActive())
-    {
-      QLOG_ERROR() << "Warning! Ignoring recursive fullscreen change request.";
-    }
-    else
-    {
-      InputComponent::Get().cancelAutoRepeat();
-      updateWindowState();
-    }
+    InputComponent::Get().cancelAutoRepeat();
+    updateWindowState();
   }
 
   if (values.contains("webMode"))
@@ -361,8 +351,6 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateWindowState(bool saveGeo)
 {
-  m_resizeHack->start(1000);
-
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
   {
     // if we were go from windowed to fullscreen

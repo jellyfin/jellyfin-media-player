@@ -160,8 +160,6 @@ private:
 
   unsigned long m_osxPresentationOptions;
 
-  QTimer* m_resizeHack;
-
   void setWebMode(bool newDesktopMode, bool fullscreen);
 };
 

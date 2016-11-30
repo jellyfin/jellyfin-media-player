@@ -335,10 +335,9 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
     PlayerComponent::Get().stop();
 
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
     QTimer::singleShot(0, [=]
     {
-      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
-
       m_webDesktopMode = newDesktopMode;
       emit webDesktopModeChanged();
       emit webUrlChanged();

@@ -706,12 +706,6 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
     break;
   }
 
-  if (streamSelection.isEmpty())
-  {
-    mpv::qt::set_property(m_mpv, streamIdPropertyName, "no");
-    return;
-  }
-
   QString streamName;
   QString streamID;
 
@@ -731,7 +725,7 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
       streamName = streamSelection.mid(splitPos + 1);
     }
   }
-  else
+  else if (!streamSelection.isEmpty())
   {
     if (target == MediaType::Audio)
     {
@@ -757,7 +751,7 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
     }
   }
 
-  QString selection = "";
+  QString selection = "no";
 
   for (auto stream : findStreamsForURL(streamName))
   {
@@ -766,7 +760,7 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
     if (map["type"].toString() != mpvStreamTypeName)
       continue;
 
-    if (map["ff-index"].toString() == streamID)
+    if (!streamID.isEmpty() && map["ff-index"].toString() == streamID)
     {
       selection = map["id"].toString();
       break;
@@ -775,7 +769,7 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   // Fallback to the first stream if none could be found.
   // Useful if web-client uses wrong stream IDs when e.g. transcoding.
-  if ((target == MediaType::Audio || !streamID.isEmpty()) && selection.isEmpty())
+  if ((target == MediaType::Audio || !streamID.isEmpty()) && selection == "no")
     selection = "1";
 
   mpv::qt::set_property(m_mpv, streamIdPropertyName, selection);

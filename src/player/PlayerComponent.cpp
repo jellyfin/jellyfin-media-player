@@ -775,7 +775,7 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   // Fallback to the first stream if none could be found.
   // Useful if web-client uses wrong stream IDs when e.g. transcoding.
-  if (!streamID.isEmpty() && selection.isEmpty())
+  if ((target == MediaType::Audio || !streamID.isEmpty()) && selection.isEmpty())
     selection = "1";
 
   mpv::qt::set_property(m_mpv, streamIdPropertyName, selection);

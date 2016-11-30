@@ -1,6 +1,0 @@
-NEW:
-  -
-
-FIXED:
-  - Fix mp2-in-mkv decoding on Windows
-  - Fix enabling audio passthrough on new installations

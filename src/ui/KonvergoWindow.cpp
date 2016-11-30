@@ -389,6 +389,15 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visbility set to " << visibility;
 
+  if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
+  {
+    m_ignoreFullscreenSettingsChange++;
+    ScopedDecrementer decrement(&m_ignoreFullscreenSettingsChange);
+
+    bool fs = visibility == QWindow::FullScreen;
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
+  }
+
   if (visibility == QWindow::Windowed)
   {
     loadGeometry();
@@ -403,15 +412,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
       OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
     });
 #endif
-  }
-
-  if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
-  {
-    m_ignoreFullscreenSettingsChange++;
-    ScopedDecrementer decrement(&m_ignoreFullscreenSettingsChange);
-
-    bool fs = visibility == QWindow::FullScreen;
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
   }
 
   if (visibility == QWindow::Minimized)

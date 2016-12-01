@@ -29,7 +29,7 @@ list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})
 list(APPEND CMAKE_PREFIX_PATH ${QTROOT})
 include_directories(${QTROOT}/include)
 
-set(REQUIRED_QT_VERSION "5.6.0")
+set(REQUIRED_QT_VERSION "5.7.1")
 
 set(QTCONFIGROOT ${QTROOT}/lib/cmake/Qt5)
 set(components Core Network WebChannel Qml Quick Xml WebEngine Widgets)

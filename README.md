@@ -50,13 +50,7 @@ Systems not based on Debian/Ubuntu will have similar packages, but you'll need t
 
 ### Downloading and installing Qt
 
-If your distro provides Qt 5.6 or later packages, try to use them. Otherwise, proceed with these instructions.
-
-* ``wget http://download.qt.io/official_releases/qt/5.6/5.6.1-1/qt-opensource-linux-x64-5.6.1-1.run``
-* ``chmod +x qt-opensource-linux-x64-5.6.1-1.run``
-* ``sudo ./qt-opensource-linux-x64-5.6.1-1.run``
-
-A setup dialog should appear. Click through the installation. It should install itself at ``/opt/Qt5.6.1``. The instructions below assume this path, although you can change it if you know how.
+If your distro provides Qt 5.7.1 or later packages, try to use them. Otherwise, find a Qt download at qt.io.
 
 ### Building mpv and ffmpeg
 
@@ -76,6 +70,14 @@ With this, libmpv should have been installed to ``/usr/local/``. It does not con
 
 You can also attempt to skip the installation step, and change the paths in the PMP build step to the build directory, but this is more complicated.
 
+### Install conan (dependency fetcher)
+
+Usually you can install conan by running: ``pip install -U conan``.
+
+Now add the plex repository to conan ``conan remote add plex https://conan.plex.tv``
+
+You can try that it works by running ``conan search -r plex *@*/public`` that should list web-client packages.
+
 ### Building plex-media-player
 
 Assuming that everything else has installed correctly, building Plex Media Player should now be fairly straightforward:
@@ -84,6 +86,7 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 * ``git clone git://github.com/plexinc/plex-media-player``
 * ``cd plex-media-player``
 * ``mkdir build``
+* ``conan install ..``
 * ``cd build``
 * ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.6.1/5.6/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
 * ``make -j4``

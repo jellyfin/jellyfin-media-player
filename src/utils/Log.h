@@ -13,6 +13,7 @@ namespace Log
   void Uninit();
   void UpdateLogLevel();
   void CensorAuthTokens(QString& msg);
+  void EnableTerminalOutput();
 }
 
 #endif //PLEXMEDIAPLAYER_LOG_H

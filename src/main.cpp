@@ -102,7 +102,8 @@ int main(int argc, char *argv[])
                        {"desktop",                 "Start in desktop mode"},
                        {"tv",                      "Start in TV mode"},
                        {"windowed",                "Start in windowed mode"},
-                       {"fullscreen",              "Start in fullscreen"}});
+                       {"fullscreen",              "Start in fullscreen"},
+                       {"terminal",                "Log to terminal"}});
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     argc += g_qtFlags.size();
@@ -162,6 +163,8 @@ int main(int argc, char *argv[])
 #endif
 
     Log::Init();
+    if (parser.isSet("terminal"))
+      Log::EnableTerminalOutput();
 
     // Quit app and apply update if we find one.
     if (UpdateManager::CheckForUpdates())

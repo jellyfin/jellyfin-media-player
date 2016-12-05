@@ -126,6 +126,7 @@ int main(int argc, char *argv[])
 #endif
 
     preinitQt();
+    detectOpenGLEarly();
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -156,8 +157,6 @@ int main(int argc, char *argv[])
       QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     else
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
-
-    detectOpenGLEarly();
 
     QApplication app(argc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));

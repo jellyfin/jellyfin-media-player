@@ -7,6 +7,7 @@
 #include <QtQml>
 #include <QtWebEngine/qtwebengineglobal.h>
 #include <QErrorMessage>
+#include <QCommandLineOption>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
@@ -36,16 +37,16 @@
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
-static void preinitQt()
+static void preinitQt(const QString& scale)
 {
   QCoreApplication::setApplicationName(Names::MainName());
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
   QCoreApplication::setOrganizationDomain("plex.tv");
 
-#ifdef Q_OS_LINUX
-  if (qgetenv("QT_SCALE_FACTOR") == nullptr)
+  if (scale.isEmpty() || scale == "auto")
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
+  else
+    qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
 #ifdef Q_OS_WIN32
   QVariant useOpengl = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "useOpenGL");
@@ -105,6 +106,11 @@ int main(int argc, char *argv[])
                        {"fullscreen",              "Start in fullscreen"},
                        {"terminal",                "Log to terminal"}});
 
+    auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
+                                                          "the scale (DPI) of the desktop interface.");
+    scaleOption.setDefaultValue("auto");
+    parser.addOption(scaleOption);
+
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     argc += g_qtFlags.size();
 
@@ -122,9 +128,27 @@ int main(int argc, char *argv[])
     qputenv("LC_NUMERIC", "C");
 #endif
 
+    QStringList arguments;
+    for (int i = 1; i < argc; i++)
+    {
+      auto a = QString::fromLatin1(argv[i]);
+      if (!g_qtFlags.contains(a))
+        arguments << a;
+    }
+
+    // Now parse the command line.
+    parser.process(arguments);
+
+    if (parser.isSet("licenses"))
+    {
+      ShowLicenseInfo();
+      return EXIT_SUCCESS;
+    }
+
     detectOpenGLEarly();
 
-    preinitQt();
+    QString scale = parser.value("scale-factor");
+    preinitQt(scale);
 
     QApplication app(argc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));
@@ -132,22 +156,6 @@ int main(int argc, char *argv[])
 #if defined(Q_OS_MAC) && defined(NDEBUG)
     PFMoveToApplicationsFolderIfNecessary();
 #endif
-
-    // Get the arguments from the app, this is the parsed version of newArgc and newArgv
-    QStringList args = app.arguments();
-
-    // Remove the qt flags above so that our command line parser doesn't get cranky.
-    for (auto flag : g_qtFlags)
-      args.removeAll(flag);
-
-    // Now parse the command line.
-    parser.process(args);
-
-    if (parser.isSet("licenses"))
-    {
-      ShowLicenseInfo();
-      return EXIT_SUCCESS;
-    }
 
     // init breakpad.
     setupCrashDumper();

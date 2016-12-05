@@ -22,6 +22,7 @@
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 #include "ui/KonvergoWindow.h"
+#include "ui/KonvergoWindow.h"
 #include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
@@ -37,16 +38,11 @@
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
-static void preinitQt(const QString& scale)
+static void preinitQt()
 {
   QCoreApplication::setApplicationName(Names::MainName());
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
   QCoreApplication::setOrganizationDomain("plex.tv");
-
-  if (scale.isEmpty() || scale == "auto")
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  else
-    qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
 #ifdef Q_OS_WIN32
   QVariant useOpengl = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "useOpenGL");
@@ -108,6 +104,7 @@ int main(int argc, char *argv[])
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
                                                           "the scale (DPI) of the desktop interface.");
+    scaleOption.setValueName("scale");
     scaleOption.setDefaultValue("auto");
     parser.addOption(scaleOption);
 
@@ -128,16 +125,25 @@ int main(int argc, char *argv[])
     qputenv("LC_NUMERIC", "C");
 #endif
 
-    QStringList arguments;
-    for (int i = 1; i < argc; i++)
-    {
-      auto a = QString::fromLatin1(argv[i]);
-      if (!g_qtFlags.contains(a))
-        arguments << a;
-    }
+    preinitQt();
 
-    // Now parse the command line.
-    parser.process(arguments);
+    QStringList arguments;
+    for (int i = 0; i < argc; i++)
+      arguments << QString::fromLatin1(argv[i]);
+
+    {
+      // This is kinda dumb. But in order for the QCommandLineParser
+      // to work properly we need to init if before we call process
+      // but we don't want to do that for the main application since
+      // we need to set the scale factor before we do that. So it becomes
+      // a small chicken-or-egg problem, which we "solve" by making
+      // this temporary console app.
+      //
+      QCoreApplication core(argc, newArgv);
+
+      // Now parse the command line.
+      parser.process(arguments);
+    }
 
     if (parser.isSet("licenses"))
     {
@@ -145,10 +151,13 @@ int main(int argc, char *argv[])
       return EXIT_SUCCESS;
     }
 
-    detectOpenGLEarly();
+    auto scale = parser.value("scale-factor");
+    if (scale.isEmpty() || scale == "auto")
+      QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    else
+      qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
-    QString scale = parser.value("scale-factor");
-    preinitQt(scale);
+    detectOpenGLEarly();
 
     QApplication app(argc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));

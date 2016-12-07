@@ -336,7 +336,8 @@
           [ "#CCCCCC,#000000", "subtitles.blendedLightGrey" ],
           [ "#FBF93E,#000000", "subtitles.yellow" ],
           [ "#FFFFCC,#000000", "subtitles.lightYellow" ],
-          [ "#EEEDB8,#000000", "subtitles.blendedLightYellow" ]
+          [ "#EEEDB8,#000000", "subtitles.blendedLightYellow" ],
+          [ "#FFFFFF,#000000", "subtitles.blackWhite" ]
         ]
       },
       {

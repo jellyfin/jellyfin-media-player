@@ -26,7 +26,7 @@ KonvergoWindow
       if (components.system.isMacos) return "Ctrl+Shift+F";
       return "Shift+F11";
     }
-    onTriggered: components.settings.setValue("main", "webMode", "tv")
+    onTriggered: mainWindow.toggleFullscreen()
   }
 
   Action

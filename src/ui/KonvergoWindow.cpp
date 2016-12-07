@@ -316,26 +316,37 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     bool oldDesktopMode = m_webDesktopMode;
     bool newDesktopMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode").toString() == "desktop");
 
-    bool fullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
-
-    if (oldDesktopMode && !newDesktopMode)
-      fullscreen = true;
-    else if (!oldDesktopMode && newDesktopMode)
-      fullscreen = false;
-
-    PlayerComponent::Get().stop();
-
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
-    QTimer::singleShot(0, [=]
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString() != "auto")
     {
       m_webDesktopMode = newDesktopMode;
       emit webDesktopModeChanged();
       emit webUrlChanged();
-
-      SystemComponent::Get().setCursorVisibility(true);
       updateWindowState();
       notifyScale(size());
-    });
+    }
+    else
+    {
+      bool fullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
+
+      if (oldDesktopMode && !newDesktopMode)
+        fullscreen = true;
+      else if (!oldDesktopMode && newDesktopMode)
+        fullscreen = false;
+
+      PlayerComponent::Get().stop();
+
+      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
+      QTimer::singleShot(0, [=]
+      {
+        m_webDesktopMode = newDesktopMode;
+        emit webDesktopModeChanged();
+        emit webUrlChanged();
+
+        SystemComponent::Get().setCursorVisibility(true);
+        updateWindowState();
+        notifyScale(size());
+      });
+    }
   }
 
   if (values.contains("startupurl"))

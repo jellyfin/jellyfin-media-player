@@ -29,6 +29,16 @@
         ]
       },
       {
+        "value": "layout",
+        "default": "auto",
+        "hidden": false,
+        "possible_values": [
+          [ "auto", "auto" ],
+          [ "tv", "tv" ],
+          [ "desktop", "desktop" ]
+        ]
+      },
+      {
         "value": "remoteInspector",
         "default": false,
         "hidden": true

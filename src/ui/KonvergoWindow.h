@@ -73,7 +73,8 @@ public:
 
   Q_SLOT void toggleFullscreen()
   {
-    if (!m_webDesktopMode && isFullScreen())
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString() == "auto" &&
+        m_webDesktopMode && isFullScreen())
       SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
     else
       setFullScreen(!isFullScreen());

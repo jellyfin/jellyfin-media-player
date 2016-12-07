@@ -754,9 +754,15 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
     else if (value == "windowed")
       setValue(SETTINGS_SECTION_MAIN, "fullscreen", false);
     else if (value == "desktop")
-      setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
+      setValue(SETTINGS_SECTION_MAIN, "layout", "desktop");
     else if (value == "tv")
-      setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
+      setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
+    else if (value == "auto-layout")
+      setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
   }
+
+  auto layout = value(SETTINGS_SECTION_MAIN, "layout").toString();
+  if (layout != "auto")
+    setValue(SETTINGS_SECTION_MAIN, "webMode", layout);
 }
 

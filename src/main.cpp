@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
                        {{"a", "from-auto-update"}, "When invoked from auto-update"},
                        {"desktop",                 "Start in desktop mode"},
                        {"tv",                      "Start in TV mode"},
+                       {"auto-layout",             "Use auto-layout mode"},
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
                        {"terminal",                "Log to terminal"}});

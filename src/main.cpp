@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     parser.addOption(scaleOption);
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
-    argc += g_qtFlags.size();
+    int newArgc = argc + g_qtFlags.size();
 
     // Suppress SSL related warnings on OSX
     // See https://bugreports.qt.io/browse/QTBUG-43173 for more info
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
       // a small chicken-or-egg problem, which we "solve" by making
       // this temporary console app.
       //
-      QCoreApplication core(argc, newArgv);
+      QCoreApplication core(newArgc, newArgv);
 
       // Now parse the command line.
       parser.process(arguments);
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
     else
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
-    QApplication app(argc, newArgv);
+    QApplication app(newArgc, newArgv);
     app.setWindowIcon(QIcon(":/images/icon.png"));
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)

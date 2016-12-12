@@ -110,6 +110,16 @@ public:
 
   Q_INVOKABLE void userCommand(QString command);
 
+  // Set the region in which video should be rendered. This uses Qt pixel
+  // coordinates (x=0,y=0 is the top/left corner).
+  // If the aspect ratio mismatches, the video will be letterboxed or pillarboxed.
+  // The lower/right pixel border is always excluded.
+  // setVideoRectangle(-1, -1, -1 , -1) will revert to the default and
+  // automatically use the whole window. (Same if the rectangle is 0-sized.)
+  Q_INVOKABLE void setVideoRectangle(int x, int y, int w, int h);
+
+  QRect videoRectangle() { return m_videoRectangle; }
+
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
 
   virtual void setWindow(QQuickWindow* window);
@@ -163,6 +173,8 @@ Q_SIGNALS:
   // current position in ms should be triggered 2 times a second
   // when position updates
   void positionUpdate(quint64);
+
+  void onVideoRecangleChanged();
 
   void onMpvEvents();
   
@@ -220,6 +232,7 @@ private:
   QVariantMap m_serverMediaInfo;
   QString m_currentSubtitleStream;
   QString m_currentAudioStream;
+  QRect m_videoRectangle;
 };
 
 #endif // PLAYERCOMPONENT_H

@@ -42,7 +42,8 @@ PlayerComponent::PlayerComponent(QObject* parent)
   m_lastPositionUpdate(0.0), m_playbackAudioDelay(0),
   m_playbackStartSent(false), m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
-  m_streamSwitchImminent(false), m_doAc3Transcoding(false)
+  m_streamSwitchImminent(false), m_doAc3Transcoding(false),
+  m_videoRectangle(-1, -1, -1, -1)
 {
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "MpvVideo"); // deprecated name
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "KonvergoVideo");
@@ -179,6 +180,17 @@ bool PlayerComponent::componentInitialize()
   emit onMpvEvents();
 
   return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setVideoRectangle(int x, int y, int w, int h)
+{
+  QRect rc(x, y, w, h);
+  if (rc != m_videoRectangle)
+  {
+    m_videoRectangle = rc;
+    emit onVideoRecangleChanged();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

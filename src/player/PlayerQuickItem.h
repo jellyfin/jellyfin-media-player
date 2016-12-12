@@ -3,6 +3,7 @@
 
 #include <Qt>
 #include <QtQuick/QQuickItem>
+#include <QOpenGLFramebufferObject>
 
 #include <mpv/client.h>
 #include <mpv/opengl_cb.h>
@@ -37,6 +38,8 @@ private:
   QQuickWindow* m_window;
   QSize m_size;
   HANDLE m_hAvrtHandle;
+  QRect m_videoRectangle;
+  QOpenGLFramebufferObject* m_fbo;
 };
 
 class PlayerQuickItem : public QQuickItem

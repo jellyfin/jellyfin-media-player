@@ -169,7 +169,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerRenderer::PlayerRenderer(mpv::qt::Handle mpv, QQuickWindow* window)
-: m_mpv(mpv), m_mpvGL(nullptr), m_window(window), m_size(), m_hAvrtHandle(nullptr)
+: m_mpv(mpv), m_mpvGL(nullptr), m_window(window), m_size(), m_hAvrtHandle(nullptr), m_videoRectangle(-1, -1, -1, -1), m_fbo(0)
 {
   m_mpvGL = (mpv_opengl_cb_context *)mpv_get_sub_api(m_mpv, MPV_SUB_API_OPENGL_CB);
 }
@@ -195,6 +195,7 @@ PlayerRenderer::~PlayerRenderer()
   // Keep in mind that the m_mpv handle must be held until this is done.
   if (m_mpvGL)
     mpv_opengl_cb_uninit_gl(m_mpvGL);
+  delete m_fbo;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,19 +205,51 @@ void PlayerRenderer::render()
 
   GLint fbo = 0;
   context->functions()->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-
-  m_window->resetOpenGLState();
-
   bool flip = true;
 #if HAVE_OPTIMALORIENTATION
   flip = !(context->format().orientationFlags() & QSurfaceFormat::MirrorVertically);
 #endif
+  bool screenFlip = flip;
+  QSize fboSize = m_size;
+  QOpenGLFramebufferObject *blitFbo = 0;
+
+  m_window->resetOpenGLState();
+
+  QRect fullWindow(0, 0, m_size.width(), m_size.height());
+  if (m_videoRectangle.width() > 0 && m_videoRectangle.height() > 0 && m_videoRectangle != fullWindow && QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() && QOpenGLFramebufferObject::hasOpenGLFramebufferObjects())
+  {
+    if (!m_fbo || !m_fbo->isValid() || m_fbo->size() != m_videoRectangle.size())
+    {
+      delete m_fbo;
+      m_fbo = new QOpenGLFramebufferObject(m_videoRectangle.size());
+    }
+    if (m_fbo && m_fbo->isValid())
+    {
+      blitFbo = m_fbo;
+      fboSize = m_fbo->size();
+      fbo = m_fbo->handle();
+      flip = false;
+
+      // Need to clear the background manually, since nothing else knows it has to be done.
+      context->functions()->glClearColor(0, 0, 0, 0);
+      context->functions()->glClear(GL_COLOR_BUFFER_BIT);
+    }
+  }
 
   // The negative height signals to mpv that the video should be flipped
   // (according to the flipped OpenGL coordinate system).
-  mpv_opengl_cb_draw(m_mpvGL, fbo, m_size.width(), (flip ? -1 : 1) * m_size.height());
+  mpv_opengl_cb_draw(m_mpvGL, fbo, fboSize.width(), (flip ? -1 : 1) * fboSize.height());
 
   m_window->resetOpenGLState();
+
+  if (blitFbo)
+  {
+    QRect dstRect = m_videoRectangle;
+    if (screenFlip)
+      dstRect = QRect(dstRect.x(), m_size.height() - dstRect.y(), dstRect.width(), dstRect.top() - dstRect.bottom());
+
+    QOpenGLFramebufferObject::blitFramebuffer(0, dstRect, blitFbo, QRect(QPoint(0, 0), blitFbo->size()));
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -304,6 +337,7 @@ void PlayerQuickItem::onSynchronize()
     connect(window(), &QQuickWindow::beforeRendering, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
     connect(window(), &QQuickWindow::frameSwapped, m_renderer, &PlayerRenderer::swap, Qt::DirectConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::videoPlaybackActive, m_renderer, &PlayerRenderer::onVideoPlaybackActive, Qt::QueuedConnection);
+    connect(&PlayerComponent::Get(), &PlayerComponent::onVideoRecangleChanged, window(), &QQuickWindow::update, Qt::QueuedConnection);
     window()->setPersistentOpenGLContext(true);
     window()->setPersistentSceneGraph(true);
     window()->setClearBeforeRendering(false);
@@ -323,7 +357,10 @@ void PlayerQuickItem::onSynchronize()
     }
   }
   if (m_renderer)
+  {
     m_renderer->m_size = window()->size() * window()->devicePixelRatio();
+    m_renderer->m_videoRectangle = PlayerComponent::Get().videoRectangle();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

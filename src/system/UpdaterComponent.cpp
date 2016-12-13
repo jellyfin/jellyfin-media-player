@@ -29,10 +29,15 @@ using namespace qhttp::client;
 UpdaterComponent::UpdaterComponent(QObject* parent) :
   ComponentBase(parent),
   m_netManager(this),
-  m_checkReply(nullptr)
+  m_checkReply(nullptr),
+  m_enabled(true)
 {
   m_file = nullptr;
   m_manifest = nullptr;
+
+#ifdef NDEBUG
+  m_enabled = false;
+#endif
 
   connect(&m_netManager, &QNetworkAccessManager::finished, this, &UpdaterComponent::dlComplete);
 
@@ -53,9 +58,8 @@ UpdaterComponent::UpdaterComponent(QObject* parent) :
 /////////////////////////////////////////////////////////////////////////////////////////
 void UpdaterComponent::checkForUpdate()
 {
-#if !defined(NDEBUG)
-  return;
-#endif
+  if (!m_enabled)
+    return;
 
   auto systemInfo = SystemComponent::Get().systemInformation();
   QUrl baseUrl = QString("https://plex.tv/updater/products/%0/check.xml").arg(systemInfo["productid"].toInt());

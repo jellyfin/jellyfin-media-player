@@ -12,6 +12,7 @@
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
 #include "system/UpdateManager.h"
+#include "system/UpdaterComponent.h"
 #include "QsLog.h"
 #include "Paths.h"
 #include "player/CodecsComponent.h"
@@ -101,6 +102,7 @@ int main(int argc, char *argv[])
                        {"auto-layout",             "Use auto-layout mode"},
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
+                       {"no-updates",              "Disable auto-updating"},
                        {"terminal",                "Log to terminal"}});
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
@@ -184,7 +186,7 @@ int main(int argc, char *argv[])
       Log::EnableTerminalOutput();
 
     // Quit app and apply update if we find one.
-    if (UpdateManager::CheckForUpdates())
+    if (!parser.isSet("no-updates") && UpdateManager::CheckForUpdates())
     {
       app.quit();
       return 0;
@@ -202,6 +204,9 @@ int main(int argc, char *argv[])
     // early since most everything else relies on it
     //
     ComponentManager::Get().initialize();
+
+    if (parser.isSet("no-updates"))
+      UpdaterComponent::Get().disable();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 

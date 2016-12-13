@@ -142,6 +142,8 @@ public:
   const char* componentName() override { return "updater"; }
   bool componentInitialize() override { return true; }
 
+  Q_INVOKABLE void disable() { m_enabled = false; }
+
   // Disable old API for now
   Q_INVOKABLE void downloadUpdate(const QVariantMap &updateInfo) { };
 
@@ -182,6 +184,7 @@ private:
 
   QVariantHash m_updateInfo;
   QTime m_lastUpdateCheck;
+  bool m_enabled;
 };
 
 #endif // UPDATERCOMPONENT_H

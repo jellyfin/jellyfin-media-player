@@ -52,12 +52,12 @@ private:
 
   QString getCommandString(cec_user_control_code code);
   void sendReceivedInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
-  QString getCommandParamsList(const cec_command *command);
+  QString getCommandParamsList(cec_command command);
 
   // libcec callbacks
-  static void CecLogMessage(void* cbParam, const cec_log_message *message);
-  static void CecCommand(void* cbParam, const cec_command *command);
-  static void CecAlert(void* cbParam, const libcec_alert type, const libcec_parameter param);
+  static int CecLogMessage(void* cbParam, const cec_log_message message);
+  static int CecCommand(void* cbParam, const cec_command command);
+  static int CecAlert(void* cbParam, const libcec_alert type, const libcec_parameter param);
 
   libcec_configuration m_configuration;
   ICECCallbacks m_callbacks;

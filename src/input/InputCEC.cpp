@@ -89,9 +89,9 @@ bool InputCECWorker::init()
   m_configuration.clientVersion = LIBCEC_VERSION_CURRENT;
   qstrcpy(m_configuration.strDeviceName, "Plex");
   m_configuration.bActivateSource = 0;
-  m_callbacks.logMessage = &CecLogMessage;
-  m_callbacks.commandReceived = &CecCommand;
-  m_callbacks.alert = &CecAlert;
+  m_callbacks.CBCecLogMessage = &CecLogMessage;
+  m_callbacks.CBCecCommand = &CecCommand;
+  m_callbacks.CBCecAlert = &CecAlert;
   m_configuration.callbackParam = this;
   m_configuration.callbacks = &m_callbacks;
   m_configuration.deviceTypes.Add(CEC_DEVICE_TYPE_RECORDING_DEVICE);
@@ -213,30 +213,30 @@ QString InputCECWorker::getCommandString(cec_user_control_code code)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCECWorker::CecLogMessage(void* cbParam, const cec_log_message *message)
+int InputCECWorker::CecLogMessage(void* cbParam, const cec_log_message message)
 {
   auto *cec = static_cast<InputCECWorker*>(cbParam);
 
   Q_ASSERT(cec);
 
-  switch (message->level)
+  switch (message.level)
   {
     case CEC_LOG_ERROR:
-      QLOG_ERROR() << "libCEC ERROR:" << message->message;
+      QLOG_ERROR() << "libCEC ERROR:" << message.message;
       break;
 
     case CEC_LOG_WARNING:
-      QLOG_WARN() << "libCEC WARNING:" << message->message;
+      QLOG_WARN() << "libCEC WARNING:" << message.message;
       break;
 
     case CEC_LOG_NOTICE:
-      QLOG_INFO() << "libCEC NOTICE:" << message->message;
+      QLOG_INFO() << "libCEC NOTICE:" << message.message;
       break;
 
     case CEC_LOG_DEBUG:
       if (cec->m_verboseLogging)
       {
-        QLOG_DEBUG() << "libCEC DEBUG:" << message->message;
+        QLOG_DEBUG() << "libCEC DEBUG:" << message.message;
       }
       break;
 
@@ -247,25 +247,25 @@ void InputCECWorker::CecLogMessage(void* cbParam, const cec_log_message *message
       break;
   }
 
-  return;
+  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-QString InputCECWorker::getCommandParamsList(const cec_command *command)
+QString InputCECWorker::getCommandParamsList(cec_command command)
 {
-  QString output = QString("%1 parameter(s) :").arg(command->parameters.size);
+  QString output = QString("%1 parameter(s) :").arg(command.parameters.size);
 
-  if (command->parameters.size)
+  if (command.parameters.size)
   {
-    for (int i=0; i<command->parameters.size; i++)
-      output += QString("[%1]=%2").arg(i).arg(QString::number(command->parameters[i], 16).toUpper());
+    for (int i=0; i<command.parameters.size; i++)
+      output += QString("[%1]=%2").arg(i).arg(QString::number(command.parameters[i], 16).toUpper());
   }
 
   return output;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
+int InputCECWorker::CecCommand(void *cbParam, const cec_command command)
 {
   QString cmdString, keyCode;
   bool useUpDown = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "usekeyupdown").toBool();
@@ -274,19 +274,19 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
 
   if (cec->m_verboseLogging)
   {
-    QLOG_DEBUG() << "CecCommand received " << QString::number(command->opcode, 16).toUpper() << "," << cec->getCommandParamsList(command);
+    QLOG_DEBUG() << "CecCommand received " << QString::number(command.opcode, 16).toUpper() << "," << cec->getCommandParamsList(command);
   }
 
-  switch(command->opcode)
+  switch(command.opcode)
   {
     case CEC_OPCODE_PLAY:
       cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_PLAY, InputBase::KeyPressed);
       break;
 
     case CEC_OPCODE_DECK_CONTROL:
-      if (command->parameters.size)
+      if (command.parameters.size)
       {
-        switch(command->parameters[0])
+        switch(command.parameters[0])
         {
           case CEC_DECK_CONTROL_MODE_SKIP_FORWARD_WIND:
             keyCode = INPUT_KEY_SEEKFWD;
@@ -318,8 +318,8 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
     case CEC_OPCODE_USER_CONTROL_RELEASE:
     case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP:
     {
-      bool down = (command->opcode == CEC_OPCODE_VENDOR_REMOTE_BUTTON_DOWN) ||
-                  (command->opcode == CEC_OPCODE_USER_CONTROL_PRESSED);
+      bool down = (command.opcode == CEC_OPCODE_VENDOR_REMOTE_BUTTON_DOWN) ||
+                  (command.opcode == CEC_OPCODE_USER_CONTROL_PRESSED);
 
 
       if (cec->m_verboseLogging)
@@ -327,9 +327,9 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
         QLOG_DEBUG() << "CecCommand button (Down= " << down << ")" << cec->getCommandParamsList(command);
       }
 
-      if (command->parameters.size && down)
+      if (command.parameters.size && down)
       {
-        switch(command->parameters[0])
+        switch(command.parameters[0])
         {
           // samsung Return key
           case CEC_USER_CONTROL_CODE_AN_RETURN:
@@ -338,7 +338,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
             else if (down)
               cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_BACK, InputBase::KeyPressed);
 
-            return;
+            return 1;
             break;
 
           default:
@@ -346,7 +346,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
         }
       }
 
-      cmdString = cec->getCommandString((cec_user_control_code)command->parameters[0]);
+      cmdString = cec->getCommandString((cec_user_control_code)command.parameters[0]);
 
       if (!cmdString.isEmpty())
       {
@@ -375,15 +375,15 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
       break;
 
     default:
-      QLOG_DEBUG() << "Unhandled CEC command " << command->opcode << ", " << cec->getCommandParamsList(command);
+      QLOG_DEBUG() << "Unhandled CEC command " << command.opcode << ", " << cec->getCommandParamsList(command);
       break;
   }
 
-  return;
+  return 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libcec_parameter param)
+int InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libcec_parameter param)
 {
   bool reopen = false;
 
@@ -420,5 +420,5 @@ void InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libc
       cec->closeAdapter();
   }
 
-  return;
+  return 0;
 }

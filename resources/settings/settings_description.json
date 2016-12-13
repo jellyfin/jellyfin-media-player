@@ -34,8 +34,7 @@
         "hidden": false,
         "possible_values": [
           [ "auto", "auto" ],
-          [ "tv", "tv" ],
-          [ "desktop", "desktop" ]
+          [ "tv", "tv" ]
         ]
       },
       {

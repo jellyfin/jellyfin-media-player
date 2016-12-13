@@ -81,7 +81,7 @@ KonvergoWindow
         return "Ctrl+Meta+F"
       return "F11"
     }
-    onTriggered: mainWindow.toggleFullscreen()
+    onTriggered: mainWindow.toggleFullscreenNoSwitch()
   }
 
   Action

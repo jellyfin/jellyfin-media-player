@@ -52,9 +52,10 @@
 
     // application shortcuts
     "Ctrl\\+Shift\\+F": "host:fullscreen",
-    "Meta\\+Ctrl\\+F": "host:fullscreen",
+    "Meta\\+Ctrl\\+F": "host:fullscreenCurrentMode",
     "Meta\\+Enter": "host:fullscreen",
     "F11": "host:fullscreen",
+    "Shift+F11": "host:fullscreenCurrentMode",
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",

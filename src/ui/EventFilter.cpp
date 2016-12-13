@@ -30,15 +30,23 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     // the host yet. We just want to handle some specific keyboard
     // events.
     //
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease || event->type() == QEvent::ShortcutOverride)
     {
       QKeyEvent* key = dynamic_cast<QKeyEvent*>(event);
-      if (key && key->spontaneous())
+
+      if (key)
       {
+        InputBase::InputkeyState keystatus;
+
+        if (event->type() == QEvent::KeyPress)
+          keystatus = InputBase::KeyDown;
+        else
+          keystatus = InputBase::KeyUp;
+
         QKeySequence seq(key->key() | (key->modifiers() &= ~Qt::KeypadModifier));
         if (desktopWhiteListedKeys.contains(seq.toString()))
         {
-          InputKeyboard::Get().keyPress(seq, InputBase::KeyPressed);
+          InputKeyboard::Get().keyPress(seq, keystatus);
           return true;
         }
       }

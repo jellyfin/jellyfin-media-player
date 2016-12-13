@@ -11,13 +11,40 @@
 #include <QKeyEvent>
 #include <QObject>
 
+static QStringList desktopWhiteListedKeys = { "Media Play",
+                                              "Media Pause",
+                                              "Media Stop",
+                                              "Media Next",
+                                              "Media Previous",
+                                              "Media Rewind",
+                                              "Media FastForward" };
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool EventFilter::eventFilter(QObject* watched, QEvent* event)
 {
   KonvergoWindow* window = qobject_cast<KonvergoWindow*>(parent());
 
   if (window && window->property("webDesktopMode").toBool())
+  {
+    // For desktop mode we don't want fullblown keyboard handling in
+    // the host yet. We just want to handle some specific keyboard
+    // events.
+    //
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
+    {
+      QKeyEvent* key = dynamic_cast<QKeyEvent*>(event);
+      if (key && key->spontaneous())
+      {
+        QKeySequence seq(key->key() | (key->modifiers() &= ~Qt::KeypadModifier));
+        if (desktopWhiteListedKeys.contains(seq.toString()))
+        {
+          InputKeyboard::Get().keyPress(seq, InputBase::KeyPressed);
+          return true;
+        }
+      }
+    }
     return QObject::eventFilter(watched, event);
+  }
 
   SystemComponent& system = SystemComponent::Get();
 

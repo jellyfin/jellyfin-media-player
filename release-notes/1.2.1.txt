@@ -12,8 +12,8 @@ NEW:
  - Automatic subtitle encoding detection on MacOS and Linux
 
 FIXES:
- - Desktop: Prevent screensaver during video/photo playback
- - Desktop: Respect video quality setting
+ - (Desktop) Prevent screensaver during video/photo playback
+ - (Desktop) Respect video quality setting
  - Support for HiDPI mode on Linux and Windows. Note that windows
    currently only work on integer values. I.e. 1/2/3 not 1.25 or 1.5.
    If you want something more granular use the --scale-factor=1.25 command

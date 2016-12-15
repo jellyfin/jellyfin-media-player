@@ -1,6 +1,6 @@
 NEW:
  - Desktop web-client updated to 2.12.5
- - TV web-client updated
+ - TV web-client updated to 2.10.8-9a2e1fb
  - Multimedia keys (play, next, prev) now work in desktop mode
  - Changes to mode switching. There is now a new setting called "layout"
    which can be set to "tv" or "auto". Auto will behave as 1.2.0 and

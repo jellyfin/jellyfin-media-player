@@ -35,7 +35,7 @@ UpdaterComponent::UpdaterComponent(QObject* parent) :
   m_file = nullptr;
   m_manifest = nullptr;
 
-#ifdef NDEBUG
+#ifndef NDEBUG
   m_enabled = false;
 #endif
 

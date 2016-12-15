@@ -1,0 +1,22 @@
+NEW:
+ - Desktop web-client updated to 2.12.5
+ - TV web-client updated
+ - Multimedia keys (play, next, prev) now work in desktop mode
+ - Changes to mode switching. There is now a new setting called "layout"
+   which can be set to "tv" or "auto". Auto will behave as 1.2.0 and
+   switch to TV mode when in fullscreen. Set this to TV to "lock" the 
+   tv layout and not automatically switch to desktop mode. This can
+   also be set by adding --tv to the command line.
+ - Added new command line switch to control the scale factor of the UI --scale-factor=X
+ - New subtitle color added
+ - Automatic subtitle encoding detection on MacOS and Linux
+
+FIXES:
+ - Desktop: Prevent screensaver during video/photo playback
+ - Desktop: Respect video quality setting
+ - Support for HiDPI mode on Linux and Windows. Note that windows
+   currently only work on integer values. I.e. 1/2/3 not 1.25 or 1.5.
+   If you want something more granular use the --scale-factor=1.25 command
+   line switch.
+ - Various playback related fixes
+

@@ -42,7 +42,8 @@ UpdaterComponent::UpdaterComponent(QObject* parent) :
   connect(&m_netManager, &QNetworkAccessManager::finished, this, &UpdaterComponent::dlComplete);
 
   connect(&SystemComponent::Get(), &SystemComponent::userInfoChanged, [&](){
-    QTimer::singleShot(10 * 1000, this, &UpdaterComponent::checkForUpdate);
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "automaticUpdates").toBool())
+      QTimer::singleShot(10 * 1000, this, &UpdaterComponent::checkForUpdate);
   });
 
   auto updateTimer = new QTimer(this);
@@ -52,7 +53,9 @@ UpdaterComponent::UpdaterComponent(QObject* parent) :
     if (diff >= (3 * 60 * 60))
       checkForUpdate();
   });
-  updateTimer->start(5 * 60 * 1000);
+
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "automaticUpdates").toBool())
+    updateTimer->start(5 * 60 * 1000);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

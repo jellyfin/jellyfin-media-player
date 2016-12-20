@@ -17,7 +17,11 @@ If you're happy just building from the command line then run CMake for the ninja
   * ``brew install ninja``
 * Install mpv and other dependencies with homebrew:
   * ``brew install mpv --with-shared --HEAD``
+* Install conan (dependency fetcher)
+  * ``brew install conan``
+* Add the `plex` repository to conan: ``conan remote add plex https://conan.plex.tv``
 * ``mkdir build ; cd build``
+* ``conan install ..``
 * ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=output ..``
 
 Build (ninja):
@@ -74,7 +78,7 @@ You can also attempt to skip the installation step, and change the paths in the 
 
 Usually you can install conan by running: ``pip install -U conan``.
 
-Now add the plex repository to conan ``conan remote add plex https://conan.plex.tv``
+Now add the `plex` repository to conan ``conan remote add plex https://conan.plex.tv``
 
 You can try that it works by running ``conan search -r plex *@*/public`` that should list web-client packages.
 

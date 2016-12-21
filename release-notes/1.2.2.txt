@@ -5,3 +5,4 @@ NEW:
 FIXES:
  - (Desktop) Fixed the player fullscreen button in Windows
  - (Desktop/TV) Added better companion support for certain devices
+ - Fixed respect automatically update setting

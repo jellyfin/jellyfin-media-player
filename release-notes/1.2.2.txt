@@ -1,0 +1,7 @@
+NEW:
+ - Desktop web-client updated to 2.12.6
+ - TV web-client updated to 2.10.8-fd540f9
+
+FIXES:
+ - (Desktop) Fixed the player fullscreen button in Windows
+ - (Desktop/TV) Added better companion support for certain devices

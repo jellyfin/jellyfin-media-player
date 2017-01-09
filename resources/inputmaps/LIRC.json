@@ -7,7 +7,7 @@
      "KEY_RIGHT": "right",
      "KEY_UP": "up",
      "KEY_DOWN": "down",
-     "KEY_MENU": "unknown",
+     "KEY_MENU": "home",
      "KEY_SELECT": "enter",
      "KEY_OK": "enter",
      "KEY_BACK": "back",
@@ -24,10 +24,12 @@
      "KEY_SEEKBCK": "seek_backward",
      "KEY_REWIND": "seek_backward",
      "KEY_SUBTITLES": "cycle_subtitles",
-     "KEY_INFO": "unknown",
+     "KEY_INFO": "host:toggleDebug",
      "KEY_NEXT": "step_forward",
      "KEY_PREV": "step_backward",
      "KEY_HOME": "home",
-     "KEY_NUMERIC_([0-9])": "%1"
+     "KEY_NUMERIC_([0-9])": "%1",
+     "KEY_DVD": "home",
+     "KEY_EPG": "home"
  }
 }

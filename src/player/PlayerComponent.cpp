@@ -1204,6 +1204,7 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
     stream.isAudio = type == "audio";
     stream.codec = map["codec"].toString();
     stream.audioChannels = map["demux-channel-count"].toInt();
+    stream.audioSampleRate = map["demux-samplerate"].toInt();
     stream.videoResolution = QSize(map["demux-w"].toInt(), map["demux-h"].toInt());
 
     // Get the profile from the server, because mpv can't determine it yet.

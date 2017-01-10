@@ -55,6 +55,7 @@ struct StreamInfo {
   QString codec;
   QString profile;
   int audioChannels;
+  int audioSampleRate;
   QSize videoResolution;
 };
 

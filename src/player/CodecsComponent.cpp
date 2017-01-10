@@ -756,6 +756,9 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
         // Arbitrary but documented and enforced 6 channel limit by MS.
         if (stream.audioChannels > 6)
           score = 1;
+        // Another arbitrary limit.
+        if (stream.audioSampleRate > 0 && (stream.audioSampleRate < 8000 || stream.audioSampleRate > 48000))
+          score = 1;
       }
     }
     else

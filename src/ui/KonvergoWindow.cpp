@@ -169,6 +169,12 @@ bool KonvergoWindow::fitsInScreens(const QRect& rc)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::saveGeometry()
 {
+  QLOG_DEBUG() << "Window state when saving geometry:" << visibility();
+  if (visibility() != QWindow::Windowed)
+  {
+    QLOG_DEBUG() << "Not saving geometry.";
+  }
+
   QRect rc = geometry();
 
   // lets make sure we are not saving something craycray
@@ -177,6 +183,8 @@ void KonvergoWindow::saveGeometry()
 
   if (!fitsInScreens(rc))
     return;
+
+  QLOG_DEBUG() << "Saving window geometry:" << rc;
 
   QVariantMap map = {{"x", rc.x()}, {"y", rc.y()},
                      {"width", rc.width()}, {"height", rc.height()}};

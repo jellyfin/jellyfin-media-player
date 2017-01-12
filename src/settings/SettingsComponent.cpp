@@ -633,7 +633,6 @@ bool SettingsComponent::componentInitialize()
   auto  ctrl = new AudioSettingsController(this);
   QVariantMap val;
   val.insert("devicetype", value(SETTINGS_SECTION_AUDIO, "devicetype"));
-  val.insert("advanced", value(SETTINGS_SECTION_AUDIO, "advanced"));
   ctrl->valuesUpdated(val);
   connect(ctrl, &AudioSettingsController::settingsUpdated, this, &SettingsComponent::groupUpdate);
 

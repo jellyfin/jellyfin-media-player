@@ -173,6 +173,7 @@ void KonvergoWindow::saveGeometry()
   if (visibility() != QWindow::Windowed)
   {
     QLOG_DEBUG() << "Not saving geometry.";
+    return;
   }
 
   QRect rc = geometry();

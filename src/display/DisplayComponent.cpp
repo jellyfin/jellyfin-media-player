@@ -72,6 +72,7 @@ bool DisplayComponent::componentInitialize()
 
     for(QScreen *screen : app->screens())
     {
+      QLOG_INFO() << "Screen" << screen << "with geometry" << screen->virtualGeometry();
       connect(screen, SIGNAL(refreshRateChanged(qreal)), this, SLOT(monitorChange()));
       connect(screen, SIGNAL(geometryChanged(QRect)), this, SLOT(monitorChange()));
     }

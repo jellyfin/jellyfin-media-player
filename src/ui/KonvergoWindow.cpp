@@ -160,7 +160,7 @@ bool KonvergoWindow::fitsInScreens(const QRect& rc)
 {
   for(QScreen *screen : QGuiApplication::screens())
   {
-    if (screen->virtualGeometry().contains(rc))
+    if (screen->virtualGeometry().isValid() && screen->virtualGeometry().contains(rc))
       return true;
   }
   return false;
@@ -170,11 +170,6 @@ bool KonvergoWindow::fitsInScreens(const QRect& rc)
 void KonvergoWindow::saveGeometry()
 {
   QLOG_DEBUG() << "Window state when saving geometry:" << visibility();
-  if (visibility() != QWindow::Windowed)
-  {
-    QLOG_DEBUG() << "Not saving geometry.";
-    return;
-  }
 
   QRect rc = geometry();
 

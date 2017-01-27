@@ -17,18 +17,16 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 
 option(OPENELEC "Make an OpenELEC build" OFF)
-option(LINUX_DBUS "Enable D-Bus power management" OFF)
+option(LINUX_X11POWER "Enable non D-Bus screensaver management" OFF)
+
+if(NOT LINUX_X11POWER)
+  set(LINUX_DBUS ON)
+endif()
 
 if(OPENELEC)
-  set(LINUX_DBUS ON)
   add_definitions(-DKONVERGO_OPENELEC=1)
   Message(STATUS "Making an OpenELEC build")
 endif(OPENELEC)
-
-if(LINUX_DBUS)
-  add_definitions(-DLINUX_DBUS=1)
-  Message(STATUS "Enabling D-Bus power management")
-endif(LINUX_DBUS)
 
 if(BUILD_TARGET STREQUAL "RPI")
   add_definitions(-DTARGET_RPI=1)

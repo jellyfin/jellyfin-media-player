@@ -19,7 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 option(OPENELEC "Make an OpenELEC build" OFF)
 option(LINUX_X11POWER "Enable non D-Bus screensaver management" OFF)
 
-if(NOT LINUX_X11POWER)
+if((NOT LINUX_X11POWER) AND (UNIX AND (NOT APPLE)))
   set(LINUX_DBUS ON)
 endif()
 

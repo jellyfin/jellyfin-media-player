@@ -120,10 +120,14 @@ int DisplayManagerOSX::getCurrentDisplayMode(int display)
     return -1;
   
   CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(m_osxDisplays[display]);
+  uint32_t currentIOKitID = CGDisplayModeGetIODisplayModeID(currentMode);
 
   for (int mode = 0; mode < CFArrayGetCount(m_osxDisplayModes[display]); mode++)
   {
-    if (currentMode == (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode))
+    CGDisplayModeRef checkMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode);
+    uint32_t checkIOKitID = CGDisplayModeGetIODisplayModeID(checkMode);
+
+    if (currentIOKitID == checkIOKitID)
     {
       CFRelease(currentMode);
       return mode;

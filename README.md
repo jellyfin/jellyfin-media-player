@@ -2,7 +2,7 @@
 
 You need:
 
-* Qt 5.6 (on OSX and windows it will be automatically downloaded when you run CMake)
+* Qt 5.7.1
 * cmake 3.1 or newer
 * ninja is recommended for building
 * FFmpeg 3.x and mpv from github

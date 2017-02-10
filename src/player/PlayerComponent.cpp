@@ -54,7 +54,7 @@ PlayerComponent::PlayerComponent(QObject* parent)
   connect(&DisplayComponent::Get(), &DisplayComponent::refreshRateChanged, this, &PlayerComponent::onRefreshRateChange);
 
   m_reloadAudioTimer.setSingleShot(true);
-  connect(&m_reloadAudioTimer, &QTimer::timeout, this, &PlayerComponent::onReloadAudio);
+  connect(&m_reloadAudioTimer, &QTimer::timeout, this, &PlayerComponent::updateAudioDevice);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -824,12 +824,6 @@ void PlayerComponent::setSubtitleDelay(qint64 milliseconds)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::onReloadAudio()
-{
-  mpv::qt::command(m_mpv, QStringList() << "ao-reload");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 // This is called with the set of previous audio devices that were detected, and the set of current
 // audio devices. From this we guess whether we should reopen the audio device. If the user-selected
 // device went away previously, and now comes back, reinitializing the player's audio output will
@@ -845,9 +839,9 @@ void PlayerComponent::checkCurrentAudioDevice(const QSet<QString>& old_devs, con
   QLOG_DEBUG() << "Audio devices added:" << added;
   QLOG_DEBUG() << "Audio device selected:" << userDevice;
 
-  if (!mpv::qt::get_property(m_mpv, "idle-active").toBool() && userDevice.length())
+  if (userDevice.length())
   {
-    if (added.contains(userDevice))
+    if (added.contains(userDevice) || removed.contains(userDevice))
     {
       // The timer is for debouncing the reload. Several change notifications could
       // come in quick succession. Also, it's possible that trying to open the
@@ -871,16 +865,19 @@ void PlayerComponent::updateAudioDeviceList()
     Q_ASSERT(d.type() == QVariant::Map);
     QVariantMap dmap = d.toMap();
 
-    devices.insert(dmap["name"].toString());
+    QString device = dmap["name"].toString();
+    QString description = dmap["description"].toString();
+
+    devices.insert(device);
+
+    if (userDevice == device)
+      userDeviceFound = true;
 
     QVariantMap entry;
-    entry["value"] = dmap["name"];
-    entry["title"] = dmap["description"];
+    entry["value"] = device;
+    entry["title"] = description;
 
     settingList << entry;
-
-    if (userDevice == dmap["name"])
-      userDeviceFound = true;
   }
 
   if (!userDeviceFound)
@@ -899,17 +896,27 @@ void PlayerComponent::updateAudioDeviceList()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::updateAudioDevice()
+{
+  QString device = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device").toString();
+
+  if (!m_audioDevices.contains(device))
+  {
+    device = "auto";
+    QLOG_WARN() << "Not using audio device" << device << "because it's not present.";
+  }
+
+  mpv::qt::set_property(m_mpv, "audio-device", device);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setAudioConfiguration()
 {
-  QStringList aoDefaults;
-
   QString deviceType = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
 
   mpv::qt::set_property(m_mpv, "audio-exclusive", SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "exclusive").toBool());
 
-  // set the audio device
-  QVariant device = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device");
-  mpv::qt::set_property(m_mpv, "audio-device", device);
+  updateAudioDevice();
 
   QString resampleOpts = "";
   bool normalize = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "normalize").toBool();
@@ -973,6 +980,8 @@ void PlayerComponent::setAudioConfiguration()
   {
     mpv::qt::command(m_mpv, QStringList() << "af" << "del" << "@ac3");
   }
+
+  QVariant device = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device");
 
   // Make a informational log message.
   QString audioConfig = QString(QString("Audio Config - device: %1, ") +

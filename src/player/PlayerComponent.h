@@ -152,8 +152,8 @@ private Q_SLOTS:
   void handleMpvEvents();
   void onRestoreDisplay();
   void onRefreshRateChange();
-  void onReloadAudio();
   void onCodecsLoadingDone(CodecsFetcher* sender);
+  void updateAudioDevice();
 
 Q_SIGNALS:
   // The following signals correspond to the State enum above.

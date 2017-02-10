@@ -860,6 +860,9 @@ void PlayerComponent::checkCurrentAudioDevice(const QSet<QString>& old_devs, con
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::updateAudioDeviceList()
 {
+  QString userDevice = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device").toString();
+  bool userDeviceFound = false;
+
   QVariantList settingList;
   QVariant list = getAudioDeviceList();
   QSet<QString> devices;
@@ -873,6 +876,18 @@ void PlayerComponent::updateAudioDeviceList()
     QVariantMap entry;
     entry["value"] = dmap["name"];
     entry["title"] = dmap["description"];
+
+    settingList << entry;
+
+    if (userDevice == dmap["name"])
+      userDeviceFound = true;
+  }
+
+  if (!userDeviceFound)
+  {
+    QVariantMap entry;
+    entry["value"] = userDevice;
+    entry["title"] = "[Disconnected device: " + userDevice + "]";
 
     settingList << entry;
   }

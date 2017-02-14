@@ -104,6 +104,7 @@ private:
   bool m_doLogMessages;
   QString m_authenticationToken;
   QString m_webClientVersion;
+  bool m_cursorVisible;
 
 };
 

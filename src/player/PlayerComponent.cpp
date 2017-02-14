@@ -439,16 +439,6 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     }
     case MPV_EVENT_PLAYBACK_RESTART:
     {
-#if defined(Q_OS_MAC)
-      // On OSX, initializing VideoTooolbox (hardware decoder API) will mysteriously
-      // show the hidden mouse pointer again. The VTDecompressionSessionCreate API
-      // function does this, and we have no influence over its behavior. To make sure
-      // the cursor is gone again when starting playback, listen to the player's
-      // playbackStarting signal, at which point decoder initialization is guaranteed
-      // to be completed. Then we just have to set the cursor again on the Cocoa level.
-      if (!m_playbackStartSent && QGuiApplication::overrideCursor())
-        QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-#endif
       m_playbackStartSent = true;
       break;
     }

@@ -12,6 +12,7 @@ namespace OSXUtils
   void SetPresentationOptions(unsigned long flags);
   unsigned long GetPresentationOptions();
   unsigned long GetPresentationOptionsForFullscreen(bool hideMenuAndDock);
+  void SetCursorVisible(bool visible);
 };
 
 #endif /* OSXUTILS_H */

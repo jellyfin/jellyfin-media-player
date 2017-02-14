@@ -72,3 +72,12 @@ OSStatus OSXUtils::SendAppleEventToSystemProcess(AEEventID eventToSendID)
 
   return status;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void OSXUtils::SetCursorVisible(bool visible)
+{
+  if (visible)
+    [NSCursor unhide];
+  else
+    [NSCursor hide];
+}

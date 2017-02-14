@@ -15,6 +15,7 @@
 #include "settings/SettingsSection.h"
 #include "Paths.h"
 #include "Names.h"
+#include "utils/Utils.h"
 
 #define MOUSE_TIMEOUT 5 * 1000
 
@@ -40,7 +41,7 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false)
+SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(false)
 {
   m_mouseOutTimer = new QTimer(this);
   m_mouseOutTimer->setSingleShot(true);
@@ -186,23 +187,26 @@ void SystemComponent::setCursorVisibility(bool visible)
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode") == "desktop")
     visible = true;
 
+  if (visible == m_cursorVisible)
+    return;
+
+  m_cursorVisible = visible;
+
   if (visible)
-  {
     m_mouseOutTimer->start(MOUSE_TIMEOUT);
-
-    while (qApp->overrideCursor())
-      qApp->restoreOverrideCursor();
-  }
   else
-  {
-    if (!qApp->overrideCursor())
-    {
-      if (m_mouseOutTimer->isActive())
-        m_mouseOutTimer->stop();
+    m_mouseOutTimer->stop();
 
-      qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
-    }
-  }
+#ifdef Q_OS_MAC
+  // OSX notifications will reset the cursor image (without Qt's knowledge). The
+  // only thing we can do override this is using Cocoa's native cursor hiding.
+  OSXUtils::SetCursorVisible(visible);
+#else
+  if (visible)
+    qApp->restoreOverrideCursor();
+  else
+    qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

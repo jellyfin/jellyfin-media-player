@@ -155,9 +155,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, I
 
   if (keyState == InputBase::KeyUp)
   {
-    m_autoRepeatTimer->stop();
-    m_autoRepeatActions.clear();
-    m_autoRepeatCount = 0;
+    cancelAutoRepeat();
 
     if (!m_currentLongPressAction.isEmpty())
     {
@@ -281,4 +279,6 @@ void InputComponent::registerHostCommand(const QString& command, std::function<v
 void InputComponent::cancelAutoRepeat()
 {
   m_autoRepeatTimer->stop();
+  m_autoRepeatActions.clear();
+  m_autoRepeatCount = 0;
 }

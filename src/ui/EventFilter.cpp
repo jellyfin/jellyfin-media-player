@@ -80,6 +80,16 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     else
       keystatus = InputBase::KeyUp;
 
+    if (keystatus == InputBase::KeyDown)
+    {
+      // Swallow auto-repeated keys (isAutoRepeat doesn't always work - QTBUG-57335)
+      if (m_currentKeyDown)
+        return true;
+      m_currentKeyDown = true;
+    }
+    else
+      m_currentKeyDown = false;
+
     QKeyEvent* kevent = dynamic_cast<QKeyEvent*>(event);
     if (kevent)
     {

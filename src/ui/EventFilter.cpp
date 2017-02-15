@@ -20,6 +20,37 @@ static QStringList desktopWhiteListedKeys = { "Media Play",
                                               "Media FastForward" };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+static QString keyEventToKeyString(QKeyEvent *kevent)
+{
+  // We ignore the KeypadModifier here since it's practically useless
+  QKeySequence modifiers(kevent->modifiers() &= ~Qt::KeypadModifier);
+
+  QKeySequence keySeq(kevent->key());
+  QString key = keySeq.toString();
+
+  // Qt tends to make up something weird for keys which don't cleanly map to text.
+  // See e.g. QKeySequencePrivate::keyName() in the Qt sources.
+  // We can't really know for sure which names are "good" or "bad", so we simply
+  // allow printable latin1 characters, and mangle everything else.
+  if ((key.size() > 0 && (key[0].unicode() < 32 || key[0].unicode() > 255)))
+  {
+    if (kevent->nativeVirtualKey() != 0)
+    {
+      key = "0x" + QString::number(kevent->nativeVirtualKey(), 16) + "V";
+    }
+    else
+    {
+      QString properKey;
+      for (int n = 0; n < key.size(); n++)
+        properKey += QString(n > 0 ? "+" : "") + "0x" + QString::number(key[n].unicode(), 16) + "Q";
+      key = properKey;
+    }
+  }
+
+  return modifiers.toString() + key;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 bool EventFilter::eventFilter(QObject* watched, QEvent* event)
 {
   KonvergoWindow* window = qobject_cast<KonvergoWindow*>(parent());
@@ -43,8 +74,8 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
         else
           keystatus = InputBase::KeyUp;
 
-        QKeySequence seq(key->key() | (key->modifiers() &= ~Qt::KeypadModifier));
-        if (desktopWhiteListedKeys.contains(seq.toString()))
+        QString seq = keyEventToKeyString(key);
+        if (desktopWhiteListedKeys.contains(seq))
         {
           InputKeyboard::Get().keyPress(seq, keystatus);
           return true;
@@ -96,9 +127,7 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
       system.setCursorVisibility(false);
       if (kevent->spontaneous() && !kevent->isAutoRepeat())
       {
-        // We ignore the KeypadModifier here since it's practically useless
-        QKeySequence key(kevent->key() | (kevent->modifiers() &= ~Qt::KeypadModifier));
-        InputKeyboard::Get().keyPress(key, keystatus);
+        InputKeyboard::Get().keyPress(keyEventToKeyString(kevent), keystatus);
         return true;
       }
     }

@@ -122,6 +122,8 @@ bool PlayerComponent::componentInitialize()
   // Do not use exact seeks by default. (This affects the start position in the "loadfile"
   // command in particular. We override the seek mode for normal "seek" commands.)
   mpv::qt::set_property(m_mpv, "hr-seek", "no");
+  // Force vo_rpi to fullscreen.
+  mpv::qt::set_property(m_mpv, "fullscreen", true);
 #endif
 
   if (mpv_initialize(m_mpv) < 0)

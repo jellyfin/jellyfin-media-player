@@ -41,13 +41,11 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(false)
+SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true)
 {
   m_mouseOutTimer = new QTimer(this);
   m_mouseOutTimer->setSingleShot(true);
   connect(m_mouseOutTimer, &QTimer::timeout, [&] () { setCursorVisibility(false); });
-
-  m_mouseOutTimer->start(MOUSE_TIMEOUT);
 
 // define OS Type
 #if defined(Q_OS_MAC)

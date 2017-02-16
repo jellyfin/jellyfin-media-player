@@ -411,6 +411,8 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 
     bool fs = visibility == QWindow::FullScreen;
     SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
+
+    SystemComponent::Get().setCursorVisibility(false);
   }
 
   if (visibility == QWindow::Windowed)

@@ -191,19 +191,20 @@ void SystemComponent::setCursorVisibility(bool visible)
   m_cursorVisible = visible;
 
   if (visible)
+  {
+    qApp->restoreOverrideCursor();
     m_mouseOutTimer->start(MOUSE_TIMEOUT);
+  }
   else
+  {
+    qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
     m_mouseOutTimer->stop();
+  }
 
 #ifdef Q_OS_MAC
   // OSX notifications will reset the cursor image (without Qt's knowledge). The
   // only thing we can do override this is using Cocoa's native cursor hiding.
   OSXUtils::SetCursorVisible(visible);
-#else
-  if (visible)
-    qApp->restoreOverrideCursor();
-  else
-    qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
 #endif
 }
 

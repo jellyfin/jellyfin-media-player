@@ -225,6 +225,11 @@
         "hidden": true
       },
       {
+        "value": "refreshrate.avoid_25hz_30hz",
+        "default": false,
+        "hidden": true
+      },
+      {
         "value": "hardwareDecoding",
         "default": [
           {

@@ -9,6 +9,7 @@
 #include "QsLog.h"
 #include "DisplayManager.h"
 #include "math.h"
+#include "settings/SettingsComponent.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DisplayManager::DisplayManager(QObject* parent) : QObject(parent) {}
@@ -96,6 +97,7 @@ bool DisplayManager::isRateMultipleOf(float refresh, float multiple, bool exact)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
 {
+  bool avoid_25_30 = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "refreshrate.avoid_25hz_30hz").toBool();
 
   // Grab current videomode information
   DMVideoModePtr currentVideoMode = getCurrentVideoMode(display);
@@ -111,6 +113,19 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
   while (modeit != m_displays[display]->m_videoModes.constEnd())
   {
     DMVideoModePtr candidate = modeit.value();
+
+    // avoid switching to 30 fps (prefer a multiple - 60Hz is ideal)
+    // the intention is also to match 30/1.001
+    if ((fabs(candidate->m_refreshRate - 30.0) < 0.5) ||
+        (fabs(candidate->m_refreshRate - 25.0) < 0.5))
+    {
+      if (avoid_25_30)
+      {
+        QLOG_INFO() << "DisplayManager RefreshMatch : skipping rate " << candidate->m_refreshRate << "as requested";
+        modeit++;
+        continue;
+      }
+    }
 
     weights[candidate->m_id] = DMVideoModeWeightPtr(new DMVideoModeWeight);
     weights[candidate->m_id]->m_mode = candidate;

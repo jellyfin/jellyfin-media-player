@@ -111,25 +111,30 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     else
       keystatus = InputBase::KeyUp;
 
+    QKeyEvent* kevent = dynamic_cast<QKeyEvent*>(event);
+    if (!kevent)
+      return QObject::eventFilter(watched, event);
+
     if (keystatus == InputBase::KeyDown)
     {
       // Swallow auto-repeated keys (isAutoRepeat doesn't always work - QTBUG-57335)
-      if (m_currentKeyDown)
-        return true;
-      m_currentKeyDown = true;
+      // Do this only for non-modifier keys (QKeyEvent::text serves as a heuristic
+      // to distinguish them from normal key presses)
+      if (kevent->text().size())
+      {
+        if (m_currentKeyDown)
+          return true;
+        m_currentKeyDown = true;
+      }
     }
     else
       m_currentKeyDown = false;
 
-    QKeyEvent* kevent = dynamic_cast<QKeyEvent*>(event);
-    if (kevent)
+    system.setCursorVisibility(false);
+    if (kevent->spontaneous() && !kevent->isAutoRepeat())
     {
-      system.setCursorVisibility(false);
-      if (kevent->spontaneous() && !kevent->isAutoRepeat())
-      {
-        InputKeyboard::Get().keyPress(keyEventToKeyString(kevent), keystatus);
-        return true;
-      }
+      InputKeyboard::Get().keyPress(keyEventToKeyString(kevent), keystatus);
+      return true;
     }
   }
   else if (event->type() == QEvent::MouseMove)

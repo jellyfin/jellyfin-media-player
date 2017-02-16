@@ -17,8 +17,6 @@
 #include <mpv/client.h>
 #include <mpv/qthelper.hpp>
 
-void initD3DDevice(void);
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class PlayerComponent : public ComponentBase
 {

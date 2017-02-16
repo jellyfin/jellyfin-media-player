@@ -14,101 +14,19 @@
 #include "QsLog.h"
 #include "utils/Utils.h"
 
-#ifdef USE_X11EXTRAS
-#include <QX11Info>
-#endif
 
 #if defined(Q_OS_WIN32)
-
 #include <windows.h>
-#include <d3d9.h>
 #include <dwmapi.h>
 #include <avrt.h>
+#endif
 
-typedef IDirect3D9* WINAPI pDirect3DCreate9(UINT);
-
-static IDirect3DDevice9* d3ddevice;
-
-// This must be run before the konvergo main window switches to FS mode.
-void initD3DDevice(void)
-{
-  // Boilerplate for creating a "blank" D3D device.
-  // Most of this is copied from FFmpeg (LGPL).
-  pDirect3DCreate9 *createD3D = NULL;
-  HRESULT hr;
-  D3DPRESENT_PARAMETERS d3dpp = {};
-  D3DDISPLAYMODE        d3ddm;
-  UINT adapter = D3DADAPTER_DEFAULT;
-
-  if (QCoreApplication::testAttribute(Qt::AA_UseOpenGLES))
-    return;
-
-  HMODULE d3dlib = LoadLibraryW(L"d3d9.dll");
-  if (!d3dlib) {
-      QLOG_ERROR() << "Failed to load D3D9 library";
-      return;
-  }
-
-  createD3D = (pDirect3DCreate9 *)GetProcAddress(d3dlib, "Direct3DCreate9");
-  if (!createD3D) {
-      QLOG_ERROR() << "Failed to locate Direct3DCreate9";
-      return;
-  }
-
-  IDirect3D9 *d3d9 = createD3D(D3D_SDK_VERSION);
-  if (!d3d9) {
-      QLOG_ERROR() << "Failed to create IDirect3D object";
-      return;
-  }
-
-  IDirect3D9_GetAdapterDisplayMode(d3d9, adapter, &d3ddm);
-  d3dpp.Windowed         = TRUE;
-  d3dpp.BackBufferWidth  = 640;
-  d3dpp.BackBufferHeight = 480;
-  d3dpp.BackBufferCount  = 0;
-  d3dpp.BackBufferFormat = d3ddm.Format;
-  d3dpp.SwapEffect       = D3DSWAPEFFECT_DISCARD;
-  d3dpp.Flags            = D3DPRESENTFLAG_VIDEO;
-
-  hr = IDirect3D9_CreateDevice(d3d9, adapter, D3DDEVTYPE_HAL, GetShellWindow(),
-                                D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED | D3DCREATE_FPU_PRESERVE,
-                                &d3dpp, &d3ddevice);
-  if (FAILED(hr)) {
-    QLOG_ERROR() << "Failed to create Direct3D device";
-    return;
-  }
-
-  QLOG_INFO() << "Successfully created a Direct3D device";
-};
-
-// Special libmpv-specific pseudo extension for better behavior with OpenGL
-// fullscreen modes. This is needed with some drivers which do not allow the
-// libmpv DXVA code to create a new D3D device.
-static void* __stdcall MPGetNativeDisplay(const char* name)
-{
-  QLOG_INFO() << "Asking for " << qPrintable(QString::fromUtf8((name)));
-  if (strcmp(name, "IDirect3DDevice9") == 0)
-  {
-    QLOG_INFO() << "Returning device " << (void *)d3ddevice;
-    if (d3ddevice)
-      IDirect3DDevice9_AddRef(d3ddevice);
-    return (void *)d3ddevice;
-  }
-  return NULL;
-}
-// defined(Q_OS_WIN32)
-#elif defined(USE_X11EXTRAS)
-// Linux
+#ifdef USE_X11EXTRAS
+#include <QX11Info>
 static void* MPGetNativeDisplay(const char* name)
 {
   if (strcmp(name, "x11") == 0)
     return QX11Info::display();
-  return nullptr;
-}
-#else
-// Unsupported or not needed. Also, not using Windows-specific calling convention.
-static void* MPGetNativeDisplay(const char* name)
-{
   return nullptr;
 }
 #endif
@@ -125,7 +43,11 @@ static void* get_proc_address(void* ctx, const char* name)
   void *res = (void *)glctx->getProcAddress(QByteArray(name));
   if (strcmp(name, "glMPGetNativeDisplay") == 0)
   {
+#ifdef USE_X11EXTRAS
     return (void *)&MPGetNativeDisplay;
+#else
+    return nullptr;
+#endif
   }
 #ifdef Q_OS_WIN32
   // wglGetProcAddress(), which is used by Qt, does not always resolve all

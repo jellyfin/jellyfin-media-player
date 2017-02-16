@@ -194,10 +194,6 @@ int main(int argc, char *argv[])
 
     detectOpenGLLate();
 
-#ifdef Q_OS_WIN32
-    initD3DDevice();
-#endif
-
     Codecs::preinitCodecs();
 
     // Initialize all the components. This needs to be done

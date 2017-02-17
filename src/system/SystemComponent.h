@@ -82,6 +82,7 @@ public:
   bool isWebClientConnected() const { return !m_webClientVersion.isEmpty(); }
 
   inline QString authenticationToken() { return m_authenticationToken; }
+  inline bool cursorVisible() { return m_cursorVisible; }
 
   Q_INVOKABLE void crashApp();
 

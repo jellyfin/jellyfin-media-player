@@ -295,6 +295,19 @@ void KonvergoWindow::playerWindowVisible(bool visible)
   QQuickItem *web = findChild<QQuickItem *>("web");
   if (web)
     web->setProperty("backgroundColor", visible ? "transparent" : "#111111");
+
+#ifdef Q_OS_MAC
+  // On OSX, initializing VideoTooolbox (hardware decoder API) will mysteriously
+  // show the hidden mouse pointer again. The VTDecompressionSessionCreate API
+  // function does this, and we have no influence over its behavior.
+  if (visible && !SystemComponent::Get().cursorVisible())
+  {
+    // "Refresh" it. (There doesn't seem to be a nicer way, and we have to do
+    // this on the Cocoa level too.)
+    SystemComponent::Get().setCursorVisibility(true);
+    SystemComponent::Get().setCursorVisibility(false);
+  }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -217,7 +217,6 @@ private:
   int m_lastBufferingPercentage;
   double m_lastPositionUpdate;
   qint64 m_playbackAudioDelay;
-  bool m_playbackStartSent;
   QQuickWindow* m_window;
   float m_mediaFrameRate;
   QTimer m_restoreDisplayTimer;

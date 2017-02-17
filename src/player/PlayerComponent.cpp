@@ -40,7 +40,7 @@ PlayerComponent::PlayerComponent(QObject* parent)
   m_windowVisible(false), m_videoPlaybackActive(false), m_inPlayback(false),
   m_bufferingPercentage(100), m_lastBufferingPercentage(-1),
   m_lastPositionUpdate(0.0), m_playbackAudioDelay(0),
-  m_playbackStartSent(false), m_window(nullptr), m_mediaFrameRate(0),
+  m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false), m_doAc3Transcoding(false),
   m_videoRectangle(-1, -1, -1, -1)
@@ -420,7 +420,6 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
   {
     case MPV_EVENT_START_FILE:
     {
-      m_playbackStartSent = false;
       m_inPlayback = true;
       break;
     }
@@ -439,11 +438,6 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       if (!m_streamSwitchImminent)
         m_restoreDisplayTimer.start(0);
       m_streamSwitchImminent = false;
-      break;
-    }
-    case MPV_EVENT_PLAYBACK_RESTART:
-    {
-      m_playbackStartSent = true;
       break;
     }
     case MPV_EVENT_PROPERTY_CHANGE:

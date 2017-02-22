@@ -415,7 +415,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
-  QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visibility set to " << visibility;
+  QLOG_DEBUG() << "QWindow visibility set to" << visibility;
 
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
   {
@@ -486,6 +486,17 @@ void KonvergoWindow::updateDebugInfo()
   PlayerQuickItem* video = findChild<PlayerQuickItem*>("video");
   if (video)
     m_debugInfo += video->debugInfo();
+  QString infoString;
+  QDebug info(&infoString);
+  info << "Qt windowing info:\n";
+  info << "  FS: " << visibility() << "\n";
+  info << "  Geo: " << geometry() << "\n";
+  for (QScreen* scr : QGuiApplication::screens())
+  {
+    info << "  Screen" << scr->name() << scr->geometry() << "\n";
+  }
+  info << "\n";
+  m_debugInfo += infoString;
   m_videoInfo = PlayerComponent::Get().videoInformation();
   emit debugInfoChanged();
 }

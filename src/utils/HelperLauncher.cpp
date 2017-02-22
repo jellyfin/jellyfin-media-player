@@ -42,6 +42,9 @@ void HelperLauncher::start()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool HelperLauncher::connectToHelper()
 {
+  if (!helperEnabled())
+    return true;
+
   if (m_jsonClient->state() == QLocalSocket::ConnectedState ||
       m_jsonClient->state() == QLocalSocket::ConnectingState)
     return true;
@@ -55,6 +58,9 @@ bool HelperLauncher::connectToHelper()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool HelperLauncher::killHelper()
 {
+  if (!helperEnabled())
+    return true;
+
   QVariantMap msg;
   msg.insert("command", "quit");
   m_jsonClient->sendMessage(msg);
@@ -108,6 +114,9 @@ void HelperLauncher::socketDisconnect()
 /////////////////////////////////////////////////////////////////////////////////////////
 void HelperLauncher::updateClientId()
 {
+  if (!helperEnabled())
+    return;
+
   // update clientId if we have it
   if (!SettingsComponent::Get().value(SETTINGS_SECTION_WEBCLIENT, "clientID").toString().isEmpty())
   {
@@ -128,6 +137,12 @@ void HelperLauncher::updateClientId()
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
+bool HelperLauncher::helperEnabled()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "useHelper").toBool();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void HelperLauncher::didConnect()
 {
   QLOG_DEBUG() << "Connected to helper";
@@ -137,6 +152,9 @@ void HelperLauncher::didConnect()
 /////////////////////////////////////////////////////////////////////////////////////////
 void HelperLauncher::launch()
 {
+  if (!helperEnabled())
+    return;
+
   QLOG_DEBUG() << "Launching helper:" << HelperPath();
 
 #ifdef Q_OS_MAC

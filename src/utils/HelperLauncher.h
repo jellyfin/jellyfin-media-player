@@ -44,6 +44,7 @@ private:
   LocalJsonClient* m_jsonClient;
 
   void updateClientId();
+  bool helperEnabled();
 
 #ifdef Q_OS_MAC
   HelperLaunchd* m_launchd;

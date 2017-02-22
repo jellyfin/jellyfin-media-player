@@ -136,6 +136,11 @@
         "value": "preventSystemScreensaver",
         "default": false,
         "hidden": true
+      },
+      {
+        "value": "useHelper",
+        "default": true,
+        "hidden": true
       }
     ]
   },

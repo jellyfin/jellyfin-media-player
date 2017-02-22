@@ -430,7 +430,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 
   if (visibility == QWindow::Windowed)
   {
-    loadGeometry();
 #ifdef Q_OS_MAC
     QTimer::singleShot(1 * 1000, [&] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
 #endif

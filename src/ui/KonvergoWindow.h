@@ -143,7 +143,6 @@ private slots:
   void onVisibilityChanged(QWindow::Visibility visibility);
   void updateMainSectionSettings(const QVariantMap& values);
   void updateWindowState(bool saveGeo = true);
-  void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
   void showUpdateDialog();

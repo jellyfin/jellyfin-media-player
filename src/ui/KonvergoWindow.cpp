@@ -413,9 +413,38 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+QScreen* KonvergoWindow::findRealScreen()
+{
+#ifdef Q_OS_WIN32
+  for(QScreen* screen : qApp->screens())
+  {
+    if (screen->geometry() == geometry())
+      return screen;
+  }
+  return nullptr;
+#else
+  return screen();
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << "QWindow visibility set to" << visibility;
+
+#ifdef Q_OS_WIN32
+  if (visibility == QWindow::Windowed)
+  {
+    QScreen* realScreen = findRealScreen();
+    if (realScreen)
+    {
+      QLOG_DEBUG() << "winging it!";
+      setScreen(realScreen);
+      setVisibility(QWindow::FullScreen);
+      return;
+    }
+  }
+#endif
 
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
   {

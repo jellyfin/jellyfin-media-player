@@ -154,6 +154,7 @@ private:
   QRect loadGeometryRect();
   bool fitsInScreens(const QRect& rc);
   QScreen* loadLastScreen();
+  QScreen* findRealScreen();
 
   bool m_debugLayer;
   qreal m_lastScale;

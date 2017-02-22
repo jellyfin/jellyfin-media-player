@@ -90,6 +90,11 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   updateWindowState(false);
 #endif
 
+  updateScreens();
+
+  connect(qApp, &QGuiApplication::screenAdded, this, &KonvergoWindow::onScreenAdded);
+  connect(qApp, &QGuiApplication::screenRemoved, this, &KonvergoWindow::onScreenRemoved);
+
   emit enableVideoWindowSignal();
 }
 
@@ -369,6 +374,27 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
   if (values.contains("startupurl"))
     emit webUrlChanged();
+
+  if (values.contains("forceFSScreen"))
+    updateForcedScreen();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::updateForcedScreen()
+{
+  QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSScreen").toString();
+
+  for (QScreen* scr : QGuiApplication::screens())
+  {
+    if (scr->name() == screenName)
+    {
+      QLOG_DEBUG() << "Forcing screen to" << scr->name();
+      setScreen(scr);
+      setGeometry(scr->geometry());
+      setVisibility(QWindow::FullScreen);
+      return;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -622,7 +648,9 @@ qreal KonvergoWindow::CalculateWebScale(const QSize& size, qreal devicePixelRati
 /////////////////////////////////////////////////////////////////////////////////////////
 QScreen* KonvergoWindow::loadLastScreen()
 {
-  QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "lastUsedScreen").toString();
+  QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSScreen").toString();
+  if (screenName.isEmpty())
+    screenName = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "lastUsedScreen").toString();
   if (screenName.isEmpty())
     return nullptr;
 
@@ -647,4 +675,61 @@ QString KonvergoWindow::webUrl()
   return url + QString("?initialScale=%0").arg(webScale());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::updateScreens()
+{
+  QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSScreen").toString();
 
+  QVariantList settingList;
+
+  QVariantMap defentry;
+  defentry["value"] = "";
+  defentry["title"] = "Auto";
+
+  settingList << defentry;
+
+  bool currentPresent = false;
+  for(QScreen* screen : qApp->screens())
+  {
+    QRect rc = screen->geometry();
+
+    QVariantMap entry;
+    entry["value"] = screen->name();
+    entry["title"] =
+      QString("%1,%2 %3x%4").arg(rc.left()).arg(rc.top()).arg(rc.right()).arg(rc.bottom()) +
+      " (" + screen->name() + ")";
+
+    settingList << entry;
+
+    if (screen->name() == screenName)
+      currentPresent = true;
+  }
+
+  if (!currentPresent && !screenName.isEmpty())
+  {
+    QVariantMap entry;
+    entry["value"] = screenName;
+    entry["title"] = "[Disconnected: " + screenName + "]";
+
+    settingList << entry;
+  }
+
+  SettingsComponent::Get().updatePossibleValues(SETTINGS_SECTION_MAIN, "forceFSScreen", settingList);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::onScreenAdded(QScreen *screen)
+{
+  updateScreens();
+  // The timer is out of fear for chaotic mid-change states.
+  QTimer::singleShot(200, [=]
+  {
+    updateForcedScreen();
+  });
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::onScreenRemoved(QScreen *screen)
+{
+  updateScreens();
+}

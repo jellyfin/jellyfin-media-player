@@ -141,6 +141,10 @@
         "value": "useHelper",
         "default": true,
         "hidden": true
+      },
+      {
+        "value": "forceFSScreen",
+        "default": ""
       }
     ]
   },

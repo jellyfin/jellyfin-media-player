@@ -146,6 +146,8 @@ private slots:
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
   void showUpdateDialog();
+  void onScreenAdded(QScreen *screen);
+  void onScreenRemoved(QScreen *screen);
 
 private:
   void notifyScale(const QSize& size);
@@ -154,6 +156,8 @@ private:
   QRect loadGeometryRect();
   bool fitsInScreens(const QRect& rc);
   QScreen* loadLastScreen();
+  void updateScreens();
+  void updateForcedScreen();
   QScreen* findRealScreen();
 
   bool m_debugLayer;

@@ -66,6 +66,17 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(this, &KonvergoWindow::visibilityChanged,
           this, &KonvergoWindow::onVisibilityChanged);
 
+  connect(this, &KonvergoWindow::screenChanged,
+          this, &KonvergoWindow::updateCurrentScreen);
+  connect(this, &KonvergoWindow::xChanged,
+          this, &KonvergoWindow::updateCurrentScreen);
+  connect(this, &KonvergoWindow::yChanged,
+          this, &KonvergoWindow::updateCurrentScreen);
+  connect(this, &KonvergoWindow::visibilityChanged,
+          this, &KonvergoWindow::updateCurrentScreen);
+  connect(this, &KonvergoWindow::windowStateChanged,
+          this, &KonvergoWindow::updateCurrentScreen);
+
   connect(this, &KonvergoWindow::enableVideoWindowSignal,
           this, &KonvergoWindow::enableVideoWindow, Qt::QueuedConnection);
 
@@ -439,18 +450,24 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-QScreen* KonvergoWindow::findRealScreen()
+QScreen* KonvergoWindow::findCurrentScreen()
 {
-#ifdef Q_OS_WIN32
+  // Return the screen that contains most of the window. Quite possible that
+  // screen() would be sufficient, at least once the Qt bug returning a wrong
+  // QScreen on Windows is fixed.
+  QScreen *best = nullptr;
+  qint64 bestArea = 0;
   for(QScreen* screen : qApp->screens())
   {
-    if (screen->geometry() == geometry())
-      return screen;
+    QRect areaRC = screen->geometry().intersected(geometry());
+    qint64 area = areaRC.width() * (qint64)areaRC.height();
+    if (!best || area > bestArea)
+    {
+      best = screen;
+      bestArea = area;
+    }
   }
-  return nullptr;
-#else
-  return screen();
-#endif
+  return best ? best : screen();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -461,8 +478,8 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 #ifdef Q_OS_WIN32
   if (visibility == QWindow::Windowed)
   {
-    QScreen* realScreen = findRealScreen();
-    if (realScreen)
+    QScreen* realScreen = findCurrentScreen();
+    if (realScreen && realScreen->geometry() == geometry())
     {
       QLOG_DEBUG() << "winging it!";
       setScreen(realScreen);
@@ -678,6 +695,7 @@ QString KonvergoWindow::webUrl()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateScreens()
 {
+  QScreen* windowScreen = findCurrentScreen();
   QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSScreen").toString();
 
   QVariantList settingList;
@@ -697,7 +715,8 @@ void KonvergoWindow::updateScreens()
     entry["value"] = screen->name();
     entry["title"] =
       QString("%1,%2 %3x%4").arg(rc.left()).arg(rc.top()).arg(rc.right()).arg(rc.bottom()) +
-      " (" + screen->name() + ")";
+      " (" + screen->name() + ")" +
+      ((screen == windowScreen) ? " *" : "");
 
     settingList << entry;
 
@@ -715,6 +734,8 @@ void KonvergoWindow::updateScreens()
   }
 
   SettingsComponent::Get().updatePossibleValues(SETTINGS_SECTION_MAIN, "forceFSScreen", settingList);
+
+  m_currentScreenName = windowScreen ? windowScreen->name() : "";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -732,4 +753,13 @@ void KonvergoWindow::onScreenAdded(QScreen *screen)
 void KonvergoWindow::onScreenRemoved(QScreen *screen)
 {
   updateScreens();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::updateCurrentScreen()
+{
+  QScreen* current = findCurrentScreen();
+  QString currentName = current ? current->name() : "";
+  if (currentName != m_currentScreenName)
+    updateScreens();
 }

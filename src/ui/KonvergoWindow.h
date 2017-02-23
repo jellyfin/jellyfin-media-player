@@ -148,6 +148,7 @@ private slots:
   void showUpdateDialog();
   void onScreenAdded(QScreen *screen);
   void onScreenRemoved(QScreen *screen);
+  void updateCurrentScreen();
 
 private:
   void notifyScale(const QSize& size);
@@ -158,7 +159,7 @@ private:
   QScreen* loadLastScreen();
   void updateScreens();
   void updateForcedScreen();
-  QScreen* findRealScreen();
+  QScreen* findCurrentScreen();
 
   bool m_debugLayer;
   qreal m_lastScale;
@@ -169,6 +170,7 @@ private:
   bool m_showedUpdateDialog;
 
   unsigned long m_osxPresentationOptions;
+  QString m_currentScreenName;
 
   void setWebMode(bool newDesktopMode, bool fullscreen);
 };

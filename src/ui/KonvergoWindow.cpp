@@ -419,6 +419,13 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
       saveGeometry();
 
     setVisibility(QWindow::FullScreen);
+
+    // When fullscreening explicitly, we might have to move the window to a
+    // different screen, as Qt will fullscreen to the current screen.
+    QTimer::singleShot(200, [=]
+    {
+      updateForcedScreen();
+    });
   }
   else
   {

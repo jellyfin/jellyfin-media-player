@@ -339,10 +339,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     updateWindowState();
 
   if (values.contains("fullscreen") && !m_ignoreFullscreenSettingsChange)
-  {
-    InputComponent::Get().cancelAutoRepeat();
     updateWindowState();
-  }
 
   if (values.contains("webMode"))
   {
@@ -403,6 +400,7 @@ void KonvergoWindow::updateForcedScreen()
       setScreen(scr);
       setGeometry(scr->geometry());
       setVisibility(QWindow::FullScreen);
+      InputComponent::Get().cancelAutoRepeat();
       return;
     }
   }
@@ -442,6 +440,8 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
     else
       setFlags(flags() &~ forceOnTopFlags);
   }
+
+  InputComponent::Get().cancelAutoRepeat();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -520,9 +520,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
   }
 #endif
 
-  if (visibility == QWindow::Minimized)
-    InputComponent::Get().cancelAutoRepeat();
-
+  InputComponent::Get().cancelAutoRepeat();
   notifyScale(size());
 }
 

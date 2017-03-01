@@ -4,9 +4,9 @@ if(APPLE)
   add_sources(PowerComponentMac.cpp PowerComponentMac.h)
 endif(APPLE)
 
-if(USE_X11POWER)
+if(LINUX_X11POWER)
   add_sources(PowerComponentX11.cpp PowerComponentX11.h)
-endif(USE_X11POWER)
+endif(LINUX_X11POWER)
 
 if(LINUX_DBUS)
   add_sources(PowerComponentDBus.cpp PowerComponentDBus.h)

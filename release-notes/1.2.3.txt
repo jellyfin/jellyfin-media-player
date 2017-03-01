@@ -1,6 +1,6 @@
 NEW:
- - Desktop web-client updated to 3.0.0
- - TV web-client updated to 2.12.7
+ - Desktop web-client updated to 3.0.1
+ - TV web-client updated to 2.13.1
  - Add an experimental setting to force what screen PMP should be shown on in fullscreen
  - Add experimental refreshrate.avoid_25hz_30hz and audio_delay.50hz hidden settings
 

@@ -56,6 +56,8 @@ Systems not based on Debian/Ubuntu will have similar packages, but you'll need t
 
 If your distro provides Qt 5.7.1 or later packages, try to use them. Otherwise, find a Qt download at qt.io.
 
+On Windows and OSX, you can omit the ``-DQTROOT`` argument to use the Qt built by Plex. (Untested whether this works reliably.)
+
 ### Building mpv and ffmpeg
 
 While most distros have FFmpeg and mpv packages, they're often outdated. It's recommended to build a current version, or to get them from 3rd party sources (some are listed on https://mpv.io/installation/).
@@ -109,6 +111,7 @@ Sometimes, PMP's cmake run mysteriously fails. It's possible that https://bugrep
 * locate ``Qt5CoreConfigExtras.cmake`` of your Qt build/installation
 * comment ``set_property(TARGET Qt5::Core PROPERTY INTERFACE_COMPILE_FEATURES cxx_decltype)`` with ``#``
 
+Sometimes, PMP will pick up SDL 1.x libraries. This is not supported and will lead to build failures. You need SDL 2. You can disable use of SLD with ``-DENABLE_SDL2=off`` (it's used for some remotes).
 
 ## License
 

@@ -746,6 +746,9 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
 void SettingsComponent::setCommandLineValues(const QStringList& values)
 {
   QLOG_DEBUG() << values;
+
+  QString mode = ""; // unset, different from "auto"
+
   for (const QString& value : values)
   {
     if (value == "fullscreen")
@@ -753,15 +756,26 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
     else if (value == "windowed")
       setValue(SETTINGS_SECTION_MAIN, "fullscreen", false);
     else if (value == "desktop")
-      setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
+      mode = "desktop";
     else if (value == "tv")
-      setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
+      mode = "tv";
     else if (value == "auto-layout")
-      setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
+      mode = "auto";
   }
 
-  auto layout = value(SETTINGS_SECTION_MAIN, "layout").toString();
-  if (layout != "auto")
-    setValue(SETTINGS_SECTION_MAIN, "webMode", layout);
+  if (mode == "desktop")
+  {
+    setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
+    setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
+  }
+  else if (mode == "tv")
+  {
+    setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
+    setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
+  }
+  else if (mode == "auto")
+  {
+    setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
+  }
 }
 

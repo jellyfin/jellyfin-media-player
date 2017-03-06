@@ -26,11 +26,12 @@ SettingsComponent::SettingsComponent(QObject *parent) : ComponentBase(parent), m
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::componentPostInitialize()
 {
-  InputComponent::Get().registerHostCommand("cycle_setting", this, "cycleSetting");
+  InputComponent::Get().registerHostCommand("cycle_setting", this, "cycleSettingCommand");
+  InputComponent::Get().registerHostCommand("set_setting", this, "setSettingCommand");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void SettingsComponent::cycleSetting(const QString& args)
+void SettingsComponent::cycleSettingCommand(const QString& args)
 {
   QString settingName = args;
   QStringList sub = settingName.split(".");
@@ -85,6 +86,45 @@ void SettingsComponent::cycleSetting(const QString& args)
   QLOG_DEBUG() << "Setting" << settingName << "to" << nextValue;
   setValue(sectionID, valueName, nextValue);
   emit SystemComponent::Get().settingsMessage(valueName, nextSetting["title"].toString());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SettingsComponent::setSettingCommand(const QString& args)
+{
+  int spaceIndex = args.indexOf(" ");
+  if (spaceIndex < 0)
+  {
+    QLOG_ERROR() << "No value provided to settings set command.";
+    return;
+  }
+  QString settingName = args.mid(0, spaceIndex);
+  QString settingValue = args.mid(spaceIndex + 1);
+  int subIndex = settingName.indexOf(".");
+  if (subIndex < 0 || subIndex == args.size() - 1)
+  {
+    QLOG_ERROR() << "Setting must be in the form section.name but got:" << settingName;
+    return;
+  }
+  QString sectionID = settingName.mid(0, subIndex);
+  QString valueName = settingName.mid(subIndex + 1);
+  SettingsSection* section = getSection(sectionID);
+  if (!section)
+  {
+    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    return;
+  }
+  QString jsonString = "{\"value\": " + settingValue + "}";
+  QJsonParseError err;
+  QVariant value = QJsonDocument::fromJson(jsonString.toUtf8(), &err).object()["value"].toVariant();
+  printf("val: '%s'\n", settingValue.toUtf8().data());
+  if (!value.isValid())
+  {
+    QLOG_ERROR() << "Invalid settings value:" << settingValue << "(if it's a string, make sure to quote it)";
+    return;
+  }
+  QLOG_DEBUG() << "Setting" << settingName << "to" << value;
+  setValue(sectionID, valueName, value);
+  emit SystemComponent::Get().settingsMessage(valueName, value.toString());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

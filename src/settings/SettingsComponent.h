@@ -60,7 +60,8 @@ public:
   Q_INVOKABLE QString getWebClientUrl(bool desktop);
 
   // host commands
-  Q_SLOT Q_INVOKABLE void cycleSetting(const QString& args);
+  Q_SLOT Q_INVOKABLE void cycleSettingCommand(const QString& args);
+  Q_SLOT Q_INVOKABLE void setSettingCommand(const QString& args);
 
   void updatePossibleValues(const QString& sectionID, const QString& key, const QVariantList& possibleValues);
 

@@ -71,17 +71,7 @@ public:
 
   Q_SLOT void toggleDebug();
 
-  Q_SLOT void toggleFullscreen(bool noSwitchMode = false)
-  {
-    bool switchMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString() == "auto" && !noSwitchMode);
-
-    if (switchMode && !m_webDesktopMode && isFullScreen())
-      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
-    else if (switchMode && m_webDesktopMode && !isFullScreen())
-      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
-    else
-      setFullScreen(!isFullScreen());
-  }
+  Q_SLOT void toggleFullscreen(bool noSwitchMode = false);
 
   Q_SLOT void toggleFullscreenNoSwitch() { toggleFullscreen(true); }
 

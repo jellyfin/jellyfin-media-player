@@ -296,6 +296,19 @@ void KonvergoWindow::setFullScreen(bool enable)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::toggleFullscreen(bool noSwitchMode)
+{
+  bool switchMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString() == "auto" && !noSwitchMode);
+
+  if (switchMode && !m_webDesktopMode && isFullScreen())
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
+  else if (switchMode && m_webDesktopMode && !isFullScreen())
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
+  else
+    setFullScreen(!isFullScreen());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::setAlwaysOnTop(bool enable)
 {
   QLOG_DEBUG() << "setting always on top = " << enable;

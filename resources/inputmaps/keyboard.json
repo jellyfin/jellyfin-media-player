@@ -55,7 +55,7 @@
     "Meta\\+Ctrl\\+F": "host:fullscreenCurrentMode",
     "Meta\\+Enter": "host:fullscreen",
     "F11": "host:fullscreen",
-    "Shift+F11": "host:fullscreenCurrentMode",
+    "Shift\\+F11": "host:fullscreenCurrentMode",
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",

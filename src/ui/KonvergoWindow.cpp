@@ -422,7 +422,7 @@ void KonvergoWindow::updateForcedScreen()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateWindowState(bool saveGeo)
 {
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC() || SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFS").toBool())
   {
     // if we were go from windowed to fullscreen
     // we want to store our current windowed position
@@ -508,6 +508,14 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     }
   }
 #endif
+
+  if (visibility == QWindow::Windowed && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFS").toBool())
+  {
+    QLOG_WARN() << "Forcing re-entering fullscreen because of forceAlwaysFS setting!";
+    updateForcedScreen(); // if a specific screen is forced, try to move the window there
+    setVisibility(QWindow::FullScreen);
+    return;
+  }
 
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
   {

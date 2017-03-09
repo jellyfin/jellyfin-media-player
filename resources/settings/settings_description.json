@@ -146,6 +146,11 @@
         "value": "forceFSScreen",
         "platforms_excluded": [ "oe" ],
         "default": ""
+      },
+      {
+        "value": "forceAlwaysFS",
+        "default": false,
+        "hidden": true
       }
     ]
   },

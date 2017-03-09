@@ -181,7 +181,7 @@ int DisplayManagerWin::getDisplayFromPoint(int x, int y)
     DEVMODEW modeInfo = {};
     modeInfo.dmSize = sizeof(modeInfo);
 
-    QLOG_DEBUG() << "Looking at display" << displayId << dispName;
+    QLOG_TRACE() << "Looking at display" << displayId << dispName;
 
     if (!EnumDisplaySettingsW((LPCWSTR)dispName.utf16(), ENUM_CURRENT_SETTINGS,
                               &modeInfo))
@@ -192,7 +192,7 @@ int DisplayManagerWin::getDisplayFromPoint(int x, int y)
     {
       QRect displayRect(modeInfo.dmPosition.x, modeInfo.dmPosition.y, modeInfo.dmPelsWidth,
                         modeInfo.dmPelsHeight);
-      QLOG_DEBUG() << "Position on virtual desktop:" << displayRect;
+      QLOG_TRACE() << "Position on virtual desktop:" << displayRect;
 
       if (displayRect.contains(x, y))
         return displayId;

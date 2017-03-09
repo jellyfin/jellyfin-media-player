@@ -244,7 +244,7 @@ int DisplayComponent::getApplicationDisplay(bool silent)
   {
     if (!silent)
     {
-      QLOG_DEBUG() << "Looking for a display at:" << activeWindow->geometry()
+      QLOG_TRACE() << "Looking for a display at:" << activeWindow->geometry()
                    << "(center:" << activeWindow->geometry().center() << ")";
     }
     display = m_displayManager->getDisplayFromPoint(activeWindow->geometry().center());
@@ -252,7 +252,7 @@ int DisplayComponent::getApplicationDisplay(bool silent)
 
   if (!silent)
   {
-    QLOG_DEBUG() << "Display index:" << display;
+    QLOG_TRACE() << "Display index:" << display;
   }
   return display;
 }

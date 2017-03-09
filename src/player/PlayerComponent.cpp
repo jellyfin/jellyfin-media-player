@@ -892,8 +892,8 @@ void PlayerComponent::updateAudioDevice()
 
   if (!m_audioDevices.contains(device))
   {
-    device = "auto";
     QLOG_WARN() << "Not using audio device" << device << "because it's not present.";
+    device = "auto";
   }
 
   mpv::qt::set_property(m_mpv, "audio-device", device);

@@ -725,21 +725,28 @@ void KonvergoWindow::updateScreens()
   settingList << defentry;
 
   bool currentPresent = false;
+  int num = 0;
   for(QScreen* screen : qApp->screens())
   {
     QRect rc = screen->geometry();
+    bool active = screen == windowScreen;
 
     QVariantMap entry;
     entry["value"] = screen->name();
     entry["title"] =
       QString("%1,%2 %3x%4").arg(rc.left()).arg(rc.top()).arg(rc.right()).arg(rc.bottom()) +
       " (" + screen->name() + ")" +
-      ((screen == windowScreen) ? " *" : "");
+      (active ? " *" : "");
 
     settingList << entry;
 
-    if (screen->name() == screenName)
+    bool selected = screen->name() == screenName;
+    if (selected)
       currentPresent = true;
+
+    QLOG_DEBUG() << "Screen" << (num++) << screen << screen->geometry()
+                 << screen->virtualGeometry() << "active:" << active
+                 << "selected:" << selected;
   }
 
   if (!currentPresent && !screenName.isEmpty())

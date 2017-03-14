@@ -1317,6 +1317,8 @@ static QString get_mpv_osd(mpv_handle *ctx, const QString& property)
     return "-";
   QString r = QString::fromUtf8(s);
   mpv_free(s);
+  if (r.size() > 400)
+    r = r.mid(0, 400) + "...";
   Log::CensorAuthTokens(r);
   return r;
 }

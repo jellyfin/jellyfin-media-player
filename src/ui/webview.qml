@@ -32,6 +32,29 @@ KonvergoWindow
   Action
   {
     enabled: mainWindow.webDesktopMode
+    shortcut:
+    {
+      if (components.system.isMacos) return "Ctrl+Meta+F"
+      return "F11"
+    }
+    onTriggered: mainWindow.toggleFullscreenNoSwitch()
+  }
+
+  Action
+  {
+    shortcut: "Alt+Return"
+    enabled:
+    {
+      if (mainWindow.webDesktopMode && components.system.isWindows)
+        return true;
+      return false;
+    }
+    onTriggered: mainWindow.toggleFullscreen()
+  }
+
+  Action
+  {
+    enabled: mainWindow.webDesktopMode
     shortcut: StandardKey.Close
     onTriggered: mainWindow.close()
   }
@@ -58,30 +81,6 @@ KonvergoWindow
     shortcut: "Ctrl+Shift+D"
     enabled: mainWindow.webDesktopMode
     onTriggered: mainWindow.toggleDebug()
-  }
-
-  Action
-  {
-    shortcut: "Alt+Return"
-    enabled:
-    {
-      if (mainWindow.webDesktopMode && components.system.isWindows)
-        return true;
-      return false;
-    }
-    onTriggered: mainWindow.toggleFullscreen()
-  }
-
-  Action
-  {
-    enabled: mainWindow.webDesktopMode
-    shortcut:
-    {
-      if (components.system.isMacos)
-        return "Ctrl+Meta+F"
-      return "F11"
-    }
-    onTriggered: mainWindow.toggleFullscreenNoSwitch()
   }
 
   Action

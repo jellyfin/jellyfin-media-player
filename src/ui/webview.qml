@@ -24,7 +24,7 @@ KonvergoWindow
     enabled: mainWindow.webDesktopMode
     shortcut: {
       if (components.system.isMacos) return "Ctrl+Shift+F";
-      return "Shift+F11";
+      return "F11";
     }
     onTriggered: mainWindow.toggleFullscreen()
   }
@@ -35,7 +35,7 @@ KonvergoWindow
     shortcut:
     {
       if (components.system.isMacos) return "Ctrl+Meta+F"
-      return "F11"
+      return "Shift+F11"
     }
     onTriggered: mainWindow.toggleFullscreenNoSwitch()
   }

@@ -5,6 +5,7 @@ NEW:
  - Add experimental refreshrate.avoid_25hz_30hz and audio_delay.50hz hidden settings
 
 FIXES:
+ - (Desktop) Mark as watched/unwatched on recently played items
  - (Desktop) Added exit fullscreen button for Windows users
  - (Desktop) Fixed translations
  - (OSX) Improvements to cursor hiding

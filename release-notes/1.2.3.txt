@@ -3,6 +3,7 @@ NEW:
  - TV web-client updated to 2.13.1
  - Add an experimental setting to force what screen PMP should be shown on in fullscreen
  - Add experimental refreshrate.avoid_25hz_30hz and audio_delay.50hz hidden settings
+ - (Desktop) Media key support
 
 FIXES:
  - (Desktop) Mark as watched/unwatched on recently played items

@@ -9,7 +9,7 @@ if(DEPENDENCY_TOKEN)
     set(DEPS_BUILD_NUMBER 77)
   elseif(APPLE OR WIN32)
     set(DEPENDCY_FOLDER plexmediaplayer-dependencies-codecs)
-    set(DEPS_BUILD_NUMBER 230)
+    set(DEPS_BUILD_NUMBER 232)
   endif()
   if(NOT (DEPENDCY_FOLDER STREQUAL ""))
     download_deps(

@@ -44,6 +44,9 @@ struct CodecDriver {
   // depending on input media and OS version.
   bool isSystemCodec() const;
 
+  // Return "mf" for Windows codecs, "at" for OSX audio, "mmal" for RPI video, "eae" for EAE, "" otherwise
+  QString getSystemCodecType() const;
+
   bool isWhitelistedSystemAudioCodec() const;
   bool isWhitelistedSystemVideoCodec() const;
 
@@ -94,6 +97,11 @@ class CodecsFetcher : public QObject
 {
   Q_OBJECT
 public:
+  CodecsFetcher()
+  : m_eaeNeeded(false), m_fetchEAE(false)
+  {
+  }
+
   // Download the given list of codecs (skip download for codecs already
   // installed). Then call done(userData), regardless of success.
   void installCodecs(const QList<CodecDriver>& codecs);
@@ -110,12 +118,15 @@ private Q_SLOTS:
 
 private:
   bool codecNeedsDownload(const CodecDriver& codec);
-  bool processCodecInfoReply(const QByteArray& data, const CodecDriver& codec);
-  void processCodecDownloadDone(const QByteArray& data, const CodecDriver& codec);
+  bool processCodecInfoReply(const QVariant& context, const QByteArray& data);
+  void processCodecDownloadDone(const QVariant& context, const QByteArray& data);
   void startNext();
+  void startEAE();
 
   QQueue<CodecDriver> m_Codecs;
   QByteArray m_currentHash;
+  bool m_eaeNeeded;
+  bool m_fetchEAE;
 };
 
 class Codecs
@@ -135,6 +146,8 @@ public:
   }
 
   static void updateCachedCodecList();
+
+  static void Uninit();
 
   static const QList<CodecDriver>& getCachedCodecList();
 

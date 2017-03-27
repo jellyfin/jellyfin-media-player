@@ -255,6 +255,7 @@ int main(int argc, char *argv[])
     delete uniqueApp;
     Globals::EngineDestroy();
 
+    Codecs::Uninit();
     Log::Uninit();
     return ret;
   }
@@ -268,6 +269,7 @@ int main(int argc, char *argv[])
 
     errApp.exec();
 
+    Codecs::Uninit();
     Log::Uninit();
     return 1;
   }

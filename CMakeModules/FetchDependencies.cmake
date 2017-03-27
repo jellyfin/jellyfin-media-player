@@ -25,6 +25,7 @@ endif(APPLE)
 option(ENABLE_CODECS "Enable downloading for Codecs on Demand" OFF)
 if(ENABLE_CODECS)
   add_definitions(-DHAVE_CODEC_MANIFEST)
+  add_definitions(-DEAE_VERSION=133)
 endif()
 
 function(get_content_of_url)

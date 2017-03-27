@@ -6,13 +6,22 @@
 #include <QDomDocument>
 #include <QDomNode>
 #include <QCoreApplication>
+#include <QProcess>
 #include <QUuid>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QResource>
+#include <QSaveFile>
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QCryptographicHash>
+#include <QTemporaryDir>
+
+#ifdef HAVE_MINIZIP
+#include <minizip/unzip.h>
+#include <minizip/ioapi.h>
+#endif
+
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "utils/Utils.h"
@@ -40,6 +49,16 @@ static const Codec Decoders[] = {
 static const Codec Encoders[] = {
     {"dummy", "dummy", nullptr, 1},
 };
+#endif
+
+#define STRINGIFY_(x) #x
+#define STRINGIFY(x) STRINGIFY_(x)
+
+#ifdef EAE_VERSION
+#define HAVE_EAE 1
+#else
+#define EAE_VERSION unavailable
+#define HAVE_EAE 0
 #endif
 
 // We might want to use Codec.quality to decide this one day.
@@ -91,6 +110,9 @@ static QList<CodecDriver> g_cachedCodecList;
 
 static QString g_deviceID;
 
+static QString g_eaeWatchFolder;
+static QProcess* g_eaeProcess;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString getBuildType()
 {
@@ -101,6 +123,22 @@ static QString getBuildType()
 #else
   return SystemComponent::Get().getPlatformTypeString() + "-" +
          SystemComponent::Get().getPlatformArchString();
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static QString getEAEBuildType()
+{
+#if defined(Q_OS_MAC)
+  return "darwin-x86_64";
+#elif defined(Q_OS_WIN)
+  return sizeof(void *) > 4 ? "windows-x86_64" : "windows-i386";
+#elif defined(TARGET_RPI)
+  return "linux-raspi2-arm7";
+#elif defined(Q_OS_LINUX)
+  return sizeof(void *) > 4 ? "linux-ubuntu-x86_64" : "linux-ubuntu-i686";
+#else
+  return "unknown";
 #endif
 }
 
@@ -130,6 +168,21 @@ static QString codecsRootPath()
 static QString codecsPath()
 {
   return codecsRootPath() + g_codecVersion + "-" + getBuildType() + QDir::separator();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static QString eaePrefixPath()
+{
+  return codecsRootPath() + "EasyAudioEncoder-" + STRINGIFY(EAE_VERSION) + "-" + getBuildType();
+}
+
+static QString eaeBinaryPath()
+{
+QString exeSuffix = "";
+#ifdef Q_OS_WIN
+  exeSuffix = ".exe";
+#endif
+  return eaePrefixPath() + "/EasyAudioEncoder/EasyAudioEncoder" + exeSuffix;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +283,21 @@ bool CodecDriver::isSystemCodec() const
   // Linux on RPI
   if (driver.endsWith("_mmal"))
     return true;
+  // Not really a system codec, but treated as such for convenience
+  if (driver.endsWith("_eae"))
+    return true;
   return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+QString CodecDriver::getSystemCodecType() const
+{
+  if (!isSystemCodec())
+    return "";
+  int splitAt = driver.indexOf("_");
+  if (splitAt < 0)
+    return "";
+  return driver.mid(splitAt + 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -340,6 +407,16 @@ static QString getFFmpegVersion()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+static void setEnv(QString var, QString val)
+{
+#ifdef Q_OS_WIN
+  SetEnvironmentVariableW(var.toStdWString().c_str(), val.toStdWString().c_str());
+#else
+  qputenv(var.toUtf8().data(), val.toUtf8().data());
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void Codecs::preinitCodecs()
 {
   // Extract the CI codecs version we set with --extra-version when compiling FFmpeg.
@@ -357,11 +434,13 @@ void Codecs::preinitCodecs()
   // Follows the convention used by av_get_token().
   QString escapedPath = path.replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'");
   // This must be run before any threads are started etc. (for safety).
-#ifdef Q_OS_WIN
-  SetEnvironmentVariableW(L"FFMPEG_EXTERNAL_LIBS", escapedPath.toStdWString().c_str());
-#else
-  qputenv("FFMPEG_EXTERNAL_LIBS", escapedPath.toUtf8().data());
-#endif
+  setEnv("FFMPEG_EXTERNAL_LIBS", escapedPath);
+
+  QTemporaryDir d(QDir::tempPath() + "/pmp-eae-XXXXXX");
+  d.setAutoRemove(false);
+  g_eaeWatchFolder = d.path();
+
+  setEnv("EAE_ROOT", g_eaeWatchFolder);
 
   g_deviceID = loadDeviceID();
 }
@@ -416,6 +495,9 @@ static void probeCodecs()
 {
   if (g_deviceID.isEmpty())
     throw FatalException("Could not read device-id.");
+
+  if (g_eaeWatchFolder.isEmpty())
+    throw FatalException("Could not create EAE working directory.");
 
 #ifdef Q_OS_WIN32
   if (useSystemVideoDecoders())
@@ -519,6 +601,12 @@ void CodecsFetcher::installCodecs(const QList<CodecDriver>& codecs)
   {
     if (codecNeedsDownload(codec))
       m_Codecs.enqueue(codec);
+    if (codec.getSystemCodecType() == "eae")
+    {
+      m_eaeNeeded = true;
+      if (!QFile(eaeBinaryPath()).exists())
+        m_fetchEAE = true;
+    }
   }
   startNext();
 }
@@ -535,32 +623,56 @@ static Downloader::HeaderList getPlexHeaders()
   return headers;
 }
 
+static QUrl buildCodecQuery(QString version, QString name, QString build)
+{
+  QString host = "https://plex.tv";
+
+  QUrl url = QUrl(host + "/api/codecs/" + name);
+  QUrlQuery query;
+  query.addQueryItem("deviceId", g_deviceID);
+  query.addQueryItem("version", version);
+  query.addQueryItem("build", build);
+  query.addQueryItem("oldestPreviousVersion", SettingsComponent::Get().oldestPreviousVersion());
+
+  url.setQuery(query);
+
+  return url;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CodecsFetcher::startNext()
 {
+  if (m_fetchEAE)
+  {
+    m_fetchEAE = false;
+
+    QUrl url = buildCodecQuery(STRINGIFY(EAE_VERSION), "easyaudioencoder", getEAEBuildType());
+
+    Downloader *downloader = new Downloader(QVariant("eae"), url, getPlexHeaders(), this);
+    connect(downloader, &Downloader::done, this, &CodecsFetcher::codecInfoDownloadDone);
+    return;
+  }
+
   if (m_Codecs.isEmpty())
   {
+    // Do final initializations.
+    if (m_eaeNeeded)
+      startEAE();
+
     emit done(this);
     return;
   }
 
   CodecDriver codec = m_Codecs.dequeue();
 
-  QString host = "https://plex.tv";
-  QUrl url = QUrl(host + "/api/codecs/" + codec.getMangledName());
-  QUrlQuery query;
-  query.addQueryItem("deviceId", g_deviceID);
-  query.addQueryItem("version", g_codecVersion);
-  query.addQueryItem("build", getBuildType());
-  query.addQueryItem("oldestPreviousVersion", SettingsComponent::Get().oldestPreviousVersion());
-  url.setQuery(query);
+  QUrl url = buildCodecQuery(g_codecVersion, codec.getMangledName(), getBuildType());
 
   Downloader *downloader = new Downloader(QVariant::fromValue(codec), url, getPlexHeaders(), this);
   connect(downloader, &Downloader::done, this, &CodecsFetcher::codecInfoDownloadDone);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool CodecsFetcher::processCodecInfoReply(const QByteArray& data, const CodecDriver& codec)
+bool CodecsFetcher::processCodecInfoReply(const QVariant& context, const QByteArray& data)
 {
   QLOG_INFO() << "Got reply:" << QString::fromUtf8(data);
 
@@ -600,7 +712,7 @@ bool CodecsFetcher::processCodecInfoReply(const QByteArray& data, const CodecDri
     return false;
   }
 
-  Downloader *downloader = new Downloader(QVariant::fromValue(codec), url, getPlexHeaders(), this);
+  Downloader *downloader = new Downloader(context, url, getPlexHeaders(), this);
   connect(downloader, &Downloader::done, this, &CodecsFetcher::codecDownloadDone);
 
   return true;
@@ -609,16 +721,213 @@ bool CodecsFetcher::processCodecInfoReply(const QByteArray& data, const CodecDri
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CodecsFetcher::codecInfoDownloadDone(QVariant userData, bool success, const QByteArray& data)
 {
-  CodecDriver codec = userData.value<CodecDriver>();
-  if (!success || !processCodecInfoReply(data, codec))
+  if (!success || !processCodecInfoReply(userData, data))
   {
     QLOG_ERROR() << "Codec download failed.";
     startNext();
   }
 }
 
+#ifdef HAVE_MINIZIP
+
+static voidpf unz_open_file(voidpf opaque, const char* filename, int mode)
+{
+#ifdef Q_OS_WIN32
+  return _wfopen(QString::fromUtf8(filename).toStdWString().c_str(), L"rb");
+#else
+  return fopen(filename, "rb");
+#endif
+}
+
+static uLong unz_read_file(voidpf opaque, voidpf stream, void* buf, uLong size)
+{
+  return fread(buf, 1, size, (FILE *)stream);
+}
+
+static uLong unz_write_file(voidpf opaque, voidpf stream, const void* buf, uLong size)
+{
+  return 0;
+}
+
+static int unz_close_file(voidpf opaque, voidpf stream)
+{
+  return fclose((FILE *)stream);
+}
+
+static int unz_error_file(voidpf opaque, voidpf stream)
+{
+  return ferror((FILE *)stream);
+}
+
+static long unz_tell_file(voidpf opaque, voidpf stream)
+{
+  return ftell((FILE *)stream);
+}
+
+long unz_seek_file(voidpf opaque, voidpf stream, uLong offset, int origin)
+{
+  int whence = -1;
+  switch (origin)
+  {
+    case ZLIB_FILEFUNC_SEEK_CUR:
+      whence = SEEK_CUR;
+      break;
+    case ZLIB_FILEFUNC_SEEK_END:
+      whence = SEEK_END;
+      break;
+    case ZLIB_FILEFUNC_SEEK_SET:
+      whence = SEEK_SET;
+      break;
+  }
+  return fseek((FILE *)stream, offset, whence);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void CodecsFetcher::processCodecDownloadDone(const QByteArray& data, const CodecDriver& codec)
+static bool extractZip(QString zip, QString dest)
+{
+  bool success = false;
+
+  zlib_filefunc_def unzfilefuncs = {};
+  unzfilefuncs.zopen_file = unz_open_file;
+  unzfilefuncs.zread_file = unz_read_file;
+  unzfilefuncs.zwrite_file = unz_write_file;
+  unzfilefuncs.ztell_file = unz_tell_file;
+  unzfilefuncs.zseek_file = unz_seek_file;
+  unzfilefuncs.zclose_file = unz_close_file;
+  unzfilefuncs.zerror_file = unz_error_file;
+
+  unzFile file = unzOpen2(zip.toUtf8().data(), &unzfilefuncs);
+  if (!file)
+  {
+    QLOG_ERROR() << "could not open .zip file.";
+    goto fail;
+  }
+
+  unz_global_info info;
+  int unzerr;
+  if ((unzerr = unzGetGlobalInfo(file, &info)) != UNZ_OK)
+  {
+    QLOG_ERROR() << "unzGlobalInfo() failed with" << unzerr;
+    goto fail;
+  }
+
+  if ((unzerr = unzGoToFirstFile(file)) != UNZ_OK)
+  {
+    QLOG_ERROR() << "unzGoToFirstFile() failed with" << unzerr;
+    goto fail;
+  }
+
+  for (ZPOS64_T n = 0; n < info.number_entry; n++)
+  {
+    if (n > 0 && (unzerr = unzGoToNextFile(file)) != UNZ_OK)
+    {
+      QLOG_ERROR() << "unzGoToNextFile() failed with" << unzerr;
+      goto fail;
+    }
+
+    char filename[256];
+    unz_file_info finfo;
+
+    if ((unzerr = unzGetCurrentFileInfo(file, &finfo, filename, sizeof(filename), 0, 0, 0, 0)) != UNZ_OK)
+    {
+      QLOG_ERROR() << "unzGetCurrentFileInfo() failed with" << unzerr;
+      goto fail;
+    }
+
+    if ((unzerr = unzOpenCurrentFile(file)) != UNZ_OK)
+    {
+      QLOG_ERROR() << "unzOpenCurrentFile() failed with" << unzerr;
+      goto fail;
+    }
+
+    char *pathpart = strrchr(filename, '/');
+    if (pathpart)
+    {
+      //  This part sucks especially: temporarily cut off the string.
+      *pathpart = '\0';
+
+      QDir dir(dest + "/" + filename);
+      if (!dir.mkpath("."))
+      {
+        QLOG_ERROR() << "could not create zip sub directory";
+        goto fail;
+      }
+
+      *pathpart = '/';
+    }
+
+    // Directory (probably)
+    if (QString(filename).endsWith("/"))
+      continue;
+
+    QString writepath = dest + "/" + filename;
+
+    QSaveFile out(writepath);
+    if (!out.open(QIODevice::WriteOnly))
+    {
+      QLOG_ERROR() << "could not open output file" << filename;
+      goto fail;
+    }
+
+    while (true)
+    {
+      char buf[4096];
+      int read = unzReadCurrentFile(file, buf, sizeof(buf));
+
+      if (read == 0)
+        break;
+
+      if (read < 0)
+      {
+        QLOG_ERROR() << "error decompressing zip entry" << filename;
+        goto fail;
+      }
+
+      if (out.write(buf, read) != read)
+      {
+        QLOG_ERROR() << "error writing output file" << filename;
+        goto fail;
+      }
+    }
+
+    if (!out.commit())
+    {
+      QLOG_ERROR() << "error closing output file" << filename;
+      goto fail;
+    }
+
+#ifndef _WIN32
+    // Set the executable bit.
+    // We could try setting the full permissions as stored in the file, but why bother.
+    if (finfo.external_fa & 0x400000)
+    {
+      if (!QFile::setPermissions(writepath, QFileDevice::Permissions(0x5145)))
+      {
+        QLOG_ERROR() << "could not set output executable bit on extracted file";
+        goto fail;
+      }
+    }
+#endif
+  }
+
+  success = true;
+fail:
+  unzClose(file);
+  return success;
+}
+
+#else /* ifdef HAVE_MINIZIP */
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool extractZip(QString zip, QString dest)
+{
+  return false;
+}
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByteArray& data)
 {
   QByteArray hash = QCryptographicHash::hash(data, QCryptographicHash::Sha1);
 
@@ -628,22 +937,51 @@ void CodecsFetcher::processCodecDownloadDone(const QByteArray& data, const Codec
     return;
   }
 
-  QLOG_INFO() << "Storing codec as" << codec.getPath();
-
-  if (!Utils::safelyWriteFile(codec.getPath(), data))
+  if (context == QVariant("eae"))
   {
-    QLOG_ERROR() << "Writing codec file failed.";
-    return;
-  }
+    QString dest = eaePrefixPath() + ".zip";
 
-  // This causes libmpv and eventually libavcodec to rescan and load new codecs.
-  Codecs::updateCachedCodecList();
-  for (const CodecDriver& item : Codecs::getCachedCodecList())
-  {
-    if (Codecs::sameCodec(item, codec) && !item.present)
+    QLOG_INFO() << "Storing EAE as" << dest;
+
+    if (!Utils::safelyWriteFile(dest, data))
     {
-      QLOG_ERROR() << "Codec could not be loaded after installing it.";
+      QLOG_ERROR() << "Writing codec file failed.";
       return;
+    }
+
+    QDir dir(dest);
+    dir.removeRecursively();
+
+    if (!extractZip(dest, eaePrefixPath()))
+    {
+      QLOG_ERROR() << "Could not extract zip.";
+      dir.removeRecursively();
+      return;
+    }
+
+    QFile::remove(dest);
+  }
+  else
+  {
+    CodecDriver codec = context.value<CodecDriver>();
+
+    QLOG_INFO() << "Storing codec as" << codec.getPath();
+
+    if (!Utils::safelyWriteFile(codec.getPath(), data))
+    {
+      QLOG_ERROR() << "Writing codec file failed.";
+      return;
+    }
+
+    // This causes libmpv and eventually libavcodec to rescan and load new codecs.
+    Codecs::updateCachedCodecList();
+    for (const CodecDriver& item : Codecs::getCachedCodecList())
+    {
+      if (Codecs::sameCodec(item, codec) && !item.present)
+      {
+        QLOG_ERROR() << "Codec could not be loaded after installing it.";
+        return;
+      }
     }
   }
 
@@ -653,17 +991,82 @@ void CodecsFetcher::processCodecDownloadDone(const QByteArray& data, const Codec
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CodecsFetcher::codecDownloadDone(QVariant userData, bool success, const QByteArray& data)
 {
-  CodecDriver codec = userData.value<CodecDriver>();
-  QLOG_INFO() << "Codec" << codec.driver << "request finished.";
+  QLOG_INFO() << "Codec request finished.";
   if (success)
   {
-    processCodecDownloadDone(data, codec);
+    processCodecDownloadDone(userData, data);
   }
   else
   {
     QLOG_ERROR() << "Codec download HTTP request failed.";
   }
   startNext();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void CodecsFetcher::startEAE()
+{
+  if (!g_eaeProcess)
+  {
+    g_eaeProcess = new QProcess();
+    g_eaeProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+    connect(g_eaeProcess, &QProcess::stateChanged,
+      [](QProcess::ProcessState s)
+      {
+        QLOG_INFO() << "EAE process state:" << s;
+      }
+    );
+    connect(g_eaeProcess, &QProcess::errorOccurred,
+      [](QProcess::ProcessError e)
+      {
+        QLOG_INFO() << "EAE process error:" << e;
+      }
+    );
+    connect(g_eaeProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+      [](int exitCode, QProcess::ExitStatus exitStatus)
+      {
+        QLOG_INFO() << "EAE process finished:" << exitCode << exitStatus;
+      }
+    );
+  }
+
+  if (g_eaeProcess->state() == QProcess::NotRunning)
+  {
+    if (g_eaeProcess->program().size())
+    {
+      int exitCode = g_eaeProcess->exitStatus() == QProcess::NormalExit ? g_eaeProcess->exitCode() : -1;
+      QLOG_ERROR() << "EAE died with exit code" << exitCode;
+    }
+
+    QLOG_INFO() << "Starting EAE.";
+
+    g_eaeProcess->setProgram(eaeBinaryPath());
+    g_eaeProcess->setWorkingDirectory(g_eaeWatchFolder);
+
+    QDir dir(g_eaeWatchFolder);
+    dir.removeRecursively();
+    dir.mkpath(".");
+
+    static const QStringList watchfolder_names =
+    {
+      "Convert to WAV (to 2ch or less)",
+      "Convert to WAV (to 8ch or less)",
+      "Convert to Dolby Digital (Low Quality - 384 kbps)",
+      "Convert to Dolby Digital (High Quality - 640 kbps)",
+      "Convert to Dolby Digital Plus (High Quality - 384 kbps)",
+      "Convert to Dolby Digital Plus (Max Quality - 1024 kbps)",
+    };
+    for (auto folder : watchfolder_names)
+    {
+      if (!dir.mkpath(folder))
+      {
+        QLOG_ERROR() << "Could not create watch folder";
+      }
+    }
+
+    g_eaeProcess->start();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -760,6 +1163,8 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
         if (stream.audioSampleRate > 0 && (stream.audioSampleRate < 8000 || stream.audioSampleRate > 48000))
           score = 1;
       }
+      if (codec.getSystemCodecType() == "eae")
+        score = HAVE_EAE ? 2 : -1;
     }
     else
     {
@@ -770,7 +1175,7 @@ static CodecDriver selectBestDecoder(const StreamInfo& stream)
         score = 5;
     }
 
-    if (score > bestScore)
+    if (score > bestScore && score >= 0)
     {
       best = codec;
       bestScore = score;
@@ -852,4 +1257,19 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
   }
 
   return result;
+}
+
+void Codecs::Uninit()
+{
+  if (g_eaeProcess)
+  {
+    delete g_eaeProcess;
+    g_eaeProcess = nullptr;
+  }
+
+  if (!g_eaeWatchFolder.isEmpty())
+  {
+    QDir dir(g_eaeWatchFolder);
+    dir.removeRecursively();
+  }
 }

@@ -157,6 +157,28 @@ set_target_properties(${MAIN_TARGET} PROPERTIES
 copy_resources(${MAIN_TARGET})
 clang_tidy(${MAIN_TARGET})
 
+find_library(MINIZIP_LIBRARY minizip)
+if(WIN32)
+  # FindZLIB doesn't find this. (It might be possible to fix the minizip build
+  # to not require this.)
+  find_library(ZLIB_LIBRARIES zlibwapi)
+  if(ZLIB_LIBRARIES)
+    set(ZLIB_FOUND on)
+  endif()
+else()
+  include(FindZLIB)
+endif()
+
+if(ZLIB_FOUND AND MINIZIP_LIBRARY)
+  message(STATUS "Using minizip")
+  set(MINIZIP_LIBS ${MINIZIP_LIBRARY} ${ZLIB_LIBRARIES})
+  add_definitions(-DHAVE_MINIZIP)
+else()
+  if(ENABLE_CODECS)
+    message(FATAL_ERROR "minizip/zlib required in this configuration")
+  endif()
+endif()
+
 target_link_libraries(${MAIN_TARGET}
   shared
   qhttp
@@ -172,6 +194,7 @@ target_link_libraries(${MAIN_TARGET}
   ${ICU_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${RPI_LIBS}
+  ${MINIZIP_LIBS}
 )
 
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})

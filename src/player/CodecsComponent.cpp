@@ -445,6 +445,7 @@ void Codecs::preinitCodecs()
   g_deviceID = loadDeviceID();
 }
 
+#if 0
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static bool probeDecoder(QString decoder, QString resourceName)
 {
@@ -489,17 +490,12 @@ static bool probeDecoder(QString decoder, QString resourceName)
 
   return result;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void probeCodecs()
 {
-  if (g_deviceID.isEmpty())
-    throw FatalException("Could not read device-id.");
-
-  if (g_eaeWatchFolder.isEmpty())
-    throw FatalException("Could not create EAE working directory.");
-
-#ifdef Q_OS_WIN32
+#if 0
   if (useSystemVideoDecoders())
   {
     if (probeDecoder("h264_mf", ":/testmedia/high_4096x2304.h264"))
@@ -520,8 +516,65 @@ static void probeCodecs()
   if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_10)
     g_systemAudioDecoderWhitelist.remove("ac3_at");
 #endif
+}
 
-  Codecs::updateCachedCodecList();
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static void updateCodecs()
+{
+  QStringList candidates = {
+    codecsRootPath(),
+#ifdef Q_OS_MAC
+    QDir::home().path() + "/Library/Application Support/Plex/Codecs/",
+    QDir::home().path() + "/Library/Application Support/Plex Media Server/Codecs/",
+#endif
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/",
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/codecs/",
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/",
+    Paths::dataDir() + "/codecs/",
+  };
+
+  QSet<QString> codecFiles;
+
+  for (auto dir : candidates)
+  {
+    QDir qdir(dir);
+    if (!qdir.exists())
+      continue;
+
+    for (auto entry : qdir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+    {
+      QDir entryDir = qdir;
+      if (!entryDir.cd(entry))
+        continue;
+
+      for (auto codecdirEntry : entryDir.entryList(QDir::Files))
+        codecFiles.insert(codecdirEntry);
+    }
+  }
+
+  QList<CodecDriver> install;
+
+  for (CodecDriver& codec : g_cachedCodecList)
+  {
+    if (codecFiles.contains(codec.getFileName()))
+    {
+      if (codec.external && !codec.present)
+        install.append(codec);
+    }
+  }
+
+  if (!install.empty())
+  {
+    QLOG_INFO() << "Updating some codecs...";
+
+    auto fetcher = new CodecsFetcher();
+    QObject::connect(fetcher, &CodecsFetcher::done, [](CodecsFetcher* sender)
+    {
+      QLOG_INFO() << "Codec update finished.";
+      sender->deleteLater();
+    });
+    fetcher->installCodecs(install);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -563,6 +616,15 @@ static void deleteOldCodecs()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void Codecs::initCodecs()
 {
+  if (g_deviceID.isEmpty())
+    throw FatalException("Could not read device-id.");
+
+  if (g_eaeWatchFolder.isEmpty())
+    throw FatalException("Could not create EAE working directory.");
+
+  Codecs::updateCachedCodecList();
+
+  updateCodecs();
   deleteOldCodecs();
   probeCodecs();
 }

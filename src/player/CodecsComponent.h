@@ -98,7 +98,7 @@ class CodecsFetcher : public QObject
   Q_OBJECT
 public:
   CodecsFetcher()
-  : m_eaeNeeded(false), m_fetchEAE(false)
+  : startCodecs(true), m_eaeNeeded(false), m_fetchEAE(false)
   {
   }
 
@@ -108,6 +108,8 @@ public:
 
   // For free use by the user of this object.
   QVariant userData;
+
+  bool startCodecs;
 
 Q_SIGNALS:
   void done(CodecsFetcher* sender);

@@ -175,9 +175,11 @@ static QString codecsPath()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString eaePrefixPath()
 {
+  // (Keep in sync with PMS paths.)
   return codecsRootPath() + "EasyAudioEncoder-" + STRINGIFY(EAE_VERSION) + "-" + getBuildType();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString eaeBinaryPath()
 {
 QString exeSuffix = "";
@@ -185,6 +187,12 @@ QString exeSuffix = "";
   exeSuffix = ".exe";
 #endif
   return eaePrefixPath() + "/EasyAudioEncoder/EasyAudioEncoder" + exeSuffix;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool eaeIsPresent()
+{
+  return QFile(eaeBinaryPath()).exists();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -536,6 +544,7 @@ static void updateCodecs()
   };
 
   QSet<QString> codecFiles;
+  bool needEAE = false;
 
   for (auto dir : candidates)
   {
@@ -551,6 +560,10 @@ static void updateCodecs()
 
       for (auto codecdirEntry : entryDir.entryList(QDir::Files))
         codecFiles.insert(codecdirEntry);
+
+      // NOTE: PMS also uses this prefix
+      if (entry.startsWith("EasyAudioEncoder-") && !eaeIsPresent())
+        needEAE = true;
     }
   }
 
@@ -558,16 +571,17 @@ static void updateCodecs()
 
   for (CodecDriver& codec : g_cachedCodecList)
   {
-    if (codecFiles.contains(codec.getFileName()))
-    {
-      if (codec.external && !codec.present)
+    if ((codecFiles.contains(codec.getFileName()) && codec.external && !codec.present) ||
+        (codec.getSystemCodecType() == "eae" && needEAE))
         install.append(codec);
-    }
   }
 
   if (!install.empty())
   {
-    QLOG_INFO() << "Updating some codecs...";
+    QStringList codecs;
+    for (auto codec : install)
+      codecs.append(codec.getMangledName());
+    QLOG_INFO() << "Updating some codecs: " + codecs.join(", ");
 
     auto fetcher = new CodecsFetcher();
     QObject::connect(fetcher, &CodecsFetcher::done, [](CodecsFetcher* sender)
@@ -575,6 +589,7 @@ static void updateCodecs()
       QLOG_INFO() << "Codec update finished.";
       sender->deleteLater();
     });
+    fetcher->startCodecs = false;
     fetcher->installCodecs(install);
   }
 }
@@ -608,6 +623,10 @@ static void deleteOldCodecs()
 
     // Same version, but different platform -> just keep it.
     if (entry.startsWith(g_codecVersion + "-"))
+      continue;
+
+    // EAE is "special"
+    if (entry.startsWith(QString("EasyAudioEncoder-") + STRINGIFY(EAE_VERSION) + "-"))
       continue;
 
     QLOG_DEBUG() << "Deleting old directory: " << entryPath.absolutePath();
@@ -668,7 +687,7 @@ void CodecsFetcher::installCodecs(const QList<CodecDriver>& codecs)
     if (codec.getSystemCodecType() == "eae")
     {
       m_eaeNeeded = true;
-      if (!QFile(eaeBinaryPath()).exists())
+      if (!eaeIsPresent())
         m_fetchEAE = true;
     }
   }
@@ -720,7 +739,7 @@ void CodecsFetcher::startNext()
   if (m_Codecs.isEmpty())
   {
     // Do final initializations.
-    if (m_eaeNeeded)
+    if (m_eaeNeeded && startCodecs)
       startEAE();
 
     emit done(this);

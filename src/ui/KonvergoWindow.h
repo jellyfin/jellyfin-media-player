@@ -91,12 +91,10 @@ public:
       setVisibility(QWindow::Minimized);
   }
 
-  qreal windowScale() { return CalculateScale(size()); }
-  qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
+  qreal windowScale() { return m_lastWindowScale; }
+  qreal webScale() { return m_lastWebScale; }
   qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }
   QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
-  static qreal CalculateScale(const QSize& size);
-  static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
   QString webUrl();
 
   qreal webUIWidth()
@@ -152,7 +150,7 @@ private:
   QScreen* findCurrentScreen();
 
   bool m_debugLayer;
-  qreal m_lastScale;
+  qreal m_lastWindowScale, m_lastWebScale;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
   int m_ignoreFullscreenSettingsChange;
@@ -163,6 +161,9 @@ private:
   QString m_currentScreenName;
 
   void setWebMode(bool newDesktopMode, bool fullscreen);
+
+  static qreal CalculateScale(const QSize& size);
+  static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
 };
 
 #endif // KONVERGOWINDOW_H

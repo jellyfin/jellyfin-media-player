@@ -25,7 +25,7 @@
 KonvergoWindow::KonvergoWindow(QWindow* parent) :
   QQuickWindow(parent),
   m_debugLayer(false),
-  m_lastScale(1.0),
+  m_lastWindowScale(-1), m_lastWebScale(-1),
   m_ignoreFullscreenSettingsChange(0),
   m_showedUpdateDialog(false),
   m_osxPresentationOptions(0)
@@ -622,15 +622,17 @@ void KonvergoWindow::toggleDebug()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::notifyScale(const QSize& size)
 {
-  qreal scale = CalculateScale(size);
-  if (scale != m_lastScale)
+  qreal windowScale = CalculateScale(size);
+  qreal webScale = CalculateWebScale(size, devicePixelRatio());
+  if (windowScale != m_lastWindowScale || webScale != m_lastWebScale)
   {
-    QLOG_DEBUG() << "windowScale updated to:" << scale << "webscale:" << CalculateWebScale(size, devicePixelRatio());
-    m_lastScale = scale;
+    QLOG_DEBUG() << "windowScale updated to:" << windowScale << "webscale:" << webScale;
 
-    emit SystemComponent::Get().scaleChanged(CalculateWebScale(size, devicePixelRatio()));
+    m_lastWindowScale = windowScale;
+    m_lastWebScale = webScale;
+    emit SystemComponent::Get().scaleChanged(webScale);
+    emit webScaleChanged();
   }
-  emit webScaleChanged();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

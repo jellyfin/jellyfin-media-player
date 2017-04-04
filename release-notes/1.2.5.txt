@@ -1,2 +1,2 @@
-FIXED:
+FIXES:
  - (TV) Interface not using full window size

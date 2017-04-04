@@ -365,8 +365,6 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
       m_webDesktopMode = newDesktopMode;
       emit webDesktopModeChanged();
       emit webUrlChanged();
-      updateWindowState();
-      notifyScale(size());
     }
     else
     {
@@ -382,13 +380,15 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
       SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
       QTimer::singleShot(0, [=]
       {
+        auto s = size();
+        QLOG_DEBUG() << "compute scale for mode switch" << s;
+        notifyScale(s);
         m_webDesktopMode = newDesktopMode;
         emit webDesktopModeChanged();
         emit webUrlChanged();
 
         SystemComponent::Get().setCursorVisibility(true);
         updateWindowState();
-        notifyScale(size());
       });
     }
   }

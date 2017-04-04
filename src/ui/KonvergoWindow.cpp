@@ -630,7 +630,7 @@ void KonvergoWindow::notifyScale(const QSize& size)
 
     m_lastWindowScale = windowScale;
     m_lastWebScale = webScale;
-    emit SystemComponent::Get().scaleChanged(webScale);
+    emit SystemComponent::Get().updateScale(webScale);
     emit webScaleChanged();
   }
 }

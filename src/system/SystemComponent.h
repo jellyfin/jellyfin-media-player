@@ -15,11 +15,12 @@ class SystemComponent : public ComponentBase
   Q_OBJECT
   DEFINE_SINGLETON(SystemComponent);
 
+public:
   Q_PROPERTY(bool isMacos READ platformIsMac CONSTANT)
   Q_PROPERTY(bool isWindows READ platformIsWindows CONSTANT)
   Q_PROPERTY(bool isLinux READ platformIsLinux CONSTANT)
+  Q_PROPERTY(qreal scale MEMBER m_scale NOTIFY scaleChanged )
 
-public:
   bool componentExport() override { return true; }
   const char* componentName() override { return "system"; }
   bool componentInitialize() override;
@@ -86,6 +87,8 @@ public:
 
   Q_INVOKABLE void crashApp();
 
+  void updateScale(qreal scale);
+
 signals:
   void hostMessage(const QString& message);
   void settingsMessage(const QString& setting, const QString& value);
@@ -106,6 +109,7 @@ private:
   QString m_authenticationToken;
   QString m_webClientVersion;
   bool m_cursorVisible;
+  qreal m_scale;
 
 };
 

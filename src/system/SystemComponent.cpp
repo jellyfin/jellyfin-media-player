@@ -41,7 +41,7 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true)
+SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(0)
 {
   m_mouseOutTimer = new QTimer(this);
   m_mouseOutTimer->setSingleShot(true);
@@ -361,3 +361,12 @@ QString SystemComponent::getCapabilitiesString()
   return capstring.arg(dtschannels).arg(ac3channels);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::updateScale(qreal scale)
+{
+  if (scale != m_scale)
+  {
+    m_scale = scale;
+    emit scaleChanged(m_scale);
+  }
+}

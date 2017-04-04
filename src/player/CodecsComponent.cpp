@@ -36,8 +36,10 @@
 Q_DECLARE_METATYPE(CodecDriver);
 
 #ifdef HAVE_CODEC_MANIFEST
+#define WITH_CODECS 1
 #include "CodecManifest.h"
 #else
+#define WITH_CODECS 0
 #define CODEC_VERSION   "dummy"
 #define SHLIB_PREFIX    ""
 #define SHLIB_EXTENSION "dummy"
@@ -680,7 +682,7 @@ static Downloader::HeaderList getPlexHeaders()
   QString auth = SystemComponent::Get().authenticationToken();
   if (auth.size())
     headers.append({"X-Plex-Token", auth});
-  headers.append({"X-Plex-Product", "Plex Media Player"});
+  headers.append({"X-Plex-Product", WITH_CODECS ? "Plex Media Player" : "openpmp"});
   headers.append({"X-Plex-Platform", "Konvergo"});
   return headers;
 }

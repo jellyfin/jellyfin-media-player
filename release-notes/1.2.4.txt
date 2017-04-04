@@ -1,2 +1,6 @@
 NEW:
  - Updated dependencies
+
+ FIXED:
+ - HLS issue
+ - Fullscreen in OpenGL mode on Windows 7

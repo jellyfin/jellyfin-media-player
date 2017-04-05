@@ -59,6 +59,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 
   QRect loadedGeo = loadGeometry();
   notifyScale(loadedGeo.size());
+  emit webScaleChanged();
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
@@ -365,6 +366,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
       m_webDesktopMode = newDesktopMode;
       emit webDesktopModeChanged();
       emit webUrlChanged();
+      emit webScaleChanged();
     }
     else
     {
@@ -380,12 +382,13 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
       SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
       QTimer::singleShot(0, [=]
       {
+        m_webDesktopMode = newDesktopMode;
         auto s = size();
         QLOG_DEBUG() << "compute scale for mode switch" << s;
         notifyScale(s);
-        m_webDesktopMode = newDesktopMode;
         emit webDesktopModeChanged();
         emit webUrlChanged();
+        emit webScaleChanged();
 
         if (m_webDesktopMode)
           SystemComponent::Get().setCursorVisibility(true);
@@ -544,6 +547,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 
   InputComponent::Get().cancelAutoRepeat();
   notifyScale(size());
+  emit webScaleChanged();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -632,7 +636,6 @@ void KonvergoWindow::notifyScale(const QSize& size)
     m_lastWindowScale = windowScale;
     m_lastWebScale = webScale;
     emit SystemComponent::Get().updateScale(webScale);
-    emit webScaleChanged();
   }
 }
 
@@ -666,6 +669,7 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
   #endif
 
   notifyScale(event->size());
+  emit webScaleChanged();
   QQuickWindow::resizeEvent(event);
 }
 

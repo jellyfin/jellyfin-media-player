@@ -25,7 +25,7 @@
 KonvergoWindow::KonvergoWindow(QWindow* parent) :
   QQuickWindow(parent),
   m_debugLayer(false),
-  m_lastWindowScale(-1), m_lastWebScale(-1),
+  m_lastWindowScale(-1), m_lastWebScale(-1), m_tvUIw(-1), m_tvUIh(-1),
   m_ignoreFullscreenSettingsChange(0),
   m_showedUpdateDialog(false),
   m_osxPresentationOptions(0)
@@ -58,8 +58,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 #endif
 
   QRect loadedGeo = loadGeometry();
-  notifyScale(loadedGeo.size());
-  emit webScaleChanged();
+  updateSizeDependendProperties(loadedGeo.size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
@@ -363,37 +362,44 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
     if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString() != "auto")
     {
-      m_webDesktopMode = newDesktopMode;
-      emit webDesktopModeChanged();
-      emit webUrlChanged();
-      emit webScaleChanged();
+      if (oldDesktopMode != newDesktopMode)
+      {
+        PlayerComponent::Get().stop();
+        m_webDesktopMode = newDesktopMode;
+        emit webDesktopModeChanged();
+        emit webUrlChanged();
+      }
     }
     else
     {
-      bool fullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
+      bool oldFullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
+      bool newFullscreen = oldFullscreen;
 
       if (oldDesktopMode && !newDesktopMode)
-        fullscreen = true;
+        newFullscreen = true;
       else if (!oldDesktopMode && newDesktopMode)
-        fullscreen = false;
+        newFullscreen = false;
 
-      PlayerComponent::Get().stop();
+      if (oldFullscreen != newFullscreen)
+        SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", newFullscreen);
 
-      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fullscreen);
-      QTimer::singleShot(0, [=]
+      if (oldDesktopMode != newDesktopMode)
       {
-        m_webDesktopMode = newDesktopMode;
-        auto s = size();
-        QLOG_DEBUG() << "compute scale for mode switch" << s;
-        notifyScale(s);
-        emit webDesktopModeChanged();
-        emit webUrlChanged();
-        emit webScaleChanged();
+        QTimer::singleShot(0, [=]
+        {
+          PlayerComponent::Get().stop();
+          m_webDesktopMode = newDesktopMode;
+          auto s = size();
+          QLOG_DEBUG() << "compute scale for mode switch" << s;
+          updateSizeDependendProperties(s);
+          emit webDesktopModeChanged();
+          emit webUrlChanged();
 
-        if (m_webDesktopMode)
-          SystemComponent::Get().setCursorVisibility(true);
-        updateWindowState();
-      });
+          if (m_webDesktopMode)
+            SystemComponent::Get().setCursorVisibility(true);
+          updateWindowState();
+        });
+      }
     }
   }
 
@@ -546,8 +552,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 #endif
 
   InputComponent::Get().cancelAutoRepeat();
-  notifyScale(size());
-  emit webScaleChanged();
+  updateSizeDependendProperties(size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -625,17 +630,35 @@ void KonvergoWindow::toggleDebug()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::notifyScale(const QSize& size)
+void KonvergoWindow::updateSizeDependendProperties(const QSize& size)
 {
   qreal windowScale = CalculateScale(size);
-  qreal webScale = CalculateWebScale(size, devicePixelRatio());
-  if (windowScale != m_lastWindowScale || webScale != m_lastWebScale)
+  if (windowScale != m_lastWindowScale)
   {
-    QLOG_DEBUG() << "windowScale updated to:" << windowScale << "webscale:" << webScale;
-
     m_lastWindowScale = windowScale;
+    emit windowScaleChanged();
+  }
+
+  qreal webScale = CalculateWebScale(size, devicePixelRatio());
+  if (webScale != m_lastWebScale)
+  {
     m_lastWebScale = webScale;
     emit SystemComponent::Get().updateScale(webScale);
+    emit webScaleChanged();
+  }
+
+  qreal tvW = qRound64(qMin((qreal)(size.height() * 16) / 9, (qreal)size.width()));
+  if (tvW != m_tvUIw)
+  {
+    m_tvUIw = tvW;
+    emit tvUIWidthChanged();
+  }
+
+  qreal tvH = qRound64(qMin((qreal)(size.width() * 9) / 16, (qreal)size.height()));
+  if (tvH != m_tvUIh)
+  {
+    m_tvUIh = tvH;
+    emit tvUIHeightChanged();
   }
 }
 
@@ -668,8 +691,7 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
   }
   #endif
 
-  notifyScale(event->size());
-  emit webScaleChanged();
+  updateSizeDependendProperties(event->size());
   QQuickWindow::resizeEvent(event);
 }
 

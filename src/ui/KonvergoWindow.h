@@ -30,14 +30,14 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(QString debugInfo MEMBER m_debugInfo NOTIFY debugInfoChanged)
   Q_PROPERTY(QString videoInfo MEMBER m_videoInfo NOTIFY debugInfoChanged)
   Q_PROPERTY(qreal webScale READ webScale NOTIFY webScaleChanged)
-  Q_PROPERTY(qreal webHeightMax READ webHeightMax NOTIFY webScaleChanged)
-  Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
-  Q_PROPERTY(QSize windowMinSize READ windowMinSize NOTIFY webScaleChanged)
+  Q_PROPERTY(qreal webHeightMax READ webHeightMax)
+  Q_PROPERTY(qreal windowScale READ windowScale NOTIFY windowScaleChanged)
+  Q_PROPERTY(QSize windowMinSize READ windowMinSize)
   Q_PROPERTY(bool alwaysOnTop READ isAlwaysOnTop WRITE setAlwaysOnTop)
   Q_PROPERTY(bool webDesktopMode MEMBER m_webDesktopMode NOTIFY webDesktopModeChanged)
   Q_PROPERTY(QString webUrl READ webUrl NOTIFY webUrlChanged)
-  Q_PROPERTY(qreal webUIWidth READ webUIWidth NOTIFY webScaleChanged)
-  Q_PROPERTY(qreal webUIHeight READ webUIHeight NOTIFY webScaleChanged)
+  Q_PROPERTY(qreal tvUIWidth READ tvUIWidth NOTIFY tvUIWidthChanged)
+  Q_PROPERTY(qreal tvUIHeight READ tvUIHeight NOTIFY tvUIHeightChanged)
 
 public:
   static void RegisterClass();
@@ -97,29 +97,28 @@ public:
   QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
   QString webUrl();
 
-  qreal webUIWidth()
+  qreal tvUIWidth()
   {
-    if (!m_webDesktopMode)
-      return qRound64(qMin((qreal)(height() * 16) / 9, (qreal)width()));
-    return width();
+    return m_tvUIw;
   }
 
-  qreal webUIHeight()
+  qreal tvUIHeight()
   {
-    if (!m_webDesktopMode)
-      return qRound64(qMin((qreal)(width() * 9) / 16, (qreal)height()));
-    return height();
+    return m_tvUIh;
   }
 
 Q_SIGNALS:
   void fullScreenSwitched();
   void webScaleChanged();
+  void windowScaleChanged();
   void enableVideoWindowSignal();
   void debugLayerChanged();
   void debugInfoChanged();
   void reloadWebClient();
   void webDesktopModeChanged();
   void webUrlChanged();
+  void tvUIWidthChanged();
+  void tvUIHeightChanged();
 
 protected:
   void focusOutEvent(QFocusEvent* ev) override;
@@ -139,7 +138,7 @@ private slots:
   void updateCurrentScreen();
 
 private:
-  void notifyScale(const QSize& size);
+  void updateSizeDependendProperties(const QSize& size);
   void saveGeometry();
   QRect loadGeometry();
   QRect loadGeometryRect();
@@ -150,7 +149,7 @@ private:
   QScreen* findCurrentScreen();
 
   bool m_debugLayer;
-  qreal m_lastWindowScale, m_lastWebScale;
+  qreal m_lastWindowScale, m_lastWebScale, m_tvUIw, m_tvUIh;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
   int m_ignoreFullscreenSettingsChange;

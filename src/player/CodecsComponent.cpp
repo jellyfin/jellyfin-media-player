@@ -103,6 +103,7 @@ static QSet<QString> g_systemAudioDecoderWhitelist = {
 };
 
 static QSet<QString> g_systemAudioEncoderWhitelist = {
+  "ac3_eae",
 };
 
 static QSize g_mediaFoundationH264MaxResolution;

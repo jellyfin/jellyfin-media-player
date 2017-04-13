@@ -1,0 +1,7 @@
+NEW:
+ - Desktop web-client updated to 3.4.0
+ - TV web-client updated to 3.0.1
+ - Updated QT to 5.8
+
+FIXES:
+ - LIRC keyup detection

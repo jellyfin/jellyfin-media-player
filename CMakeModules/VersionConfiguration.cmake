@@ -21,8 +21,8 @@ else()
 endif()
 
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 2)
-set(VERSION_NANO 5)
+set(VERSION_MINOR 3)
+set(VERSION_NANO 0)
 
 option(UPGRADE_DEBUG "" OFF)
 

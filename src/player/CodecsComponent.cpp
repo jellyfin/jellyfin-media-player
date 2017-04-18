@@ -297,6 +297,8 @@ bool CodecDriver::isSystemCodec() const
   // Not really a system codec, but treated as such for convenience
   if (driver.endsWith("_eae"))
     return true;
+  if (driver.endsWith("_cuvid"))
+    return true;
   return false;
 }
 

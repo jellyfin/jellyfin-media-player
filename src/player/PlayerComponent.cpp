@@ -93,6 +93,11 @@ bool PlayerComponent::componentInitialize()
   // than 0, and web-client expects that we return these times unchanged.
   mpv::qt::set_property(m_mpv, "demuxer-mkv-probe-start-time", false);
 
+  // Upstream mpv sets this to "auto", which disables probing for HLS (at least),
+  // in order to speed up playback start. The situation is more complex in PMP
+  // due to us wanting to use system codecs, so always enable this.
+  mpv::qt::set_property(m_mpv, "demuxer-lavf-probe-info", true);
+
   // Just discard audio output if no audio device could be opened. This gives
   // us better flexibility how to react to such errors (instead of just
   // aborting playback immediately).

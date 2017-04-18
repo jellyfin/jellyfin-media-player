@@ -528,6 +528,9 @@ static void probeCodecs()
   // Unsupported, but avoid picking up broken Perian decoders.
   if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_10)
     g_systemAudioDecoderWhitelist.remove("ac3_at");
+  // Unknown Apple crashes
+  if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_11)
+    g_systemAudioDecoderWhitelist.remove("aac_at");
 #endif
 }
 

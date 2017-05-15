@@ -1,0 +1,5 @@
+NEW:
+ - Desktop web-client updated to 3.6.0
+
+FIXES:
+ - Reverted QT to 5.7

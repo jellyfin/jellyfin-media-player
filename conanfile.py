@@ -11,4 +11,4 @@ class PlexMediaPlayer(ConanFile):
     self.requires("web-client-tv/3.3.0-70a4215@plex/public")
 
     if self.options.include_desktop:
-      self.requires("web-client-desktop/3.5.0-e40051b@plex/public")
+      self.requires("web-client-desktop/3.6.0-f9302af@plex/public")

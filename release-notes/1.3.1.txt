@@ -3,3 +3,5 @@ NEW:
 
 FIXES:
  - Reverted QT to 5.7
+ - Crashing on macOS
+ - AC3/DTS on RPi

@@ -71,39 +71,16 @@ static QSet<QString> g_systemVideoDecoderWhitelist = {
   "mpeg2_mmal",
   "mpeg4_mmal",
   "vc1_mmal",
-  // Windows
-  "h264_mf",
-  "hevc_mf",
-  "vc1_mf",
-  "wmv1_mf",
-  "wmv2_mf",
-  "wmv3_mf",
-  "mpeg2_mf",
-  "mpeg4_mf",
-  "msmpeg4v1_mf",
-  "msmpeg4v2_mf",
-  "msmpeg4v3_mf",
 };
 
 static QSet<QString> g_systemAudioDecoderWhitelist = {
   // OSX
-  "aac_at",
-  "ac3_at",
   "eac3_at",
-  "mp1_at",
-  "mp2_at",
-  "mp3_at",
   // Windows
-  "ac3_mf",
   "eac3_mf",
-  "aac_mf",
-  "mp1_mf",
-  "mp2_mf",
-  "mp3_mf",
 };
 
 static QSet<QString> g_systemAudioEncoderWhitelist = {
-  "ac3_eae",
 };
 
 static QSize g_mediaFoundationH264MaxResolution;

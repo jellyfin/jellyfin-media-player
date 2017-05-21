@@ -45,7 +45,9 @@ void InputSDLWorker::close()
     for (int joyid = 0; joyid < m_joysticks.size(); joyid++)
       SDL_JoystickClose(m_joysticks[joyid]);
 
-    SDL_Quit();
+    SDL_Event event;
+    event.type = SDL_QUIT;
+    SDL_PushEvent(&event);
   }
 }
 
@@ -75,6 +77,7 @@ void InputSDLWorker::run()
       switch (event.type)
       {
         case SDL_QUIT:
+          SDL_Quit();
           return;
           break;
 
@@ -238,7 +241,7 @@ InputSDL::~InputSDL()
   
   if (m_thread->isRunning())
   {
-    m_thread->terminate();
+    m_thread->exit(0);
     m_thread->wait();
   }
 }
@@ -259,5 +262,5 @@ bool InputSDL::initInput()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void InputSDL::close()
 {
-  QMetaObject::invokeMethod(m_sdlworker, "close");
+  QMetaObject::invokeMethod(m_sdlworker, "close", Qt::DirectConnection);
 }

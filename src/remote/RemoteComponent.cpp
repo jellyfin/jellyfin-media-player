@@ -147,7 +147,7 @@ QVariantMap RemoteComponent::QueryToMap(const QUrl& url)
   for(auto stringPair : query.queryItems())
   {
     QString key = stringPair.first;
-    QString value = stringPair.second;
+    QString value = QUrl::fromPercentEncoding(stringPair.second.toLatin1()).toUtf8();
 
     QVariantList l;
     if (queryMap.contains(key))

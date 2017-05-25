@@ -144,7 +144,6 @@ KonvergoWindow
   {
     id: web
     objectName: "web"
-    anchors.centerIn: parent
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
@@ -153,15 +152,16 @@ KonvergoWindow
     focus: true
     property string currentHoveredUrl: ""
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
-    width: mainWindow.webDesktopMode ? mainWindow.width : mainWindow.tvUIWidth
-    height: mainWindow.webDesktopMode ? mainWindow.height : mainWindow.tvUIHeight
+    width: mainWindow.width
+    height: mainWindow.height
 
     scale:
     {
       if (mainWindow.webDesktopMode)
+      {
         return 1;
-
-      if (mainWindow.windowScale < mainWindow.maxWebScale())
+      }
+      else if (mainWindow.windowScale < mainWindow.maxWebScale())
       {
         // Web renders at windows scale, no scaling
         return 1;

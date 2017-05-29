@@ -969,9 +969,6 @@ void PlayerComponent::setAudioConfiguration()
       SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool())
   {
     QString filterArgs = "";
-#ifdef EAE_VERSION
-    filterArgs += ":encoder=ac3_eae:o=[eae_batch_frames=1]";
-#endif
     mpv::qt::command(m_mpv, QStringList() << "af" << "add" << ("@ac3:lavcac3enc" + filterArgs));
     m_doAc3Transcoding = true;
   }

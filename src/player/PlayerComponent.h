@@ -54,7 +54,7 @@ public:
   Q_INVOKABLE virtual void stop();
 
   // A full reload of the stream is imminent (stop() + load())
-  // Used ofr not resetting display mode with the next stop() call.
+  // Used for not resetting display mode with the next stop() call.
   Q_INVOKABLE virtual void streamSwitch();
 
   Q_INVOKABLE virtual void pause();
@@ -128,7 +128,8 @@ public:
   static QStringList AudioCodecsSPDIF() { return { "ac3", "dts" }; };
 
   enum class State {
-    stopped,
+    finished,
+    canceled,
     error,
     paused,
     playing,
@@ -157,9 +158,12 @@ Q_SIGNALS:
   // The following signals correspond to the State enum above.
   void playing();                 // playback is progressing (audio playing, pictures are moving)
   void buffering(float percent);  // temporary state during "playing", or during media loading
-  void stopped();                 // playback finished successfully, or was stopped with stop()
   void paused();                  // paused (covers all sub-states)
+  void finished();                // playback finished successfully
+  void canceled();                // playback was stopped (by user/via API)
   void error(const QString& msg); // playback stopped due to external error
+  // To be phased out. Raised on finished() and canceled().
+  void stopped();                 // playback finished successfully, or was stopped with stop()
 
   // true if the video (or music) is actually playing
   // false if nothing is loaded, playback is paused, during seeking, or media is being loaded
@@ -213,6 +217,8 @@ private:
   bool m_windowVisible;
   bool m_videoPlaybackActive;
   bool m_inPlayback;
+  bool m_playbackCanceled;
+  QString m_playbackError;
   int m_bufferingPercentage;
   int m_lastBufferingPercentage;
   double m_lastPositionUpdate;

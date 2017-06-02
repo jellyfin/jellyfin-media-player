@@ -36,8 +36,8 @@ static void wakeup_cb(void *context)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::PlayerComponent(QObject* parent)
-  : ComponentBase(parent), m_state(State::stopped), m_paused(false), m_playbackActive(false),
-  m_windowVisible(false), m_videoPlaybackActive(false), m_inPlayback(false),
+  : ComponentBase(parent), m_state(State::finished), m_paused(false), m_playbackActive(false),
+  m_windowVisible(false), m_videoPlaybackActive(false), m_inPlayback(false), m_playbackCanceled(false),
   m_bufferingPercentage(100), m_lastBufferingPercentage(-1),
   m_lastPositionUpdate(0.0), m_playbackAudioDelay(0),
   m_window(nullptr), m_mediaFrameRate(0),
@@ -376,8 +376,12 @@ void PlayerComponent::updatePlaybackState()
   }
   else
   {
-    if (newState != State::error)
-      newState = State::stopped;
+    if (!m_playbackError.isEmpty())
+      newState = State::error;
+    else if (m_playbackCanceled)
+      newState = State::canceled;
+    else
+      newState = State::finished;
   }
 
   if (newState != m_state)
@@ -391,16 +395,23 @@ void PlayerComponent::updatePlaybackState()
       QLOG_INFO() << "Entering state: playing";
       emit playing();
       break;
-    case State::stopped:
-      QLOG_INFO() << "Entering state: stopped";
-      emit stopped();
-      break;
     case State::buffering:
       QLOG_INFO() << "Entering state: buffering";
       m_lastBufferingPercentage = -1; /* force update below */
       break;
+    case State::finished:
+      QLOG_INFO() << "Entering state: finished";
+      emit finished();
+      emit stopped();
+      break;
+    case State::canceled:
+      QLOG_INFO() << "Entering state: canceled";
+      emit canceled();
+      emit stopped();
+      break;
     case State::error:
-      /* handled separately */
+      QLOG_INFO() << ("Entering state: error (" + m_playbackError + ")");
+      emit error(m_playbackError);
       break;
     }
     m_state = newState;
@@ -431,14 +442,24 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     case MPV_EVENT_END_FILE:
     {
       mpv_event_end_file *endFile = (mpv_event_end_file *)event->data;
-      if (endFile->reason == MPV_END_FILE_REASON_ERROR)
-      {
-        QLOG_INFO() << "Entering state: error";
-        m_state = State::error;
-        emit error(mpv_error_string(endFile->error));
-      }
 
       m_inPlayback = false;
+      m_playbackCanceled = false;
+      m_playbackError = "";
+
+      switch (endFile->reason)
+      {
+        case MPV_END_FILE_REASON_ERROR:
+        {
+          m_playbackError = mpv_error_string(endFile->error);
+          break;
+        }
+        case MPV_END_FILE_REASON_STOP:
+        {
+          m_playbackCanceled = true;
+          break;
+        }
+      }
 
       if (!m_streamSwitchImminent)
         m_restoreDisplayTimer.start(0);

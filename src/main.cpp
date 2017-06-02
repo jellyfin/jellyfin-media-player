@@ -162,10 +162,6 @@ int main(int argc, char *argv[])
     }
 
     auto scale = parser.value("scale-factor");
-#ifdef Q_OS_WIN32
-    if (scale == "auto")
-      scale = "none";
-#endif
     if (scale.isEmpty() || scale == "auto")
       QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     else if (scale != "none")

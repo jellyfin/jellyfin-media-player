@@ -25,6 +25,19 @@ void OEUpdateManager::doUpdate(const QString& version)
 
   QStringList updateFiles = packageDir.entryList(QStringList( "*.tar"), QDir::Files, QDir::Time);
 
+  // make sure we remove all the eventually remaining downloads
+  QDir rootDir(GetPath("", "", false));
+
+  foreach(auto updateDir, rootDir.entryList(QStringList("*"), QDir::Dirs | QDir::NoDotAndDotDot))
+  {
+      QDir checkDir(rootDir.absolutePath() + updateDir);
+      if (checkDir != QDir(GetPath("", version, false)))
+      {
+          if (!checkDir.removeRecursively())
+              QLOG_ERROR() << "Failed to remove directory" << checkDir.path();
+      }
+  }
+
   if (updateFiles.size())
   {
     // copy the update files to /storage/.update
@@ -39,6 +52,11 @@ void OEUpdateManager::doUpdate(const QString& version)
       }
       else
       {
+        // remove the update package
+        QDir updateDir(GetPath("", version, false));
+        if (!updateDir.removeRecursively())
+            QLOG_ERROR() << "Failed to remove directory" << updateDir.path();
+
         // now reboot to do the update
         QLOG_DEBUG() << "Rebooting to apply system update " << destUpdatePath;
         QProcess::startDetached("reboot");

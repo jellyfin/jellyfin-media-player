@@ -1,0 +1,6 @@
+NEW:
+
+
+FIXES:
+ - Fix plaxback with optical device type and AC3 enabled
+ - Fix direct play with some DVR recordings (LATM)

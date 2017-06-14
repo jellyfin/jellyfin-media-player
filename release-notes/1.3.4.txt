@@ -1,2 +1,2 @@
 NEW:
- - Desktop web-client updated to 3.7.0
+ - Desktop web-client updated to 3.9.1

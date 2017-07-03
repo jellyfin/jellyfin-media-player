@@ -216,7 +216,8 @@ void KonvergoWindow::saveGeometry()
   QVariantMap map = {{"x", rc.x()}, {"y", rc.y()},
                      {"width", rc.width()}, {"height", rc.height()}};
   SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "geometry", map);
-  SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "lastUsedScreen", screen()->name());
+  QScreen *curScreen = screen();
+  SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "lastUsedScreen", curScreen ? curScreen->name() : "");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,18 +234,21 @@ QRect KonvergoWindow::loadGeometry()
   {
     QLOG_DEBUG() << "Load FullScreen geo...";
 
-    // On OSX we need to set the geometry to the size we want when we
-    // return from fullscreen otherwise when we exit fullscreen it
-    // will stay small or big. On Windows we need to set it to max
-    // resolution for the screen (i.e. fullscreen) otherwise it will
-    // just scale the webcontent to the minimum size we have defined
-    //
-#ifndef Q_OS_MAC
-    nsize = myScreen->geometry();
-#endif
-    setGeometry(nsize);
-    
-    setScreen(myScreen);
+    if (myScreen)
+    {
+      // On OSX we need to set the geometry to the size we want when we
+      // return from fullscreen otherwise when we exit fullscreen it
+      // will stay small or big. On Windows we need to set it to max
+      // resolution for the screen (i.e. fullscreen) otherwise it will
+      // just scale the webcontent to the minimum size we have defined
+      //
+  #ifndef Q_OS_MAC
+      nsize = myScreen->geometry();
+  #endif
+      setGeometry(nsize);
+
+      setScreen(myScreen);
+    }
   }
   else
   {
@@ -259,9 +263,14 @@ QRect KonvergoWindow::loadGeometry()
 QRect KonvergoWindow::loadGeometryRect()
 {
   // if we dont have anything, default to 720p in the middle of the screen
-  QRect defaultRect = QRect((screen()->geometry().width() - WEBUI_SIZE.width()) / 2,
-                            (screen()->geometry().height() - WEBUI_SIZE.height()) / 2,
-                            WEBUI_SIZE.width(), WEBUI_SIZE.height());
+  QScreen *curScreen = screen();
+  QRect defaultRect = QRect(0, 0, WEBUI_SIZE.width(), WEBUI_SIZE.height());
+  if (curScreen)
+  {
+    defaultRect = QRect((curScreen->geometry().width() - WEBUI_SIZE.width()) / 2,
+                        (curScreen->geometry().height() - WEBUI_SIZE.height()) / 2,
+                        WEBUI_SIZE.width(), WEBUI_SIZE.height());
+  }
 
   QVariantMap map = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "geometry").toMap();
   if (map.isEmpty())

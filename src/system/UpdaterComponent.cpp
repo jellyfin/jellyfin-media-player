@@ -41,7 +41,7 @@ UpdaterComponent::UpdaterComponent(QObject* parent) :
 
   connect(&m_netManager, &QNetworkAccessManager::finished, this, &UpdaterComponent::dlComplete);
 
-  connect(&SystemComponent::Get(), &SystemComponent::userInfoChanged, [&](){
+  connect(&SystemComponent::Get(), &SystemComponent::userInfoChanged, [this](){
     if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "automaticUpdates").toBool())
       QTimer::singleShot(10 * 1000, this, &UpdaterComponent::checkForUpdate);
   });
@@ -87,11 +87,11 @@ void UpdaterComponent::checkForUpdate()
     QNetworkRequest req(baseUrl);
     req.setPriority(QNetworkRequest::HighPriority);
     m_checkReply = m_netManager.get(req);
-    connect(m_checkReply, &QNetworkReply::readyRead, [&]()
+    connect(m_checkReply, &QNetworkReply::readyRead, [this]()
     {
       m_checkData.append(m_checkReply->read(m_checkReply->bytesAvailable()));
     });
-    connect(m_checkReply, &QNetworkReply::finished, [&]()
+    connect(m_checkReply, &QNetworkReply::finished, [this]()
     {
       auto updateData = parseUpdateData(m_checkData);
       if (!updateData.isEmpty())

@@ -408,7 +408,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
       if (oldDesktopMode != newDesktopMode)
       {
-        QTimer::singleShot(0, [=]
+        QTimer::singleShot(0, [this, newDesktopMode]
         {
           PlayerComponent::Get().stop();
           m_webDesktopMode = newDesktopMode;
@@ -560,11 +560,11 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 #ifdef Q_OS_MAC
   if (visibility == QWindow::Windowed)
   {
-    QTimer::singleShot(1 * 1000, [&] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
+    QTimer::singleShot(1 * 1000, [this] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
   }
   else if (visibility == QWindow::FullScreen)
   {
-    QTimer::singleShot(1 * 1000, [&] {
+    QTimer::singleShot(1 * 1000, [this] {
       OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
     });
   }
@@ -832,7 +832,7 @@ void KonvergoWindow::onScreenAdded(QScreen *screen)
 {
   updateScreens();
   // The timer is out of fear for chaotic mid-change states.
-  QTimer::singleShot(200, [=]
+  QTimer::singleShot(200, [this]
   {
     updateForcedScreen();
   });

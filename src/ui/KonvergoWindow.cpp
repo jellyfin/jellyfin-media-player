@@ -39,7 +39,6 @@ public:
 KonvergoWindow::KonvergoWindow(QWindow* parent) :
   QQuickWindow(parent),
   m_debugLayer(false),
-  m_lastWindowScale(-1), m_lastWebScale(-1), m_tvUIw(-1), m_tvUIh(-1),
   m_ignoreFullscreenSettingsChange(0),
   m_showedUpdateDialog(false),
   m_osxPresentationOptions(0),
@@ -73,7 +72,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 #endif
 
   QRect loadedGeo = loadGeometry();
-  updateSizeDependendProperties(loadedGeo.size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
@@ -421,9 +419,6 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
         {
           PlayerComponent::Get().stop();
           m_webDesktopMode = newDesktopMode;
-          auto s = size();
-          QLOG_DEBUG() << "compute scale for mode switch" << s;
-          updateSizeDependendProperties(s);
           emit webDesktopModeChanged();
           emit webUrlChanged();
 
@@ -580,7 +575,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 #endif
 
   InputComponent::Get().cancelAutoRepeat();
-  updateSizeDependendProperties(size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -660,47 +654,6 @@ void KonvergoWindow::toggleDebug()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::updateSizeDependendProperties(const QSize& size)
-{
-  m_eventRecursionDepth++;
-  ScopedDecrementer decrement(&m_eventRecursionDepth);
-  if (m_eventRecursionDepth > MAX_RECURSION_DEPTH)
-  {
-    QLOG_ERROR() << "Maximum recursion depth reached! (updateSizeDependendProperties)";
-    return;
-  }
-
-  qreal windowScale = CalculateScale(size);
-  if (windowScale != m_lastWindowScale)
-  {
-    m_lastWindowScale = windowScale;
-    emit windowScaleChanged();
-  }
-
-  qreal webScale = CalculateWebScale(size, devicePixelRatio());
-  if (webScale != m_lastWebScale)
-  {
-    m_lastWebScale = webScale;
-    emit SystemComponent::Get().updateScale(webScale);
-    emit webScaleChanged();
-  }
-
-  qreal tvW = qRound64(qMin((qreal)(size.height() * 16) / 9, (qreal)size.width()));
-  if (tvW != m_tvUIw)
-  {
-    m_tvUIw = tvW;
-    emit tvUIWidthChanged();
-  }
-
-  qreal tvH = qRound64(qMin((qreal)(size.width() * 9) / 16, (qreal)size.height()));
-  if (tvH != m_tvUIh)
-  {
-    m_tvUIh = tvH;
-    emit tvUIHeightChanged();
-  }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::resizeEvent(QResizeEvent* event)
 {
   QLOG_DEBUG() << "resize event:" << event->size();
@@ -729,30 +682,7 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
   }
   #endif
 
-  updateSizeDependendProperties(event->size());
   QQuickWindow::resizeEvent(event);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-#define ROUND(x) (qRound(x * 1000) / 1000.0)
-
-/////////////////////////////////////////////////////////////////////////////////////////
-qreal KonvergoWindow::CalculateScale(const QSize& size)
-{
-  qreal horizontalScale = (qreal)size.width() / (qreal)WEBUI_SIZE.width();
-  qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();
-  return ROUND(qMin(horizontalScale, verticalScale));
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-qreal KonvergoWindow::CalculateWebScale(const QSize& size, qreal devicePixelRatio)
-{
-  qreal horizontalScale = (qreal)size.width() / (qreal)WEBUI_SIZE.width();
-  qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();
-
-  qreal minScale = qMin(horizontalScale, qMin(verticalScale, (qreal)(WEBUI_MAX_HEIGHT / devicePixelRatio) / (qreal)WEBUI_SIZE.height()));
-  qreal minWinScale = 240.0 / (qreal)WEBUI_SIZE.height();
-  return ROUND(qMax(minWinScale, minScale));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -782,7 +712,7 @@ QString KonvergoWindow::webUrl()
   if (m_webDesktopMode)
     return url;
 
-  return url + QString("?initialScale=%0").arg(webScale());
+  return url + QString("?initialScale=%0").arg(1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

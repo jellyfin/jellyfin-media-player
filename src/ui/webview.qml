@@ -125,11 +125,6 @@ KonvergoWindow
     id: action_redo
   }
 
-  function maxWebScale()
-  {
-    return webHeightMax ? ((webHeightMax / Screen.devicePixelRatio) / 720) : 10;
-  }
-
   MpvVideo
   {
     id: video
@@ -154,24 +149,7 @@ KonvergoWindow
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
     width: mainWindow.width
     height: mainWindow.height
-
-    scale:
-    {
-      if (mainWindow.webDesktopMode)
-      {
-        return 1;
-      }
-      else if (mainWindow.windowScale < mainWindow.maxWebScale())
-      {
-        // Web renders at windows scale, no scaling
-        return 1;
-      }
-      else
-      {
-        // Web should max out at maximum scaling
-        return mainWindow.windowScale / mainWindow.maxWebScale();
-      }
-    }
+    scale: 1
 
     Component.onCompleted:
     {
@@ -292,9 +270,6 @@ KonvergoWindow
         var dbg = mainWindow.debugInfo + "Window and web\n";
         dbg += "  Window size: " + parent.width + "x" + parent.height + " - " + web.width + "x" + web.height + "\n";
         dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
-        dbg += "  Web Max Height: " + (webHeightMax / Screen.devicePixelRatio) + " / Max scale: " + mainWindow.maxWebScale() + "\n";
-        dbg += "  Web scale: " + webScale + " / Window scale: " + windowScale + "\n";
-        dbg += "  Scale applied: " + web.scale + "\n";
 
         return dbg;
       }

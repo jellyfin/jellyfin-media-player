@@ -1,0 +1,18 @@
+NEW:
+
+- UI: Home Video libraries are now listed in a Videos list in the header.
+- UI: List and grid browsing improvements:
+  - Fetch metadata ahead of the currently rendered region.
+  - Images display immediately, no more waiting until scrolling stops.
+
+FIXED:
+
+- UI: The Play button is consistently focused when initially rendering preplay pages.
+- UI: Navigating down to the descendant list (albums, seasons, episodes) in preplay pages no longer centers the list.
+- UI: Playing video in mixed photo and video libraries works correctly.
+- UI: Screensaver doesn't display during photo playback.
+- UI: Display all of an artist's albums.
+- UI: Fixed incorrect ordering of items in the header in our legacy pages.
+- UI: Extras display above cast list in preplay pages.
+- UI: The header fades out when navigating vertically through a library grid view. You can re-enter the header by going up from the first letter jump bar.
+- UI: Many small functionality and UX fixes.

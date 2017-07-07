@@ -27,8 +27,17 @@
 #define LONG_HOLD_MSEC 500
 #define INITAL_AUTOREPEAT_MSEC 650
 
+// Synthetic key repeat events are emitted at 60ms intervals. The interval is
+// half of the fastest press-and-release time. Empirical key repeat intervals:
+//   * Key hold on macOS wireless USB keyboard with fastest key repeat preference: ~35s
+//   * Press and release on macOS wireless USB keyboard (like a meth monkey): ~120ms
+//   * Key hold on macOS Apple TV IR remote + FLiRC (3.8 firmware) with fastest key repeat preference: ~35s
+//   * Press and release on macOS Apple TV IR remote + FLiRC (3.8 firmware): ~150ms
+//
+#define AUTOREPEAT_MSEC 60
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_autoRepeatCount(0)
+InputComponent::InputComponent(QObject* parent) : ComponentBase(parent)
 {
   m_mappings = new InputMapping(this);
 }
@@ -41,7 +50,7 @@ bool InputComponent::addInput(InputBase* base)
     QLOG_WARN() << "Failed to init input:" << base->inputName();
     return false;
   }
-  
+
   QLOG_INFO() << "Successfully inited input:" << base->inputName();
   m_inputs.push_back(base);
 
@@ -57,13 +66,11 @@ bool InputComponent::addInput(InputBase* base)
   {
     if (!m_autoRepeatActions.isEmpty())
     {
-      m_autoRepeatCount ++;
       QLOG_DEBUG() << "Emit input action (autorepeat):" << m_autoRepeatActions;
       emit hostInput(m_autoRepeatActions);
     }
 
-    qint32 multiplier = qMin(5, qMax(1, m_autoRepeatCount / 5));
-    m_autoRepeatTimer->setInterval(100 / multiplier);
+    m_autoRepeatTimer->setInterval(AUTOREPEAT_MSEC);
   });
 
   return true;
@@ -280,5 +287,4 @@ void InputComponent::cancelAutoRepeat()
 {
   m_autoRepeatTimer->stop();
   m_autoRepeatActions.clear();
-  m_autoRepeatCount = 0;
 }

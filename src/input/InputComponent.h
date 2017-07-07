@@ -129,7 +129,6 @@ private:
 
   QTimer* m_autoRepeatTimer;
   QStringList m_autoRepeatActions;
-  qint32 m_autoRepeatCount;
 
   QVariantMap m_currentLongPressAction;
   QTime m_longHoldTimer;

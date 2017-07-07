@@ -131,7 +131,7 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
       m_currentKeyDown = false;
 
     system.setCursorVisibility(false);
-    if (kevent->spontaneous())
+    if (kevent->spontaneous() && !kevent->isAutoRepeat())
     {
       InputKeyboard::Get().keyPress(keyEventToKeyString(kevent), keystatus);
       return true;

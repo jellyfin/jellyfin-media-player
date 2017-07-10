@@ -595,6 +595,8 @@ void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
     showMinimized();
   }
 #endif
+
+  QQuickWindow::focusOutEvent(ev);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

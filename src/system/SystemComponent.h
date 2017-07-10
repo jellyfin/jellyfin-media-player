@@ -19,7 +19,7 @@ public:
   Q_PROPERTY(bool isMacos READ platformIsMac CONSTANT)
   Q_PROPERTY(bool isWindows READ platformIsWindows CONSTANT)
   Q_PROPERTY(bool isLinux READ platformIsLinux CONSTANT)
-  Q_PROPERTY(qreal scale MEMBER m_scale NOTIFY scaleChanged )
+  Q_PROPERTY(qreal scale MEMBER m_scale CONSTANT)
 
   bool componentExport() override { return true; }
   const char* componentName() override { return "system"; }

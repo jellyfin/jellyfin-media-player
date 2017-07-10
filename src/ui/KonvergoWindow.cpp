@@ -708,11 +708,7 @@ QScreen* KonvergoWindow::loadLastScreen()
 /////////////////////////////////////////////////////////////////////////////////////////
 QString KonvergoWindow::webUrl()
 {
-  auto url = SettingsComponent::Get().getWebClientUrl(m_webDesktopMode);
-  if (m_webDesktopMode)
-    return url;
-
-  return url + QString("?initialScale=%0").arg(1);
+  return SettingsComponent::Get().getWebClientUrl(m_webDesktopMode);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

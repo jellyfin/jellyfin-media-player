@@ -68,7 +68,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   // will be visible on top of the video as part of the Konvergo window.
   setColor(QColor("transparent"));
 #else
-  setColor(QColor("#111111"));
+  setColor(QColor("#000000"));
 #endif
 
   QRect loadedGeo = loadGeometry();
@@ -345,7 +345,7 @@ void KonvergoWindow::playerWindowVisible(bool visible)
   // adjust webengineview transparecy depending on player visibility
   QQuickItem *web = findChild<QQuickItem *>("web");
   if (web)
-    web->setProperty("backgroundColor", visible ? "transparent" : "#111111");
+    web->setProperty("backgroundColor", visible ? "transparent" : "#000000");
 
 #ifdef Q_OS_MAC
   // On OSX, initializing VideoTooolbox (hardware decoder API) will mysteriously

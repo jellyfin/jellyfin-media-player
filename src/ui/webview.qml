@@ -151,9 +151,6 @@ KonvergoWindow
 
     Component.onCompleted:
     {
-      // set the transparency
-      // (setting this here as a UserAgent workaround at least for qt5.5)
-      backgroundColor : "#111111"
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
     }

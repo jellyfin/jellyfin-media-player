@@ -142,14 +142,12 @@ KonvergoWindow
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
-    transformOrigin: Item.TopLeft
     url: mainWindow.webUrl
     focus: true
     property string currentHoveredUrl: ""
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
     width: mainWindow.width
     height: mainWindow.height
-    scale: 1
 
     Component.onCompleted:
     {

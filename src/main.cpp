@@ -85,7 +85,6 @@ void ShowLicenseInfo()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStringList g_qtFlags = {
-  "--enable-viewport",
 #ifndef Q_OS_MAC
   "--disable-gpu",
 #endif

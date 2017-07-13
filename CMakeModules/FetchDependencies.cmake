@@ -187,3 +187,48 @@ function(download_deps DD_NAME)
     message(STATUS "Directory ${DEP_DIR}/${DEP_DIRNAME} already exists, remove it to redownload")
   endif(NOT EXISTS ${DEP_DIR}/${DEP_DIRNAME}/_FINISHED)
 endfunction(download_deps DD_NAME)
+
+function(download_dep_file DD_NAME)
+  set(ARGS DIRECTORY BUILD_NUMBER ARTIFACTNAME TOKEN FILENAME DST_FILENAME)
+  cmake_parse_arguments(DD "" "${ARGS}" "" ${ARGN})
+
+  if(NOT DEFINED DD_ARTIFACTNAME)
+    set(DD_ARTIFACTNAME ${DD_NAME})
+  endif(NOT DEFINED DD_ARTIFACTNAME)
+
+  if(NOT DEFINED DD_BUILD_NUMBER)
+    set(DD_BUILD_NUMBER "latest")
+  endif(NOT DEFINED DD_BUILD_NUMBER)
+
+  if(DD_BUILD_NUMBER STREQUAL latest)
+    set(DD_ALWAYS_DOWNLOAD ALWAYS)
+  endif()
+
+  if(NOT DEFINED DD_TOKEN)
+    set(DD_TOKEN plex-dependencies)
+  endif()
+
+  set(BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
+
+  set(DEP_URL "${BASE_URL}/${DD_FILENAME}")
+
+  if(NOT EXISTS ${DEPENDENCY_CACHE_DIR}/${DD_FILENAME})
+    message(STATUS "Downloading ${DD_FILENAME}...")
+    file(
+      DOWNLOAD ${DEP_URL} ${DEPENDENCY_CACHE_DIR}/${DD_FILENAME}
+      SHOW_PROGRESS
+      STATUS DEP_STATUS
+      LOG DEP_LOG
+    )
+
+    list(GET DEP_STATUS 0 DEP_SUCCESS)
+
+    if(NOT DEP_SUCCESS EQUAL 0)
+      list(GET DEP_STATUS 1 DEP_ERROR)
+      file(REMOVE ${DEPENDENCY_CACHE_DIR}/${DD_FILENAME})
+      message(FATAL_ERROR "Failed to download ${DEP_URL}: ${DEP_ERROR}\n${DEP_LOG}")
+    endif()
+  endif()
+
+    #file(COPY ${DEPENDENCY_CACHE_DIR}/${FILENAME} ${DST_FILENAME})
+endfunction()

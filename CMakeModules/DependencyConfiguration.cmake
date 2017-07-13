@@ -36,6 +36,21 @@ if(WIN32)
     ARTIFACTNAME windows-redist-2015
     ARCHSTR windows-x86_x64
   )
+
+  option(ENABLE_ANGLE_DEP "Enable downloading and deployment of separate ANGLE deps" ON)
+  if(ENABLE_ANGLE_DEP)
+    message(STATUS "Downloading separate ANGLE deps...")
+    foreach(angle_file libEGL.dll libGLESv2.dll d3dcompiler_47.dll)
+      download_dep_file(
+        "plexmediaplayer-angle"
+        BUILD_NUMBER 53
+        DIRECTORY angle
+        ARTIFACTNAME "plexmediaplayer-angle"
+        FILENAME ${angle_file}
+      )
+    endforeach()
+  endif()
+
 endif(WIN32)
 
 set(DEPENDENCY_ROOT ${DEFAULT_ROOT} CACHE PATH "Path where the deps are located")

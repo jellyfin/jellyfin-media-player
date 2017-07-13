@@ -1,3 +1,6 @@
 NEW:
  - Desktop web-client updated to 3.10.0
  - Updated dependencies (Windows/macOS)
+
+FIXES:
+ - Update ANGLE on Windows. This should improve video performance in some cases.

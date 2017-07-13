@@ -16,6 +16,13 @@ list(APPEND SEARCHDIRS ${CEC_DIR})
 fixup_bundle("${CMAKE_INSTALL_PREFIX}/PlexMediaPlayer.exe" "" "${SEARCHDIRS}") 
 #install(PROGRAMS ${VCREDIST_DIR}/vc_redist_2015_x64.exe DESTINATION .)
 
+if(@DO_ENABLE_ANGLE_DEP@)
+  message(STATUS "Deploying separate ANGLE deps")
+  file(INSTALL @DEPENDENCY_CACHE_DIR@/libEGL.dll @DEPENDENCY_CACHE_DIR@/libGLESv2.dll @DEPENDENCY_CACHE_DIR@/d3dcompiler_47.dll DESTINATION ${CMAKE_INSTALL_PREFIX})
+else()
+  message(STATUS "Not using separate ANGLE deps")
+endif()
+
 if(@DO_SIGN@)
   file(GLOB_RECURSE EXES ${CMAKE_INSTALL_PREFIX}/*.exe ${CMAKE_INSTALL_PREFIX}/*.dll)
   set(ENV{errorlevel} 1)

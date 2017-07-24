@@ -29,7 +29,7 @@ private:
 
   void ssdpRead();
   void parseSSDPData(const QByteArray& data, const QHostAddress& sender, quint16 port);
-  QByteArray getSSDPPacket();
+  QByteArray getSSDPPacket(const QHostAddress& sender);
   void handleRootInfo(qhttp::server::QHttpRequest* request, qhttp::server::QHttpResponse* response);
 };
 

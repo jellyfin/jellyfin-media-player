@@ -66,11 +66,11 @@ void InputRoku::ssdpRead()
 void InputRoku::parseSSDPData(const QByteArray& data, const QHostAddress& sender, quint16 port)
 {
   if (data.contains("M-SEARCH * HTTP/1.1"))
-    m_ssdpSocket->writeDatagram(getSSDPPacket(), sender, port);
+    m_ssdpSocket->writeDatagram(getSSDPPacket(sender), sender, port);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QByteArray InputRoku::getSSDPPacket()
+QByteArray InputRoku::getSSDPPacket(const QHostAddress& sender)
 {
   QByteArray packetData;
 
@@ -82,7 +82,7 @@ QByteArray InputRoku::getSSDPPacket()
   packetData.append("Server: Roku UPnP/1.0 MiniUPnPd/1.4\r\n");
 
   packetData.append("Location: http://");
-  packetData.append(Utils::PrimaryIPv4Address());
+  packetData.append(sender.toString());
   packetData.append(":8060/\r\n");
 
   packetData.append("USN: uuid:roku:ecp:");

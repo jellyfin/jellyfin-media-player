@@ -13,6 +13,8 @@
 #include <QFile>
 #include <QSaveFile>
 
+#include <mutex>
+
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 
@@ -39,11 +41,16 @@ QString Utils::sanitizeForHttpSeparators(const QString& input)
 /////////////////////////////////////////////////////////////////////////////////////////
 QString Utils::ComputerName()
 {
+  static std::once_flag flag;
+  static QString name;
+  std::call_once(flag, [](){
 #ifdef Q_OS_MAC
-  return OSXUtils::ComputerName();
+    name = OSXUtils::ComputerName();
 #else
-  return QHostInfo::localHostName();
+    name = QHostInfo::localHostName();
 #endif
+  });
+  return name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,3 @@
+FIXED:
+
+- UI: First run experience should display only on the first run.

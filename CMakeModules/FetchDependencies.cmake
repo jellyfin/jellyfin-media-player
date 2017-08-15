@@ -95,6 +95,16 @@ function(download_deps DD_NAME)
   set(BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
   set(DEP_DIR ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/${DD_BUILD_NUMBER})
 
+  get_cmake_property(cacheVars CACHE_VARIABLES)
+  message(ERROR "^${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/[0-9]+")
+  message(ERROR "${DEP_DIR}")
+  foreach(var ${cacheVars})
+    if(("${${var}}" MATCHES "^${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/[0-9]+") AND
+       (NOT ("${${var}}" MATCHES "^${DEP_DIR}")))
+          unset(${var} CACHE)
+     endif()
+  endforeach()
+
   set(HASH_FILENAME ${DD_NAME}-${DD_BUILD_NUMBER}-hash.txt)
   get_content_of_url(URL ${BASE_URL}/hash.txt CONTENT_VAR DEP_HASH FILENAME ${HASH_FILENAME} ${DD_ALWAYS_DOWNLOAD})
 

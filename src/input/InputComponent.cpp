@@ -91,7 +91,8 @@ bool InputComponent::componentInitialize()
   addInput(new InputAppleMediaKeys(this));
 #endif
 #ifdef HAVE_SDL
-  addInput(new InputSDL(this));
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "sdlEnabled").toBool())
+    addInput(new InputSDL(this));
 #endif
 #ifdef HAVE_LIRC
   addInput(new InputLIRC(this));

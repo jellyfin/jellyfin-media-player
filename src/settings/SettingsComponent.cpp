@@ -703,39 +703,34 @@ void SettingsComponent::setUserRoleList(const QStringList& userRoles)
 {
   QVariantList values;
 
-  // stable is always available
-  QVariantMap stable;
-  stable.insert("value", 0);
-  stable.insert("title", "Stable");
+  // Channel names and values are aligned with values expected by plex.tv.
+  // See: https://github.com/plexinc/plex-media-player-private/issues/642
 
-  values << stable;
+  // Public is always available as the default value.
+  QVariantMap publicChannel;
+  publicChannel.insert("value", 0);
+  publicChannel.insert("title", "Public");
+  values << publicChannel;
 
-  for(const QString& role : userRoles)
-  {
-    QVariantMap channel;
-    int value = 0;
-    QString title;
+  if (userRoles.contains("plexpass")) {
+    QVariantMap betaChannel;
+    betaChannel.insert("value", 8);
+    betaChannel.insert("title", "Beta");
+    values << betaChannel;
+  }
 
-    if (role == "ninja")
-    {
-      value = 4;
-      title = "Ninja";
-    }
-    else if (role == "plexpass")
-    {
-      value = 8;
-      title = "PlexPass";
-    }
-    else if (role == "employee")
-    {
-      value = 2;
-      title = "Employee";
-    }
+  if (userRoles.contains("ninja")) {
+    QVariantMap alphaChannel;
+    alphaChannel.insert("value", 4);
+    alphaChannel.insert("title", "Alpha");
+    values << alphaChannel;
+  }
 
-    channel.insert("value", value);
-    channel.insert("title", title);
-
-    values << channel;
+  if (userRoles.contains("employee")) {
+    QVariantMap qaChannel;
+    qaChannel.insert("value", 2);
+    qaChannel.insert("title", "QA");
+    values << qaChannel;
   }
 
   updatePossibleValues(SETTINGS_SECTION_MAIN, "updateChannel", values);

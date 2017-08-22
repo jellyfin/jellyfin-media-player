@@ -20,6 +20,7 @@
 #include <math.h>
 #include <string.h>
 #include <shared/Paths.h>
+#include <unistd.h>
 
 #if !defined(Q_OS_WIN)
 #include <unistd.h>
@@ -274,15 +275,9 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static bool IsPlexDirectURL(const QString& host)
-{
-  return host.endsWith(".plex.direct");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString ConvertPlexDirectURL(const QString& host)
 {
-    if (!IsPlexDirectURL(host))
+    if (!host.endsWith(".plex.direct"))
         return host;
 
     QString substr = host.left(host.indexOf('.'));
@@ -302,11 +297,10 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   QUrl qurl = url;
   QString host = qurl.host();
-  if (IsPlexDirectURL(host))
-    qurl.setHost(ConvertPlexDirectURL(host));
+  qurl.setHost(ConvertPlexDirectURL(host));
 
   QVariantList command;
-  command << "loadfile" << qurl.toString(QUrl::FullyEncoded);
+  command << "loadfile" << qurl.toString();
   command << "append-play"; // if nothing is playing, play it now, otherwise just enqueue it
 
   QVariantMap extraArgs;
@@ -335,8 +329,7 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   extraArgs.insert("ad", "");
   extraArgs.insert("vd", "");
 
-  if (IsPlexDirectURL(host))
-    extraArgs.insert("stream-lavf-o", "verifyhost=" + host);
+  extraArgs.insert("stream-lavf-o", "verifyhost=" + host);
 
   command << extraArgs;
 

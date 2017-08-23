@@ -1,0 +1,8 @@
+FIXED:
+
+This is the first release of the v2 UI to the Beta update channel available to Plex Pass Users.
+
+- Avoid partially resolving `plex.direct` host names. An upcoming release will reintroduce this functionality to PMS connectivity when offline or on a network which prevents DNS rebinding.
+- UI: Pressing on the Home button in the header no longer reloads the application.
+- UI: Selecting Go To Artist from a track in the music player no longer navigates to the version 1 view.
+

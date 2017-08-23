@@ -164,7 +164,6 @@ Q_SIGNALS:
   void error(const QString& msg); // playback stopped due to external error
   // To be phased out. Raised on finished() and canceled().
   void stopped();                 // playback finished successfully, or was stopped with stop()
-  void stateChanged(State newState, State oldState); // all state changes
 
   // true if the video (or music) is actually playing
   // false if nothing is loaded, playback is paused, during seeking, or media is being loaded

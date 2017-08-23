@@ -20,7 +20,6 @@
 #include <math.h>
 #include <string.h>
 #include <shared/Paths.h>
-#include <unistd.h>
 
 #if !defined(Q_OS_WIN)
 #include <unistd.h>
@@ -118,33 +117,6 @@ bool PlayerComponent::componentInitialize()
   mpv::qt::set_property(m_mpv, "audio-client-name", QCoreApplication::applicationName());
   // User-visible stream title used by some audio APIs (at least PulseAudio and wasapi).
   mpv::qt::set_property(m_mpv, "title", QCoreApplication::applicationName());
-
-  mpv::qt::set_property(m_mpv, "tls-verify", "yes");
-
-#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
-  QList<QByteArray> list;
-  list << "/etc/ssl/certs/ca-certificates.crt"
-       << "/etc/pki/tls/certs/ca-bundle.crt"
-       << "/usr/share/ssl/certs/ca-bundle.crt"
-       << "/usr/local/share/certs/ca-root-nss.crt"
-       << "/etc/ssl/cert.pem"
-       << "/usr/share/curl/curl-ca-bundle.crt"
-       << "/usr/local/share/curl/curl-ca-bundle.crt";
-
-  bool success = false;
-
-  for (auto path : list)
-  {
-    if (access(path.data(), R_OK) == 0) {
-      mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
-      success = true;
-      break;
-    }
-  }
-
-  if (!success)
-    throw FatalException(tr("Failed to locate CA bundle."));
-#endif
 
   // Apply some low-memory settings on RPI, which is relatively memory-constrained.
 #ifdef TARGET_RPI
@@ -275,17 +247,6 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static QString ConvertPlexDirectURL(const QString& host)
-{
-    if (!host.endsWith(".plex.direct"))
-        return host;
-
-    QString substr = host.left(host.indexOf('.'));
-    substr.replace('-', '.');
-    return substr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QString& audioStream, const QString& subtitleStream)
 {
   InputComponent::Get().cancelAutoRepeat();
@@ -295,12 +256,8 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   updateVideoSettings();
 
-  QUrl qurl = url;
-  QString host = qurl.host();
-  qurl.setHost(ConvertPlexDirectURL(host));
-
   QVariantList command;
-  command << "loadfile" << qurl.toString();
+  command << "loadfile" << url;
   command << "append-play"; // if nothing is playing, play it now, otherwise just enqueue it
 
   QVariantMap extraArgs;
@@ -328,8 +285,6 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   // Make sure the list of requested codecs is reset.
   extraArgs.insert("ad", "");
   extraArgs.insert("vd", "");
-
-  extraArgs.insert("stream-lavf-o", "verifyhost=" + host);
 
   command << extraArgs;
 
@@ -819,12 +774,6 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   if (!streamName.isEmpty())
   {
-    if (streamName.startsWith("https://")) {
-      QUrl qurl = streamName;
-      qurl.setHost(ConvertPlexDirectURL(qurl.host()));
-      streamName = qurl.toString();
-    }
-
     auto streams = findStreamsForURL(streamName);
     if (streams.isEmpty())
     {

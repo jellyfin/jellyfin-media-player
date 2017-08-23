@@ -154,7 +154,8 @@
       },
       {
         "value": "sdlEnabled",
-        "default": true
+        "default": true,
+        "hidden": true
       }
     ]
   },

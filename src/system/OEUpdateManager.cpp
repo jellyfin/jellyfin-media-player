@@ -33,8 +33,9 @@ void OEUpdateManager::doUpdate(const QString& version)
       QDir checkDir(rootDir.absolutePath() + updateDir);
       if (checkDir != QDir(GetPath("", version, false)))
       {
-          if (!checkDir.removeRecursively())
+          if (!checkDir.removeRecursively()) {
               QLOG_ERROR() << "Failed to remove directory" << checkDir.path();
+          }
       }
   }
 
@@ -54,8 +55,9 @@ void OEUpdateManager::doUpdate(const QString& version)
       {
         // remove the update package
         QDir updateDir(GetPath("", version, false));
-        if (!updateDir.removeRecursively())
+        if (!updateDir.removeRecursively()) {
             QLOG_ERROR() << "Failed to remove directory" << updateDir.path();
+        }
 
         // now reboot to do the update
         QLOG_DEBUG() << "Rebooting to apply system update " << destUpdatePath;

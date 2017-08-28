@@ -1159,7 +1159,7 @@ void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
   if (bytesTotal > 0)
   {
-    int progress = bytesReceived * 100 / bytesTotal;
+    int progress = (int)(bytesReceived * 100 / bytesTotal);
     if (m_lastProgress < 0 || progress > m_lastProgress + 10)
     {
       m_lastProgress = progress;

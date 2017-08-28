@@ -540,7 +540,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       }
       else if (strcmp(prop->name, "cache-buffering-state") == 0)
       {
-        m_bufferingPercentage = prop->format == MPV_FORMAT_INT64 ? *(int64_t *)prop->data : 100;
+        m_bufferingPercentage = prop->format == MPV_FORMAT_INT64 ? (int)*(int64_t *)prop->data : 100;
       }
       else if (strcmp(prop->name, "playback-time") == 0 && prop->format == MPV_FORMAT_DOUBLE)
       {

@@ -79,8 +79,8 @@ bool DisplayManager::isValidDisplayMode(int display, int mode)
 // multiple: display FPS
 bool DisplayManager::isRateMultipleOf(float refresh, float multiple, bool exact)
 {
-  int roundedRefresh = lrint(refresh);
-  int roundedMultiple = lrint(multiple);
+  long roundedRefresh = lrint(refresh);
+  long roundedMultiple = lrint(multiple);
 
   if (roundedRefresh == 0)
       return false;

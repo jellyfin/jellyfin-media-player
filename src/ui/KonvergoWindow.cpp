@@ -21,8 +21,6 @@
 #include "Globals.h"
 #include "EventFilter.h"
 
-#define MAX_RECURSION_DEPTH 50
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class ScopedDecrementer
 {
@@ -41,8 +39,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   m_debugLayer(false),
   m_ignoreFullscreenSettingsChange(0),
   m_showedUpdateDialog(false),
-  m_osxPresentationOptions(0),
-  m_eventRecursionDepth(0)
+  m_osxPresentationOptions(0)
 {
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
@@ -364,14 +361,6 @@ void KonvergoWindow::playerWindowVisible(bool visible)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
-  m_eventRecursionDepth++;
-  ScopedDecrementer decrement(&m_eventRecursionDepth);
-  if (m_eventRecursionDepth > MAX_RECURSION_DEPTH)
-  {
-    QLOG_ERROR() << "Maximum recursion depth reached! (updateMainSectionSettings)";
-    return;
-  }
-
   // update mouse visibility if needed
   if (values.find("disablemouse") != values.end())
   {
@@ -522,14 +511,6 @@ QScreen* KonvergoWindow::findCurrentScreen()
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << "QWindow visibility set to" << visibility;
-
-  m_eventRecursionDepth++;
-  ScopedDecrementer decrement(&m_eventRecursionDepth);
-  if (m_eventRecursionDepth > MAX_RECURSION_DEPTH)
-  {
-    QLOG_ERROR() << "Maximum recursion depth reached! (onVisibilityChanged)";
-    return;
-  }
 
 #ifdef Q_OS_WIN32
   if (visibility == QWindow::Windowed)

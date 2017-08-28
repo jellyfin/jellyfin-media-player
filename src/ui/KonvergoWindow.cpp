@@ -518,7 +518,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     QScreen* realScreen = findCurrentScreen();
     if (realScreen && realScreen->geometry() == geometry())
     {
-      QLOG_DEBUG() << "winging it!";
+      QLOG_WARN() << "winging it!";
       setScreen(realScreen);
       setVisibility(QWindow::FullScreen);
       return;

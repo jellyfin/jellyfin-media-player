@@ -85,9 +85,7 @@ void ShowLicenseInfo()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStringList g_qtFlags = {
-#ifndef Q_OS_MAC
   "--disable-gpu",
-#endif
   "--disable-web-security"
 };
 

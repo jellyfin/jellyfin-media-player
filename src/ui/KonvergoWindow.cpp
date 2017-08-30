@@ -77,21 +77,21 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
           this, &KonvergoWindow::onVisibilityChanged);
 
   connect(this, &KonvergoWindow::screenChanged,
-          this, &KonvergoWindow::updateCurrentScreen);
+          this, &KonvergoWindow::updateCurrentScreen, Qt::QueuedConnection);
   connect(this, &KonvergoWindow::xChanged,
-          this, &KonvergoWindow::updateCurrentScreen);
+          this, &KonvergoWindow::updateCurrentScreen, Qt::QueuedConnection);
   connect(this, &KonvergoWindow::yChanged,
-          this, &KonvergoWindow::updateCurrentScreen);
+          this, &KonvergoWindow::updateCurrentScreen, Qt::QueuedConnection);
   connect(this, &KonvergoWindow::visibilityChanged,
-          this, &KonvergoWindow::updateCurrentScreen);
+          this, &KonvergoWindow::updateCurrentScreen, Qt::QueuedConnection);
   connect(this, &KonvergoWindow::windowStateChanged,
-          this, &KonvergoWindow::updateCurrentScreen);
+          this, &KonvergoWindow::updateCurrentScreen, Qt::QueuedConnection);
 
   connect(this, &KonvergoWindow::enableVideoWindowSignal,
           this, &KonvergoWindow::enableVideoWindow, Qt::QueuedConnection);
 
   connect(&PlayerComponent::Get(), &PlayerComponent::windowVisible,
-          this, &KonvergoWindow::playerWindowVisible);
+          this, &KonvergoWindow::playerWindowVisible, Qt::QueuedConnection);
 
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));

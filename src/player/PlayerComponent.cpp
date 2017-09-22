@@ -130,6 +130,8 @@ bool PlayerComponent::componentInitialize()
 
   mpv::qt::set_property(m_mpv, "tls-verify", "yes");
 
+  mpv::qt::set_property(m_mpv, "force-seekable", "yes");
+
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
   QList<QByteArray> list;
   list << "/etc/ssl/certs/ca-certificates.crt"

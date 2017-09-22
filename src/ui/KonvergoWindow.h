@@ -66,9 +66,9 @@ public:
 
   Q_SLOT void toggleDebug();
 
-  Q_SLOT void toggleFullscreen(bool noSwitchMode = false);
+  Q_SLOT void toggleFullscreen() { setFullScreen(!isFullScreen()); }
 
-  Q_SLOT void toggleFullscreenNoSwitch() { toggleFullscreen(true); }
+  Q_SLOT void toggleWebMode();
 
   Q_SLOT void toggleAlwaysOnTop()
   {

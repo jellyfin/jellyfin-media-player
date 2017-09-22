@@ -51,11 +51,11 @@
     "Ctrl\\+W": "host:quit",
 
     // application shortcuts
-    "Ctrl\\+Shift\\+F": "host:fullscreen",
-    "Meta\\+Ctrl\\+F": "host:fullscreenCurrentMode",
-    "Meta\\+Enter": "host:fullscreen",
+    "Ctrl\\+Shift\\+F": "host:toggleWebMode",
+    "Meta\\+Ctrl\\+F": "host:fullscreen",
+    "Meta\\+Enter": "host:toggleWebMode",
     "F11": "host:fullscreen",
-    "Shift\\+F11": "host:fullscreenCurrentMode",
+    "Shift\\+F11": "host:fullscreen",
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",
     "Ctrl\\+Shift\\+D": "host:toggleDebug",

@@ -57,7 +57,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
   InputComponent::Get().registerHostCommand("minimize", this, "minimizeWindow");
-  InputComponent::Get().registerHostCommand("fullscreenCurrentMode", this, "toggleFullscreenNoSwitch");
+  InputComponent::Get().registerHostCommand("switchMode", this, "toggleWebMode");
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
@@ -315,16 +315,12 @@ void KonvergoWindow::setFullScreen(bool enable)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::toggleFullscreen(bool noSwitchMode)
+void KonvergoWindow::toggleWebMode()
 {
-  bool switchMode = (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString() == "auto" && !noSwitchMode);
-
-  if (switchMode && !m_webDesktopMode && isFullScreen())
+  if (!m_webDesktopMode)
     SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
-  else if (switchMode && m_webDesktopMode && !isFullScreen())
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
   else
-    setFullScreen(!isFullScreen());
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -391,17 +387,6 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
     }
     else
     {
-      bool oldFullscreen = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
-      bool newFullscreen = oldFullscreen;
-
-      if (oldDesktopMode && !newDesktopMode)
-        newFullscreen = true;
-      else if (!oldDesktopMode && newDesktopMode)
-        newFullscreen = false;
-
-      if (oldFullscreen != newFullscreen)
-        SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", newFullscreen);
-
       if (oldDesktopMode != newDesktopMode)
       {
         QTimer::singleShot(0, [this, newDesktopMode]
@@ -413,7 +398,6 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 
           if (m_webDesktopMode)
             SystemComponent::Get().setCursorVisibility(true);
-          updateWindowState();
         });
       }
     }

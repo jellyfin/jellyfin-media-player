@@ -26,7 +26,7 @@ KonvergoWindow
       if (components.system.isMacos) return "Ctrl+Shift+F";
       return "F11";
     }
-    onTriggered: mainWindow.toggleFullscreen()
+    onTriggered: mainWindow.toggleWebMode()
   }
 
   Action
@@ -37,7 +37,7 @@ KonvergoWindow
       if (components.system.isMacos) return "Ctrl+Meta+F"
       return "Shift+F11"
     }
-    onTriggered: mainWindow.toggleFullscreenNoSwitch()
+    onTriggered: mainWindow.toggleFullscreen()
   }
 
   Action

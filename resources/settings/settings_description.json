@@ -246,7 +246,7 @@
       },
       {
         "value": "refreshrate.avoid_25hz_30hz",
-        "default": false,
+        "default": true,
         "hidden": true
       },
       {

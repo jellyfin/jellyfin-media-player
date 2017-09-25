@@ -1,0 +1,2 @@
+NEW:
+ - Desktop web-client updated to 3.20.6

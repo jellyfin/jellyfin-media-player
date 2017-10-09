@@ -20,7 +20,10 @@
 #include <math.h>
 #include <string.h>
 #include <shared/Paths.h>
+
+#if !defined(Q_OS_WIN)
 #include <unistd.h>
+#endif
 
 #if !defined(Q_OS_WIN)
 #include <unistd.h>

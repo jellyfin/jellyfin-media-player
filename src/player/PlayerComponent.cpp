@@ -274,9 +274,15 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+static bool IsPlexDirectURL(const QString& host)
+{
+  return host.endsWith(".plex.direct");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString ConvertPlexDirectURL(const QString& host)
 {
-    if (!host.endsWith(".plex.direct"))
+    if (!IsPlexDirectURL(host))
         return host;
 
     QString substr = host.left(host.indexOf('.'));
@@ -296,7 +302,8 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   QUrl qurl = url;
   QString host = qurl.host();
-  qurl.setHost(ConvertPlexDirectURL(host));
+  if (IsPlexDirectURL(host))
+    qurl.setHost(ConvertPlexDirectURL(host));
 
   QVariantList command;
   command << "loadfile" << qurl.toString();
@@ -328,7 +335,8 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   extraArgs.insert("ad", "");
   extraArgs.insert("vd", "");
 
-  extraArgs.insert("stream-lavf-o", "verifyhost=" + host);
+  if (IsPlexDirectURL(host))
+    extraArgs.insert("stream-lavf-o", "verifyhost=" + host);
 
   command << extraArgs;
 

@@ -152,6 +152,11 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     if ((mouseEvent) && (mouseEvent->button() == Qt::RightButton))
       return true;
   }
+  else if (event->type() == QEvent::Drop)
+  {
+    // QtWebEngine would accept the drop and unload web-client.
+    return true;
+  }
 
   return QObject::eventFilter(watched, event);
 }

@@ -18,6 +18,8 @@ static QStringList desktopWhiteListedKeys = { "Media Play",
                                               "Media Previous",
                                               "Media Rewind",
                                               "Media FastForward" };
+// These just happen to be mostly the same.
+static QStringList win32AppcommandBlackListedKeys = desktopWhiteListedKeys;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString keyEventToKeyString(QKeyEvent *kevent)
@@ -115,6 +117,17 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     if (!kevent)
       return QObject::eventFilter(watched, event);
 
+    QString keyName = keyEventToKeyString(kevent);
+
+#ifdef Q_OS_WIN32
+    // On Windows, we get some media keys twice. This is because Windows supports both
+    // normal key events and APPCOMMAND_ messages for media keys. To avoid getting two
+    // key events per key press, filter out non-APPCOMMAND media keys by using the fact
+    // that APPCOMMAND media keys won't have a key code.
+    if (win32AppcommandBlackListedKeys.contains(keyName) && kevent->nativeVirtualKey())
+      return QObject::eventFilter(watched, event);
+#endif
+
     if (keystatus == InputBase::KeyDown)
     {
       // Swallow auto-repeated keys (isAutoRepeat doesn't always work - QTBUG-57335)
@@ -133,7 +146,7 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     system.setCursorVisibility(false);
     if (kevent->spontaneous() && !kevent->isAutoRepeat())
     {
-      InputKeyboard::Get().keyPress(keyEventToKeyString(kevent), keystatus);
+      InputKeyboard::Get().keyPress(keyName, keystatus);
       return true;
     }
   }

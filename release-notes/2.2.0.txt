@@ -1,0 +1,44 @@
+2017-11-28
+
+NEW:
+
+- Resolve plex.direct domains internally. Enabled playback from secure servers when PMP is not connected to the Internet.
+- Initial support for Bluetooth and Touch Bar controls on macOS.
+- Enable refreshrate.avoid_25hz_30hz by default.
+- UI: Entirely new video, music, and photo player user interfaces!
+- UI: Audio and subtitle stream selection on preplay screens.
+- UI: Add support for TV show theme music (`Settings > Main > Play Theme Music`).
+- UI: Summary text boxes show the entire summary text when selected.
+- UI: Lyrics are manually scrollable.
+- UI: Respect account privacy settings instead of using client-specific opt-out.
+- UI: Poster and list items titles will automatically scroll when they are too long to display in their entirety.
+- UI: Pressing play, enter or clicking either poster in post play modal will start playback of the associated item
+
+FIXED:
+
+- Ignore OS notifications when files are dropped onto the PMP window during drag and drop actions.
+- Work around Windows' media-key handling which sends multiple input notifications for Play/Pause and Next key presses.
+- Speculative fix for user reported trouble pressing Up and Down on silver Apple IR remotes when using a Mac Mini running High Sierra.
+- Avoid corruption issues when GL context sharing between Qt and WebEngine fails. 5K macs (the previous corruption issue) still work, thanks to our Qt patches.
+- UI: Improved first-run experience to highight the necessary actions to complete the required steps. Make it harder for users to become trapped in a partially complete state.
+- UI: Mark partially watched items as watched when toggling watched status.
+- UI: Improve Plex Companion controller remote control integration.
+- UI: Display album art in music playlists.
+- UI: Fixed an issue with the app crashing when attempting to exit via shortcut.
+- UI: Fix rare issue with some clients not showing up as Companion players on certain devices.
+- UI: 'Go to Show|Artist' buttons navigate to the proper screen now.
+- UI: Fix issue that could have prevented the app from starting when offline
+- UI: Fix error when selecting item version for deletion
+- UI: Fix missing version title in deletion confirmation modal
+- UI: Video direct play/stream options no longer affect audio playback
+- UI: Restore page scroll position when player is exited
+- UI: The Cinema Trailers setting is respected when playing movies
+- UI: Correctly restores focus when stopping playback of watch later videos
+- UI: Correct resume/restart playback behavior from search results and Online Content
+- UI: Don't restart watch later video after pressing play or play/pause during playback.
+- UI: Player closes after an error when play queue contains a single item
+- UI: Photo slideshows no longer appear behind channel browse page
+- UI: Adjusting app volume does not bring up OSD
+- UI: Controls bar doesn't disappear while play queue is open
+- UI: PMP: Show videos in mixed video/photo playback and resize when panel/info open
+- UI: Pressing play in the resume playback dialog resumes playback immediately.

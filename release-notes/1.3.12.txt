@@ -1,0 +1,4 @@
+NEW:
+ - Desktop web-client updated to 3.29.7
+FIXES:
+ - (macOS) Mac Mini IR silver remote problem running High Sierra

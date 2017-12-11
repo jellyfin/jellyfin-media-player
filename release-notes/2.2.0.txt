@@ -1,7 +1,8 @@
-2017-11-28
+2017-12-14
 
 NEW:
 
+- Desktop web-client updated to 3.29.7
 - Resolve plex.direct domains internally. Enabled playback from secure servers when PMP is not connected to the Internet.
 - Initial support for Bluetooth and Touch Bar controls on macOS.
 - Enable refreshrate.avoid_25hz_30hz by default.
@@ -12,7 +13,12 @@ NEW:
 - UI: Lyrics are manually scrollable.
 - UI: Respect account privacy settings instead of using client-specific opt-out.
 - UI: Poster and list items titles will automatically scroll when they are too long to display in their entirety.
-- UI: Pressing play, enter or clicking either poster in post play modal will start playback of the associated item
+- UI: Pressing play, enter or clicking either poster in post play modal will start playback of the associated item.
+- UI: Add companion support for shuffle and repeat during audio playback.
+- UI: Add support for native audio track switching.
+- UI: Show insecure connection fallback options when primary server is unreachable but insecure connections are a possibility.
+- UI: Better error handling on media errors.
+- UI: Updated exit confirmation modal UX.
 
 FIXED:
 
@@ -20,25 +26,21 @@ FIXED:
 - Work around Windows' media-key handling which sends multiple input notifications for Play/Pause and Next key presses.
 - Speculative fix for user reported trouble pressing Up and Down on silver Apple IR remotes when using a Mac Mini running High Sierra.
 - Avoid corruption issues when GL context sharing between Qt and WebEngine fails. 5K macs (the previous corruption issue) still work, thanks to our Qt patches.
-- UI: Improved first-run experience to highight the necessary actions to complete the required steps. Make it harder for users to become trapped in a partially complete state.
+- UI: Improved first-run experience to highlight the necessary actions to complete the required steps. Make it harder for users to become trapped in a partially complete state.
 - UI: Mark partially watched items as watched when toggling watched status.
-- UI: Improve Plex Companion controller remote control integration.
+- UI: Improved Plex Companion controller remote control integration.
 - UI: Display album art in music playlists.
 - UI: Fixed an issue with the app crashing when attempting to exit via shortcut.
-- UI: Fix rare issue with some clients not showing up as Companion players on certain devices.
+- UI: Fixed rare issue with some clients not showing up as Companion players on certain devices.
 - UI: 'Go to Show|Artist' buttons navigate to the proper screen now.
-- UI: Fix issue that could have prevented the app from starting when offline
-- UI: Fix error when selecting item version for deletion
-- UI: Fix missing version title in deletion confirmation modal
-- UI: Video direct play/stream options no longer affect audio playback
-- UI: Restore page scroll position when player is exited
-- UI: The Cinema Trailers setting is respected when playing movies
-- UI: Correctly restores focus when stopping playback of watch later videos
-- UI: Correct resume/restart playback behavior from search results and Online Content
-- UI: Don't restart watch later video after pressing play or play/pause during playback.
-- UI: Player closes after an error when play queue contains a single item
-- UI: Photo slideshows no longer appear behind channel browse page
-- UI: Adjusting app volume does not bring up OSD
-- UI: Controls bar doesn't disappear while play queue is open
-- UI: PMP: Show videos in mixed video/photo playback and resize when panel/info open
-- UI: Pressing play in the resume playback dialog resumes playback immediately.
+- UI: Fixed issue that could have prevented the app from starting when offline.
+- UI: Fixed error when selecting item version for deletion.
+- UI: Fixed missing version title in deletion confirmation modal.
+- UI: Video direct play/stream options no longer affect audio playback.
+- UI: Show videos in mixed video/photo playback and resize when panel/info open.
+- UI: App no longer occasionally gets stuck in loading state after switching users.
+- UI: Page background does not change when browsing photo albums.
+- UI: Fixed the background of the items in the user switcher screen so they're no longer tiled.
+- UI: Fixed tracks count on Album Preplay pages.
+- UI: Fixed volume resetting when PMP is restarted and volume was muted.
+- UI: Fixed preplay/library item details getting stuck in a loading state after switching users.

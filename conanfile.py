@@ -8,7 +8,7 @@ class PlexMediaPlayer(ConanFile):
   generators = "cmake"
 
   def requirements(self):
-    self.requires("web-client-tv2/3.30.0-8a8105ba@plex/public")
+    self.requires("web-client-tv2/3.30.0-22f9886a@plex/public")
 
     if self.options.include_desktop:
       self.requires("web-client-desktop/3.29.7-98ffa9d@plex/public")

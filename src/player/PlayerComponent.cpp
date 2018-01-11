@@ -306,7 +306,7 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
     qurl.setHost(ConvertPlexDirectURL(host));
 
   QVariantList command;
-  command << "loadfile" << qurl.toString();
+  command << "loadfile" << qurl.toString(QUrl::FullyEncoded);
   command << "append-play"; // if nothing is playing, play it now, otherwise just enqueue it
 
   QVariantMap extraArgs;

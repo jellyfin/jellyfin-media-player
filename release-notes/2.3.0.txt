@@ -1,0 +1,37 @@
+2018-01-23
+
+NEW:
+
+- UI: Channels are now referred to as Plugins
+- UI: Added default posters for artists/albums without artwork in search results
+- Added automatic fallback to transcode if direct stream video fails
+- Photos will display at a maximum resolution of 1920x1080
+
+FIXED:
+
+- UI: Fixed possible crash when exiting players
+- UI: Fixed bitrate display issues. Music and smaller video bitrates should now display in kbps
+- UI: Fixed the app crashing when photo strip in photo player is focused
+- UI: Fixed photo player strip cells popping in and sometimes showing incorrect images
+- UI: Fixed the playlist page displaying incorrect name and duration
+- UI: Fixed the text case in the header music player and user menu button
+- UI: Fixed the player controls menu ("•••") button not being disabled for watch later/recommended/channel videos
+- UI: Fixed the "Unavailable" badge not being consistently displayed in preplay pages
+- UI: Fixed videos in playlists not prompting to resume
+- UI: Fixed photo slideshows from photo channels not playing all photos
+- UI: Fixed player key handling when OSD is hidden
+- UI: Fixed the user sometimes not being able to focus the photo strip when viewing photos from channels
+- UI: Fixed theme music not stopping when browsing between search and preplay pages
+- UI: Disabling logging to the Plex Media Server correctly prevents sending of log messages to the media server
+- UI: Artist poster images are aligned at the top edge
+- UI: Subtitles toggle alert shows stream metadata
+- UI: Lyrics are only available for the current playing track in the play queue
+- UI: Player controls do not jump around when the durations change
+- UI: Fixed companion video control in mixed photo/video libraries
+- UI: Fixed some details in music playback such as the metadata using the album artist rather than the track artist and OSD appearing during track changes
+- UI: Fixed the post play disappearing after screensaver is dismissed
+- UI: Fixed titles sometimes unnecessarily scrolling
+- UI: Restore focus correctly in season details episodes list after playback
+- UI: Fixed audio / video not playing when bandwidth restrictions and attempting to direct play
+- UI: Fixed the first `enter` press when the player controls are hidden showing the controls and executing the active button action immediately
+

@@ -491,12 +491,28 @@
     "values": []
   },
   {
-    "section": "openelec",
-    "hidden": true,
+    "section": "system",
     "values": [
         {
           "value": "systemname",
-          "default": "PlexMediaPlayer"
+          "default": "PlexMediaPlayer",
+          "hidden": true,
+          "platforms": [ "oe" ]
+        },
+        {
+          "value": "lircd_enabled",
+          "default": false,
+          "platforms": [ "oe" ]
+        },
+        {
+          "value": "smbd_enabled",
+          "default": false,
+          "platforms": [ "oe" ]
+        },
+        {
+          "value": "sshd_enabled",
+          "default": false,
+          "platforms": [ "oe" ]
         }
     ]
   },

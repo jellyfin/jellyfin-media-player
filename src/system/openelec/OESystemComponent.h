@@ -17,6 +17,7 @@ public:
   virtual const char* componentName() { return "oesystem"; }
   virtual bool componentInitialize();
 
+  void updateSectionSettings(const QVariantMap& values);
   bool setHostName(QString name);
 };
 

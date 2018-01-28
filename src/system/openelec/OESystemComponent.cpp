@@ -1,8 +1,16 @@
 #include "settings/SettingsComponent.h"
+#include "settings/SettingsSection.h"
 #include "OESystemComponent.h"
+#include "SystemdManager.h"
 #include "QsLog.h"
 #include <unistd.h>
 #include <QFile>
+
+QMap<QString, SystemdService> services = {
+     { "samba" , SystemdService("smbd", "samba") },
+     { "lirc" ,  SystemdService("lircd", "lircd") },
+     { "ssh" ,  SystemdService("sshd", "sshd") }
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 OESystemComponent::OESystemComponent(QObject *parent) : ComponentBase(parent)
@@ -13,9 +21,34 @@ OESystemComponent::OESystemComponent(QObject *parent) : ComponentBase(parent)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool OESystemComponent::componentInitialize()
 {
-  setHostName(SettingsComponent::Get().value(SETTINGS_SECTION_OPENELEC, "systemname").toString());
 
+  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_SYSTEM), &SettingsSection::valuesUpdated,
+            this, &OESystemComponent::updateSectionSettings);
+
+  setHostName(SettingsComponent::Get().value(SETTINGS_SECTION_SYSTEM, "systemname").toString());
+
+  foreach(QString service, services.keys())
+  {
+    bool Enabled = SystemdManager::isEnabled(services[service]);
+    QLOG_ERROR() << "Service " << services[service].Name << " enabled :" << Enabled;
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_SYSTEM,
+                                      services[service].Name + "_enabled",
+                                      Enabled);
+  }
   return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void OESystemComponent::updateSectionSettings(const QVariantMap& values)
+{
+    foreach(QString service, services.keys())
+    {
+        QString keyName = services[service].Name + "_enabled";
+        if (values.contains(keyName))
+        {
+            SystemdManager::enable(services[service], values[keyName].toBool());
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

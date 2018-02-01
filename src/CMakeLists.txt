@@ -125,21 +125,23 @@ if(APPLE)
   set(RESOURCE_ROOT Resources)
 endif()
 
-if(NOT DEFINED CONAN_WEB-CLIENT-TV2_ROOT)
-  message(FATAL_ERROR "Could not find the web-client! Run conan!")
-endif()
-
-add_resources(TARGET ${MAIN_TARGET} SOURCES ${CONAN_WEB-CLIENT-TV2_ROOT}/tv DEST ${RESOURCE_ROOT}/web-client/tv)
-if(DEFINED CONAN_WEB-CLIENT-DESKTOP_ROOT)
-  add_resources(TARGET ${MAIN_TARGET} SOURCES ${CONAN_WEB-CLIENT-DESKTOP_ROOT}/desktop DEST ${RESOURCE_ROOT}/web-client/desktop)
+add_resources(TARGET ${MAIN_TARGET} SOURCES ${WEB_TV_DIR} DEST ${RESOURCE_ROOT}/web-client/tv)
+if(NOT WEB_CLIENT_DISABLE_DESKTOP)
+  add_resources(TARGET ${MAIN_TARGET} SOURCES ${WEB_DESKTOP_DIR} DEST ${RESOURCE_ROOT}/web-client/desktop)
 endif()
 
 if(NOT APPLE)
-  install(FILES ${QTROOT}/resources/qtwebengine_devtools_resources.pak DESTINATION resources)
-  install(DIRECTORY ${CONAN_WEB-CLIENT-TV2_ROOT}/tv DESTINATION ${INSTALL_RESOURCE_DIR}/web-client)
-  if(DEFINED CONAN_WEB-CLIENT-DESKTOP_ROOT)
-    install(DIRECTORY ${CONAN_WEB-CLIENT-DESKTOP_ROOT}/desktop DESTINATION ${INSTALL_RESOURCE_DIR}/web-client)
-  endif()
+  set(rsrc_locations
+    ${QTROOT}/resources
+    /usr/share/qt/resources
+  )
+  foreach(loc ${rsrc_locations})
+    if(EXISTS ${loc}/qtwebengine_devtools_resources.pak)
+      install(FILES ${loc}/qtwebengine_devtools_resources.pak DESTINATION resources)
+    endif()
+  endforeach()
+  install(DIRECTORY ${WEB_TV_DIR}/ DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/tv)
+  install(DIRECTORY ${WEB_DESKTOP_DIR}/ DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/desktop)
 endif()
 
 if(XCODE)

@@ -7,12 +7,6 @@ endif()
 
 project(PlexMediaPlayer CXX C)
 
-if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-else()
-  message(WARNING "Could not find conanbuildinfo.cmake - could be a problem! Make sure to run conan install first")
-endif()
-
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 
@@ -56,6 +50,7 @@ set_policy(CMP0026 OLD)
 
 include(utils)
 include(CompilerFlags)
+include(WebClient)
 include(DependencyConfiguration)
 include(QtConfiguration)
 include(VersionConfiguration)
@@ -65,7 +60,6 @@ include(InputConfiguration)
 include(FindBreakpad)
 include(BreakpadSymbols)
 include(ClangTidy)
-include(WebClientConan)
 
 add_definitions(-DQS_LOG_LINE_NUMBERS -DQS_LOG_SEPARATE_THREAD)
 

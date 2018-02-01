@@ -17,11 +17,7 @@ If you're happy just building from the command line then run CMake for the ninja
   * ``brew install ninja``
 * Install mpv and other dependencies with homebrew:
   * ``brew install mpv --with-shared --HEAD``
-* Install conan (dependency fetcher)
-  * ``brew install conan``
-* Add the `plex` repository to conan: ``conan remote add plex https://conan.plex.tv``
 * ``mkdir build ; cd build``
-* ``conan install ..``
 * ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=output ..``
 
 Build (ninja):
@@ -76,14 +72,6 @@ With this, libmpv should have been installed to ``/usr/local/``. It does not con
 
 You can also attempt to skip the installation step, and change the paths in the PMP build step to the build directory, but this is more complicated.
 
-### Install conan (dependency fetcher)
-
-Usually you can install conan by running: ``pip install -U conan``.
-
-Now add the `plex` repository to conan ``conan remote add plex https://conan.plex.tv``
-
-You can try that it works by running ``conan search -r plex *@*/public`` that should list web-client packages.
-
 ### Building plex-media-player
 
 Assuming that everything else has installed correctly, building Plex Media Player should now be fairly straightforward:
@@ -93,7 +81,6 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 * ``cd plex-media-player``
 * ``mkdir build``
 * ``cd build``
-* ``conan install ..``
 * ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.6.1/5.6/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
 * ``make -j4``
 * ``sudo make install``
@@ -118,4 +105,3 @@ Sometimes, PMP will pick up SDL 1.x libraries. This is not supported and will le
 Plex Media Player is licensed under GPL v2. See the ``LICENSE`` file.
 Licenses of dependencies are summarized under ``resources/misc/licenses.txt``.
 This file can also be printed at runtime when using the ``--licenses`` option.
-

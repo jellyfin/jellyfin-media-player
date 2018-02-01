@@ -65,8 +65,16 @@ function(get_content_of_url)
 endfunction(get_content_of_url)
 
 function(download_deps DD_NAME)
-  set(ARGS DIRECTORY BUILD_NUMBER ARTIFACTNAME VARIANT DEPHASH_VAR ARCHSTR DYLIB_SCRIPT_PATH TOKEN)
-  cmake_parse_arguments(DD "" "${ARGS}" "" ${ARGN})
+  set(ARGS DIRECTORY BUILD_NUMBER
+                     ARTIFACTNAME
+                     VARIANT
+                     DEPHASH_VAR
+                     ARCHSTR
+                     DYLIB_SCRIPT_PATH
+                     BASE_URL
+                     TOKEN)
+
+  cmake_parse_arguments(DD "NO_HASH_FILE" "${ARGS}" "" ${ARGN})
 
   if(NOT DEFINED DD_VARIANT)
     set(DD_VARIANT "release")
@@ -92,7 +100,10 @@ function(download_deps DD_NAME)
     set(DD_TOKEN plex-dependencies)
   endif()
 
-  set(BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
+  if(NOT DEFINED DD_BASE_URL)
+    set(DD_BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
+  endif()
+
   set(DEP_DIR ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/${DD_BUILD_NUMBER})
 
   get_cmake_property(cacheVars CACHE_VARIABLES)
@@ -103,26 +114,34 @@ function(download_deps DD_NAME)
      endif()
   endforeach()
 
-  set(HASH_FILENAME ${DD_NAME}-${DD_BUILD_NUMBER}-hash.txt)
-  get_content_of_url(URL ${BASE_URL}/hash.txt CONTENT_VAR DEP_HASH FILENAME ${HASH_FILENAME} ${DD_ALWAYS_DOWNLOAD})
+  if(NOT DD_NO_HASH_FILE)
+    set(HASH_FILENAME ${DD_NAME}-${DD_BUILD_NUMBER}-hash.txt)
+    get_content_of_url(URL ${DD_BASE_URL}/hash.txt CONTENT_VAR DEP_HASH FILENAME ${HASH_FILENAME} ${DD_ALWAYS_DOWNLOAD})
 
-  if(NOT DEP_HASH)
-    message(FATAL_ERROR "Failed to get hash for dependencies. Abort abort abort...")
+    if(NOT DEP_HASH)
+      message(FATAL_ERROR "Failed to get hash for dependencies. Abort abort abort...")
+    endif()
+
+    message(STATUS "Dependency hash is: ${DEP_HASH}")
+    if(DD_DEPHASH_VAR)
+      set(${DD_DEPHASH_VAR} ${DEP_HASH} PARENT_SCOPE)
+    endif()
+
+    set(DEP_DIRNAME "${DD_ARTIFACTNAME}-${DD_ARCHSTR}-${DD_VARIANT}-${DEP_HASH}")
+    set(DEP_FILENAME ${DEP_DIRNAME}.tbz2)
+    set(${DD_DEP_HASH} ${DEP_HASH} PARENT_SCOPE)
+    set(DEP_URL "${DD_BASE_URL}/${DEP_FILENAME}")
+    set(CONTENT_HASH_URL ${DEP_URL}.sha.txt)
+  else()
+    set(DEP_DIRNAME "${DD_ARTIFACTNAME}-${DD_VARIANT}")
+    set(DEP_FILENAME "${DEP_DIRNAME}.tar.xz")
+    set(DEP_URL "${DD_BASE_URL}/${DEP_FILENAME}")
+    set(CONTENT_HASH_URL ${DEP_URL}.sha1)
   endif()
-
-  message(STATUS "Dependency hash is: ${DEP_HASH}")
-  if(DD_DEPHASH_VAR)
-    set(${DD_DEPHASH_VAR} ${DEP_HASH} PARENT_SCOPE)
-  endif()
-
-  set(DEP_DIRNAME "${DD_ARTIFACTNAME}-${DD_ARCHSTR}-${DD_VARIANT}-${DEP_HASH}")
-  set(DEP_FILENAME ${DEP_DIRNAME}.tbz2)
 
   set(${DD_DIRECTORY} ${DEP_DIR}/${DEP_DIRNAME} PARENT_SCOPE)
-  set(${DD_DEP_HASH} ${DEP_HASH} PARENT_SCOPE)
 
-  set(DEP_URL "${BASE_URL}/${DEP_FILENAME}")
-  get_content_of_url(URL ${DEP_URL}.sha.txt CONTENT_VAR CONTENT_HASH)
+  get_content_of_url(URL ${CONTENT_HASH_URL} CONTENT_VAR CONTENT_HASH)
 
   string(SUBSTRING "${CONTENT_HASH}" 0 40 CONTENT_HASH)
 

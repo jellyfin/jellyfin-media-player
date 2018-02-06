@@ -1,0 +1,22 @@
+2018-02-06
+
+NEW:
+
+- Updated the sources selector UI
+- Added sources modal
+- Added ability to reorder sources from sources modal
+- Added ability to hide sources from sources list
+- Added support for inline collections
+- Added automatic fallback to transcode if direct stream audio fails
+- Playing an item from the play queue will automatically close the play queue
+
+FIXED:
+
+- Fixed the app sometimes showing incomplete lists when returning from the player
+- Fixed the error message displayed for unavailable videos
+- Fixed play/pause keys in player while the player controls are hidden
+- Fixed the first `enter` press when the player controls are hidden showing the controls and executing the active button action immediately
+- Fixed empty play queue when playing watch later/recommended videos
+- Fixed a rare bug where the app could become unresponsive when selecting a user
+- Fixed the PIN entry in user switching screen still being displayed after user presses `back` to close it
+- Fixed the exit confirmation dialog not being visible when user attempts to exit from user switching screen

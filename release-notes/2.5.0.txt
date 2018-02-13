@@ -1,0 +1,6 @@
+2018-02-13
+
+FIXED:
+
+- Fixed the titles for recently added TV shows
+- Fixed the player sometimes not being able to play watch later/recommended videos

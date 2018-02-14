@@ -16,3 +16,5 @@ conaninfo.txt
 conanbuildinfo.*
 web-client
 .DS_Store
+.*libreelec*
+toolchain.cmake

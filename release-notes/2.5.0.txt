@@ -1,6 +1,13 @@
-2018-02-13
+2018-02-20
+
+NEW:
+
+- Updated translations
 
 FIXED:
 
 - Fixed the titles for recently added TV shows
 - Fixed the player sometimes not being able to play watch later/recommended videos
+- Fixed bug that could cause app to fail to load
+- Fixed cases where playback would error or fallback to a transcode near the end of a video
+- Fixed issues with Apple IR remotes on High Sierra

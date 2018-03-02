@@ -17,3 +17,4 @@ FIXED:
 - Fixed the player remaining paused after changing an item in the play queue
 - Fixed title getting cut off on Live TV preplay pages
 - Fixed the player controls briefly appearing when closing the player
+- Fixed seeking in Live TV playback in desktop mode

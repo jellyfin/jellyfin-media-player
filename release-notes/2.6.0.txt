@@ -18,3 +18,5 @@ FIXED:
 - Fixed title getting cut off on Live TV preplay pages
 - Fixed the player controls briefly appearing when closing the player
 - Fixed seeking in Live TV playback in desktop mode
+- Fixed a rare bug that could cause the app to become unresponsive to key input after signing in
+- Fixed some issues with item actions for some older servers

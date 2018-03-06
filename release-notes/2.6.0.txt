@@ -20,3 +20,4 @@ FIXED:
 - Fixed seeking in Live TV playback in desktop mode
 - Fixed a rare bug that could cause the app to become unresponsive to key input after signing in
 - Fixed some issues with item actions for some older servers
+- Fixed an issue that prevented using keyboard shortcuts to mark an item as unwatched

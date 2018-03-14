@@ -1,0 +1,14 @@
+2018-03-20
+
+NEW:
+
+- Desktop web-client updated to 3.41.2
+
+FIXED:
+
+- Fixed possible endless buffering at start of playback
+- Fixed short movie/episode summary alignment
+- Fixed version count not showing up on poster lists
+- Fixed the recording schedule not displaying an empty message when no events are displayed
+- Fixed the next airing wrapping to two lines on the recording priority page
+- Selecting "Sign Out" after selecting "Switch User" from the app's home screen no longer shows homescreen content below the confirmation modal

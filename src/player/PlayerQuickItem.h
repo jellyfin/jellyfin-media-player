@@ -7,7 +7,6 @@
 
 #include <mpv/client.h>
 #include <mpv/opengl_cb.h>
-#include <mpv/qthelper.hpp>
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -16,6 +15,7 @@ typedef void* HANDLE;
 #endif
 
 #include "PlayerComponent.h"
+#include "QtHelper.h"
 
 class PlayerRenderer : public QObject
 {

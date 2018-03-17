@@ -4,10 +4,10 @@
 #include <QOpenGLContext>
 
 #include <mpv/client.h>
-#include <mpv/qthelper.hpp>
 
 #include "QsLog.h"
 
+#include "QtHelper.h"
 #include "OpenGLDetect.h"
 
 #if defined(Q_OS_MAC)

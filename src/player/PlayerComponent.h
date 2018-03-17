@@ -13,9 +13,10 @@
 
 #include "ComponentManager.h"
 #include "CodecsComponent.h"
+#include "QtHelper.h"
 
 #include <mpv/client.h>
-#include <mpv/qthelper.hpp>
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class PlayerComponent : public ComponentBase

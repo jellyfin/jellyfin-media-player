@@ -4,6 +4,7 @@ NEW:
 
 - Desktop web-client updated to 3.41.2
 - Added scrolling to dashboard header type buttons when more than 5 buttons are visible
+- Swapped the Record and Play buttons on Live TV item screens
 
 FIXED:
 

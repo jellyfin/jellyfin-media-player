@@ -3,6 +3,8 @@
 NEW:
 
 - Desktop web-client updated to 3.44.1
+- Added new flat Rotten Tomatoes icons
+- Added link to view all hub list items
 
 FIXED:
 
@@ -12,4 +14,8 @@ FIXED:
 - Fixed soft subtitles positioning when OSD is visible
 - Fixed posters for other episodes not showing on Live TV episode details
 - Fixed an issue that would cause the Home page to be displayed for media types without libraries
-
+- Fixed issues around playing music with Plex Companion
+- Fixed an issue that could cause the delete version action to delete all versions
+- Fixed an issue that made some News clips dates innacurate until the poster was focused
+- Fixed casting camera roll from iOS
+- Clarified error code in modal when playback fails

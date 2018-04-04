@@ -9,6 +9,13 @@
 #undef CursorShape
 #undef Bool
 #undef Status
+#undef None
+#undef KeyPress
+#undef KeyRelease
+#undef FocusIn
+#undef FocusOut
+#undef FontChange
+#undef Expose
 
 #include "display/DisplayManager.h"
 

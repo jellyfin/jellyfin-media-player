@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 find_package(X11)
 if(X11_FOUND AND X11_Xrandr_FOUND)
   include_directories(X11_X11_INCLUDE_PATH X11_Xrandr_INCLUDE_PATH)
@@ -18,3 +20,7 @@ endif()
 
 set(INSTALL_BIN_DIR bin)
 set(INSTALL_RESOURCE_DIR share/plexmediaplayer)
+
+if(NOT OPENELEC)
+  include(InstallLinuxDesktopFile)
+endif()

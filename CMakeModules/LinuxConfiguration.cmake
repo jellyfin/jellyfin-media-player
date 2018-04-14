@@ -18,8 +18,8 @@ else()
   Message(STATUS "Enabling D-Bus power management")
 endif()
 
-set(INSTALL_BIN_DIR bin)
-set(INSTALL_RESOURCE_DIR share/plexmediaplayer)
+set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR})
+set(INSTALL_RESOURCE_DIR ${CMAKE_INSTALL_DATADIR}/plexmediaplayer)
 
 if(NOT OPENELEC)
   include(InstallLinuxDesktopFile)

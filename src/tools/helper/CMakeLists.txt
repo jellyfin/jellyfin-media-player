@@ -15,6 +15,7 @@ add_executable(${HELPER_TARGET} WIN32
 target_link_libraries(${HELPER_TARGET} ${Qt5Core_LIBRARIES} ${Qt5Network_LIBRARIES} qslog shared)
 std_target_properties(${HELPER_TARGET})
 set_target_properties(${HELPER_TARGET} PROPERTIES
+  INSTALL_RPATH "${QTROOT}/lib"
   OUTPUT_NAME ${HELPER_NAME}
 )
 

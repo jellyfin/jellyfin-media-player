@@ -17,7 +17,8 @@ static QStringList desktopWhiteListedKeys = { "Media Play",
                                               "Media Next",
                                               "Media Previous",
                                               "Media Rewind",
-                                              "Media FastForward" };
+                                              "Media FastForward",
+                                              "Back"};
 // These just happen to be mostly the same.
 static QStringList win32AppcommandBlackListedKeys = desktopWhiteListedKeys;
 

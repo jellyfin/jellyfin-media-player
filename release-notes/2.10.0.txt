@@ -1,0 +1,17 @@
+2018-05-01
+
+NEW:
+
+- Desktop web-client updated to 3.47.1
+- Added Privacy Policy and Terms of Service viewing in settings
+- Added quick links action buttons for type discovery pages
+- Updated translations
+
+FIXED:
+
+- Fixed an issue that would cause back button presses on certain remotes to be registered twice
+- Fixed the app not loading if plex.tv is unavailable
+- Fixed the version badge not updating after deleting a version
+- Fixed missing videos in a photo library failing silently
+- Fixed the OSD not hiding when resuming playback after the screensaver was shown
+- Fixed high CPU usage during music playback

@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
     QApplication app(newArgc, newArgv);
-#if Q_OS_WIN
+#ifdef Q_OS_WIN
     // Setting the icon on Windows is necessary but will break user
     // ability to change icon on OSX
     app.setWindowIcon(QIcon(":/images/icon.png"));

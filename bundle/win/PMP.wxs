@@ -69,6 +69,7 @@
       <!-- Prevent downgrades from newer versions -->
       <Custom Action="PreventDowngrades" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
       <!-- Uninstall older versions before installing ourselves -->
+      <RemoveShortcuts>Installed AND NOT UPGRADINGPRODUCTCODE</RemoveShortcuts>
       <RemoveExistingProducts After="InstallInitialize">PREVIOUSVERSIONINSTALLED</RemoveExistingProducts>
       <Custom Action="LaunchPMP" After="InstallFinalize"><![CDATA[AUTOLAUNCH = 1]]></Custom>
       <Custom Action="WixCloseApplications" After="InstallInitialize" />

@@ -37,7 +37,7 @@ if(WIN32)
     ARCHSTR windows-x86_x64
   )
 
-  option(ENABLE_ANGLE_DEP "Enable downloading and deployment of separate ANGLE deps" ON)
+  option(ENABLE_ANGLE_DEP "Enable downloading and deployment of separate ANGLE deps" OFF)
   if(ENABLE_ANGLE_DEP)
     message(STATUS "Downloading separate ANGLE deps...")
     foreach(angle_file libEGL.dll libGLESv2.dll d3dcompiler_47.dll)

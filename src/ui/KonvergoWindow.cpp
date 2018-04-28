@@ -545,19 +545,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     SystemComponent::Get().setCursorVisibility(false);
   }
 
-#ifdef Q_OS_MAC
-  if (visibility == QWindow::Windowed)
-  {
-    QTimer::singleShot(1 * 1000, [this] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
-  }
-  else if (visibility == QWindow::FullScreen)
-  {
-    QTimer::singleShot(1 * 1000, [this] {
-      OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
-    });
-  }
-#endif
-
   InputComponent::Get().cancelAutoRepeat();
 }
 

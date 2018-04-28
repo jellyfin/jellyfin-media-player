@@ -3,39 +3,6 @@
 #import <Cocoa/Cocoa.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
-unsigned long OSXUtils::GetPresentationOptionsForFullscreen(bool hideMenuAndDock)
-{
-  unsigned long flags = 0;
-  if (hideMenuAndDock)
-  {
-    flags = flags & ~(NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar);
-    flags |= NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
-  }
-  else
-  {
-    flags = flags & ~(NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar);
-    flags |= NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar;
-  }
-
-  return flags;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void OSXUtils::SetPresentationOptions(unsigned long flags)
-{
-  QLOG_DEBUG() << "Setting presentationOptions =" << flags;
-  [[NSApplication sharedApplication] setPresentationOptions:flags];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-unsigned long OSXUtils::GetPresentationOptions()
-{
-  unsigned long options = [[NSApplication sharedApplication] presentationOptions];
-  QLOG_DEBUG() << "Getting presentationOptions =" << options;
-  return options;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 QString OSXUtils::ComputerName()
 {
   return QString::fromNSString([[NSHost currentHost] localizedName]);

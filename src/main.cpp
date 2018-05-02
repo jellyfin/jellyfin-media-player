@@ -117,13 +117,6 @@ int main(int argc, char *argv[])
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     int newArgc = argc + g_qtFlags.size();
 
-    // Suppress SSL related warnings on OSX
-    // See https://bugreports.qt.io/browse/QTBUG-43173 for more info
-    //
-#ifdef Q_OS_MAC
-    qputenv("QT_LOGGING_RULES", "qt.network.ssl.warning=false");
-#endif
-
     // Qt calls setlocale(LC_ALL, "") in a bunch of places, which breaks
     // float/string processing in mpv and ffmpeg.
 #ifdef Q_OS_UNIX

@@ -2,7 +2,7 @@
 
 You need:
 
-* Qt 5.7.1
+* Qt 5.9.5
 * cmake 3.1 or newer
 * ninja is recommended for building
 * FFmpeg 3.x and mpv from github
@@ -50,7 +50,7 @@ Systems not based on Debian/Ubuntu will have similar packages, but you'll need t
 
 ### Downloading and installing Qt
 
-If your distro provides Qt 5.7.1 or later packages, try to use them. Otherwise, find a Qt download at qt.io.
+If your distro provides Qt 5.9.5 or later packages, try to use them. Otherwise, find a Qt download at qt.io.
 
 On Windows and OSX, you can omit the ``-DQTROOT`` argument to use the Qt built by Plex. (Untested whether this works reliably.)
 

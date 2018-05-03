@@ -10,7 +10,7 @@ if(NOT IS_DIRECTORY ${QTROOT})
 		"plexmediaplayer-qt"
 		DIRECTORY dir
 		DEPHASH_VAR QT_DEPS_HASH
-    BUILD_NUMBER 165
+    BUILD_NUMBER 206
     ARTIFACTNAME konvergo-qt
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
 	)

@@ -1,0 +1,19 @@
+2018-05-29
+
+NEW:
+
+- Desktop web-client updated to 3.52.2
+- Updated "(Un)Watched" text to "(Un)Played"
+
+FIXED:
+
+- Fixed several possible situations where focus could disappear
+- Fixed the shuffle for a TV season selecting episodes from outside of that season
+- Fixed the focus order on a show preplay page (with extras only) being incorrect
+- Make sure quality setting is respected for autoplaying next episode
+- Fixed HLS videos in Watch Later not playing in some cases
+- Fixed some occurrences of "Repeat All" not repeating single video play queues
+- Fixed Live TV type buttons cutoff in list view
+- Fixed inconsistent queue behavior when playing season with no unwatched episodes
+- Fixed music play queues not correctly restoring on app start
+- Fixed an issue that prevented playing content from a Controller while the app is in the PIN entry screen

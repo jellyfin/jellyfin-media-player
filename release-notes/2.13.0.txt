@@ -1,0 +1,8 @@
+2018-06-26
+
+FIXED:
+
+- Fixed missing jump bars when viewing Artists and Albums from Quick Links
+- Don't show 'Browse by Folder' option when not applicable
+- Fixed missing shuffle button from Collections PrePlay
+

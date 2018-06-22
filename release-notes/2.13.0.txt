@@ -2,6 +2,7 @@
 
 FIXED:
 
+- Fixed focus disappearing after selecting a different news clip from the play queue
 - Fixed missing jump bars when viewing Artists and Albums from Quick Links
 - Don't show 'Browse by Folder' option when not applicable
 - Fixed missing shuffle button from Collections PrePlay

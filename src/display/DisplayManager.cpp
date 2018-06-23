@@ -85,11 +85,12 @@ bool DisplayManager::isRateMultipleOf(float refresh, float multiple, bool exact)
   if (roundedRefresh == 0)
       return false;
 
-  float newRate = roundedMultiple / roundedRefresh * refresh;
+  long factor = roundedMultiple / roundedRefresh;
+  float newRate = factor * refresh;
   if (newRate < 1)
     return false;
 
-  float tolerance = exact ? 0.1 : 1;
+  float tolerance = exact ? 0.01 * factor : 1;
 
   return fabs(newRate - multiple) < tolerance;
 }

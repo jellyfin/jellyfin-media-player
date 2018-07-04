@@ -85,6 +85,40 @@ QVariantMap RemoteComponent::ResourceInformation()
   resourceInfo["platform"] = QSysInfo::productType();
   resourceInfo["platformVersion"] = QSysInfo::productVersion();
 
+  // Vary the `title` value depending on the `systemname` value in
+  // plexmediaplayer.conf. The `title` is used by the UI when publishing PMP as
+  // a Plex Companion player.
+  //
+  // The `gdmInfo` contains a `title` value which is equivalent to the system's
+  // hostname. The OESystemComponent then sets the `systemname` as system's
+  // hostname. Whereas the `systemname` property is ignored on non OE systems.
+  // So, on OE systems the resulting `title` value is always the value of the
+  // `systemname` property while the `title` on desktop systems is always the
+  // system's actual hostname.
+  //
+  // Always return a non-default value for `systemname`. The default value
+  // `systemname` value is always ignored in favor of a the more descriptive
+  // system hostname provided by GDM. The default value for `systemname` _and_
+  // system hostname from GDM are equivalent on OE which can lead to a
+  // pathological case of an empty `systemname`.
+  //
+  // See: resources/settings/settings_description.json
+  // See: https://github.com/plexinc/plex-media-player/issues/762
+  QString systemname = SettingsComponent::Get().value(SETTINGS_SECTION_SYSTEM, "systemname").toString();
+  QString defaultSystemname = "PlexMediaPlayer";
+
+  bool isSystemnameEmpty = systemname.isEmpty();
+  bool isSystemnameDefault = systemname.compare(defaultSystemname) == 0;
+
+  if (!isSystemnameEmpty && !isSystemnameDefault)
+    resourceInfo["title"] = systemname;
+
+  QLOG_DEBUG() << "Resolving system name: Host name:" << gdmInfo["Name"].toString();
+  QLOG_DEBUG() << "Resolving system name: System name setting:" << systemname;
+  QLOG_DEBUG() << "Resolving system name: Is system name setting empty value:" << isSystemnameEmpty;
+  QLOG_DEBUG() << "Resolving system name: Is system name setting default value:" << isSystemnameDefault;
+  QLOG_DEBUG() << "Resolving system name: Final value:" << resourceInfo["title"].toString();
+
   return resourceInfo;
 };
 

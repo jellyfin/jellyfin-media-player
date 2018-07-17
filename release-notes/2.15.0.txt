@@ -1,0 +1,14 @@
+2018-07-24
+
+NEW:
+
+- Desktop web-client updated to 3.59.1
+- Added soft subtitles with direct play (requires PMS 1.13.4 or above)
+
+FIXED:
+
+- Added missing unwatched triangles to Watch Later/Recommended
+- Fixed sometimes only the background showing when going back to the pre-play page
+- Fixed items in On Right Now starting playback immediately after going to Watch Now
+- Fixed icon for server and source lists
+- Fixed an issue where pressing left or right while video is paused causes you to go to previous/next video instead of seeking

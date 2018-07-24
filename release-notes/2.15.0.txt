@@ -2,7 +2,7 @@
 
 NEW:
 
-- Desktop web-client updated to 3.59.1
+- Desktop web-client updated to 3.61.1
 - Added soft subtitles with direct play (requires PMS 1.13.4 or above)
 
 FIXED:

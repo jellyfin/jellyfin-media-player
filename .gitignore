@@ -18,3 +18,4 @@ web-client
 .DS_Store
 .*libreelec*
 toolchain.cmake
+.sublime-settings

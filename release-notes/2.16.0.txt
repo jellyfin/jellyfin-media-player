@@ -1,0 +1,18 @@
+2018-08-07
+
+NEW:
+
+- Add Chapter Selection to video playback
+- Updated app settings to match new UI
+
+FIXED:
+
+- Fixed subtitles being burned unnecessarily when transcoding
+- Fixed skipping instead of seeking with remote
+- Fixed cut off text on preplay pages with long synopses
+- Fixed photo thumbnails not showing a background when scrolling
+- Fixed an issue that could cause selected settings sections to reset when changing selected options
+- Fixed formatting of no recordings page on some devices
+- Fixed long translations getting cut off in the user menu
+- Fixed source list order changes not saving in some rare circumstances
+- (PMP) Improved Audio Passthrough settings labels

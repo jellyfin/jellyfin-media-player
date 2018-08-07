@@ -2,6 +2,7 @@
 
 NEW:
 
+- Desktop web-client updated to 3.63.1
 - Add Chapter Selection to video playback
 - Updated app settings to match new UI
 
@@ -15,4 +16,4 @@ FIXED:
 - Fixed formatting of no recordings page on some devices
 - Fixed long translations getting cut off in the user menu
 - Fixed source list order changes not saving in some rare circumstances
-- (PMP) Improved Audio Passthrough settings labels
+- Improved Audio Passthrough settings labels

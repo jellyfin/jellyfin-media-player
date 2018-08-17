@@ -88,6 +88,8 @@ bool PlayerComponent::componentInitialize()
   mpv_request_log_messages(m_mpv, "terminal-default");
   mpv::qt::set_property(m_mpv, "msg-level", "all=v");
 
+  // Configuration properties defined in the mpv.conf will override our
+  // hardcoded properties below.
   mpv::qt::set_property(m_mpv, "config", "yes");
   mpv::qt::set_property(m_mpv, "config-dir", Paths::dataDir());
 

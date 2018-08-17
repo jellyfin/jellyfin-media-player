@@ -119,8 +119,12 @@ bool PlayerComponent::componentInitialize()
 
   // User-visible application name used by some audio APIs (at least PulseAudio).
   mpv::qt::set_property(m_mpv, "audio-client-name", QCoreApplication::applicationName());
+
   // User-visible stream title used by some audio APIs (at least PulseAudio and wasapi).
   mpv::qt::set_property(m_mpv, "title", QCoreApplication::applicationName());
+
+  // See: https://github.com/plexinc/plex-media-player/issues/736
+  mpv::qt::set_property(m_mpv, "cache-seek-min", 5000);
 
   mpv::qt::set_property(m_mpv, "tls-verify", "yes");
 

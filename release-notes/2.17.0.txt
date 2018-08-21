@@ -2,8 +2,10 @@
 
 NEW:
 
+- Desktop web-client updated to 3.65.1
 - Added menu in settings to reorder and show/hide media types
 - Added AdChoices link to Privacy settings
+- Automatically sort dashboard buttons based on which types the user has access to
 
 FIXED:
 
@@ -13,3 +15,6 @@ FIXED:
 - Fixed Cloud Sync server library names not showing up in source modal
 - Fixed lost focus when opening User Menu while offline
 - Fixed inconsistency with Mark as Played string naming
+- Removed errant app settings section
+- Fixed an issue that could cause dashboard pages to fail to load while the app is offline
+- Fixed update check in settings

@@ -1,0 +1,12 @@
+2018-09-04
+
+NEW:
+
+- Automatically refresh the dashboard when playback ends
+
+FIXED:
+
+- Fixed pressing play on post play next item leaving OSD open
+- Fixed indirect connection being chosen prematurely in some cases
+- Fixed inability to change audio stream when being controlled as companion player
+- Fixed being unable to remove manual server settings

@@ -1,0 +1,20 @@
+2018-09-18
+
+NEW:
+
+- Added chapter titles to the chapter selection
+- Added the ability to focus the progress bar and move the playhead to seek more accurately
+- Added preview thumbnails while seeking (when available)
+- Adjusted rewind and fast-foward behavior to move the playhead automatically at 1x, 2x or 3x speed
+- Added new music mini player
+- Added new user button design in the application header
+- Added split fullscreen and layout switching controls
+
+FIXED:
+
+- Fixed shuffle commands received from companion apps not being recognized
+- Fixed dashboard hubs sometimes failing to load when switching between Home users
+- Fixed advancing to the same item as the one currently playing putting the player in a broken state
+- Fixed focus not being restored when returning to playlists list page
+- Fixed missing placeholder for chapter selection preview thumbnails
+- Fixed broken focus behaviour when pressing right twice quickly on settings

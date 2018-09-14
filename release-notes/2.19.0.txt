@@ -18,3 +18,4 @@ FIXED:
 - Fixed focus not being restored when returning to playlists list page
 - Fixed missing placeholder for chapter selection preview thumbnails
 - Fixed broken focus behaviour when pressing right twice quickly on settings
+- Fixed missing 'Collections' and 'Albums' links from dashboards

@@ -1,0 +1,5 @@
+2018-09-20
+
+FIXED:
+
+- Fixed an issue connecting to Plex Cloud servers

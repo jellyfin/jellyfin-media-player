@@ -13,3 +13,4 @@ FIXED:
 - Fixed being unable to remove manual server settings
 - Fixed alignment of checkboxes for Live TV advanced recording settings
 - Fixed timed lyrics not scrolling as track progresses
+- Fixed pathological resume behavior in edge cases, #736

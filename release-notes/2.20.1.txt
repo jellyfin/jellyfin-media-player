@@ -1,0 +1,5 @@
+2018-10-10
+
+FIXED:
+
+- Fixed settings failing to open in some circumstances

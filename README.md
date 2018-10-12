@@ -35,7 +35,7 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 ## Building on Linux
 
-Plex Media Player officially requires Qt 5.9.5. Our users have indicated that Qt 5.10 also builds correctly. Qt 5.11 is _incompatible_ and should be avoided. Please consider building PMP within a dedicated VM or Docker container if your system has a Qt version installed newer than 5.9.5. Downgrading a system Qt will cause issues in other applications depending on a newer Qt version.
+Plex Media Player officially requires Qt 5.9.5. Our users have indicated that Qt 5.10 and 5.11 also builds correctly. However, Qt 5.11.0 and 5.11.1 versions are _incompatible_ and should be avoided. Please consider building PMP within a dedicated VM or Docker container if your system has a Qt version installed newer than 5.9.5. Downgrading a system Qt will cause issues in other applications depending on a newer Qt version.
 
 These instructions are for Ubuntu 16.04 LTS. They were tested on a fresh install without extra options and with auto-updates applied.
 

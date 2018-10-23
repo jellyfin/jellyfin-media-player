@@ -1,0 +1,15 @@
+2018-10-30
+
+NEW:
+
+- Improvements to subtitles search results titles
+- Added new music player UI for podcasts
+- Added Related Episodes hub underneath the Podcasts player
+- Watch Later and Recommended support has been removed. Please see: https://www.plex.tv/blog/subtitles-and-sunsets-big-improvements-little-housekeeping/
+
+FIXED:
+
+- Fixed occasional loss of focus on library page when applying "unplayed" filter
+- Fixed settings failing to open in some circumstances
+- Fixed zip code not disappearing in News settings after selecting a country that doesn't have zip codes
+- Fixed selecting a play queue item occasionally not starting playback

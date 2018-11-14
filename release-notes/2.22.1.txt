@@ -1,0 +1,9 @@
+2018-11-14
+
+NEW:
+
+- Reverted Desktop web-client updated to 3.73.2
+
+FIXED:
+
+- Fixed play queue starting playback automatically when app is unlocked

@@ -1,0 +1,13 @@
+2018-11-29
+
+NEW:
+
+- Desktop web-client updated to 3.75.3
+- Added delay to lightweight seeking
+- Updated look of playlist/collection posters
+
+FIXED:
+
+- Managed users can no longer change the `Automatically Sign In` setting
+- Improved image upscale quality for episode posters
+- Fixed sorting/filtering being reset when deleting item

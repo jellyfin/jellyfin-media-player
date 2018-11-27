@@ -2,8 +2,7 @@
 
 NEW:
 
-- Desktop web-client updated to 3.75.3
-- Added delay to lightweight seeking
+- Desktop web-client updated to 3.77.2
 - Updated look of playlist/collection posters
 
 FIXED:

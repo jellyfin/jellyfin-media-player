@@ -1,0 +1,8 @@
+2018-12-11
+
+FIXED:
+
+- Fixed an issue where focus would be lost after removing the last item from a list
+- Fixed as issue where enabling recording all episodes for certain shows could return in nothing getting added to the priority list
+- Fixed an issue that could cause a blank screen to appear after playback
+- Fixed loss of focus on episode preplay in some cases

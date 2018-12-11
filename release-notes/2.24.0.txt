@@ -2,6 +2,8 @@
 
 FIXED:
 
+- Fixed an issue where signing out or switching users could cause the app to freeze
+- Fixed an issue where the app could crash when loading a type view
 - Fixed an issue where focus would be lost after removing the last item from a list
 - Fixed as issue where enabling recording all episodes for certain shows could return in nothing getting added to the priority list
 - Fixed an issue that could cause a blank screen to appear after playback

@@ -1,0 +1,11 @@
+Type: Feature | Fix | Refactor
+Public: Yes | No
+GHI: https://github.com/plexinc/plex-media-player/issues/0000
+Release Notes: Fixed the thing | Added the thing
+
+Glossary:
+- Feature: Something was added that was not there before
+- Fix: Something was broken and is now fixed
+- Refactor: Nothing was added, removed, or changed, but code was refactored
+- GHI: The backing GitHub Issue or Pull Request if a GHI does not exist
+- Release Notes: The one line description describing the change

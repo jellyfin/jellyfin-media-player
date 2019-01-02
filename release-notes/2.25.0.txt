@@ -1,0 +1,13 @@
+2019-01-02
+
+NEW:
+
+- Desktop web-client updated to 3.77.4
+- Fixed podcast/web show episodes being marked as played as soon as playback is initiated
+- Added extended artist biography on artist preplay
+
+FIXED:
+
+- Fixed app settings sometimes wrongly showing an item as selected
+- Fixed media provider hubs occasionaly not loading
+- Fixed an issue where the application could show a blank screen when all servers are unavailable

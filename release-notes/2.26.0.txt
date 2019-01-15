@@ -1,0 +1,14 @@
+2019-01-15
+
+NEW:
+
+- Added actions menu to Web Shows and Podcasts show preplay pages
+- Added Chapter Selection title to chapter selection menu
+- Don't show 'More...' botton when there is only one more item
+
+FIXED:
+
+- Fixed possible error on user switcher screen
+- Fixed chapter selection sometimes losing focus at the end of the list
+- Fixed Live TV restarting from another position when enabling or disabling Closed Captioning
+- Fixed some issues with video transcoding when it can direct stream

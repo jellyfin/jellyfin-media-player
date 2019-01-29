@@ -1,0 +1,14 @@
+2019-02-05
+
+NEW:
+
+- Desktop web-client updated to 3.83.1
+- Support translation of relative time strings
+- Adjusted library page jump bar so more characters can be shown
+- Changed user menu from dropdown to full screen modal
+
+FIXED:
+
+- Fixed playback controls not showing the correct duration when lightweight seeking
+- Fixed possible endless spinner when downloading subtitles
+- Fixed player controls sometimes not closing when playing from companion app

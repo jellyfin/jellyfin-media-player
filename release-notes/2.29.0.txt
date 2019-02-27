@@ -1,0 +1,16 @@
+2019-03-05
+
+NEW:
+
+- Added deletion of external subtitle files from Plex Media Server
+- Renamed 'More...' subtitles option to 'Search...'
+
+FIXED:
+
+- Fixed image not loading in actions modal during playback
+- Fixed an issue where the wrong images could be displayed for items played from other shared or own servers
+- Fixed an issue where focus could be lost after reordering types or changing types visibility
+- Fixed loss of focus on My Webshows/Podcasts when one or more is removed
+- Fixed companion pre-play being lost after companion playback
+- Fixed an issue where focus could be lost on back navigation
+- Fixed regression that caused videos with AC3 audio tracks to direct play and result in no sound

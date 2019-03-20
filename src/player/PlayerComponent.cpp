@@ -138,7 +138,8 @@ bool PlayerComponent::componentInitialize()
        << "/usr/local/share/certs/ca-root-nss.crt"
        << "/etc/ssl/cert.pem"
        << "/usr/share/curl/curl-ca-bundle.crt"
-       << "/usr/local/share/curl/curl-ca-bundle.crt";
+       << "/usr/local/share/curl/curl-ca-bundle.crt"
+       << "/var/lib/ca-certificates/ca-bundle.pem";
 
   bool success = false;
 

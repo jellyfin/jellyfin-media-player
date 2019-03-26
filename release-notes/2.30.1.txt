@@ -1,0 +1,5 @@
+2019-03-26
+
+FIXED:
+
+- Fixed dashboard not loading when one or more Online Media Sources is disabled

@@ -1,0 +1,5 @@
+2019-04-16
+
+FIXED:
+
+- Fixed user icon in settings modal displaying square instead of round initially

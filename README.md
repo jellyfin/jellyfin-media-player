@@ -35,16 +35,16 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 ## Building on Linux
 
-Plex Media Player officially requires Qt 5.9.5. Our users have indicated that Qt 5.10 and 5.11 also builds correctly. However, Qt 5.11.0 and 5.11.1 versions are _incompatible_ and should be avoided. Please consider building PMP within a dedicated VM or Docker container if your system has a Qt version installed newer than 5.9.5. Downgrading a system Qt will cause issues in other applications depending on a newer Qt version.
+Plex Media Player officially requires Qt 5.9.5. Our users have indicated that Qt 5.10 and Qt 5.11 also builds correctly. However, Qt 5.11.0 and 5.11.1 versions are _incompatible_ and should be avoided. Qt 5.12 may work for you. Please consider building PMP within a dedicated VM or Docker container if your system has a Qt version installed newer than 5.9.5. Downgrading a system Qt will cause issues in other applications depending on a newer Qt version.
 
-These instructions are for Ubuntu 16.04 LTS. They were tested on a fresh install without extra options and with auto-updates applied.
+These instructions are for Ubuntu 16.04 LTS and up. They were tested on a fresh install without extra options and with auto-updates applied.
 
 First, some preparations:
 
 * ``sudo apt install autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev
     libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev
     yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git
-    libgnutls-dev libgl1-mesa-dev libsdl2-dev cmake``
+    libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake``
 * ``mkdir pmp``
 * ``cd pmp``
 

@@ -1,0 +1,10 @@
+2019-05-21
+
+NEW:
+
+- Added a new base background image
+
+FIXED:
+
+- Fixed missing news hubs
+- Fixed titles missing for music videos in playlist

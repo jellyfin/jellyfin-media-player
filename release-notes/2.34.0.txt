@@ -2,6 +2,7 @@
 
 NEW:
 
+- Desktop web-client updated to 3.100.0
 - Added a new base background image
 
 FIXED:

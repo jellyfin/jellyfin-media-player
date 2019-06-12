@@ -1,0 +1,7 @@
+2019-06-12
+
+FIXED:
+
+- Fixed an issue in UNO where users are unable to select initial pinned sources if they only have one server
+- Fixed an issue in UNO where going back to a Recommended tab could sometimes result in focus being lost
+- Fixed an issue in UNO where switching between sources chould sometimes result in loss of focus

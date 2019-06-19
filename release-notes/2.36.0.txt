@@ -1,0 +1,25 @@
+2019-06-25
+
+NEW:
+
+- Added Artist TV Radio
+- Added News personalize settings link to News sources in UNO sidebar
+- Added loading default tab and saving last viewed tab for Playlists sources in UNO sidebar
+- Automatically remove pinned sources from deleted libraries in UNO sidebar
+- Improved video quality for News, Web Shows, and TIDAL Music Videos during beginning of playback
+
+FIXED:
+
+- Fixed showing "home screen media types" setting when UNO preview is enabled
+- Fixed an issue with video playback where attempting to hold down left/right would result in constant buffering indicator interrupting seeking
+- Fixed an issue in search where the type would reset to "All" after pressing search button from more results
+- Fixed related photos in photo player showing limited results
+- Fixed an issue in UNO where users are unable to select initial pinned sources if they only have one server
+- Fixed pinned sources in UNO sidebar showing error icons after switching users
+- Fixed an issue in UNO where server unavailable icon won't update
+- Fixed an issue where the More poster was too big for some hubs
+- Fixed an issue in UNO where going back to a Recommended tab could sometimes result in focus being lost
+- Fixed an issue in UNO where switching between sources chould sometimes result in loss of focus
+- Fixed missing focus in TIDAL playlist pages when UNO preview is enabled
+- Fixed an issue with reordering UNO sidebar pinned sources where the wrong item would be moved
+- Fixed search in UNO not correctly restricting results per type by default

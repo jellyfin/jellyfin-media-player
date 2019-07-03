@@ -1,0 +1,18 @@
+2019-07-09
+
+NEW:
+
+- Desktop web-client updated to 3.104.1
+- Disabled List View and Browse By Folder for Photo libraries
+- Replaced "Browse by Folder" option available in PMS libraries with "Folders" option in types menu
+- UNO preview: Added "Remember Selected Tab" app setting
+- UNO preview: Removed "Go to <library>" metadata item action
+
+FIXED:
+
+- UNO preview: Fixed Live TV hubs missing airing information
+- UNO preview: Fixed an issue that could cause the sidebar to become inaccessible after ending playback
+- UNO preview: Fixed an issue that made it possible to navigate from the jump bar to the page header
+- UNO preview: Fixed an issue that could result in managed users not seeing the onboarding screens
+- UNO preview: Fixed an edge case that allowed a pre-UNO page header to be visible while browsing sources
+- UNO preview: Don't show Search button in Home screen when no preferred server was selected

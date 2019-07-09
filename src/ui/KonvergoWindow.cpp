@@ -21,6 +21,11 @@
 #include "Globals.h"
 #include "EventFilter.h"
 
+#ifdef Q_OS_UNIX
+#include <QX11Info>
+#include <X11/Xlib.h> 
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class ScopedDecrementer
 {
@@ -66,6 +71,22 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   setColor(QColor("transparent"));
 #else
   setColor(QColor("#000000"));
+#endif
+ 
+#ifdef Q_OS_UNIX
+  // On Gnome show a darker title bar
+  if (QX11Info::isPlatformX11())
+  {
+    Display* dpy = QX11Info::display();
+    if (dpy)
+    {
+      WId win = winId();
+      XChangeProperty(dpy, win,
+                      XInternAtom(dpy, "_GTK_THEME_VARIANT", false),
+                      XInternAtom(dpy, "UTF8_STRING", false),
+                      8, PropModeReplace, (unsigned char *) "dark", 4);
+    }
+  }
 #endif
 
   QRect loadedGeo = loadGeometry();

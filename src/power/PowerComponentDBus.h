@@ -30,6 +30,12 @@ class PowerComponentDBus : public PowerComponent
   private:
     bool callPowerMethod(QString method);
     bool isPowerMethodAvailable(QString method);
+
+    unsigned int screensaver_inhibit_cookie = 0;
+  
+  protected:
+    virtual void doDisableScreensaver();
+    virtual void doEnableScreensaver();
 };
 
 #endif // POWERCOMPONENTDBUS_H

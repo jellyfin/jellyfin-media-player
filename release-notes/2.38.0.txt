@@ -15,3 +15,7 @@ FIXED:
 - Fixed an issue where a scrollbar sometimes appears up on the source edit screen
 - Fixed long song names not marqueeing when focused on album view
 - Fixed empty library message being shown for Live TV
+- Fixed an issue that could cause home page hubs to display a `Content Unavailable` error
+- Fixed showing the more actions menu in the video player while playing movies
+- Fixed app losing focus after reconnecting to server
+- Fixed non-functional search button in Home screen

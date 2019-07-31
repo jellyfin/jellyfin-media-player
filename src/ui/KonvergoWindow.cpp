@@ -21,9 +21,9 @@
 #include "Globals.h"
 #include "EventFilter.h"
 
-#ifdef Q_OS_UNIX
+#ifdef USE_X11EXTRAS
 #include <QX11Info>
-#include <X11/Xlib.h> 
+#include <X11/Xlib.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +72,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 #else
   setColor(QColor("#000000"));
 #endif
- 
-#ifdef Q_OS_UNIX
+
+#ifdef USE_X11EXTRAS
   // On Gnome show a darker title bar
   if (QX11Info::isPlatformX11())
   {

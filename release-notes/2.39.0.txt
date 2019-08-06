@@ -18,3 +18,5 @@ FIXED:
 - Fixed occasional unexpected behavior when attempting to use lyrics as a non-Plex Pass user
 - Fixed cast members linking to pre-UNO view
 - Fixed an error loading `Manage Hubs` modal in TIDAL
+- Fixed an issue that could cause albums and seasons lists to fail to load in artist and tv show pages
+- Fixed sidebar customization being skipped for users with only one server and no enabled online media sources

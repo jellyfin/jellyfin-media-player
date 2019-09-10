@@ -1,0 +1,15 @@
+2019-09-17
+
+NEW:
+
+- Adjusted message displayed in empty "My Podcasts", "My Webshows" and "My TIDAL" screens
+- Ensured search via controller/keyboard shortcut uses preferred server selected during first run
+
+FIXED:
+
+- Fixed an issue that could cause some filters to not work correctly
+- Fixed focus not being correctly restored when going back to Categories/Channels pages
+- Fixed margin below artist on album preplay
+- Fixed an issue that could cause navigating the sidebar to fail on certain pages
+- Fixed missing current position time during Live TV playback
+- Fixed an issue where removing content from "My TIDAL" did not always update "My TIDAL" page properly

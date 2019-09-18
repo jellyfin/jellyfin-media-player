@@ -7,6 +7,7 @@ NEW:
 
 FIXED:
 
+- Fixed an issue that could cause the app to crash when navigating to Playlists in sidebar after switching users
 - Fixed an issue that could cause some filters to not work correctly
 - Fixed focus not being correctly restored when going back to Categories/Channels pages
 - Fixed margin below artist on album preplay

@@ -1,0 +1,9 @@
+2019-10-15
+
+NEW:
+
+- Mobile servers no longer appear in sidebar
+
+FIXED:
+
+- Fixed an issue that could cause the jump bar to not be displayed in library pages

@@ -1,0 +1,11 @@
+2019-11-05
+
+NEW:
+
+- Added better sorting for shared servers.  We now sort by the username, and use the username as the primary title
+
+FIXED:
+
+- Fixed subtitles not showing up when advancing to the next episode
+- Fixed an issue that could result in broken sidebar functionality on poor network conditions
+- Fixed being unable to return to other views after selecting a Collections tab for a library without collections

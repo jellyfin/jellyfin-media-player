@@ -1,0 +1,10 @@
+2019-12-10
+
+NEW:
+
+- Improved home screen customization reset behavior
+
+FIXED:
+
+- Fixed an issue with toggling subtitles on videos with multiple versions
+- Fixed hubs sometimes not loading in `Manage Hubs` modal in source settings

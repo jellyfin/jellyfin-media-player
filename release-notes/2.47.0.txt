@@ -6,5 +6,6 @@ NEW:
 
 FIXED:
 
-- Fixed an issue with toggling subtitles on videos with multiple versions
 - Fixed hubs sometimes not loading in `Manage Hubs` modal in source settings
+- Fixed an issue with toggling subtitles on videos with multiple versions
+- Fixed an issue that caused the app to show an infinite loading indicator after backing away from a folder while in list view

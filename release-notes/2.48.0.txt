@@ -8,3 +8,4 @@ FIXED:
 - Fixed an issue where some hubs on the Home Screen overlap the separator
 - Fixed back key going back to user switcher when editing a managed user's name
 - Fixed pinned sources occasionally not influencing home screen content when switching between Auto and Custom modes
+- Disabled the option to add hubs to home screen when `Automatic Home` is enabled

@@ -1,0 +1,10 @@
+2020-01-21
+
+NEW:
+
+- Disabled the option to add hubs to home screen when `Automatic Home` is enabled
+
+FIXED:
+
+- Fixed metadata line height issue on some preplay pages
+

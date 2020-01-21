@@ -7,4 +7,6 @@ NEW:
 FIXED:
 
 - Fixed metadata line height issue on some preplay pages
-
+- Fixed an issue where some manually added hubs never loaded properly (requires re-adding those hubs to the home screen)
+- Fixed an issue that could cause loss of focus when switching between custom and auto home
+- Fixed an issue that sometimes made it impossible to reorder home hubs

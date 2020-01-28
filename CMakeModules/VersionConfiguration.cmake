@@ -21,7 +21,7 @@ else()
 endif()
 
 set(VERSION_MAJOR 2)
-set(VERSION_MINOR 49)
+set(VERSION_MINOR 50)
 set(VERSION_NANO 0)
 
 option(UPGRADE_DEBUG "" OFF)

@@ -10,7 +10,3 @@ NEW:
   - Contextual results promoted based on where search was started from (i.e. if search is made from a library, results from that library will be promoted to the top)
 - Avoid transcoding of 4K video when another version is playable
 - Added server name to `Log to Media Server` app setting
-
-FIXED:
-
-- Fixed handling of Auto Play when acting as a Plex Companion player

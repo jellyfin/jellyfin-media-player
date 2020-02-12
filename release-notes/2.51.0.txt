@@ -1,0 +1,13 @@
+2020-02-18
+
+NEW:
+
+-  Updated Desktop to 4.24.1
+
+FIXED:
+
+- Fixed display of non UTF-8 sidecar subtitles
+- Fixed long press of backspace causing loss of focus when closing modals
+- Fixed an issue that caused search to never be performed when using the pointer
+- Fixed an issue that could cause the sidebar to become inaccessible after stopping playback from a controller app
+- Fixed loss of progress when VOD is stopped during initial ad after resuming

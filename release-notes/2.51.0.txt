@@ -11,3 +11,6 @@ FIXED:
 - Fixed an issue that caused search to never be performed when using the pointer
 - Fixed an issue that could cause the sidebar to become inaccessible after stopping playback from a controller app
 - Fixed loss of progress when VOD is stopped during initial ad after resuming
+- Fixed missing focus in `Plex is not reachable` page
+- Fixed an issue that caused sidebar items to display an infinite spinner when the app is offline
+- Fixed possible error on user switcher when plex.tv authentication is unavailable

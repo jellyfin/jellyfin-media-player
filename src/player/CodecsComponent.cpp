@@ -340,10 +340,12 @@ static QString findOldDeviceID()
 #ifdef Q_OS_MAC
     QDir::home().path() + "/Library/Application Support/Plex/Codecs/.device-id",
     QDir::home().path() + "/Library/Application Support/Plex Media Server/Codecs/.device-id",
+    QDir::home().path() + "/Library/Application Support/Plex/Plex Media Server/Codecs/.device-id",
 #endif
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/.device-id",
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/codecs/.device-id",
     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/.device-id",
+    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Plex Media Server/Codecs/.device-id",
     Paths::dataDir() + "/codecs/.device-id",
   };
 

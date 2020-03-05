@@ -22,7 +22,7 @@ endif()
 
 set(VERSION_MAJOR 2)
 set(VERSION_MINOR 52)
-set(VERSION_NANO 1)
+set(VERSION_NANO 2)
 
 option(UPGRADE_DEBUG "" OFF)
 

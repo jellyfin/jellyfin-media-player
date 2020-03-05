@@ -1,0 +1,5 @@
+2020-03-05
+
+FIXED:
+
+- Fixed unselected subtitles displaying during playback in desktop layout

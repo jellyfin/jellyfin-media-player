@@ -20,7 +20,7 @@
     "values": [
       {
         "value": "webMode",
-        "default": "desktop",
+        "default": "tv",
         "hidden": true,
         "platforms": [ "windows", "macosx" ],
         "possible_values": [

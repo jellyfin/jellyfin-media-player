@@ -1,0 +1,6 @@
+2020-03-31
+
+FIXED:
+
+- Fixed extended info details missing line breaks
+- Fixed an issue that could cause incorrect translations in stream title selection menu items

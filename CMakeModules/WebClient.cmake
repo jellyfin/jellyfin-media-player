@@ -4,7 +4,7 @@ option(WEB_CLIENT_TV_OLD "" OFF)
 option(WEB_CLIENT_DISABLE_DESKTOP "" OFF)
 
 # This is the line to edit when you bump the web-client.
-set(WEB_CLIENT_BUILD_ID 176-21c9724ca0ff70)
+set(WEB_CLIENT_BUILD_ID 177-e50e175ca0ff70)
 
 get_content_of_url(
   URL "https://artifacts.plex.tv/web-client-pmp/${WEB_CLIENT_BUILD_ID}/buildid.cmake"

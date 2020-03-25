@@ -1,6 +1,11 @@
 2020-03-31
 
+NEW:
+
+- TV layout is now default
+
 FIXED:
 
 - Fixed extended info details missing line breaks
 - Fixed an issue that could cause incorrect translations in stream title selection menu items
+- Bumped Desktop layout revision to correct ad playback issues

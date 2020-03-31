@@ -7,5 +7,6 @@ NEW:
 FIXED:
 
 - Fixed extended info details missing line breaks
+- Fixed focus sometimes being lost in preplay pages
 - Fixed an issue that could cause incorrect translations in stream title selection menu items
 - Bumped Desktop layout revision to correct ad playback issues

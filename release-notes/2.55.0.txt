@@ -1,0 +1,11 @@
+2020-04-14
+
+NEW:
+
+- Added support for subtitles in Movies on Plex content
+
+FIXED:
+
+- Fixed possible display errors for TV shows in Movies on Plex
+- Fixed Windows-style line endings in extended info screen
+- Fixed an issue when searching for items in pinned sources that could cause results from other sources to be displayed

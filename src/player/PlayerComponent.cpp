@@ -188,11 +188,15 @@ bool PlayerComponent::componentInitialize()
   // Setup a hook with the ID 1, which is run during the file is loaded.
   // Used to delay playback start for display framerate switching.
   // (See handler in handleMpvEvent() for details.)
-  mpv::qt::command(m_mpv, QStringList() << "hook-add" << "on_load" << "1" << "0");
-
   // Setup a hook with the ID 2, which is run at a certain stage during loading.
   // We use it to initialize stream selections and to probe the codecs.
+#if MPV_CLIENT_API_VERSION < MPV_MAKE_VERSION(1, 100)
+  mpv::qt::command(m_mpv, QStringList() << "hook-add" << "on_load" << "1" << "0");
   mpv::qt::command(m_mpv, QStringList() << "hook-add" << "on_preloaded" << "2" << "0");
+#else
+  mpv_hook_add(m_mpv, 1, "on_load", 0);
+  mpv_hook_add(m_mpv, 2, "on_preloaded", 0);
+#endif
 
   updateAudioDeviceList();
   setAudioConfiguration();
@@ -648,6 +652,51 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       }
       break;
     }
+#if MPV_CLIENT_API_VERSION >= MPV_MAKE_VERSION(1, 100)
+    case MPV_EVENT_HOOK:
+    {
+      mpv_event_hook *hook = (mpv_event_hook *)event->data;
+      uint64_t id = hook->id;
+
+      if (!strcmp(hook->name, "on_load"))
+      {
+        // Calling this lambda will instruct mpv to continue loading the file.
+        auto resume = [=] {
+          QLOG_INFO() << "checking codecs";
+          startCodecsLoading([=] {
+            QLOG_INFO() << "resuming loading";
+            mpv_hook_continue(m_mpv, id);
+          });
+        };
+        if (switchDisplayFrameRate())
+        {
+          // Now wait for some time for mode change - this is needed because mode changing can take some
+          // time, during which the screen is black, and initializing hardware decoding could fail due
+          // to various strange OS-related reasons.
+          // (Better hope the user doesn't try to exit Konvergo during mode change.)
+          int pause = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "refreshrate.delay").toInt() * 1000;
+          QLOG_INFO() << "waiting" << pause << "msec after rate switch before loading";
+          QTimer::singleShot(pause, resume);
+        }
+        else
+        {
+          resume();
+        }
+        break;
+      }
+      if (!strcmp(hook->name, "on_preloaded"))
+      {
+        reselectStream(m_currentSubtitleStream, MediaType::Subtitle);
+        reselectStream(m_currentAudioStream, MediaType::Audio);
+        startCodecsLoading([=] {
+          mpv_hook_continue(m_mpv, id);
+        });
+        break;
+      }
+      break;
+    }
+#endif
+
     default:; /* ignore */
   }
 }

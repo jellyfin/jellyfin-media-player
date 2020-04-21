@@ -1,0 +1,6 @@
+2020-04-28
+
+FIXED:
+
+- Fixed an issue that could cause managed users to record Live TV content to libraries they don't have access to
+- Fixed an issue where searching for Other Videos doesn't return proper results, or in some cases causes a blank screen

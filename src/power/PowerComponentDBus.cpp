@@ -3,6 +3,7 @@
 #include <QtDBus/QDBusReply>
 
 #include "PowerComponentDBus.h"
+#include "utils/HelperLauncher.h"
 
 #define DBUS_SERVICE_NAME "org.freedesktop.login1"
 #define DBUS_SERVICE_PATH "/org/freedesktop/login1"
@@ -11,6 +12,20 @@
 #define DBUS_SCREENSAVER_SERVICE_NAME "org.freedesktop.ScreenSaver"
 #define DBUS_SCREENSAVER_SERVICE_PATH "/org/freedesktop/ScreenSaver"
 #define DBUS_SCREENSAVER_INTERFACE "org.freedesktop.ScreenSaver"
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool PowerComponentDBus::PowerOff()
+{
+  HelperLauncher::Get().stop();
+  return callPowerMethod("PowerOff");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool PowerComponentDBus::Reboot()
+{
+  HelperLauncher::Get().stop();
+  return callPowerMethod("Reboot");
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 bool PowerComponentDBus::callPowerMethod(QString method)

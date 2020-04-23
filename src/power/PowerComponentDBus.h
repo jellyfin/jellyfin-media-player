@@ -23,8 +23,8 @@ class PowerComponentDBus : public PowerComponent
     return flags;
   }
 
-    virtual bool PowerOff() { return callPowerMethod("PowerOff"); }
-    virtual bool Reboot() { return callPowerMethod("Reboot"); }
+    virtual bool PowerOff();
+    virtual bool Reboot();
     virtual bool Suspend() { return callPowerMethod("Suspend"); }
 
   private:

@@ -75,7 +75,8 @@ class Downloader : public QObject
 {
   Q_OBJECT
 public:
-  typedef QList<QPair<QString, QString>> HeaderList;
+  typedef QPair<QString, QString> Header;
+  typedef QList<Header> HeaderList;
   explicit Downloader(QVariant userData, const QUrl& url, const HeaderList& headers, QObject* parent);
 Q_SIGNALS:
   void done(QVariant userData, bool success, const QByteArray& data);

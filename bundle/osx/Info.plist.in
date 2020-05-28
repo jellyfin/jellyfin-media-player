@@ -34,6 +34,8 @@
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
 	<string>True</string>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<string>False</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.9</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>

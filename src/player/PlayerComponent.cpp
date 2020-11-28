@@ -259,7 +259,7 @@ void PlayerComponent::setQtQuickWindow(QQuickWindow* window)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setWindow(QQuickWindow* window)
 {
-  QString vo = "opengl-cb";
+  QString vo = "libmpv";
 
 #ifdef TARGET_RPI
   window->setFlags(Qt::FramelessWindowHint);
@@ -276,7 +276,7 @@ void PlayerComponent::setWindow(QQuickWindow* window)
 
   mpv::qt::set_property(m_mpv, "vo", vo);
 
-  if (vo == "opengl-cb")
+  if (vo == "libmpv")
     setQtQuickWindow(window);
 }
 

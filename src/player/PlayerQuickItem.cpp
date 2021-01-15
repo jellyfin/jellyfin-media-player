@@ -25,12 +25,6 @@
 
 #ifdef USE_X11EXTRAS
 #include <QX11Info>
-static void* MPGetNativeDisplay(const char* name)
-{
-  if (strcmp(name, "x11") == 0)
-    return QX11Info::display();
-  return nullptr;
-}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,14 +37,6 @@ static void* get_proc_address(void* ctx, const char* name)
     return nullptr;
 
   void *res = (void *)glctx->getProcAddress(QByteArray(name));
-  if (strcmp(name, "glMPGetNativeDisplay") == 0)
-  {
-#ifdef USE_X11EXTRAS
-    return (void *)&MPGetNativeDisplay;
-#else
-    return nullptr;
-#endif
-  }
 #ifdef Q_OS_WIN32
   // wglGetProcAddress(), which is used by Qt, does not always resolve all
   // builtin functions with all drivers (only extensions). Qt compensates this
@@ -105,18 +91,17 @@ bool PlayerRenderer::init()
   DwmEnableMMCSS(TRUE);
 #endif
 
-
-  // Signals presence of MPGetNativeDisplay().
-  const char *extensions = "GL_MP_MPGetNativeDisplay";
-
   mpv_opengl_init_params opengl_params = {
       .get_proc_address = get_proc_address,
       .get_proc_address_ctx = NULL,
-      .extra_exts = extensions,
   };
+
   mpv_render_param params[] = {
     {MPV_RENDER_PARAM_API_TYPE, (void*)MPV_RENDER_API_TYPE_OPENGL},
     {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &opengl_params},
+#ifdef USE_X11EXTRAS
+    {MPV_RENDER_PARAM_X11_DISPLAY, QX11Info::display()},
+#endif
     {MPV_RENDER_PARAM_INVALID},
   };
   int err = mpv_render_context_create(&m_mpvGL, m_mpv, params);

@@ -6,7 +6,7 @@
   <Font Id="2" Height="-22" Weight="500" Foreground="666666">Segoe UI</Font>
   <Font Id="3" Height="-12" Weight="500" Foreground="FFFFFF" Background="1F1F1F">Segoe UI</Font>
   <Font Id="4" Height="-12" Weight="500" Foreground="ff0000" Background="1F1F1F" Underline="yes">Segoe UI</Font>
-  <Font Id="5" Height="-24" Weight="500" Foreground="197BCC">Segoe UI</Font>
+  <Font Id="5" Height="-24" Weight="500" Foreground="a75dc3">Segoe UI</Font>
   
   <Text X="11" Y="26" Width="-11" Height="30" FontId="5" Visible="yes" DisablePrefix="yes" Center="yes">#(loc.Title)</Text>
   <Image X="200" Y="75" Width="85" Height="85" ImageFile="jellyfin-chevron-85.png" Visible="yes" />

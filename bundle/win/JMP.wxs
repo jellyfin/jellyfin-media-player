@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" 
-     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <?include Global.wxi ?>
   <?include Version.wxi ?>
 
 
-  <?define FirstProductVersion=1.0.0 ?>
+  <?define FirstProductVersion=0.0.0 ?>
   <?define JellyfinMediaPlayerRegistryKey=Software\Jellyfin\Jellyfin Media Player?>
 
     <!-- To keep things simple, the installer considers each new release
@@ -102,11 +101,7 @@
         <RegistryKey Root="HKCU" Key="Software\Jellyfin\Jellyfin Media Player">
           <RegistryValue Name="InstallFolder" Type="string" Value="[INSTALLLOCATION]" Action="write" KeyPath="no" />
         </RegistryKey>
-        
-                <!-- Firewall Exceptions -->
-        <!-- These should probably go in their own component, but it's easier just to put them here -->
-        <fire:FirewallException Id="FWX1" Name="Jellyfin Media Player" Program="[INSTALLLOCATION]JellyfinMediaPlayer.exe" Scope="any" IgnoreFailure="yes" />
-                  
+                          
         <RemoveFolder Id="JellyfinStartMenuFolder" On="uninstall" />
       </Component>
     </DirectoryRef>

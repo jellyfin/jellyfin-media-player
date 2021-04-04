@@ -213,7 +213,7 @@ KonvergoWindow
     z: 5
     anchors.centerIn: parent
     color: "#999999"
-    linkColor: "#cc7b19"
+    linkColor: "#a85dc3"
     text: "Generic error"
     font.pixelSize: 32
     font.bold: true

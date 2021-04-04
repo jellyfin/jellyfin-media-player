@@ -53,6 +53,7 @@ Please install:
    - Place the contents in the build directory, in a subfolder called `mpv`.
    - Move the contents of the `include` folder to an `mpv` folder inside the `include` folder.
    - Move the `mpv-1.dll` to `mpv.dll`.
+ - [WIX](https://wixtoolset.org/releases/v3.11.2/stable)
 
 You need to run these commands in git bash.
 
@@ -67,8 +68,9 @@ unzip dist.zip
 Open the "x86_x64 Cross Tools Command Prompt for VS 2017". `cd` to the `build` directory. Run:
 
 ```
-cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:\Qt\Qt5.9.9\5.9.9\msvc2017_64 -DMPV_INCLUDE_DIR=mpv\include -DMPV_LIBRARY=mpv\mpv.dll -DVCREDIST_DIR=C:\Qt\Qt5.9.9\vcredist -DCMAKE_INSTALL_PREFIX=output ..
-lib /def:mpv\mpv.def /out:mpv\mpv-1.lib /MACHINE:X64
+set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin
+cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:/Qt/Qt5.9.9/5.9.9/msvc2017_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
+lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
 ninja
 ninja windows_package
 ```

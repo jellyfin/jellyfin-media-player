@@ -1,16 +1,131 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" viewBox="0 0 250 250">
-  <defs>
-    <linearGradient id="plex-icon-app-a" x1="0%" y1="50%" y2="50%">
-      <stop offset="0%" stop-color="#1F1F1F"/>
-      <stop offset="100%" stop-color="#282828"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="250"
+   height="250"
+   viewBox="0 0 250 250"
+   version="1.1"
+   id="svg20"
+   sodipodi:docname="icon.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata24">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="638"
+     inkscape:window-height="1058"
+     id="namedview22"
+     showgrid="false"
+     inkscape:zoom="0.944"
+     inkscape:cx="195.80796"
+     inkscape:cy="147.25176"
+     inkscape:window-x="1280"
+     inkscape:window-y="20"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg20" />
+  <defs
+     id="defs12">
+    <linearGradient
+       id="plex-icon-app-a"
+       x1="0%"
+       y1="50%"
+       y2="50%">
+      <stop
+         offset="0%"
+         stop-color="#1F1F1F"
+         id="stop2" />
+      <stop
+         offset="100%"
+         stop-color="#282828"
+         id="stop4" />
     </linearGradient>
-    <radialGradient id="plex-icon-app-b" cx="89.267%" cy="49.76%" r="92.5%" fx="89.267%" fy="49.76%" gradientTransform="matrix(1 0 0 .60416 0 .197)">
-      <stop offset="0%" stop-color="#F9BE03"/>
-      <stop offset="100%" stop-color="#CC7C19"/>
+    <radialGradient
+       id="plex-icon-app-b"
+       cx="89.267%"
+       cy="49.76%"
+       r="92.5%"
+       fx="89.267%"
+       fy="49.76%"
+       gradientTransform="matrix(1 0 0 .60416 0 .197)">
+      <stop
+         offset="0%"
+         stop-color="#F9BE03"
+         id="stop7" />
+      <stop
+         offset="100%"
+         stop-color="#CC7C19"
+         id="stop9" />
     </radialGradient>
+    <linearGradient
+       id="linear-gradient"
+       gradientUnits="userSpaceOnUse"
+       x1="110.25"
+       y1="213.3"
+       x2="496.14001"
+       y2="436.09">
+      <stop
+         offset="0"
+         style="stop-color:#AA5CC3"
+         id="stop2-3" />
+      <stop
+         offset="1"
+         style="stop-color:#00A4DC"
+         id="stop4-6" />
+    </linearGradient>
+    <linearGradient
+       y2="436.09"
+       x2="496.14001"
+       y1="213.3"
+       x1="110.25"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient848"
+       xlink:href="#linear-gradient"
+       inkscape:collect="always" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linear-gradient"
+       id="linearGradient856"
+       gradientUnits="userSpaceOnUse"
+       x1="110.25"
+       y1="213.3"
+       x2="496.14001"
+       y2="436.09" />
   </defs>
-  <g fill="none">
-    <rect width="250" height="250" fill="url(#plex-icon-app-a)" rx="12"/>
-    <polyline fill="url(#plex-icon-app-b)" points="74.75 42.5 122.648 42.5 175.5 125 122.648 207.5 74.75 207.5 127.602 125 74.75 42.5"/>
+  <g
+     transform="matrix(0.50424179,0,0,0.50424179,-3.7885914,-3.4942038)"
+     id="icon-transparent">
+    <path
+       style="fill:url(#linearGradient856)"
+       inkscape:connector-curvature="0"
+       id="inner-shape"
+       d="m 256,201.6 c -20.4,0 -86.2,119.3 -76.2,139.4 10,20.1 142.5,19.9 152.4,0 9.9,-19.9 -55.7,-139.4 -76.2,-139.4 z" />
+    <path
+       style="fill:url(#linearGradient848)"
+       inkscape:connector-curvature="0"
+       id="outer-shape"
+       d="m 256,23.3 c -61.6,0 -259.8,359.4 -229.6,420.1 30.2,60.7 429.3,60 459.2,0 C 515.5,383.4 317.6,23.3 256,23.3 Z m 150.5,367.5 c -19.6,39.3 -281.1,39.8 -300.9,0 C 85.8,351 215.7,115.5 256,115.5 c 40.3,0 170.1,235.9 150.5,275.3 z" />
   </g>
 </svg>

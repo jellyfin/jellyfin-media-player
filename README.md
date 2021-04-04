@@ -4,7 +4,8 @@ Based on (but not affiliated with) [Plex Media Player](https://github.com/plexin
 
 Please see:
  - Corresponding web client: [Repo](https://github.com/iwalton3/jellyfin-web-jmp/) [Release](https://github.com/iwalton3/jellyfin-web-jmp/releases/)
- - API Docs in client-api.md
+ - [Web client patchset](https://github.com/jellyfin/jellyfin-web/compare/release-10.7.z...iwalton3:pmptest#files_bucket)
+ - API Docs in [client-api.md](https://github.com/iwalton3/jellyfin-media-player/blob/master/client-api.md)
 
 This build strips a lot of un-needed things from the player.
 
@@ -24,7 +25,7 @@ echo --disable-cplayer >> mpv_options
 sudo ./install
 sudo ldconfig
 cd ~/jmp/
-git clone git://github.com/plexinc/plex-media-player
+git clone git://github.com/iwalton3/jellyfin-media-player
 cd plex-media-player
 mkdir build
 cd build

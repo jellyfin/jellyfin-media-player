@@ -26,7 +26,7 @@ sudo ./install
 sudo ldconfig
 cd ~/jmp/
 git clone git://github.com/iwalton3/jellyfin-media-player
-cd plex-media-player
+cd jellyfin-media-player
 mkdir build
 cd build
 wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-1.7.0/dist.zip

@@ -1,3 +1,0 @@
-FIXED:
-  - (Embedded) Fix video playback crashing on Raspberry PI
-  - Fix that PMP did not remember the fullscreen state on Windows

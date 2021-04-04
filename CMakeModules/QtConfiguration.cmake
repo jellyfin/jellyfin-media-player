@@ -6,16 +6,6 @@ if(WIN32)
 endif(WIN32)
 
 if(NOT IS_DIRECTORY ${QTROOT})
-  download_deps(
-		"plexmediaplayer-qt"
-		DIRECTORY dir
-		DEPHASH_VAR QT_DEPS_HASH
-    BUILD_NUMBER 206
-    ARTIFACTNAME konvergo-qt
-    DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
-	)
-  set(QTROOT ${dir})
-  
   # Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
   set(QTCONFCONTENT "[Paths]
     Prefix=${QTROOT}

@@ -335,27 +335,6 @@ static QString loadDeviceID(QString filename)
 /////////////////////////////////////////////////////////////////////////////////////////
 static QString findOldDeviceID()
 {
-  // First we try to reuse the ID from other Plex products (i.e. PMS) or older paths.
-  QStringList candidates = {
-#ifdef Q_OS_MAC
-    QDir::home().path() + "/Library/Application Support/Plex/Codecs/.device-id",
-    QDir::home().path() + "/Library/Application Support/Plex Media Server/Codecs/.device-id",
-    QDir::home().path() + "/Library/Application Support/Plex/Plex Media Server/Codecs/.device-id",
-#endif
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/.device-id",
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/codecs/.device-id",
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/.device-id",
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Plex Media Server/Codecs/.device-id",
-    Paths::dataDir() + "/codecs/.device-id",
-  };
-
-  for (auto candidate : candidates)
-  {
-    auto id = loadDeviceID(candidate);
-    if (!id.isEmpty())
-      return id;
-  }
-
   return "";
 }
 
@@ -518,13 +497,6 @@ static void updateCodecs()
 {
   QStringList candidates = {
     codecsRootPath(),
-#ifdef Q_OS_MAC
-    QDir::home().path() + "/Library/Application Support/Plex/Codecs/",
-    QDir::home().path() + "/Library/Application Support/Plex Media Server/Codecs/",
-#endif
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/Codecs/",
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex/codecs/",
-    QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Plex Media Server/Codecs/",
     Paths::dataDir() + "/codecs/",
   };
 
@@ -683,28 +655,12 @@ void CodecsFetcher::installCodecs(const QList<CodecDriver>& codecs)
 static Downloader::HeaderList getPlexHeaders()
 {
   Downloader::HeaderList headers;
-  QString auth = SystemComponent::Get().authenticationToken();
-  if (auth.size())
-    headers.append(Downloader::Header{"X-Plex-Token", auth});
-  headers.append(Downloader::Header{"X-Plex-Product", WITH_CODECS ? "Plex Media Player" : "openpmp"});
-  headers.append(Downloader::Header{"X-Plex-Platform", "Konvergo"});
   return headers;
 }
 
 static QUrl buildCodecQuery(QString version, QString name, QString build)
 {
-  QString host = "https://plex.tv";
-
-  QUrl url = QUrl(host + "/api/codecs/" + name);
-  QUrlQuery query;
-  query.addQueryItem("deviceId", g_deviceID);
-  query.addQueryItem("version", version);
-  query.addQueryItem("build", build);
-  query.addQueryItem("oldestPreviousVersion", SettingsComponent::Get().oldestPreviousVersion());
-
-  url.setQuery(query);
-
-  return url;
+  return QUrl("");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

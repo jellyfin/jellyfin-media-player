@@ -15,7 +15,7 @@ static void setupCrashDumper()
   dir.mkpath(dir.absolutePath());
 
 #ifdef NDEBUG
-  installBreakPadHandler("Plex Media Player", dir.path());
+  installBreakPadHandler("Jellyfin Media Player", dir.path());
 #else
   QLOG_INFO() << "This is a debug build. Not installing crash handler.";
 #endif

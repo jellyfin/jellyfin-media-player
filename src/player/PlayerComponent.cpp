@@ -291,18 +291,13 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static bool IsPlexDirectURL(const QString& host)
 {
-  return host.endsWith(".plex.direct");
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString ConvertPlexDirectURL(const QString& host)
 {
-    if (!IsPlexDirectURL(host))
-        return host;
-
-    QString substr = host.left(host.indexOf('.'));
-    substr.replace('-', '.');
-    return substr;
+  return host;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,8 +312,6 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   QUrl qurl = url;
   QString host = qurl.host();
-  if (IsPlexDirectURL(host))
-    qurl.setHost(ConvertPlexDirectURL(host));
 
   QVariantList command;
   command << "loadfile" << qurl.toString(QUrl::FullyEncoded);
@@ -349,9 +342,6 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   // Make sure the list of requested codecs is reset.
   extraArgs.insert("ad", "");
   extraArgs.insert("vd", "");
-
-  if (IsPlexDirectURL(host))
-    extraArgs.insert("stream-lavf-o", "verifyhost=" + host);
 
   command << extraArgs;
 
@@ -886,12 +876,6 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   if (!streamName.isEmpty())
   {
-    if (streamName.startsWith("https://")) {
-      QUrl qurl = streamName;
-      qurl.setHost(ConvertPlexDirectURL(qurl.host()));
-      streamName = qurl.toString();
-    }
-
     auto streams = findStreamsForURL(streamName);
     if (streams.isEmpty())
     {

@@ -1,2 +1,0 @@
-NEW:
-- First alpha build of the PMP v2 media type first UI.

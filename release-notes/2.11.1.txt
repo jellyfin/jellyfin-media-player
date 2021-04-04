@@ -1,9 +1,0 @@
-2018-06-05
-
-NEW:
-
-- TV web-client updated to 3.54.2
-
-FIXED:
-
-- Removed non-functional Channel provider

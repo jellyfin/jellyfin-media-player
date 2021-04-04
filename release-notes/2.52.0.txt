@@ -1,8 +1,0 @@
-2020-03-03
-
-FIXED:
-
-- Fixed an issue that could cause the app to crash when changing search targets
-- Fixed an issue that could cause incomplete search results
-- Fixed search shortcut key leading to error page
-- Fixed an issue that could cause TIDAL tracks to fail to play

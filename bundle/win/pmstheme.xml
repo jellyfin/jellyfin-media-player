@@ -9,7 +9,7 @@
   <Font Id="5" Height="-24" Weight="500" Foreground="197BCC">Segoe UI</Font>
   
   <Text X="11" Y="26" Width="-11" Height="30" FontId="5" Visible="yes" DisablePrefix="yes" Center="yes">#(loc.Title)</Text>
-  <Image X="200" Y="75" Width="85" Height="85" ImageFile="plex-chevron-85.png" Visible="yes" />
+  <Image X="200" Y="75" Width="85" Height="85" ImageFile="jellyfin-chevron-85.png" Visible="yes" />
 
   <Page Name="Help">
     <Text X="65" Y="180" Width="-65" Center="yes" Height="30" FontId="2" DisablePrefix="yes">#(loc.HelpHeader)</Text>

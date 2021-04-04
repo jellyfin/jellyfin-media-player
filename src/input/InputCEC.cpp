@@ -87,7 +87,7 @@ bool InputCECWorker::init()
   m_verboseLogging = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "verbose_logging").toBool();
 
   m_configuration.clientVersion = LIBCEC_VERSION_CURRENT;
-  qstrcpy(m_configuration.strDeviceName, "Plex");
+  qstrcpy(m_configuration.strDeviceName, "Jellyfin");
   m_configuration.bActivateSource = 0;
   m_callbacks.logMessage = &CecLogMessage;
   m_callbacks.commandReceived = &CecCommand;

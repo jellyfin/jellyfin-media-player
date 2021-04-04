@@ -1,4 +1,0 @@
-FIXED:
-
-- The update channel labels have been renamed to align with product lifecycle.
-- UI: Sound feedback during navigation has been restored.

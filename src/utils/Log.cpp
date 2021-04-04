@@ -61,11 +61,12 @@ static void elidePattern(QString& msg, const QString& substring, int chars)
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::CensorAuthTokens(QString& msg)
 {
-  elidePattern(msg, "X-Plex-Token=", 20);
-  elidePattern(msg, "X-Plex-Token%3D", 20);
-  elidePattern(msg, "auth_token=", 20);
-  elidePattern(msg, "authenticationToken=\"", 20);
-  elidePattern(msg, "token=", 20);
+  elidePattern(msg, "api_key=", 20);
+  elidePattern(msg, "X-MediaBrowser-Token%3D", 20);
+  elidePattern(msg, "X-MediaBrowser-Token=", 20);
+  elidePattern(msg, "api_key=", 20);
+  elidePattern(msg, "ApiKey=", 20);
+  elidePattern(msg, "AccessToken=", 20);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

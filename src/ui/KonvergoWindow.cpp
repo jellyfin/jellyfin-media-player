@@ -8,7 +8,6 @@
 #include <QPushButton>
 
 #include "core/Version.h"
-#include "system/UpdaterComponent.h"
 #include "input/InputKeyboard.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
@@ -119,9 +118,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 
   connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::closingWindow);
 
-  connect(&UpdaterComponent::Get(), &UpdaterComponent::downloadComplete,
-          this, &KonvergoWindow::showUpdateDialog);
-
 #ifdef Q_OS_MAC
   m_osxPresentationOptions = 0;
 #endif
@@ -138,53 +134,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(qApp, &QGuiApplication::screenRemoved, this, &KonvergoWindow::onScreenRemoved);
 
   emit enableVideoWindowSignal();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::showUpdateDialog()
-{
-  if (m_webDesktopMode && !m_showedUpdateDialog)
-  {
-    QVariantHash updateInfo = UpdaterComponent::Get().updateInfo();
-
-    QString currentVersion = Version::GetCanonicalVersionString().split("-")[0];
-    QString newVersion = updateInfo["version"].toString().split("-")[0];
-
-    QMessageBox* message = new QMessageBox(nullptr);
-    message->setIcon(QMessageBox::Information);
-    message->setWindowModality(Qt::ApplicationModal);
-    message->setWindowTitle("Update found!");
-    message->setText("An update to Plex Media Player was found");
-    auto infoText = QString("You are currently running version %0\nDo you wish to install version %1 now?")
-      .arg(currentVersion)
-      .arg(newVersion);
-    message->setInformativeText(infoText);
-
-    auto details = QString("ChangeLog for version %0\n\nNew:\n%1\n\nFixed:\n%2")
-      .arg(newVersion)
-      .arg(updateInfo["new"].toString())
-      .arg(updateInfo["fixed"].toString());
-
-    message->setDetailedText(details);
-
-    auto updateNow = message->addButton("Install Now", QMessageBox::AcceptRole);
-    auto updateLater = message->addButton("Install on Next Restart", QMessageBox::RejectRole);
-
-    message->setDefaultButton(updateNow);
-
-    m_showedUpdateDialog = true;
-    connect(message, &QMessageBox::buttonClicked, [=](QAbstractButton* button)
-    {
-      if (button == updateNow)
-        UpdaterComponent::Get().doUpdate();
-      else if (button == updateLater)
-        message->close();
-
-      message->deleteLater();
-    });
-
-    message->show();
-  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

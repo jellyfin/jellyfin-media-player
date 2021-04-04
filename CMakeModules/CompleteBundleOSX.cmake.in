@@ -21,7 +21,7 @@ execute_process(
 )
 
 #set(ENTITLEMENTS --entitlements @SOURCE_ROOT@/bundle/osx/Konvergo.entitlements)
-set(CODESIGN codesign ${ENTITLEMENTS} --force --sign "Developer ID Application: Plex Inc.")
+#set(CODESIGN codesign ${ENTITLEMENTS} --force --sign "Developer ID Application: Plex Inc.")
 
 macro(sign_binary BIN)
   message(STATUS "Signing: ${BIN}")

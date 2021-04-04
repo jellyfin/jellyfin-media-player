@@ -1,5 +1,0 @@
-NEW:
- - Desktop web-client updated to 3.7.0
-
-FIXES:
- - Casting to PMP (Desktop)

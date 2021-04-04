@@ -3,7 +3,6 @@
 #include <QtDBus/QDBusReply>
 
 #include "PowerComponentDBus.h"
-#include "utils/HelperLauncher.h"
 
 #define DBUS_SERVICE_NAME "org.freedesktop.login1"
 #define DBUS_SERVICE_PATH "/org/freedesktop/login1"
@@ -16,14 +15,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 bool PowerComponentDBus::PowerOff()
 {
-  HelperLauncher::Get().stop();
   return callPowerMethod("PowerOff");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 bool PowerComponentDBus::Reboot()
 {
-  HelperLauncher::Get().stop();
   return callPowerMethod("Reboot");
 }
 
@@ -112,7 +109,7 @@ void PowerComponentDBus::doDisableScreensaver()
                          DBUS_SCREENSAVER_INTERFACE, QDBusConnection::sessionBus());
     if (iface.isValid())
     {
-      QDBusReply<unsigned int> reply = iface.call("Inhibit", "plexmediaplayer", "playing");
+      QDBusReply<unsigned int> reply = iface.call("Inhibit", "jellyfinmediaplayer", "playing");
 
       if (reply.isValid())
       {

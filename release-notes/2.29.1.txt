@@ -1,6 +1,0 @@
-2019-03-08
-
-FIXED:
-
-- Fixed an issue where search results would come from local machine's server instead of specified server
-- Fixed an issue where selecting a search result would open a blank page

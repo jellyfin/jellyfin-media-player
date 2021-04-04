@@ -495,7 +495,7 @@
     "values": [
         {
           "value": "systemname",
-          "default": "PlexMediaPlayer",
+          "default": "JellyfinMediaPlayer",
           "hidden": true,
           "platforms": [ "oe" ]
         },

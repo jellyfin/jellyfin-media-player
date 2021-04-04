@@ -11,8 +11,6 @@
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
-#include "system/UpdateManager.h"
-#include "system/UpdaterComponent.h"
 #include "QsLog.h"
 #include "Paths.h"
 #include "player/CodecsComponent.h"
@@ -27,7 +25,6 @@
 #include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
-#include "utils/HelperLauncher.h"
 #include "utils/Log.h"
 
 #ifdef Q_OS_MAC
@@ -43,7 +40,7 @@ static void preinitQt()
 {
   QCoreApplication::setApplicationName(Names::MainName());
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
-  QCoreApplication::setOrganizationDomain("plex.tv");
+  QCoreApplication::setOrganizationDomain("jellyfin.org");
 
 #ifdef Q_OS_WIN32
   QVariant useOpengl = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "useOpenGL");
@@ -95,7 +92,7 @@ int main(int argc, char *argv[])
   try
   {
     QCommandLineParser parser;
-    parser.setApplicationDescription("Plex Media Player");
+    parser.setApplicationDescription("Jellyfin Media Player");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOptions({{{"l", "licenses"},         "Show license information"},
@@ -184,13 +181,6 @@ int main(int argc, char *argv[])
     if (parser.isSet("terminal"))
       Log::EnableTerminalOutput();
 
-    // Quit app and apply update if we find one.
-    if (!parser.isSet("no-updates") && UpdateManager::CheckForUpdates())
-    {
-      app.quit();
-      return 0;
-    }
-
     detectOpenGLLate();
 
     Codecs::preinitCodecs();
@@ -200,9 +190,6 @@ int main(int argc, char *argv[])
     //
     ComponentManager::Get().initialize();
 
-    if (parser.isSet("no-updates"))
-      UpdaterComponent::Get().disable();
-
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
     // enable remote inspection if we have the correct setting for it.
@@ -211,10 +198,6 @@ int main(int argc, char *argv[])
 
     QtWebEngine::initialize();
 
-    // start our helper
-#if ENABLE_HELPER
-    HelperLauncher::Get().connectToHelper();
-#endif
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
 

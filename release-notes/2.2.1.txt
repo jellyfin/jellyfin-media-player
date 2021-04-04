@@ -1,5 +1,0 @@
-2017-12-15
-
-FIXED:
-
- - (macOS, pre-10.12) Fixed crash on launch

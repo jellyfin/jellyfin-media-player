@@ -1,0 +1,28 @@
+[Desktop Entry]
+Version=1.0
+Name=Jellyfin Media Player
+GenericName=Media Player
+Comment=View your media
+Exec=jellyfinmediaplayer
+Icon=jellyfinmediaplayer
+Terminal=false
+Type=Application
+Categories=AudioVideo;Video;Player;TV;
+
+Actions=TVF;TVW;DesktopF;DesktopW;
+
+[Desktop Action TVF]
+Name=TV [Fullscreen]
+Exec=jellyfinmediaplayer --fullscreen --tv
+
+[Desktop Action TVW]
+Name=TV [Windowed]
+Exec=jellyfinmediaplayer --windowed --tv
+
+[Desktop Action DesktopF]
+Name=Desktop [Fullscreen]
+Exec=jellyfinmediaplayer --fullscreen --desktop
+
+[Desktop Action DesktopW]
+Name=Desktop [Windowed]
+Exec=jellyfinmediaplayer --windowed --desktop

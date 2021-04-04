@@ -1,6 +1,0 @@
-2020-05-19
-
-FIXED:
-
-- Show correct source title for search result items
-- Fixed first character jump bar inaccuracy in some cases

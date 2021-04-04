@@ -15,7 +15,7 @@ ErrorMessage::ErrorMessage(const QString& errorMessage, bool allowResetConfig)
   : QMessageBox(nullptr)
 {
   setIcon(Critical);
-  setText("Plex Media Player encountered a fatal error and must exit");
+  setText("Jellyfin Media Player encountered a fatal error and must exit");
   setDetailedText(errorMessage);
   setInformativeText("Press help below to be redirected to our friendly support forums." \
                      "Press reset to reset configuration to the default and try again." \
@@ -42,7 +42,7 @@ ErrorMessage::ErrorMessage(const QString& errorMessage, bool allowResetConfig)
     }
     else if (button == helpButton)
     {
-      QDesktopServices::openUrl(QUrl("https://forums.plex.tv/categories/plex-media-player"));
+      QDesktopServices::openUrl(QUrl("https://jellyfin.org"));
     }
   });
 }

@@ -1,8 +1,0 @@
-NEW:
-  - Add a desktop UI mode.
-
-FIXED:
-  - Fix mp2-in-mkv decoding on Windows
-  - Fix enabling audio passthrough on new installations
-  - Fix music playback failures in some corner cases
-  - Allow automatic GPU switching on OSX

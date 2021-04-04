@@ -212,7 +212,7 @@ void SystemComponent::setCursorVisibility(bool visible)
 QString SystemComponent::getUserAgent()
 {
   QString osVersion = QSysInfo::productVersion();
-  QString userAgent = QString("PlexMediaPlayer %1 (%2-%3 %4)").arg(Version::GetVersionString()).arg(getPlatformTypeString()).arg(getPlatformArchString()).arg(osVersion);
+  QString userAgent = QString("JellyfinMediaPlayer %1 (%2-%3 %4)").arg(Version::GetVersionString()).arg(getPlatformTypeString()).arg(getPlatformArchString()).arg(osVersion);
   return userAgent;
 }
 
@@ -222,7 +222,7 @@ QString SystemComponent::debugInformation()
   QString debugInfo;
   QTextStream stream(&debugInfo);
 
-  stream << "Plex Media Player" << endl;
+  stream << "Jellyfin Media Player" << endl;
   stream << "  Version: " << Version::GetVersionString() << " built: " << Version::GetBuildDate() << endl;
   stream << "  Web Client Version: " << Version::GetWebVersion() << endl;
   stream << "  Web Client URL: " << SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString() << endl;

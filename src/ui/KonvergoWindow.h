@@ -110,7 +110,6 @@ private slots:
   void updateWindowState(bool saveGeo = true);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
-  void showUpdateDialog();
   void onScreenAdded(QScreen *screen);
   void onScreenRemoved(QScreen *screen);
   void updateCurrentScreen();

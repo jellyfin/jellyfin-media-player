@@ -32,8 +32,8 @@ static QDir writableLocation(QStandardPaths::StandardLocation loc)
 // Try a couple of different strategies to find the file we are looking for.
 // 1) By looking next to the application binary
 // 2) By looking in binary/../Resources
-// 3) By looking in PREFIX/share/plexmediaplayer
-// 4) By looking in PREFIX/plexmediaplayer
+// 3) By looking in PREFIX/share/jellyfinmediaplayer
+// 4) By looking in PREFIX/jellyfinmediaplayer
 //
 QString Paths::resourceDir(const QString& file)
 {
@@ -43,8 +43,8 @@ QString Paths::resourceDir(const QString& file)
   QStringList possibleResourceDirs = {
     appResourceDir,
     appResourceDir + "../Resources/",
-    prefixDir + "/share/plexmediaplayer/",
-    prefixDir + "/plexmediaplayer/"
+    prefixDir + "/share/jellyfinmediaplayer/",
+    prefixDir + "/jellyfinmediaplayer/"
   };
 
   for (const auto& fileStr : possibleResourceDirs)

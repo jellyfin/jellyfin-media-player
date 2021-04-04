@@ -5,7 +5,7 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/toolchain.cmake")
   set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/toolchain.cmake")
 endif()
 
-project(PlexMediaPlayer CXX C)
+project(JellyfinMediaPlayer CXX C)
 
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
@@ -27,11 +27,6 @@ if(BUILD_TARGET STREQUAL "RPI")
   set(RPI_LIBS bcm_host)
   Message(STATUS "Build for Raspberry PI target")
 endif(BUILD_TARGET STREQUAL "RPI")
-
-option(ENABLE_HELPER "Enable PMP Helper" ON)
-if (ENABLE_HELPER)
-  add_definitions(-DENABLE_HELPER=1)
-endif(ENABLE_HELPER)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
@@ -80,4 +75,4 @@ add_subdirectory(src)
 
 include(CPackConfiguration)
 
-add_custom_target(install_app_bundle COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake DEPENDS PlexMediaPlayer PMPHelper)
+add_custom_target(install_app_bundle COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake DEPENDS JellyfinMediaPlayer)

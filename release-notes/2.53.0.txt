@@ -1,5 +1,0 @@
-2020-03-17
-
-FIXED:
-
-- Fixed an issue playing videos in photo libraries where progress wouldn't reset after switching between videos

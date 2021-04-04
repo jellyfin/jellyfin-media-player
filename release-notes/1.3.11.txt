@@ -1,6 +1,0 @@
-NEW:
- - Desktop web-client updated to 3.26.2
- - Bumped deps
-FIXES:
- - (Desktop) Seeking while transcoding
- - (macOS) Fullscreen UI corruption

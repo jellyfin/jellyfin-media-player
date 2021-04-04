@@ -19,7 +19,7 @@ elseif(OPENELEC)
     set(ARCHSTR "linux-openelec-armv7")
   endif()
 elseif(UNIX)
-  set(ARCHSTR ${PLEX_BUILD_TARGET})
+  set(ARCHSTR ${JELLYFIN_BUILD_TARGET})
 endif(APPLE)
 
 option(ENABLE_CODECS "Enable downloading for Codecs on Demand" OFF)
@@ -97,11 +97,11 @@ function(download_deps DD_NAME)
   endif()
 
   if(NOT DEFINED DD_TOKEN)
-    set(DD_TOKEN plex-dependencies)
+    set(DD_TOKEN jellyfin-dependencies)
   endif()
 
   if(NOT DEFINED DD_BASE_URL)
-    set(DD_BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
+    set(DD_BASE_URL "")
   endif()
 
   set(DEP_DIR ${DEPENDENCY_UNTAR_DIR}/${DD_ARCHSTR}-${DD_NAME}/${DD_BUILD_NUMBER})
@@ -232,10 +232,10 @@ function(download_dep_file DD_NAME)
   endif()
 
   if(NOT DEFINED DD_TOKEN)
-    set(DD_TOKEN plex-dependencies)
+    set(DD_TOKEN jellyfin-dependencies)
   endif()
 
-  set(BASE_URL "https://nightlies.plex.tv/directdl/${DD_TOKEN}/${DD_NAME}/${DD_BUILD_NUMBER}")
+  set(BASE_URL "")
 
   set(DEP_URL "${BASE_URL}/${DD_FILENAME}")
 

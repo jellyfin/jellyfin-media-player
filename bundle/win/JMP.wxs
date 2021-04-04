@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" 
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+
+  <?include Global.wxi ?>
+  <?include Version.wxi ?>
+
+
+  <?define FirstProductVersion=1.0.0 ?>
+  <?define JellyfinMediaPlayerRegistryKey=Software\Jellyfin\Jellyfin Media Player?>
+
+    <!-- To keep things simple, the installer considers each new release
+         a major upgrade, in which everything is uninstalled, then reinstalled
+         To accomplish this, we change the Product Id on every build.
+         However, the upgrade code remains the same on every build, to ensure
+         that newer installers recognize older installations -->  
+    <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="Jellyfin" UpgradeCode="$(var.ProductUUID)">
+
+    <!-- Package Ids change on every build, by definition -->
+    <Package Id="*" Platform="x64" InstallerVersion="405" Compressed="yes" Description="$(var.ProductDesc)" InstallScope="perMachine" />
+    
+    <!-- allow for reinstall, this is needed to force installation when the version match -->
+    <Property Id="REINSTALLMODE" Value="amus"/>
+        
+    <!-- Embedded, compressed cab file -->
+    <Media Id="1" Cabinet="pmp.cab" EmbedCab="yes" CompressionLevel="high" />
+            
+    <!-- We support Windows 7 and above -->
+    <Condition Message="$(var.OldWindowsError)">
+      <![CDATA[VersionNT >= 601]]>
+    </Condition>
+    
+    <!-- Icon used in the control panel -->
+    <Icon Id="JellyfinMediaPlayerIcon" SourceFile="jellyfin.ico" />
+
+    <!-- Useful control panel fields -->
+    <?include ControlPanel.wxi ?>
+
+    <!-- Upgrade and downgrade handling -->
+    <Upgrade Id="$(var.ProductUUID)">
+      <!-- Detect newer versions -->
+      <UpgradeVersion Minimum="$(var.Version)"
+                      IncludeMinimum="no"
+                      OnlyDetect="yes"
+                      Property="NEWERPRODUCTFOUND" />
+      <!-- Detect older versions -->
+      <UpgradeVersion Minimum="$(var.FirstProductVersion)"
+                      Maximum="$(var.Version)"
+                      IncludeMinimum="yes"
+                      IncludeMaximum="no"
+                      Property="PREVIOUSVERSIONINSTALLED" />
+    </Upgrade>
+    
+    <!-- Running program termination -->
+    <util:CloseApplication Id="JellyfinMediaPlayer" CloseMessage="yes" Target="JellyfinMediaPlayer.exe" ElevatedCloseMessage="yes" RebootPrompt="yes" />
+
+    <!-- Custom action to Install MediaFoundation on Windows Server -->
+    <Property Id="WINDOWSTYPE" Value="Client"/>
+    <Property Id="WixQuietExec64CmdLine" Value='"C:\Windows\System32\dism.exe" /online /enable-feature /all /featurename:ServerMediaFoundation /NoRestart'/>
+    <CustomAction Id="EnableMediaFoundation" BinaryKey="WixCA" DllEntry="WixQuietExec64" Execute="immediate" Return="ignore" Impersonate="no"/>
+
+    <Property Id="AUTOLAUNCH" Value="0"/>
+    <Property Id="WixShellExecTarget" Value="[INSTALLLOCATION]JellyfinMediaPlayer.exe" />
+    <CustomAction Id="LaunchPMP" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="ignore"/>
+
+    <InstallExecuteSequence>
+      <!-- Prevent downgrades from newer versions -->
+      <Custom Action="PreventDowngrades" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
+      <!-- Uninstall older versions before installing ourselves -->
+      <RemoveShortcuts>Installed AND NOT UPGRADINGPRODUCTCODE</RemoveShortcuts>
+      <RemoveExistingProducts After="InstallInitialize">PREVIOUSVERSIONINSTALLED</RemoveExistingProducts>
+      <Custom Action="LaunchPMP" After="InstallFinalize"><![CDATA[AUTOLAUNCH = 1]]></Custom>
+      <Custom Action="WixCloseApplications" After="InstallInitialize" />
+      <Custom Action="EnableMediaFoundation" Before="CostFinalize">WINDOWSTYPE~="Server"</Custom>
+    </InstallExecuteSequence>
+
+    <!-- Custom Actions -->
+    <CustomAction Id="PreventDowngrades" Error="$(var.NewerVersionError)" />
+
+    <!-- The default installation directory is under [ProgramFilesFolder] -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLLOCATION" Name="Msi">
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="JellyfinStartMenuFolder" Name="Jellyfin Media Player"/>
+      </Directory>
+    </Directory>
+    
+    <!-- Start Menu shortcut -->
+    <DirectoryRef Id="JellyfinStartMenuFolder">
+      <Component Id="JellyfinMediaPlayerShortcuts" Guid="*">
+
+        <Shortcut Id="JellyfinMediaPlayerExeShortcut"
+                  Name="Jellyfin Media Player"
+                  Description="Jellyfin Media Player for Windows"
+                  Target="[INSTALLLOCATION]JellyfinMediaPlayer.exe"
+                  WorkingDirectory="INSTALLLOCATION" />
+                  
+        <RegistryKey Root="HKCU" Key="Software\Jellyfin\Jellyfin Media Player">
+          <RegistryValue Name="InstallFolder" Type="string" Value="[INSTALLLOCATION]" Action="write" KeyPath="no" />
+        </RegistryKey>
+        
+                <!-- Firewall Exceptions -->
+        <!-- These should probably go in their own component, but it's easier just to put them here -->
+        <fire:FirewallException Id="FWX1" Name="Jellyfin Media Player" Program="[INSTALLLOCATION]JellyfinMediaPlayer.exe" Scope="any" IgnoreFailure="yes" />
+                  
+        <RemoveFolder Id="JellyfinStartMenuFolder" On="uninstall" />
+      </Component>
+    </DirectoryRef>
+
+
+    <!-- Product Feature -->
+    <Feature Id="ProductFeature" Title="Jellyfin" Level="1">
+      <ComponentGroupRef Id="ProgramFilesComponentGroup" />
+      <ComponentRef Id="JellyfinMediaPlayerShortcuts" />
+    </Feature>
+
+  </Product>
+</Wix>

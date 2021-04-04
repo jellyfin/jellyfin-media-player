@@ -5,16 +5,11 @@
 #include "ComponentManager.h"
 
 #include "power/PowerComponent.h"
-#include "server/HTTPServer.h"
 #include "input/InputComponent.h"
 #include "player/PlayerComponent.h"
 #include "display/DisplayComponent.h"
 #include "system/SystemComponent.h"
-#include "system/UpdaterComponent.h"
 #include "settings/SettingsComponent.h"
-#include "remote/RemoteComponent.h"
-
-#include "server/HTTPServer.h"
 
 #if KONVERGO_OPENELEC
 #include "system/openelec/OESystemComponent.h"
@@ -57,16 +52,9 @@ void ComponentManager::initialize()
   // might have some settings
   //
   registerComponent(&SettingsComponent::Get());
-
-  // start our web server
-  auto server = new HttpServer(this);
-  server->start();
-
   registerComponent(&InputComponent::Get());
   registerComponent(&SystemComponent::Get());
   registerComponent(&DisplayComponent::Get());
-  registerComponent(&UpdaterComponent::Get());
-  registerComponent(&RemoteComponent::Get());
   registerComponent(&PlayerComponent::Get());
   registerComponent(&PowerComponent::Get());
 

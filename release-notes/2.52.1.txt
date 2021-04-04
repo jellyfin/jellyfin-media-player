@@ -1,6 +1,0 @@
-2020-03-04
-
-FIXED:
-
-- Fixed toggling subtitles using keyboard shortcut
-- Fixed unselected subtitles displaying during playback

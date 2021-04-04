@@ -1,4 +1,0 @@
-Type: Fix
-Public: Yes
-GHI: https://github.com/plexinc/plex-media-player/pull/789
-Release Notes: Fix window icon on Linux

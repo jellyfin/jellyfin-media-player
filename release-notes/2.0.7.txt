@@ -1,3 +1,0 @@
-FIXED:
-
-- UI: Navigation within the Settings view, at all aspect ratios, correctly navigates to each setting group and option.

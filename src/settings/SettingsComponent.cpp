@@ -200,14 +200,14 @@ static void writeJson(const QString& filename, const QJsonObject& data, bool pre
 /////////////////////////////////////////////////////////////////////////////////////////
 QVariant SettingsComponent::readPreinitValue(const QString& sectionID, const QString& key)
 {
-  QJsonObject json = loadJson(Paths::dataDir("plexmediaplayer.conf"));
+  QJsonObject json = loadJson(Paths::dataDir("jellyfinmediaplayer.conf"));
   return json["sections"].toObject()[sectionID].toObject()[key].toVariant();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::load()
 {
-  loadConf(Paths::dataDir("plexmediaplayer.conf"), false);
+  loadConf(Paths::dataDir("jellyfinmediaplayer.conf"), false);
   loadConf(Paths::dataDir("storage.json"), true);
 }
 
@@ -292,7 +292,7 @@ void SettingsComponent::saveSettings()
   QJsonObject json;
   json.insert("sections", QJsonValue::fromVariant(sections));
   json.insert("version", m_settingsVersion);
-  writeJson(Paths::dataDir("plexmediaplayer.conf"), json);
+  writeJson(Paths::dataDir("jellyfinmediaplayer.conf"), json);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -689,7 +689,7 @@ void SettingsComponent::setupVersion()
     // Version key was not present. It could still be a pre-1.1 PMP install,
     // so here we try to find out whether this is the very first install, or
     // if an older one exists.
-    QFile configFile(Paths::dataDir("plexmediaplayer.conf"));
+    QFile configFile(Paths::dataDir("jellyfinmediaplayer.conf"));
     if (configFile.exists())
       m_oldestPreviousVersion = "legacy";
     else
@@ -712,35 +712,14 @@ void SettingsComponent::setUserRoleList(const QStringList& userRoles)
   publicChannel.insert("title", "Public");
   values << publicChannel;
 
-  if (userRoles.contains("plexpass")) {
-    QVariantMap betaChannel;
-    betaChannel.insert("value", 8);
-    betaChannel.insert("title", "Beta");
-    values << betaChannel;
-  }
-
-  if (userRoles.contains("ninja")) {
-    QVariantMap alphaChannel;
-    alphaChannel.insert("value", 4);
-    alphaChannel.insert("title", "Alpha");
-    values << alphaChannel;
-  }
-
-  if (userRoles.contains("employee")) {
-    QVariantMap qaChannel;
-    qaChannel.insert("value", 2);
-    qaChannel.insert("title", "QA");
-    values << qaChannel;
-  }
-
   updatePossibleValues(SETTINGS_SECTION_MAIN, "updateChannel", values);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsComponent::resetAndSaveOldConfiguration()
 {
-  QFile settingsFile(Paths::dataDir("plexmediaplayer.conf"));
-  return settingsFile.rename(Paths::dataDir("plexmediaplayer.conf.old"));
+  QFile settingsFile(Paths::dataDir("jellyfinmediaplayer.conf"));
+  return settingsFile.rename(Paths::dataDir("jellyfinmediaplayer.conf.old"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -798,19 +777,7 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
       mode = "auto";
   }
 
-  if (mode == "desktop")
-  {
-    setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
-    setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
-  }
-  else if (mode == "tv")
-  {
-    setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
-    setValue(SETTINGS_SECTION_MAIN, "webMode", "tv");
-  }
-  else if (mode == "auto")
-  {
-    setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
-  }
+  setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
+  setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
 }
 

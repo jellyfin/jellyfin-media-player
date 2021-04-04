@@ -137,7 +137,7 @@ void InputRoku::handleQueryApps(QHttpRequest* request, QHttpResponse* response)
   writer.writeStartElement("apps");
   writer.writeStartElement("app");
   writer.writeAttribute("id", "1");
-  writer.writeCharacters("Plex Media Player");
+  writer.writeCharacters("Jellyfin Media Player");
   writer.writeEndElement(); // app
   writer.writeEndElement(); // apps
   writer.writeEndDocument();

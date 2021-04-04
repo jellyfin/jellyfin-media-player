@@ -8,7 +8,7 @@ import QtQuick.Controls 1.4
 KonvergoWindow
 {
   id: mainWindow
-  title: "Plex Media Player"
+  title: "Jellyfin Media Player"
   objectName: "mainWindow"
   minimumHeight: windowMinSize.height
   minimumWidth: windowMinSize.width
@@ -174,7 +174,7 @@ KonvergoWindow
         console.log("WebEngineLoadRequest failure: " + loadRequest.url + " error code: " + loadRequest.errorCode);
         errorLabel.visible = true
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
-                          "You can try to <a href='reload'>reload</a> or head to our <a href='http://plex.tv/support'>support page</a><br><br>Actual Error: <pre>" +
+                          "You can try to <a href='reload'>reload</a> or head to our <a href='http://jellyfin.org'>support page</a><br><br>Actual Error: <pre>" +
                           loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
                           "Provide the <a target='_blank' href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
       }

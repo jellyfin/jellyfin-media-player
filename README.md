@@ -37,7 +37,43 @@ sudo make install
 rm -rf ~/jmp/
 ```
 
-## Building
+## Building for Windows
+
+Please install:
+ - [cmake](https://cmake.org/download/) - cmake-3.20.0-windows-x86_64.msi
+   - Add cmake to the path.
+ - [ninja](https://github.com/ninja-build/ninja/releases)
+   - Place this in the build directory.
+ - [QT](http://download.qt.io/official_releases/qt/5.9/5.9.9/qt-opensource-windows-x86-5.9.9.exe)
+   - This file is huge. You also need to make a QT account...
+   - Check "MSVC 2017 64-bit" and "Qt WebEngine".
+ - [VS2017 Build Tools](https://download.visualstudio.microsoft.com/download/pr/3e542575-929e-4297-b6c6-bef34d0ee648/639c868e1219c651793aff537a1d3b77/vs_buildtools.exe)
+   - Again this will use a lot of disk space. The installer is small though.
+ - [libmpv1](https://sourceforge.net/projects/mpv-player-windows/files/libmpv/)
+   - Place the contents in the build directory, in a subfolder called `mpv`.
+   - Move the contents of the `include` folder to an `mpv` folder inside the `include` folder.
+   - Move the `mpv-1.dll` to `mpv.dll`.
+
+You need to run these commands in git bash.
+
+```bash
+git clone https://github.com/iwalton3/jellyfin-media-player
+cd jellyfin-media-player
+mkdir build && cd build
+curl -L https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-1.7.0/dist.zip > dist.zip
+unzip dist.zip
+```
+
+Open the "x86_x64 Cross Tools Command Prompt for VS 2017". `cd` to the `build` directory. Run:
+
+```
+cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:\Qt\Qt5.9.9\5.9.9\msvc2017_64 -DMPV_INCLUDE_DIR=mpv\include -DMPV_LIBRARY=mpv\mpv.dll -DVCREDIST_DIR=C:\Qt\Qt5.9.9\vcredist -DCMAKE_INSTALL_PREFIX=output ..
+lib /def:mpv\mpv.def /out:mpv\mpv-1.lib /MACHINE:X64
+ninja
+ninja windows_package
+```
+
+## Building (Old Instructions)
 
 You need:
 

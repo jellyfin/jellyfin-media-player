@@ -20,6 +20,7 @@ using namespace qhttp::server;
 /////////////////////////////////////////////////////////////////////////////////////////
 bool InputRoku::initInput()
 {
+  /*
   m_server = new QHttpServer(this);
 
   if (!m_server->listen(QHostAddress::Any, 8060))
@@ -43,6 +44,8 @@ bool InputRoku::initInput()
   connect(m_ssdpSocket, &QUdpSocket::readyRead, this, &InputRoku::ssdpRead);
 
   return true;
+  */
+  return false; // Disable poer listen on 1900 and 8060 that requires Windows Firewall
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

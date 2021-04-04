@@ -91,10 +91,15 @@ bool PlayerRenderer::init()
   DwmEnableMMCSS(TRUE);
 #endif
 
-  mpv_opengl_init_params opengl_params = {
+mpv_opengl_init_params opengl_params = {
+#ifdef Q_OS_WIN32
+      get_proc_address,
+      NULL,
+#else
       .get_proc_address = get_proc_address,
       .get_proc_address_ctx = NULL,
-  };
+#endif
+};
 
   mpv_render_param params[] = {
     {MPV_RENDER_PARAM_API_TYPE, (void*)MPV_RENDER_API_TYPE_OPENGL},
@@ -162,9 +167,15 @@ void PlayerRenderer::render()
   }
 
   mpv_opengl_fbo mpv_fbo = {
+#ifdef Q_OS_WIN32
+    fbo,
+    fboSize.width(),
+    fboSize.height(),
+#else
     .fbo = fbo,
     .w = fboSize.width(),
     .h = fboSize.height(),
+#endif
   };
   int mpv_flip = flip ? -1 : 0;
   mpv_render_param params[] = {

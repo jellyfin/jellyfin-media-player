@@ -14,7 +14,7 @@ get_filename_component(CEC_DIR @CEC_LIBRARY@ DIRECTORY)
 list(APPEND SEARCHDIRS ${CEC_DIR})
 
 fixup_bundle("${CMAKE_INSTALL_PREFIX}/JellyfinMediaPlayer.exe" "" "${SEARCHDIRS}") 
-#install(PROGRAMS ${VCREDIST_DIR}/vc_redist_2015_x64.exe DESTINATION .)
+install(PROGRAMS ${VCREDIST_DIR}/vc_redist_2015_x64.exe DESTINATION .)
 
 if(@DO_ENABLE_ANGLE_DEP@)
   message(STATUS "Deploying separate ANGLE deps")

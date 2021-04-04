@@ -138,7 +138,7 @@ add_custom_target(wix_install
 wix_harvest_directory("${CMAKE_INSTALL_PREFIX}" files.wxs CGROUP ProgramFilesComponentGroup DEPENDS wix_install)
 
 wix_create_installer(PMP.msi 
-                     WXS_FILES files.wxs "${PROJECT_SOURCE_DIR}/bundle/win/PMP.wxs"
+                     WXS_FILES files.wxs "${PROJECT_SOURCE_DIR}/bundle/win/JMP.wxs"
                      EXTENSIONS WixUtilExtension WixFirewallExtension
                      BASEDIR "${PROJECT_SOURCE_DIR}/bundle/win"
 )

@@ -111,15 +111,6 @@ power/PowerComponent - [header](https://github.com/plexinc/plex-media-player/blo
 - screenSaverDisabled()
 ## types:
 - powercapabilities - enum { PowerOff = 1, Reboot = 2, Suspend = 4, Relaunch = 8 }
-# remote
-Plex specific HTTP remote control  
-remote/RemoteComponent.h - [header](https://github.com/plexinc/plex-media-player/blob/master/src/remote/RemoteComponent.h), [implementation](https://github.com/plexinc/plex-media-player/blob/master/src/remote/RemoteComponent.cpp)
-## funcs:
-- void commandResponse(dict responseArguments)
-- dict resourceInfo()
-- void timelineUpdate(int commandID, str timeline) - Plex specific. Used to respond to remote controls.
-## events:
-- commandReceived(dict info) - Plex specific. Used to get commands from remote controls.
 # settings 
 settings/SettingsComponent - [header](https://github.com/plexinc/plex-media-player/blob/master/src/settings/SettingsComponent.h), [implementation](https://github.com/plexinc/plex-media-player/blob/master/src/settings/SettingsComponent.cpp)
 ## funcs:
@@ -161,16 +152,3 @@ system/SystemComponent - [header](https://github.com/plexinc/plex-media-player/b
 - hostMessage(str message)
 - settingsMessage(str setting, str value)
 - scaleChanged(float scale)
-# updater
-Plex-specific Update Logic  
-system/UpdaterComponent - [header](https://github.com/plexinc/plex-media-player/blob/master/src/system/UpdaterComponent.h), [implementation](https://github.com/plexinc/plex-media-player/blob/master/src/system/UpdaterComponent.cpp)
-## funcs:
-- void disable() - disable the component
-- void downloadUpdate(dict info)
-- void checkForUpdate()
-- void startUpdateDownload(dict info)
-- void doUpdate()
-## events:
-- downloadError(str error)
-- downloadComplete(str version)
-- downloadProgress(int bytesRecieved, int total)

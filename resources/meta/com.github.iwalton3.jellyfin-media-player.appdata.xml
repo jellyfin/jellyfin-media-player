@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.iwalton3.jellyfin-media-player</id>
+  <name>Jellyfin Media Player</name>
+  <summary>Desktop client for Jellyfin media server</summary>
+  <developer_name>Ian Walton</developer_name>
+  <project_license>GPL-2.0</project_license>
+  <metadata_license>CC0-1.0</metadata_license>
+  <url type="homepage">https://github.com/iwalton3/jellyfin-media-player</url>
+  <url type="bugtracker">https://github.com/iwalton3/jellyfin-media-player/issues</url>
+  <description>
+    <p>Jellyfin Desktop Client based on Plex Media Player. Play your Jellyfin media in the jellyfin-web application with significantly improved media support. The client also supports SyncPlay.</p>
+  </description>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Video</category>
+    <category>Player</category>
+    <category>TV</category>
+  </categories>
+  <releases>
+    <release version="1.1.0" date="2020-04-05"/>
+  </releases>
+  <content_rating type="oars-1.0"/>
+</component>

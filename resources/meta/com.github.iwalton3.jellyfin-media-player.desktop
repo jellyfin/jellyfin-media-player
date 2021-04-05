@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Name=Jellyfin Media Player
+Comment=Desktop client for Jellyfin
+Exec=jellyfinmediaplayer
+Icon=com.github.iwalton3.jellyfin-media-player
+Terminal=false
+Type=Application
+Categories=AudioVideo;Video;Player;TV;
+
+Actions=TVF;TVW;DesktopF;DesktopW;
+
+[Desktop Action DesktopF]
+Name=Desktop [Fullscreen]
+Exec=jellyfinmediaplayer --fullscreen --desktop
+
+[Desktop Action DesktopW]
+Name=Desktop [Windowed]
+Exec=jellyfinmediaplayer --windowed --desktop

@@ -52,8 +52,6 @@ include(VersionConfiguration)
 include(NameConfiguration)
 include(PlayerConfiguration)
 include(InputConfiguration)
-include(FindBreakpad)
-include(BreakpadSymbols)
 include(ClangTidy)
 
 add_definitions(-DQS_LOG_LINE_NUMBERS -DQS_LOG_SEPARATE_THREAD)

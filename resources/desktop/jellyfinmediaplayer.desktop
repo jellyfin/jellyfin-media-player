@@ -11,14 +11,6 @@ Categories=AudioVideo;Video;Player;TV;
 
 Actions=TVF;TVW;DesktopF;DesktopW;
 
-[Desktop Action TVF]
-Name=TV [Fullscreen]
-Exec=jellyfinmediaplayer --fullscreen --tv
-
-[Desktop Action TVW]
-Name=TV [Windowed]
-Exec=jellyfinmediaplayer --windowed --tv
-
 [Desktop Action DesktopF]
 Name=Desktop [Fullscreen]
 Exec=jellyfinmediaplayer --fullscreen --desktop

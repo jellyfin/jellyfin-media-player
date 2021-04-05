@@ -7,7 +7,28 @@
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://github.com/iwalton3/jellyfin-media-player</url>
+  <url type="help">https://github.com/iwalton3/jellyfin-media-player/blob/master/README.md</url>
   <url type="bugtracker">https://github.com/iwalton3/jellyfin-media-player/issues</url>
+
+  <provides>
+    <binary>jellyfinmediaplayer</binary>
+  </provides>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The desktop client</caption>
+      <image type="source" width="1080" height="632">https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-browse.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The application playing Big Buck Bunny</caption>
+      <image type="source" width="1080" height="632">https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-player.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The server dashboard</caption>
+      <image type="source" width="1080" height="632">https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-admin.png</image>
+    </screenshot>
+  </screenshots>
+
   <description>
     <p>Jellyfin Desktop Client based on Plex Media Player. Play your Jellyfin media in the jellyfin-web application with significantly improved media support. The client also supports SyncPlay.</p>
   </description>
@@ -18,7 +39,16 @@
     <category>TV</category>
   </categories>
   <releases>
-    <release version="1.1.0" date="2020-04-05"/>
+      <release version="1.1.0" date="2020-04-05">
+        <p>Changes:</p>
+        <ul>
+          <li>Added support for setting playback rate.</li>
+          <li>Added SyncPlay support. (Note there are still some glitches.)</li>
+          <li>Fixed issue where exiting video would go back a page.</li>
+          <li>Fixed issue where video reloads every time you seek.</li>
+          <li>Fixed some play/pause event issues.</li>
+        </ul>
+      </release>
   </releases>
   <content_rating type="oars-1.0"/>
 </component>

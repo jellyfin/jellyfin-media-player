@@ -14,17 +14,6 @@ set(CMAKE_AUTOMOC ON)
 
 add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
 
-find_package(Breakpad)
-
-if(BREAKPAD_FOUND)
-  include_directories(${BREAKPAD_INCLUDE_DIR})
-  set(BREAKPAD_LIBRARIES ${BREAKPAD_LIBRARY})
-  if(UNIX)
-    # cmake issue: breakpad-client.pc adds this, but cmake discards it
-    set(BREAKPAD_LIBRARIES ${BREAKPAD_LIBRARIES} -lpthread)
-  endif()
-endif()
-
 add_subdirectory(shared)
 add_subdirectory(core)
 add_subdirectory(display)
@@ -33,7 +22,6 @@ add_subdirectory(utils)
 add_subdirectory(ui)
 add_subdirectory(input)
 add_subdirectory(system)
-add_subdirectory(breakpad)
 add_subdirectory(settings)
 add_subdirectory(power)
 
@@ -187,7 +175,6 @@ target_link_libraries(${MAIN_TARGET}
   ${EXTRA_LIBS}
   ${X11_LIBRARIES}
   ${X11_Xrandr_LIB}
-  ${BREAKPAD_LIBRARIES}
   ${ICU_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${RPI_LIBS}
@@ -199,7 +186,5 @@ install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 set(EXE "${MAIN_NAME}.app")
 set(LIBPATH ${CMAKE_FIND_ROOT_PATH})
 set(SOURCE_ROOT ${CMAKE_SOURCE_DIR})
-
-dumpsyms(${MAIN_TARGET} ${CMAKE_BINARY_DIR}/${MAIN_TARGET}.symbols)
 
 include(CompleteBundle)

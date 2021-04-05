@@ -16,7 +16,6 @@
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
 #include "player/OpenGLDetect.h"
-#include "breakpad/CrashDumps.h"
 #include "Version.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
@@ -163,9 +162,6 @@ int main(int argc, char *argv[])
 #if defined(Q_OS_MAC) && defined(NDEBUG)
     PFMoveToApplicationsFolderIfNecessary();
 #endif
-
-    // init breakpad.
-    setupCrashDumper();
 
     UniqueApplication* uniqueApp = new UniqueApplication();
     if (!uniqueApp->ensureUnique())

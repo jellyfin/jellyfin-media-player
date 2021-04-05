@@ -4,7 +4,6 @@ Based on (but not affiliated with) [Plex Media Player](https://github.com/plexin
 
 Please see:
  - Corresponding web client: [Repo](https://github.com/iwalton3/jellyfin-web-jmp/) [Release](https://github.com/iwalton3/jellyfin-web-jmp/releases/)
- - [Web client patchset](https://github.com/jellyfin/jellyfin-web/compare/release-10.7.z...iwalton3:pmptest#files_bucket)
  - API Docs in [client-api.md](https://github.com/iwalton3/jellyfin-media-player/blob/master/client-api.md)
 
 This build strips a lot of un-needed things from the player.

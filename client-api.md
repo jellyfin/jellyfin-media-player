@@ -69,6 +69,8 @@ player/PlayerComponent - [header](https://github.com/plexinc/plex-media-player/b
     - subtitleStream: "#" + index from mkv, or pass external url
 - void setAudioDelay(int ms)
 - void setSubtitleDelay(int ms)
+- void setPlaybackRate(int rate) - 1000 = normal speed
+- int getPosition()
 - void setVideoOnlyMode(bool enable) - hides webview
 - bool checkCodecSupport(str codec) - can check for vc1 and mpeg2video
 - list[codecdriver] installedCodecDrivers()

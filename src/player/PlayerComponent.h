@@ -117,6 +117,10 @@ public:
   // automatically use the whole window. (Same if the rectangle is 0-sized.)
   Q_INVOKABLE void setVideoRectangle(int x, int y, int w, int h);
 
+  Q_INVOKABLE void setPlaybackRate(int rate);
+
+  Q_INVOKABLE qint64 getPosition();
+
   QRect videoRectangle() { return m_videoRectangle; }
 
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }

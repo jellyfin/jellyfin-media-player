@@ -946,6 +946,21 @@ void PlayerComponent::setSubtitleDelay(qint64 milliseconds)
   mpv::qt::set_property(m_mpv, "sub-delay", milliseconds / 1000.0);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setPlaybackRate(int rate)
+{
+  mpv::qt::set_property(m_mpv, "speed", rate / 1000.0);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+qint64 PlayerComponent::getPosition()
+{
+  QVariant time = mpv::qt::get_property(m_mpv, "playback-time");
+  if (time.canConvert(QMetaType::Double))
+    return time.toDouble();
+  return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // This is called with the set of previous audio devices that were detected, and the set of current
 // audio devices. From this we guess whether we should reopen the audio device. If the user-selected

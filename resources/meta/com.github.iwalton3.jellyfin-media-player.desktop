@@ -8,7 +8,7 @@ Terminal=false
 Type=Application
 Categories=AudioVideo;Video;Player;TV;
 
-Actions=TVF;TVW;DesktopF;DesktopW;
+Actions=DesktopF;DesktopW;
 
 [Desktop Action DesktopF]
 Name=Desktop [Fullscreen]

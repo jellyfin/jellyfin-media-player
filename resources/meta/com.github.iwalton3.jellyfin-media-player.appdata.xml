@@ -39,6 +39,14 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.2.1" date="2020-04-06">
+        <p>Changes:</p>
+        <ul>
+          <li>Fix external subtitle support.</li>
+          <li>Fix skipping to previous song twice setting random volume.</li>
+          <li>Make easier to compile on Linux.</li>
+        </ul>
+      </release>
       <release version="1.2.0" date="2020-04-05">
         <p>Changes:</p>
         <ul>

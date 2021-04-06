@@ -860,20 +860,10 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
       streamName = streamSelection.mid(splitPos + 1);
     }
   }
-  else if (!streamSelection.isEmpty())
+  else if (streamSelection.isEmpty())
   {
-    if (target == MediaType::Audio)
-    {
-      // For some reason, audio stream selections never start with '#'.
-      streamID = streamSelection;
-      streamName = "";
-    }
-    else
-    {
-      // Legacy web-client single external subtitle
-      streamID = "0";
-      streamName = streamSelection;
-    }
+    mpv::qt::set_property(m_mpv, streamIdPropertyName, "no");
+    return;
   }
 
   if (!streamName.isEmpty())
@@ -897,6 +887,9 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
     if (!streamID.isEmpty() && map["ff-index"].toString() == streamID)
     {
+      selection = map["id"].toString();
+      break;
+    } else if (streamID.isEmpty() && map["external-filename"].toString() == streamName) {
       selection = map["id"].toString();
       break;
     }

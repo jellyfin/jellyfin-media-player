@@ -48,7 +48,7 @@ player/PlayerComponent - [header](https://github.com/plexinc/plex-media-player/b
 - bool load(str url, dict options, dict metadata, str audioStream="", str subtitleStream="")
     - options: dict { int startMilliseconds, bool autoplay }
     - metadata: dict { bool interlaced, float frameRate, str type }
-        - type can be "video" or "audio"
+        - type can be "video" or "music"
     - audioStream: "#" + index from mkv, or pass external url
     - subtitleStream: "#" + index from mkv, or pass external url
 - void queueMedia(str url, dict options, dict metadata, str audioStream, str subtitleStream)

@@ -11,11 +11,8 @@ This build strips a lot of un-needed things from the player.
 ## Building at a glance (Linux)
 
 ```bash
-sudo apt install autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake wget python g++
+sudo apt install autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake wget python g++ qtwebengine5-dev qtquickcontrols2-5-dev libqt5x11extras5-dev libcec-dev qml-module-qtwebengine qml-module-qtwebchannel
 mkdir jmp; cd jmp
-wget http://download.qt.io/official_releases/qt/5.9/5.9.7/qt-opensource-linux-x64-5.9.7.run
-chmod +x qt-opensource-linux-x64-5.9.7.run
-sudo ./qt-opensource-linux-x64-5.9.7.run
 git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
 echo --enable-libmpv-shared > mpv_options
@@ -30,7 +27,7 @@ mkdir build
 cd build
 wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-1.7.0-2/dist.zip
 unzip dist.zip
-cmake -DCMAKE_BUILD_TYPE=Debug  -DQTROOT=/opt/Qt5.9.7/5.9.7/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
 make -j4
 sudo make install
 rm -rf ~/jmp/

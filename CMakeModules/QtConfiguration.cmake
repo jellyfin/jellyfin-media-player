@@ -5,7 +5,7 @@ if(WIN32)
   set(WINARCHSTR ARCHSTR windows-x86_64)
 endif(WIN32)
 
-if(NOT IS_DIRECTORY ${QTROOT})
+if((NOT IS_DIRECTORY ${QTROOT}) AND (NOT "${QTROOT}" STREQUAL ""))
   # Write qt.conf in the Qt depends directory so that the Qt tools can find QML files
   set(QTCONFCONTENT "[Paths]
     Prefix=${QTROOT}

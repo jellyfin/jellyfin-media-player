@@ -28,7 +28,7 @@ git clone git://github.com/iwalton3/jellyfin-media-player
 cd jellyfin-media-player
 mkdir build
 cd build
-wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/v1.1.0/dist.zip
+wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-1.7.0-2/dist.zip
 unzip dist.zip
 cmake -DCMAKE_BUILD_TYPE=Debug  -DQTROOT=/opt/Qt5.9.7/5.9.7/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
 make -j4
@@ -60,7 +60,7 @@ You need to run these commands in git bash.
 git clone https://github.com/iwalton3/jellyfin-media-player
 cd jellyfin-media-player
 mkdir build && cd build
-curl -L https://github.com/iwalton3/jellyfin-web-jmp/releases/download/v1.1.0/dist.zip > dist.zip
+curl -L https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-1.7.0-2/dist.zip > dist.zip
 unzip dist.zip
 ```
 

@@ -1,8 +1,8 @@
 set(app "${CMAKE_INSTALL_PREFIX}/@EXE@")
 set(weprocess "${app}/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
-
-list(APPEND BINS "Contents/Resources/updater")
-list(APPEND BINS "Contents/Resources/@HELPER_NAME@")
+if(HAVE_UPDATER)
+  list(APPEND BINS "Contents/Resources/updater")
+endif(HAVE_UPDATER)
 
 set(args ${app})
 list(APPEND args "-verbose=2")

@@ -40,10 +40,10 @@ Please install:
    - Add cmake to the path.
  - [ninja](https://github.com/ninja-build/ninja/releases)
    - Place this in the build directory.
- - [QT](http://download.qt.io/official_releases/qt/5.9/5.9.9/qt-opensource-windows-x86-5.9.9.exe)
-   - This file is huge. You also need to make a QT account...
-   - Check "MSVC 2017 64-bit" and "Qt WebEngine".
- - [VS2017 Build Tools](https://download.visualstudio.microsoft.com/download/pr/3e542575-929e-4297-b6c6-bef34d0ee648/639c868e1219c651793aff537a1d3b77/vs_buildtools.exe)
+ - [QT](https://www.qt.io/download-thank-you?hsLang=en)
+   - This package is huge. You also need to make a QT account...
+   - Check "MSVC 2019 64-bit" and "Qt WebEngine" under QT 5.15.2.
+ - [VS2019 Build Tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
    - Again this will use a lot of disk space. The installer is small though.
  - [libmpv1](https://sourceforge.net/projects/mpv-player-windows/files/libmpv/)
    - Place the contents in the build directory, in a subfolder called `mpv`.
@@ -61,11 +61,11 @@ curl -L https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-1.7.0
 unzip dist.zip
 ```
 
-Open the "x86_x64 Cross Tools Command Prompt for VS 2017". `cd` to the `build` directory. Run:
+Open the "x86_x64 Cross Tools Command Prompt for VS 2019". `cd` to the `build` directory. Run:
 
 ```
 set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin
-cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:/Qt/Qt5.9.9/5.9.9/msvc2017_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
+cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:/Qt/5.15.2/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
 lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
 ninja
 ninja windows_package

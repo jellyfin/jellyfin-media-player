@@ -1,0 +1,39 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # windows builds may need to specify building 64bit target:
+        # if [[ "$OSTYPE" == "msys" ]]; then export WINEXTRA="-DCMAKE_GENERATOR_PLATFORM=x64"; else export WINEXTRA=""; fi
+        os: [macOS-latest]
+        qt: [5.15.2]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Qt ${{ matrix.qt }}
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: ${{ matrix.qt }}
+        modules: "qtwebengine"
+        
+    - name: Install dependencies
+      run: |
+        brew update
+        brew install ninja
+        brew install mpv --HEAD
+    - name: Debug build and test
+      run: |
+        ./download_webclient.sh
+        cd build
+        cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
+        ninja install
+        
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: bundle.dmg
+        path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg

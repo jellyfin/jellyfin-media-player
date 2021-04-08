@@ -19,3 +19,4 @@ web-client
 .*libreelec*
 toolchain.cmake
 .sublime-settings
+.last_wc_version

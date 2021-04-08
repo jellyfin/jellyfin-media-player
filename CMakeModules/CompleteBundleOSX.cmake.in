@@ -16,7 +16,7 @@ set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
 
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E remove "${app}/Contents/Resources/qt.conf"
-  COMMAND "@QTROOT@/bin/macdeployqt" ${args}
+  COMMAND "@QTROOT@/bin/macdeployqt" ${args} "-dmg"
   WORKING_DIRECTORY "@QTROOT@/bin"
 )
 

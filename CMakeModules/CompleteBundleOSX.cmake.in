@@ -1,9 +1,6 @@
 set(app "${CMAKE_INSTALL_PREFIX}/@EXE@")
 set(weprocess "${app}/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
 
-list(APPEND BINS "Contents/Resources/updater")
-list(APPEND BINS "Contents/Resources/@HELPER_NAME@")
-
 set(args ${app})
 list(APPEND args "-verbose=2")
 list(APPEND args "-qmldir=@SOURCE_ROOT@/src/ui")
@@ -16,7 +13,7 @@ set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
 
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E remove "${app}/Contents/Resources/qt.conf"
-  COMMAND "@QTROOT@/bin/macdeployqt" ${args}
+  COMMAND "@QTROOT@/bin/macdeployqt" ${args} "-dmg"
   WORKING_DIRECTORY "@QTROOT@/bin"
 )
 

@@ -81,7 +81,6 @@ void ShowLicenseInfo()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStringList g_qtFlags = {
-  "--disable-gpu",
   "--disable-web-security"
 };
 
@@ -102,7 +101,8 @@ int main(int argc, char *argv[])
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
                        {"no-updates",              "Disable auto-updating"},
-                       {"terminal",                "Log to terminal"}});
+                       {"terminal",                "Log to terminal"},
+                       {"disable-gpu",             "Disable QtWebEngine gpu accel"}});
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
                                                           "the scale (DPI) of the desktop interface.");

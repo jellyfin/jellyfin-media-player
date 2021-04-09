@@ -82,8 +82,6 @@ You need:
 
 ## Building on Mac OS X
 
-I probably broke this...
-
 Configure
 
 If you're happy just building from the command line then run CMake for the ninja build tool:

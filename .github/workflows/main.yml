@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        grep -v libx11 /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
+        grep -v libx /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
         mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
         brew install cairo --build-from-source
         brew install harfbuzz --build-from-source

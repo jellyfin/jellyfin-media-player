@@ -727,10 +727,6 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
 {
   QString url;
 
-#ifdef KONVERGO_OPENELEC
-  desktop = false;
-#endif
-
   if (desktop)
     url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
   else
@@ -746,14 +742,41 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
   if (url == "bundled")
   {
     auto path = Paths::webClientPath(desktop ? "desktop" : "tv");
-    if (path.startsWith("/"))
-      url = "file://" + path;
     url = "file:///" + path;
   }
 
   QLOG_DEBUG() << "Using web-client URL: " << url;
 
   return url;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SettingsComponent::getExtensionPath()
+{
+  QString url;
+
+  url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_extension").toString();
+
+  if (url == "bundled")
+  {
+    auto path = Paths::webExtensionPath("extension");
+    url = path;
+  }
+
+  return url;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SettingsComponent::getClientName()
+{
+  QString name;
+  name = SettingsComponent::Get().value(SETTINGS_SECTION_SYSTEM, "systemname").toString();
+
+  if (name.compare("JellyfinMediaPlayer") == 0) {
+    name = Utils::ComputerName();
+  }
+
+  return name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

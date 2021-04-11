@@ -115,6 +115,20 @@ KonvergoWindow
     id: action_redo
   }
 
+  Action
+  {
+    shortcut: StandardKey.Back
+    onTriggered: runWebAction(WebEngineView.Back)
+    id: action_back
+  }
+
+  Action
+  {
+    shortcut: StandardKey.Forward
+    onTriggered: runWebAction(WebEngineView.Forward)
+    id: action_forward
+  }
+
   MpvVideo
   {
     id: video
@@ -138,6 +152,14 @@ KonvergoWindow
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
     width: mainWindow.width
     height: mainWindow.height
+    userScripts: [
+      WebEngineScript
+      {
+        sourceCode: components.system.getNativeShellScript()
+        injectionPoint: WebEngineScript.DocumentCreation
+        worldId: WebEngineScript.MainWorld
+      }
+    ]
 
     Component.onCompleted:
     {

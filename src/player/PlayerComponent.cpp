@@ -291,18 +291,6 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static bool IsPlexDirectURL(const QString& host)
-{
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-static QString ConvertPlexDirectURL(const QString& host)
-{
-  return host;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QString& audioStream, const QString& subtitleStream)
 {
   InputComponent::Get().cancelAutoRepeat();

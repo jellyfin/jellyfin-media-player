@@ -133,3 +133,10 @@ QString Paths::webClientPath(const QString& mode)
   QString webName = QString("web-client/%1").arg(mode);
   return resourceDir(webName + "/index.html");
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::webExtensionPath(const QString& mode)
+{
+  QString webName = QString("web-client/%1").arg(mode);
+  return resourceDir(webName + "/");
+}

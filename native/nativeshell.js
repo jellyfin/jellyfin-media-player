@@ -7,7 +7,7 @@ const features = [
     "htmlaudioautoplay",
     "htmlvideoautoplay",
     "externallinks",
-    //"clientsettings",
+    "clientsettings",
     "multiserver",
     "remotecontrol",
 ];
@@ -44,9 +44,9 @@ window.NativeShell = {
         window.api.system.openExternalUrl(downloadInfo.url);
     },
 
-    //openClientSettings() {
-    //    window.NativeInterface.openClientSettings();
-    //},
+    openClientSettings() {
+        showSettingsModal();
+    },
 
     getPlugins() {
         return plugins;
@@ -123,3 +123,122 @@ window.NativeShell.AppHost = {
         return viewdata.deviceName;
     }
 };
+
+async function showSettingsModal() {
+    const settings = await new Promise(resolve => {
+        window.api.settings.settingDescriptions(resolve);
+    });
+
+    const modalContainer = document.createElement("div");
+    Object.assign(modalContainer.style, {
+        position: "fixed",
+        top: 10,
+        bottom: 10,
+        left: 10,
+        right: 10,
+        zIndex: 2000,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#000000C0",
+        display: "flex",
+        justifyContent: "center"
+    });
+    modalContainer.addEventListener("click", e => {
+        if (e.target == modalContainer) {
+            modalContainer.remove();
+        }
+    });
+    document.body.appendChild(modalContainer);
+
+    const modalContainer2 = document.createElement("div");
+    Object.assign(modalContainer2.style, {
+        width: "100%",
+        maxWidth: "500px",
+        overflowY: "auto",
+        margin: "20px",
+        height: "auto"
+    });
+    modalContainer.appendChild(modalContainer2);
+
+    const modal = document.createElement("div");
+    Object.assign(modal.style, {
+        width: "100%",
+        padding: "20px",
+        boxSizing: "border-box",
+        backgroundColor: "#202020",
+        height: "min-content"
+    });
+    modalContainer2.appendChild(modal);
+
+    const title = document.createElement("h1");
+    title.textContent = "Jellyfin Media Player Settings";
+    modal.appendChild(title);
+
+    for (const section of settings) {
+        const values = await new Promise(resolve => {
+            window.api.settings.allValues(section.key, resolve);
+        });
+
+        const group = document.createElement("fieldset");
+        const legend = document.createElement("legend");
+        legend.textContent = section.key;
+        modal.appendChild(group);
+        group.appendChild(legend);
+
+        for (const setting of section.settings) {
+            const label = document.createElement("label");
+            label.style.display = "block";
+            if (setting.options) {
+                const safeValues = {};
+                const control = document.createElement("select");
+                for (const option of setting.options) {
+                    safeValues[String(option.value)] = option.value;
+                    const opt = document.createElement("option");
+                    opt.value = option.value;
+                    opt.selected = option.value == values[setting.key];
+                    let optionName = option.title;
+                    const swTest = `${section.key}.${setting.key}.`;
+                    const swTest2 = `${section.key}.`;
+                    if (optionName.startsWith(swTest)) {
+                        optionName = optionName.substring(swTest.length);
+                    } else if (optionName.startsWith(swTest2)) {
+                        optionName = optionName.substring(swTest2.length);
+                    }
+                    opt.appendChild(document.createTextNode(optionName));
+                    control.appendChild(opt);
+                }
+                control.addEventListener("change", e => {
+                    window.api.settings.setValue(section.key, setting.key, safeValues[e.target.value]);
+                });
+                label.appendChild(document.createTextNode(setting.key + " "));
+                label.appendChild(control);
+            } else {
+                const control = document.createElement("input");
+                control.type = "checkbox";
+                control.checked = values[setting.key];
+                control.addEventListener("change", e => {
+                    window.api.settings.setValue(section.key, setting.key, e.target.checked);
+                });
+                label.appendChild(control);
+                label.appendChild(document.createTextNode(" " + setting.key));
+            }
+            group.appendChild(label);
+        }
+    }
+
+    const closeContainer = document.createElement("div");
+    Object.assign(closeContainer.style, {
+        width: "100%",
+        display: "flex",
+        justifyContent: "flex-end",
+        paddingTop: "10px"
+    });
+    modal.appendChild(closeContainer);
+
+    const close = document.createElement("button");
+    close.textContent = "Close"
+    close.addEventListener("click", () => {
+        modalContainer.remove();
+    });
+    closeContainer.appendChild(close);
+}

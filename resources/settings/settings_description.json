@@ -89,7 +89,8 @@
       },
       {
         "value": "disablemouse",
-        "default": false
+        "default": false,
+        "hidden": true
       },
       {
         "value": "logLevel",

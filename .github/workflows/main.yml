@@ -24,6 +24,7 @@ jobs:
       run: |
         brew update
         brew install ninja
+        brew install ffmpeg --disable-libxcb --disable-libxcb-shm --disable-libxcb-xfixes
         brew install mpv
     - name: Debug build and test
       run: |

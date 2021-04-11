@@ -31,7 +31,7 @@
       {
         "value": "layout",
         "default": "auto",
-        "hidden": false,
+        "hidden": true,
         "possible_values": [
           [ "auto", "auto" ],
           [ "tv", "tv" ]
@@ -64,16 +64,19 @@
       },
       {
         "value": "automaticUpdates",
-        "default": true
+        "default": true,
+        "hidden": true
       },
       {
         "value": "manualUpdateCheck",
         "input_type": "button",
-        "default": true
+        "default": true,
+        "hidden": true
       },
       {
         "value": "updateChannel",
         "default": 0,
+        "hidden": true,
         "possible_values": [
           [ 0, "Stable" ]
         ]
@@ -276,11 +279,13 @@
       },
       {
         "value": "directPlay",
-        "default": true
+        "default": true,
+        "hidden": true
       },
       {
         "value": "directStream",
-        "default": true
+        "default": true,
+        "hidden": true
       },
       {
         "value": "sync_mode",
@@ -399,6 +404,7 @@
   },
   {
     "section": "manualServers",
+    "hidden": true,
     "values": [
       {
         "value": "ip1",
@@ -437,6 +443,10 @@
       {
         "value": "helperprogram",
         "default": ""
+      },
+      {
+        "value": "startupurl_extension",
+        "default": "bundled"
       }
     ]
   },
@@ -492,6 +502,7 @@
   },
   {
     "section": "system",
+    "hidden": true,
     "values": [
         {
           "value": "systemname",
@@ -518,7 +529,7 @@
   },
   {
     "section": "privacy",
-    "hidden": false,
+    "hidden": true,
     "values": []
   }
 ]

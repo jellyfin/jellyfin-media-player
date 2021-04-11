@@ -125,7 +125,7 @@ window.NativeShell.AppHost = {
 };
 
 async function showSettingsModal() {
-    const settings = await new Promise(resolve => {
+    let settings = await new Promise(resolve => {
         window.api.settings.settingDescriptions(resolve);
     });
 
@@ -174,56 +174,73 @@ async function showSettingsModal() {
     title.textContent = "Jellyfin Media Player Settings";
     modal.appendChild(title);
 
-    for (const section of settings) {
-        const values = await new Promise(resolve => {
-            window.api.settings.allValues(section.key, resolve);
-        });
-
+    for (let section of settings) {
         const group = document.createElement("fieldset");
-        const legend = document.createElement("legend");
-        legend.textContent = section.key;
         modal.appendChild(group);
-        group.appendChild(legend);
 
-        for (const setting of section.settings) {
-            const label = document.createElement("label");
-            label.style.display = "block";
-            if (setting.options) {
-                const safeValues = {};
-                const control = document.createElement("select");
-                for (const option of setting.options) {
-                    safeValues[String(option.value)] = option.value;
-                    const opt = document.createElement("option");
-                    opt.value = option.value;
-                    opt.selected = option.value == values[setting.key];
-                    let optionName = option.title;
-                    const swTest = `${section.key}.${setting.key}.`;
-                    const swTest2 = `${section.key}.`;
-                    if (optionName.startsWith(swTest)) {
-                        optionName = optionName.substring(swTest.length);
-                    } else if (optionName.startsWith(swTest2)) {
-                        optionName = optionName.substring(swTest2.length);
-                    }
-                    opt.appendChild(document.createTextNode(optionName));
-                    control.appendChild(opt);
-                }
-                control.addEventListener("change", e => {
-                    window.api.settings.setValue(section.key, setting.key, safeValues[e.target.value]);
-                });
-                label.appendChild(document.createTextNode(setting.key + " "));
-                label.appendChild(control);
-            } else {
-                const control = document.createElement("input");
-                control.type = "checkbox";
-                control.checked = values[setting.key];
-                control.addEventListener("change", e => {
-                    window.api.settings.setValue(section.key, setting.key, e.target.checked);
-                });
-                label.appendChild(control);
-                label.appendChild(document.createTextNode(" " + setting.key));
+        const createSection = async (clear) => {
+            if (clear) {
+                group.innerHTML = "";
             }
-            group.appendChild(label);
-        }
+
+            const values = await new Promise(resolve => {
+                window.api.settings.allValues(section.key, resolve);
+            });
+
+            const legend = document.createElement("legend");
+            legend.textContent = section.key;
+            group.appendChild(legend);
+
+            for (const setting of section.settings) {
+                const label = document.createElement("label");
+                label.style.display = "block";
+                if (setting.options) {
+                    const safeValues = {};
+                    const control = document.createElement("select");
+                    for (const option of setting.options) {
+                        safeValues[String(option.value)] = option.value;
+                        const opt = document.createElement("option");
+                        opt.value = option.value;
+                        opt.selected = option.value == values[setting.key];
+                        let optionName = option.title;
+                        const swTest = `${section.key}.${setting.key}.`;
+                        const swTest2 = `${section.key}.`;
+                        if (optionName.startsWith(swTest)) {
+                            optionName = optionName.substring(swTest.length);
+                        } else if (optionName.startsWith(swTest2)) {
+                            optionName = optionName.substring(swTest2.length);
+                        }
+                        opt.appendChild(document.createTextNode(optionName));
+                        control.appendChild(opt);
+                    }
+                    control.addEventListener("change", async (e) => {
+                        await new Promise(resolve => {
+                            window.api.settings.setValue(section.key, setting.key, safeValues[e.target.value], resolve);
+                        });
+
+                        if (setting.key == "devicetype") {
+                            section = (await new Promise(resolve => {
+                                window.api.settings.settingDescriptions(resolve);
+                            })).filter(x => x.key == section.key)[0];
+                            createSection(true);
+                        }
+                    });
+                    label.appendChild(document.createTextNode(setting.key + " "));
+                    label.appendChild(control);
+                } else {
+                    const control = document.createElement("input");
+                    control.type = "checkbox";
+                    control.checked = values[setting.key];
+                    control.addEventListener("change", e => {
+                        window.api.settings.setValue(section.key, setting.key, e.target.checked);
+                    });
+                    label.appendChild(control);
+                    label.appendChild(document.createTextNode(" " + setting.key));
+                }
+                group.appendChild(label);
+            }
+        };
+        createSection();
     }
 
     const closeContainer = document.createElement("div");

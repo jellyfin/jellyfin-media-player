@@ -27,8 +27,9 @@ jobs:
         mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
         brew install cairo --build-from-source
         brew install harfbuzz --build-from-source
+        brew install ffmpeg --build-from-source
         brew install ninja
-        brew install mpv
+        brew install mpv --build-from-source
     - name: Debug build and test
       run: |
         ./download_webclient.sh

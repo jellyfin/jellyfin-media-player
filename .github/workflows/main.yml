@@ -24,7 +24,7 @@ jobs:
       run: |
         brew update
         brew install ninja
-        brew install mpv --HEAD
+        brew install mpv
     - name: Debug build and test
       run: |
         ./download_webclient.sh

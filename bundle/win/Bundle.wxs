@@ -244,7 +244,7 @@
         <MsiProperty Name="WINDOWSTYPE" Value="[WinRegInstallationType]" />
       </MsiPackage>
       <ExePackage Id="vcredist_repair"
-                  SourceFile="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Redist\MSVC\14.16.27012\vcredist_x64.exe"
+                  SourceFile="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Redist\MSVC\v142\vcredist_x64.exe"
                   Name="vcredist_x64.exe"
                   InstallCommand="/repair /quiet /norestart"
                   InstallCondition="Bad_VCRedist"
@@ -254,7 +254,7 @@
         <ExitCode Value="1638" Behavior="success"/>
       </ExePackage>
       <ExePackage Id="vcredist"
-                  SourceFile="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Redist\MSVC\14.16.27012\vcredist_x64.exe"
+                  SourceFile="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Redist\MSVC\v142\vcredist_x64.exe"
                   Name="vcredist_x64.exe"
                   InstallCommand="/install /quiet /norestart"
                   InstallCondition="NOT Bad_VCRedist"

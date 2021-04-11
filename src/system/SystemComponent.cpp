@@ -5,6 +5,7 @@
 #include <QGuiApplication>
 #include <QDesktopServices>
 #include <QDir>
+#include <QJsonObject>
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
@@ -332,6 +333,22 @@ void SystemComponent::hello(const QString& version)
 {
   QLOG_DEBUG() << QString("Web-client (%1) fully inited.").arg(version);
   m_webClientVersion = version;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SystemComponent::getNativeShellScript()
+{
+  auto path = SettingsComponent::Get().getExtensionPath();
+  QLOG_DEBUG() << QString("Using path for extension: %1").arg(path);
+
+  QFile file {path + "nativeshell.js"};
+  file.open(QIODevice::ReadOnly);
+  auto nativeshellString = QTextStream(&file).readAll();
+  QJsonObject clientData;
+  clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
+  clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
+  nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
+  return nativeshellString;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

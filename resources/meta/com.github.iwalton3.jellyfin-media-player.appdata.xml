@@ -39,6 +39,20 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.3.0" date="2020-04-11">
+        <p>Changes:</p>
+        <ul>
+          <li>Add settings menu for built-in player settings.</li>
+          <li>Add hardware acceleration in the web view. (disable with --disable-gpu)</li>
+          <li>Make subtitle position and scale settings work with SSA and bitmap subtitles.</li>
+          <li>Switch to NativeShell interface for jellyfin-web extensions.</li>
+          <li>Fix video download option to open links in browser.</li>
+          <li>Fix up next dialog hiding the player UI.</li>
+          <li>Add support for remote devtools.</li>
+          <li>Properly advertise player name, version, and computer name.</li>
+          <li>Fix F11 key for fullscreen.</li>
+        </ul>
+      </release>
       <release version="1.2.1" date="2020-04-06">
         <p>Changes:</p>
         <ul>

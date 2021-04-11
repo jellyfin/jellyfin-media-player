@@ -47,6 +47,8 @@ public:
 
   Q_INVOKABLE void runUserScript(QString script);
 
+  Q_INVOKABLE QString getNativeShellScript();
+
   // called by the web-client when everything is properly inited
   Q_INVOKABLE void hello(const QString& version);
 

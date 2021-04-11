@@ -291,18 +291,6 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static bool IsPlexDirectURL(const QString& host)
-{
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-static QString ConvertPlexDirectURL(const QString& host)
-{
-  return host;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QString& audioStream, const QString& subtitleStream)
 {
   InputComponent::Get().cancelAutoRepeat();
@@ -1132,22 +1120,22 @@ void PlayerComponent::setAudioConfiguration()
 void PlayerComponent::updateSubtitleSettings()
 {
   QVariant size = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "size");
-  mpv::qt::set_property(m_mpv, "sub-text-font-size", size);
+  mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
 
   QVariant colorsString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "color");
   auto colors = colorsString.toString().split(",");
   if (colors.length() == 2)
   {
-    mpv::qt::set_property(m_mpv, "sub-text-color", colors[0]);
-    mpv::qt::set_property(m_mpv, "sub-text-border-color", colors[1]);
+    mpv::qt::set_property(m_mpv, "sub-color", colors[0]);
+    mpv::qt::set_property(m_mpv, "sub-border-color", colors[1]);
   }
 
   QVariant subposString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "placement");
   auto subpos = subposString.toString().split(",");
   if (subpos.length() == 2)
   {
-    mpv::qt::set_property(m_mpv, "sub-text-align-x", subpos[0]);
-    mpv::qt::set_property(m_mpv, "sub-text-align-y", subpos[1]);
+    mpv::qt::set_property(m_mpv, "sub-align-x", subpos[0]);
+    mpv::qt::set_property(m_mpv, "sub-pos", subpos[1] == "bottom" ? 100 : 10);
   }
 }
 

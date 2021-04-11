@@ -108,7 +108,11 @@ int main(int argc, char *argv[])
                                                           "the scale (DPI) of the desktop interface.");
     scaleOption.setValueName("scale");
     scaleOption.setDefaultValue("auto");
+    
+    auto devOption = QCommandLineOption("remote-debugging-port", "Port number for devtools.");
+    devOption.setValueName("port");
     parser.addOption(scaleOption);
+    parser.addOption(devOption);
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     int newArgc = argc + g_qtFlags.size();

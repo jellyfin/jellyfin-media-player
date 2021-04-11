@@ -23,8 +23,10 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
+        grep -v libx11 /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
+        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
+        brew install cairo --build-from-source
         brew install ninja
-        brew install ffmpeg --disable-libxcb --disable-libxcb-shm --disable-libxcb-xfixes
         brew install mpv
     - name: Debug build and test
       run: |

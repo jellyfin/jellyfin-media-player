@@ -348,7 +348,6 @@ QString SystemComponent::getNativeShellScript()
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
   nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
-  QLOG_DEBUG() << nativeshellString;
   return nativeshellString;
 }
 

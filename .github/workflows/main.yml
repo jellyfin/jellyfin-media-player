@@ -26,6 +26,7 @@ jobs:
         grep -v libx11 /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
         mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
         brew install cairo --build-from-source
+        brew install harfbuzz --build-from-source
         brew install ninja
         brew install mpv
     - name: Debug build and test

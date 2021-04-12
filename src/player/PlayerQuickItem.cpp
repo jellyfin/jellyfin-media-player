@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include <QOpenGLContext>
 #include <QRunnable>
 
@@ -101,14 +102,20 @@ mpv_opengl_init_params opengl_params = {
 #endif
 };
 
+  const QString platformName = QGuiApplication::platformName();
+
   mpv_render_param params[] = {
     {MPV_RENDER_PARAM_API_TYPE, (void*)MPV_RENDER_API_TYPE_OPENGL},
     {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &opengl_params},
-#ifdef USE_X11EXTRAS
-    {MPV_RENDER_PARAM_X11_DISPLAY, QX11Info::display()},
-#endif
+    {MPV_RENDER_PARAM_INVALID},
     {MPV_RENDER_PARAM_INVALID},
   };
+#ifdef USE_X11EXTRAS
+  if (platformName.contains("xcb")) {
+    params[2].type = MPV_RENDER_PARAM_X11_DISPLAY;
+    params[2].data = QX11Info::display();
+  }
+#endif
   int err = mpv_render_context_create(&m_mpvGL, m_mpv, params);
 
   if (err >= 0) {

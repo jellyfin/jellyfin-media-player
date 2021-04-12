@@ -1,0 +1,8 @@
+tar-ignore='.git*'
+tar-ignore='**/.git'
+tar-ignore='**/.hg'
+tar-ignore='**/.vs'
+tar-ignore='**/.vscode'
+tar-ignore='deployment'
+tar-ignore='*.deb'
+tar-ignore='ThirdParty'

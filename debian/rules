@@ -1,0 +1,15 @@
+#! /usr/bin/make -f
+
+JWC_RELEASE := 1.7.1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	dh_auto_build $@
+	wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-$(JWC_RELEASE)/dist.zip
+	unzip dist.zip -d obj-x86_64-linux-gnu/
+
+override_dh_auto_clean:
+	dh_auto_clean $@
+	rm dist.zip

@@ -12,4 +12,4 @@ override_dh_auto_build:
 
 override_dh_auto_clean:
 	dh_auto_clean $@
-	rm dist.zip
+	rm dist.zip || true

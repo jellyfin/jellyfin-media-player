@@ -90,7 +90,7 @@ jobs:
         ninja
         ninja windows_package
     - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: installer.exe
-          path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*-windows-x64.exe
+      uses: actions/upload-artifact@v2
+      with:
+        name: installer.exe
+        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*-windows-x64.exe

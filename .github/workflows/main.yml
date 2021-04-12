@@ -54,7 +54,6 @@ jobs:
       matrix:
         os: [windows-latest]
         qt: [5.15.2]
-        arch: "win64_msvc2019_64"
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -64,6 +63,7 @@ jobs:
       with:
         version: ${{ matrix.qt }}
         modules: "qtwebengine"
+        arch: "win64_msvc2019_64"
     - name: Install dependencies
       run: |
         ./download_webclient.sh

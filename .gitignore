@@ -20,4 +20,6 @@ web-client
 toolchain.cmake
 .sublime-settings
 .last_wc_version
-debian/jellyfin-media-player.debhelper.log
+debian/*.debhelper.log
+dist.zip
+obj-x86_64-linux-gnu/

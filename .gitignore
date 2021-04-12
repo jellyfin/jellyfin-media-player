@@ -21,5 +21,9 @@ toolchain.cmake
 .sublime-settings
 .last_wc_version
 debian/*.debhelper.log
+debian/.debhelper/
+debian/jellyfin-media-player/
+debian/files
+debian/jellyfin-media-player.substvars
 dist.zip
 obj-x86_64-linux-gnu/

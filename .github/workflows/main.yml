@@ -28,7 +28,9 @@ jobs:
         brew install cairo --build-from-source
         brew install harfbuzz --build-from-source
         brew install libass --build-from-source
-        brew install ffmpeg --build-from-source --enable-static --disable-shared
+        sed 's/args = %W\[/&\n      --enable-static\n      --disable-shared/g' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb > _tmp
+        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb
+        brew install ffmpeg --build-from-source
         brew install ninja
         grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
         mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb

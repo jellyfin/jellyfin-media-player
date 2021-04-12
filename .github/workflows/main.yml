@@ -29,7 +29,7 @@ jobs:
         brew install harfbuzz --build-from-source
         brew install libass --build-from-source
         brew install ninja
-        brew install mpv
+        brew install mpv --build-from-source
     - name: Debug build and test
       run: |
         ./download_webclient.sh

@@ -104,6 +104,10 @@
              * @type {float}
              */
             this._playRate = 1;
+            /**
+             * @type {boolean}
+             */
+            this._hasConnection = false;
 
             /**
              * @private
@@ -382,6 +386,7 @@
             document.body.classList.remove('hide-scroll');
 
             const player = window.api.player;
+            this._hasConnection = false;
             player.playing.disconnect(this.onPlaying);
             player.positionUpdate.disconnect(this.onTimeUpdate);
             player.finished.disconnect(this.onEnded);
@@ -433,12 +438,15 @@
                 document.body.insertBefore(dlg, document.body.firstChild);
                 this._videoDialog = dlg;
                 const player = window.api.player;
-                player.playing.connect(this.onPlaying);
-                player.positionUpdate.connect(this.onTimeUpdate);
-                player.finished.connect(this.onEnded);
-                player.updateDuration.connect(this.onDuration);
-                player.error.connect(this.onError);
-                player.paused.connect(this.onPause);
+                if (!this._hasConnection) {
+                    this._hasConnection = true;
+                    player.playing.connect(this.onPlaying);
+                    player.positionUpdate.connect(this.onTimeUpdate);
+                    player.finished.connect(this.onEnded);
+                    player.updateDuration.connect(this.onDuration);
+                    player.error.connect(this.onError);
+                    player.paused.connect(this.onPause);    
+                }
 
                 if (options.fullscreen) {
                     // At this point, we must hide the scrollbar placeholder, so it's not being displayed while the item is being loaded

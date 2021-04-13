@@ -5,50 +5,50 @@ on:
     branches:
       - release
 jobs:
-  # build-mac:
-  #   strategy:
-  #     matrix:
-  #       # windows builds may need to specify building 64bit target:
-  #       # if [[ "$OSTYPE" == "msys" ]]; then export WINEXTRA="-DCMAKE_GENERATOR_PLATFORM=x64"; else export WINEXTRA=""; fi
-  #       os: [macOS-latest]
-  #       qt: [5.15.2]
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #   - uses: actions/checkout@v2
+  build-mac:
+    strategy:
+      matrix:
+        # windows builds may need to specify building 64bit target:
+        # if [[ "$OSTYPE" == "msys" ]]; then export WINEXTRA="-DCMAKE_GENERATOR_PLATFORM=x64"; else export WINEXTRA=""; fi
+        os: [macOS-latest]
+        qt: [5.15.2]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
 
-  #   - name: Install Qt ${{ matrix.qt }}
-  #     uses: jurplel/install-qt-action@v2
-  #     with:
-  #       version: ${{ matrix.qt }}
-  #       modules: "qtwebengine"
+    - name: Install Qt ${{ matrix.qt }}
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: ${{ matrix.qt }}
+        modules: "qtwebengine"
         
-  #   - name: Install dependencies
-  #     run: |
-  #       brew update
-  #       grep -v libx /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
-  #       mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
-  #       brew install cairo --build-from-source
-  #       brew install harfbuzz --build-from-source
-  #       brew install libass --build-from-source
-  #       sed 's/args = %W\[/& --enable-static --disable-shared/g' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb > _tmp
-  #       mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb
-  #       brew install ffmpeg --build-from-source
-  #       brew install ninja
-  #       grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
-  #       mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb
-  #       brew install mpv --build-from-source
-  #   - name: Debug build and test
-  #     run: |
-  #       ./download_webclient.sh
-  #       cd build
-  #       cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
-  #       ninja install
+    - name: Install dependencies
+      run: |
+        brew update
+        grep -v libx /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
+        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
+        brew install cairo --build-from-source
+        brew install harfbuzz --build-from-source
+        brew install libass --build-from-source
+        sed 's/args = %W\[/& --enable-static --disable-shared/g' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb > _tmp
+        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb
+        brew install ffmpeg --build-from-source
+        brew install ninja
+        grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
+        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb
+        brew install mpv --build-from-source
+    - name: Debug build and test
+      run: |
+        ./download_webclient.sh
+        cd build
+        cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
+        ninja install
         
-  #   - name: Archive production artifacts
-  #     uses: actions/upload-artifact@v2
-  #     with:
-  #       name: bundle.dmg
-  #       path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: bundle.dmg
+        path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
   build-win:
     strategy:
       matrix:

@@ -61,6 +61,7 @@ jobs:
       run: |
         ls "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/"*
         exit 1
+      shell: bash
     - name: Install Qt ${{ matrix.qt }}
       uses: jurplel/install-qt-action@v2
       with:

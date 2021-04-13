@@ -162,12 +162,14 @@ async function showSettingsModal() {
     modalContainer.appendChild(modalContainer2);
 
     const modal = document.createElement("div");
+    modal.className = "jmp-settings-modal";
     Object.assign(modal.style, {
         width: "100%",
         padding: "20px",
         boxSizing: "border-box",
         backgroundColor: "#202020",
-        height: "min-content"
+        height: "min-content",
+        color: "#fff"
     });
     modalContainer2.appendChild(modal);
 

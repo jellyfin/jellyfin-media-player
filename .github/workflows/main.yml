@@ -6,21 +6,14 @@ on:
       - release
 jobs:
   build-mac:
-    strategy:
-      matrix:
-        # windows builds may need to specify building 64bit target:
-        # if [[ "$OSTYPE" == "msys" ]]; then export WINEXTRA="-DCMAKE_GENERATOR_PLATFORM=x64"; else export WINEXTRA=""; fi
-        os: [macOS-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-
     - name: Install Qt 5.15.2
       uses: jurplel/install-qt-action@v2
       with:
         version: "5.15.2"
-        modules: "qtwebengine"
-        
+        modules: "qtwebengine"  
     - name: Install dependencies
       run: |
         brew update
@@ -36,30 +29,28 @@ jobs:
         grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
         mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb
         brew install mpv --build-from-source
-    - name: Debug build and test
+    - name: Release build
       run: |
         ./download_webclient.sh
         cd build
         cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
         ninja install
-        
     - name: Archive production artifacts
       uses: actions/upload-artifact@v2
       with:
         name: macos
         path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
-  build-win:
-    strategy:
-      matrix:
-        os: [windows-latest]
-    runs-on: ${{ matrix.os }}
+        
+  build-win64:
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install QT
-      run: |
-        python -m pip install aqtinstall==1.1.3
-        python -m aqt install 5.15.2 windows desktop win64_msvc2019_64 -m qtwebengine -O D:\a\Qt
-      shell: cmd
+    - name: Install Qt 5.15.2
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: "5.15.2"
+        arch: "win64_msvc2019_64"
+        modules: "qtwebengine"
     - name: Install dependencies
       run: |
         ./download_webclient.sh
@@ -83,7 +74,7 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cd build
         set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
-        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=D:/a/Qt/5.15.2/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
         lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
         ninja
         ninja windows_package
@@ -92,13 +83,57 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: windows
-        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*-windows-x64.exe
+        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
+
+  build-win32:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Qt 5.15.2
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: "5.15.2"
+        arch: "win64_msvc2019_32"
+        modules: "qtwebengine"
+    - name: Install dependencies
+      run: |
+        ./download_webclient.sh
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
+        curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
+        unzip ninja.zip
+        mv ninja.exe build/
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20210404-git-dd86f19.7z/download > mpv.7z
+        7z x mpv.7z
+        mv include mpv
+        mkdir include
+        mv mpv include
+        mkdir mpv
+        mv include mpv
+        mv mpv-1.dll mpv/mpv.dll
+        mv mpv.def libmpv.dll.a mpv/
+        mv mpv build/
+      shell: bash
+    - name: Build
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        cd build
+        set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
+        lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
+        ninja
+        ninja windows_package
+      shell: cmd
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows-legacy32
+        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
+
   build-ubuntu:
     strategy:
       matrix:
-        os: [ubuntu-latest]
         tag: [focal, groovy]
-    runs-on: ${{ matrix.os }}
+    runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
     - name: Docker Build
@@ -110,12 +145,12 @@ jobs:
       with:
         name: ubuntu-${{ matrix.tag }}
         path: ${{ github.workspace }}/deployment/dist/*
+
   build-debian:
     strategy:
       matrix:
-        os: [ubuntu-latest]
         tag: [buster, bullseye]
-    runs-on: ${{ matrix.os }}
+    runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
     - name: Docker Build

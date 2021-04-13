@@ -88,9 +88,8 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        os: [ubuntu-latest]
         tag: [focal, groovy]
-    runs-on: ${{ matrix.os }}
+    runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
     - name: Docker Build
@@ -106,9 +105,8 @@ jobs:
   build-debian:
     strategy:
       matrix:
-        os: [ubuntu-latest]
         tag: [buster, bullseye]
-    runs-on: ${{ matrix.os }}
+    runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
     - name: Docker Build

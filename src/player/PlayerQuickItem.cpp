@@ -26,6 +26,7 @@
 
 #ifdef USE_X11EXTRAS
 #include <QX11Info>
+#include <qpa/qplatformnativeinterface.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +115,10 @@ mpv_opengl_init_params opengl_params = {
   if (platformName.contains("xcb")) {
     params[2].type = MPV_RENDER_PARAM_X11_DISPLAY;
     params[2].data = QX11Info::display();
+  } else if (platformName.contains("wayland")) {
+    QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
+    params[2].type = MPV_RENDER_PARAM_WL_DISPLAY;
+    params[2].data = native->nativeResourceForWindow("display", NULL);
   }
 #endif
   int err = mpv_render_context_create(&m_mpvGL, m_mpv, params);

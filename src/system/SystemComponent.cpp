@@ -223,29 +223,29 @@ QString SystemComponent::debugInformation()
   QString debugInfo;
   QTextStream stream(&debugInfo);
 
-  stream << "Jellyfin Media Player" << endl;
-  stream << "  Version: " << Version::GetVersionString() << " built: " << Version::GetBuildDate() << endl;
-  stream << "  Web Client Version: " << Version::GetWebVersion() << endl;
-  stream << "  Web Client URL: " << SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString() << endl;
-  stream << "  Platform: " << getPlatformTypeString() << "-" << getPlatformArchString() << endl;
-  stream << "  User-Agent: " << getUserAgent() << endl;
-  stream << "  Qt version: " << qVersion() << QString("(%1)").arg(Version::GetQtDepsVersion()) << endl;
-  stream << "  Depends version: " << Version::GetDependenciesVersion() << endl;
-  stream << endl;
+  stream << "Jellyfin Media Player\n";
+  stream << "  Version: " << Version::GetVersionString() << " built: " << Version::GetBuildDate() << "\n";
+  stream << "  Web Client Version: " << Version::GetWebVersion() << "\n";
+  stream << "  Web Client URL: " << SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString() << "\n";
+  stream << "  Platform: " << getPlatformTypeString() << "-" << getPlatformArchString() << "\n";
+  stream << "  User-Agent: " << getUserAgent() << "\n";
+  stream << "  Qt version: " << qVersion() << QString("(%1)").arg(Version::GetQtDepsVersion()) << "\n";
+  stream << "  Depends version: " << Version::GetDependenciesVersion() << "\n";
+  stream << "\n";
 
-  stream << "Files" << endl;
-  stream << "  Log file: " << Paths::logDir(Names::MainName() + ".log") << endl;
-  stream << "  Config file: " << Paths::dataDir(Names::MainName() + ".conf") << endl;
-  stream << endl;
+  stream << "Files\n";
+  stream << "  Log file: " << Paths::logDir(Names::MainName() + ".log") << "\n";
+  stream << "  Config file: " << Paths::dataDir(Names::MainName() + ".conf") << "\n";
+  stream << "\n";
 
-  stream << "Network Addresses" << endl;
+  stream << "Network Addresses\n";
   for(const QString& addr : networkAddresses())
   {
-    stream << "  " << addr << endl;
+    stream << "  " << addr << "\n";
   }
-  stream << endl;
+  stream << "\n";
 
-  stream << flush;
+  stream.flush();
   return debugInfo;
 }
 

@@ -192,8 +192,8 @@ int DisplayManagerX11::getDisplayFromPoint(int x, int y)
       goto done;
 
     matches = x >= crtc->x && y >= crtc->y &&
-              x < crtc->x + crtc->width &&
-              y < crtc->y + crtc->height;
+              x < crtc->x + (int)crtc->width &&
+              y < crtc->y + (int)crtc->height;
 
   done:
     if (crtc)

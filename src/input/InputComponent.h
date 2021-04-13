@@ -7,7 +7,7 @@
 #include <QThread>
 #include <QVariantMap>
 #include <QTimer>
-#include <QTime>
+#include <QElapsedTimer>
 
 #include <functional>
 
@@ -131,7 +131,7 @@ private:
   QStringList m_autoRepeatActions;
 
   QVariantMap m_currentLongPressAction;
-  QTime m_longHoldTimer;
+  QElapsedTimer m_longHoldTimer;
 };
 
 #endif // INPUTADAPTER_H

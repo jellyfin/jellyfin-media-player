@@ -141,7 +141,7 @@ void QsLogging::FileDestination::write(const QString& message, Level)
   if (mRotationStrategy->shouldRotate())
     rotate();
 
-  mOutputStream << message << endl;
+  mOutputStream << message << "\n";
   mOutputStream.flush();
 }
 

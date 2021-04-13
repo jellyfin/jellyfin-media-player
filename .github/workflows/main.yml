@@ -41,7 +41,7 @@ jobs:
         name: macos
         path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
         
-  build-win:
+  build-win64:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -83,7 +83,51 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: windows
-        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*-windows-x64.exe
+        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
+
+  build-win32:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Qt 5.15.2
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: "5.15.2"
+        arch: "win64_msvc2019_32"
+        modules: "qtwebengine"
+    - name: Install dependencies
+      run: |
+        ./download_webclient.sh
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
+        curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
+        unzip ninja.zip
+        mv ninja.exe build/
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20210404-git-dd86f19.7z/download > mpv.7z
+        7z x mpv.7z
+        mv include mpv
+        mkdir include
+        mv mpv include
+        mkdir mpv
+        mv include mpv
+        mv mpv-1.dll mpv/mpv.dll
+        mv mpv.def libmpv.dll.a mpv/
+        mv mpv build/
+      shell: bash
+    - name: Build
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        cd build
+        set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
+        lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
+        ninja
+        ninja windows_package
+      shell: cmd
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows-legacy32
+        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
 
   build-ubuntu:
     strategy:

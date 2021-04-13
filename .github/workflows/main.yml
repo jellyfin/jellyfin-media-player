@@ -5,64 +5,61 @@ on:
     branches:
       - release
 jobs:
-  build-mac:
-    strategy:
-      matrix:
-        # windows builds may need to specify building 64bit target:
-        # if [[ "$OSTYPE" == "msys" ]]; then export WINEXTRA="-DCMAKE_GENERATOR_PLATFORM=x64"; else export WINEXTRA=""; fi
-        os: [macOS-latest]
-        qt: [5.15.2]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
+  # build-mac:
+  #   strategy:
+  #     matrix:
+  #       # windows builds may need to specify building 64bit target:
+  #       # if [[ "$OSTYPE" == "msys" ]]; then export WINEXTRA="-DCMAKE_GENERATOR_PLATFORM=x64"; else export WINEXTRA=""; fi
+  #       os: [macOS-latest]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - uses: actions/checkout@v2
 
-    - name: Install Qt ${{ matrix.qt }}
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: ${{ matrix.qt }}
-        modules: "qtwebengine"
+  #   - name: Install Qt 5.15.2
+  #     uses: jurplel/install-qt-action@v2
+  #     with:
+  #       version: "5.15.2"
+  #       modules: "qtwebengine"
         
-    - name: Install dependencies
-      run: |
-        brew update
-        grep -v libx /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
-        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
-        brew install cairo --build-from-source
-        brew install harfbuzz --build-from-source
-        brew install libass --build-from-source
-        sed 's/args = %W\[/& --enable-static --disable-shared/g' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb > _tmp
-        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb
-        brew install ffmpeg --build-from-source
-        brew install ninja
-        grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
-        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb
-        brew install mpv --build-from-source
-    - name: Debug build and test
-      run: |
-        ./download_webclient.sh
-        cd build
-        cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
-        ninja install
+  #   - name: Install dependencies
+  #     run: |
+  #       brew update
+  #       grep -v libx /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
+  #       mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
+  #       brew install cairo --build-from-source
+  #       brew install harfbuzz --build-from-source
+  #       brew install libass --build-from-source
+  #       sed 's/args = %W\[/& --enable-static --disable-shared/g' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb > _tmp
+  #       mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb
+  #       brew install ffmpeg --build-from-source
+  #       brew install ninja
+  #       grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
+  #       mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb
+  #       brew install mpv --build-from-source
+  #   - name: Debug build and test
+  #     run: |
+  #       ./download_webclient.sh
+  #       cd build
+  #       cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
+  #       ninja install
         
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: macos
-        path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
+  #   - name: Archive production artifacts
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: macos
+  #       path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
   build-win:
     strategy:
       matrix:
         os: [windows-latest]
-        qt: [5.15.2]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-    - name: Install Qt ${{ matrix.qt }}
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: ${{ matrix.qt }}
-        modules: "qtwebengine"
-        arch: "win64_msvc2019_64"
+    - name: Install QT
+      run: |
+        python -m pip install aqtinstall==1.1.3
+        python -m aqt install 5.15.2 windows desktop win64_msvc2019_64 -m qtwebengine -O D:\a\Qt
+      shell: cmd
     - name: Install dependencies
       run: |
         ./download_webclient.sh
@@ -86,7 +83,7 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cd build
         set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
-        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=D:/a/jellyfin-media-player/jellyfin-media-player/Qt/5.15.2/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=D:/a/Qt/5.15.2/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
         lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
         ninja
         ninja windows_package
@@ -96,37 +93,37 @@ jobs:
       with:
         name: windows
         path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*-windows-x64.exe
-  build-ubuntu:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        tag: [focal, groovy]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Docker Build
-      run: |
-        docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
-        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: ubuntu-${{ matrix.tag }}
-        path: ${{ github.workspace }}/deployment/dist/*
-  build-debian:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        tag: [buster, bullseye]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Docker Build
-      run: |
-        docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} deployment
-        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: debian-${{ matrix.tag }}
-        path: ${{ github.workspace }}/deployment/dist/*
+  # build-ubuntu:
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest]
+  #       tag: [focal, groovy]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Docker Build
+  #     run: |
+  #       docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
+  #       docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
+  #   - name: Archive production artifacts
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: ubuntu-${{ matrix.tag }}
+  #       path: ${{ github.workspace }}/deployment/dist/*
+  # build-debian:
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest]
+  #       tag: [buster, bullseye]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Docker Build
+  #     run: |
+  #       docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} deployment
+  #       docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
+  #   - name: Archive production artifacts
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: debian-${{ matrix.tag }}
+  #       path: ${{ github.workspace }}/deployment/dist/*

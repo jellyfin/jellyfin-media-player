@@ -35,7 +35,8 @@ Build-Depends: debhelper (>= 9),
                libcec-dev,
                libmpv-dev,
                wget,
-               unzip
+               unzip,
+               qtbase5-private-dev
 Standards-Version: 3.9.4
 Homepage: https://jellyfin.org/
 Vcs-Git: https://github.org/jellyfin/jellyfin-media-player.git

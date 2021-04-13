@@ -14,7 +14,8 @@ ENV IS_DOCKER=YES
 
 # Prepare Debian build environment
 RUN apt-get update \
-  && apt-get install -y debhelper mmv git curl devscripts
+  && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" \
+     apt-get install -y debhelper mmv git curl devscripts equivs
 
 
 # Link to build script

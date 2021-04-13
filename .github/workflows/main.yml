@@ -67,7 +67,7 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\#g" bundle/win/Bundle.wxs
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/

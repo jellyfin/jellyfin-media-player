@@ -26,7 +26,7 @@ set(components Core Network WebChannel Qml Quick Xml WebEngine Widgets)
 
 if(UNIX AND (NOT APPLE) AND ((NOT BUILD_TARGET STREQUAL "RPI")))
   add_definitions(-DUSE_X11EXTRAS)
-  set(components ${components} X11Extras)
+  set(components ${components} X11Extras Gui)
 endif()
 
 if(LINUX_DBUS)
@@ -46,6 +46,11 @@ foreach(COMP ${components})
 	if(OPENELEC)
 		include_directories(${${mod}_PRIVATE_INCLUDE_DIRS})
 	endif(OPENELEC)
+
+	# Need private interfaces for qpa/qplatformnativeinterface.h:
+	if(${mod} STREQUAL Qt5Gui)
+		include_directories(${Qt5Gui_PRIVATE_INCLUDE_DIRS})
+	endif()
 
 	list(APPEND QT5_LIBRARIES ${${mod}_LIBRARIES})
 	list(APPEND QT5_CFLAGS ${${mod}_EXECUTABLE_COMPILE_FLAGS})

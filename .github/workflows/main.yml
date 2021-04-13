@@ -57,7 +57,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-
+    - name: Test
+      run: |
+        ls "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/"*
+        exit 1
     - name: Install Qt ${{ matrix.qt }}
       uses: jurplel/install-qt-action@v2
       with:

@@ -100,7 +100,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        tag: [bionic, focal, groovy]
+        tag: [focal, groovy]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2

@@ -285,29 +285,29 @@ QString DisplayComponent::debugInformation()
 {
   QString debugInfo;
   QTextStream stream(&debugInfo);
-  stream << "Display" << endl;
+  stream << "Display\n";
 
   if (!m_displayManager)
   {
-    stream << "  (no DisplayManager initialized)" << endl;
+    stream << "  (no DisplayManager initialized)\n";
   }
   else
   {
     int display = getApplicationDisplay(true);
     int mode = display < 0 ? -1 : m_displayManager->getCurrentDisplayMode(display);
 
-    stream << "  Current screen: " << displayName(display) << endl;
+    stream << "  Current screen: " << displayName(display) << "\n";
     if (display >= 0)
-      stream << "  Current mode: " << modePretty(display, mode) << endl;
+      stream << "  Current mode: " << modePretty(display, mode) << "\n";
     if (m_displayManager->isValidDisplayMode(m_lastDisplay, m_lastVideoMode))
     {
-      stream << "  Switch back on screen: " << displayName(m_lastDisplay) << endl;
-      stream << "  Switch back to mode: " << modePretty(m_lastDisplay, m_lastVideoMode) << endl;
+      stream << "  Switch back on screen: " << displayName(m_lastDisplay) << "\n";
+      stream << "  Switch back to mode: " << modePretty(m_lastDisplay, m_lastVideoMode) << "\n";
     }
   }
 
-  stream << endl;
-  stream << flush;
+  stream << "\n";
+  stream.flush();
   return debugInfo;
 }
 

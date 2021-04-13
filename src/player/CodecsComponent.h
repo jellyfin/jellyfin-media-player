@@ -10,7 +10,7 @@
 #include <QQueue>
 #include <QUrl>
 #include <QVariant>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QSet>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ private:
   QNetworkAccessManager m_WebCtrl;
   QByteArray m_DownloadedData;
   QVariant m_userData;
-  QTime m_currentStartTime;
+  QElapsedTimer m_currentStartTime;
   int m_lastProgress;
 };
 

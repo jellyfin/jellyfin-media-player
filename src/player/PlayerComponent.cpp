@@ -1491,74 +1491,74 @@ QString PlayerComponent::videoInformation() const
   if (mpv::qt::get_property(m_mpv, "idle-active").toBool())
     return "";
 
-  info << "File:" << endl;
-  info << "URL: " << MPV_PROPERTY("path") << endl;
-  info << "Container: " << MPV_PROPERTY("file-format") << endl;
+  info << "File:\n";
+  info << "URL: " << MPV_PROPERTY("path") << "\n";
+  info << "Container: " << MPV_PROPERTY("file-format") << "\n";
   info << "Native seeking: " << ((MPV_PROPERTY_BOOL("seekable") &&
                                   !MPV_PROPERTY_BOOL("partially-seekable"))
-                                 ? "yes" : "no") << endl;
-  info << endl;
-  info << "Video:" << endl;
-  info << "Codec: " << MPV_PROPERTY("video-codec") << endl;
+                                 ? "yes" : "no") << "\n";
+  info << "\n";
+  info << "Video:\n";
+  info << "Codec: " << MPV_PROPERTY("video-codec") << "\n";
   info << "Size: " << MPV_PROPERTY("video-params/dw") << "x"
-                   << MPV_PROPERTY("video-params/dh") << endl;
-  info << "FPS (container): " << MPV_PROPERTY("container-fps") << endl;
-  info << "FPS (filters): " << MPV_PROPERTY("estimated-vf-fps") << endl;
-  info << "Aspect: " << MPV_PROPERTY("video-aspect") << endl;
-  info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << endl;
+                   << MPV_PROPERTY("video-params/dh") << "\n";
+  info << "FPS (container): " << MPV_PROPERTY("container-fps") << "\n";
+  info << "FPS (filters): " << MPV_PROPERTY("estimated-vf-fps") << "\n";
+  info << "Aspect: " << MPV_PROPERTY("video-aspect") << "\n";
+  info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << "\n";
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   info << "Display FPS: " << MPV_PROPERTY("display-fps")
-                          << " (" << displayFps << ")" << endl;
+                          << " (" << displayFps << ")" << "\n";
   info << "Hardware Decoding: " << MPV_PROPERTY("hwdec-current")
-                                << " (" << MPV_PROPERTY("hwdec-interop") << ")" << endl;
-  info << endl;
-  info << "Audio: " << endl;
-  info << "Codec: " << MPV_PROPERTY("audio-codec") << endl;
-  info << "Bitrate: " << MPV_PROPERTY("audio-bitrate") << endl;
+                                << " (" << MPV_PROPERTY("hwdec-interop") << ")\n";
+  info << "\n";
+  info << "Audio:\n";
+  info << "Codec: " << MPV_PROPERTY("audio-codec") << "\n";
+  info << "Bitrate: " << MPV_PROPERTY("audio-bitrate") << "\n";
   info << "Channels: ";
   appendAudioFormat(info, "audio-params");
   info << " -> ";
   appendAudioFormat(info, "audio-out-params");
-  info << endl;
-  info << "Output driver: " << MPV_PROPERTY("current-ao") << endl;
-  info << endl;
-  info << "Performance: " << endl;
-  info << "A/V: " << MPV_PROPERTY("avsync") << endl;
-  info << "Dropped frames: " << MPV_PROPERTY("vo-drop-frame-count") << endl;
+  info << "\n";
+  info << "Output driver: " << MPV_PROPERTY("current-ao") << "\n";
+  info << "\n";
+  info << "Performance:\n";
+  info << "A/V: " << MPV_PROPERTY("avsync") << "\n";
+  info << "Dropped frames: " << MPV_PROPERTY("vo-drop-frame-count") << "\n";
   bool dispSync = MPV_PROPERTY_BOOL("display-sync-active");
   info << "Display Sync: ";
   if (!dispSync)
   {
-     info << "no" << endl;
+     info << "no\n";
   }
   else
   {
-    info << "yes (ratio " << MPV_PROPERTY("vsync-ratio") << ")" << endl;
+    info << "yes (ratio " << MPV_PROPERTY("vsync-ratio") << ")\n";
     info << "Mistimed frames: " << MPV_PROPERTY("mistimed-frame-count")
-                                << "/" << MPV_PROPERTY("vo-delayed-frame-count") << endl;
+                                << "/" << MPV_PROPERTY("vo-delayed-frame-count") << "\n";
     info << "Measured FPS: " << MPV_PROPERTY("estimated-display-fps")
-                             << " (" << MPV_PROPERTY("vsync-jitter") << ")" << endl;
-    info << "V. speed corr.: " << MPV_PROPERTY("video-speed-correction") << endl;
-    info << "A. speed corr.: " << MPV_PROPERTY("audio-speed-correction") << endl;
+                             << " (" << MPV_PROPERTY("vsync-jitter") << ")\n";
+    info << "V. speed corr.: " << MPV_PROPERTY("video-speed-correction") << "\n";
+    info << "A. speed corr.: " << MPV_PROPERTY("audio-speed-correction") << "\n";
   }
-  info << endl;
-  info << "Cache:" << endl;
-  info << "Seconds: " << MPV_PROPERTY("demuxer-cache-duration") << endl;
-  info << "Extra readahead: " << MPV_PROPERTY("cache-used") << endl;
-  info << "Buffering: " << MPV_PROPERTY("cache-buffering-state") << endl;
-  info << "Speed: " << MPV_PROPERTY("cache-speed") << endl;
-  info << endl;
-  info << "Misc: " << endl;
+  info << "\n";
+  info << "Cache:\n";
+  info << "Seconds: " << MPV_PROPERTY("demuxer-cache-duration") << "\n";
+  info << "Extra readahead: " << MPV_PROPERTY("cache-used") << "\n";
+  info << "Buffering: " << MPV_PROPERTY("cache-buffering-state") << "\n";
+  info << "Speed: " << MPV_PROPERTY("cache-speed") << "\n";
+  info << "\n";
+  info << "Misc:\n";
   info << "Time: " << MPV_PROPERTY("playback-time") << " / "
                    << MPV_PROPERTY("duration")
-                   << " (" << MPV_PROPERTY("percent-pos") << "%)" << endl;
+                   << " (" << MPV_PROPERTY("percent-pos") << "%)\n";
   info << "State: " << (MPV_PROPERTY_BOOL("pause") ? "paused " : "")
                     << (MPV_PROPERTY_BOOL("paused-for-cache") ? "buffering " : "")
                     << (MPV_PROPERTY_BOOL("core-idle") ? "waiting " : "playing ")
                     << (MPV_PROPERTY_BOOL("seeking") ? "seeking " : "")
-                    << endl;
+                    << "\n";
 
-  info << flush;
+  info.flush();
   return infoStr;
 }
 

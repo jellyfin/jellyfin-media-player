@@ -27,3 +27,4 @@ debian/files
 debian/jellyfin-media-player.substvars
 dist.zip
 obj-x86_64-linux-gnu/
+deployment/dist

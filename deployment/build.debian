@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -o errexit
+set -o xtrace
+
+# move to source directory
+pushd ${SOURCE_DIR}
+
+# install deps
+echo y | mk-build-deps -i
+
+# build deb
+dpkg-buildpackage -us -uc --pre-clean --post-clean
+
+mkdir -p ${ARTIFACT_DIR}
+for source_file in ../jellyfin*.{deb,dsc,tar.gz,buildinfo,changes}
+do
+    file=$(basename "$source_file")
+    mv "$source_file" "${ARTIFACT_DIR}/${file%.*}-${TAG}.${file##*.}"
+done
+
+if [[ ${IS_DOCKER} == YES ]]; then
+    chown -Rc $(stat -c %u:%g ${ARTIFACT_DIR}) ${ARTIFACT_DIR}
+fi
+
+popd

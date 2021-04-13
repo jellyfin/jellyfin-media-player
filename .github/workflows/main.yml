@@ -47,7 +47,7 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: bundle.dmg
+        name: macos
         path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
   build-win:
     strategy:
@@ -94,5 +94,37 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: installer.exe
+        name: windows
         path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*-windows-x64.exe
+  build-ubuntu:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        tag: [bionic, focal, groovy]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Docker Build
+      run: |
+        docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
+        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ubuntu-${{ matrix.tag }}
+        path: ${{ github.workspace }}/deployment/dist/*
+  build-debian:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        tag: [buster, bullseye]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Docker Build
+      run: |
+        docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} deployment
+        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: debian-${{ matrix.tag }}
+        path: ${{ github.workspace }}/deployment/dist/*

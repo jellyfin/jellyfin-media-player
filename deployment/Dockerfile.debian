@@ -1,0 +1,27 @@
+ARG IMG=debian
+ARG TAG=buster
+FROM $IMG:$TAG
+
+# Docker build arguments
+ARG SOURCE_DIR=/jellyfin
+ARG ARTIFACT_DIR=/dist
+
+# Docker run environment
+ENV SOURCE_DIR=/jellyfin
+ENV ARTIFACT_DIR=/dist
+ENV DEB_BUILD_OPTIONS=noddebs
+ENV IS_DOCKER=YES
+
+# Prepare Debian build environment
+RUN apt-get update \
+  && apt-get install -y debhelper mmv git curl devscripts
+
+
+# Link to build script
+RUN ln -sf ${SOURCE_DIR}/deployment/build.debian /build.sh
+
+VOLUME ${SOURCE_DIR}
+
+VOLUME ${ARTIFACT_DIR}
+
+ENTRYPOINT ["/build.sh"]

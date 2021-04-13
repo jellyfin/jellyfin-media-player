@@ -6,10 +6,7 @@ on:
       - release
 jobs:
   build-mac:
-    strategy:
-      matrix:
-        os: [macOS-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install Qt 5.15.2
@@ -45,10 +42,7 @@ jobs:
         path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
         
   build-win:
-    strategy:
-      matrix:
-        os: [windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install QT

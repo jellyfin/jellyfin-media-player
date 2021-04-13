@@ -103,6 +103,7 @@ jobs:
         tag: [bionic, focal, groovy]
     runs-on: ${{ matrix.os }}
     steps:
+    - uses: actions/checkout@v2
     - name: Docker Build
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
@@ -119,6 +120,7 @@ jobs:
         tag: [buster, bullseye]
     runs-on: ${{ matrix.os }}
     steps:
+    - uses: actions/checkout@v2
     - name: Docker Build
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} deployment

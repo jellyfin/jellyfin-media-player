@@ -10,6 +10,7 @@ const features = [
     "clientsettings",
     "multiserver",
     "remotecontrol",
+    "fullscreenchange",
 ];
 
 const plugins = [

@@ -48,6 +48,7 @@ class mpvAudioPlayer {
         self._paused = false;
         self._volume = this.getSavedVolume() * 100;
         self._playRate = 1;
+        self._hasConnection = false;
 
         self.play = (options) => {
             self._started = false;
@@ -56,12 +57,15 @@ class mpvAudioPlayer {
             self._duration = undefined;
 
             const player = window.api.player;
-            player.playing.connect(onPlaying);
-            player.positionUpdate.connect(onTimeUpdate);
-            player.finished.connect(onEnded);
-            player.updateDuration.connect(onDuration);
-            player.error.connect(onError);
-            player.paused.connect(onPause);
+            if (!self._hasConnection) {
+                self._hasConnection = true;
+                player.playing.connect(onPlaying);
+                player.positionUpdate.connect(onTimeUpdate);
+                player.finished.connect(onEnded);
+                player.updateDuration.connect(onDuration);
+                player.error.connect(onError);
+                player.paused.connect(onPause);
+            }
 
             return setCurrentSrc(options);
         };
@@ -123,6 +127,7 @@ class mpvAudioPlayer {
             window.api.player.stop();
 
             const player = window.api.player;
+            self._hasConnection = false;
             player.playing.disconnect(onPlaying);
             player.positionUpdate.disconnect(onTimeUpdate);
             player.finished.disconnect(onEnded);

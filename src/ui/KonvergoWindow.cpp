@@ -88,7 +88,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   }
 #endif
 
-  QRect loadedGeo = loadGeometry();
+  loadGeometry();
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);

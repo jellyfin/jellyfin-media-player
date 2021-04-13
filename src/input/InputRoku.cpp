@@ -85,7 +85,7 @@ QByteArray InputRoku::getSSDPPacket(const QHostAddress& sender)
   packetData.append("Server: Roku UPnP/1.0 MiniUPnPd/1.4\r\n");
 
   packetData.append("Location: http://");
-  packetData.append(sender.toString());
+  packetData.append(sender.toString().toUtf8());
   packetData.append(":8060/\r\n");
 
   packetData.append("USN: uuid:roku:ecp:");

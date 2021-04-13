@@ -86,7 +86,7 @@ jobs:
     - name: Build
       run: |
         cd build
-        export PATH="$PATH:/c/Program Files (x86)/WiX Toolset v3.11/bin"
+        export PATH="$PATH:/c/Program Files (x86)/WiX Toolset v3.11/bin:$(pwd)"
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=Qt/5.15.2/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
         "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/"*"/bin/Hostx64/x64/lib.exe" /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
         ninja

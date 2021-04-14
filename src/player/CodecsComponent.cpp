@@ -13,7 +13,7 @@
 #include <QResource>
 #include <QSaveFile>
 #include <QStandardPaths>
-#include <QSysInfo>
+#include <QOperatingSystemVersion>
 #include <QCryptographicHash>
 #include <QTemporaryDir>
 
@@ -483,11 +483,12 @@ static void probeCodecs()
 #endif
 
 #ifdef Q_OS_MAC
+  auto current = QOperatingSystemVersion::current();
   // Unsupported, but avoid picking up broken Perian decoders.
-  if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_10)
+  if (current <= QOperatingSystemVersion::OSXYosemite)
     g_systemAudioDecoderWhitelist.remove("ac3_at");
   // Unknown Apple crashes
-  if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_11)
+  if (current <= QOperatingSystemVersion::OSXElCapitan)
     g_systemAudioDecoderWhitelist.remove("aac_at");
 #endif
 }

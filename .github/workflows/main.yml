@@ -17,29 +17,23 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        grep -v libx /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb | grep -v enable-x > _tmp
-        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb
-        brew install cairo --build-from-source
-        brew install harfbuzz --build-from-source
-        brew install libass --build-from-source
-        sed 's/args = %W\[/& --enable-static --disable-shared/g' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb > _tmp
-        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ffmpeg.rb
-        brew install ffmpeg --build-from-source
-        brew install ninja
-        grep -v enable-javascript /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb | grep -v mujs > _tmp
-        mv _tmp /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/mpv.rb
-        brew install mpv --build-from-source
+        brew install ninja mpv
     - name: Release build
       run: |
         ./download_webclient.sh
         cd build
         cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
         ninja install
+    - name: Fix library paths and create dmg
+      run: |
+        python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
+        brew install create-dmg
+        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./Jellyfin Media Player.app"
     - name: Archive production artifacts
       uses: actions/upload-artifact@v2
       with:
         name: macos
-        path: ${{ github.workspace }}/build/output/Jellyfin\ Media\ Player.dmg
+        path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
         
   build-win64:
     runs-on: windows-latest

@@ -1,8 +1,16 @@
 # Jellyfin Media Player
 
-Based on (but not affiliated with) [Plex Media Player](https://github.com/plexinc/plex-media-player).
+Desktop client using jellyfin-web with embedded MPV player. Supports Windows, Mac OS,
+and Linux. Media plays within the same window using the jellyfin-web interface unlike
+Jellyfin Desktop. Supports audio passthrough. Based on [Plex Media Player](https://github.com/plexinc/plex-media-player).
 
-Please see:
+![Screenshot of Jellyfin Media Player](https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-player-win.png)
+
+Downloads:
+ - [Windows, Mac, and Linux Releases](https://github.com/jellyfin/jellyfin-media-player/releases)
+ - [Flathub (Linux)](https://flathub.org/apps/details/com.github.iwalton3.jellyfin-media-player)
+
+Related Documents:
  - Corresponding web client: [Repo](https://github.com/iwalton3/jellyfin-web-jmp/) [Release](https://github.com/iwalton3/jellyfin-web-jmp/releases/)
  - API Docs in [client-api.md](https://github.com/iwalton3/jellyfin-media-player/blob/master/client-api.md)
 

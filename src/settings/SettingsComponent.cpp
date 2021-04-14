@@ -727,21 +727,11 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
 {
   QString url;
 
-  if (desktop)
-    url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
-  else
-    url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_tv").toString();
-
-  // Transition to the new value so that old users are not screwed.
-  if (url == "qrc:/konvergo/index.html")
-  {
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_PATH, "startupurl", "bundled");
-    url = "bundled";
-  }
+  url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
 
   if (url == "bundled")
   {
-    auto path = Paths::webClientPath(desktop ? "desktop" : "tv");
+    auto path = Paths::webClientPath("desktop");
     url = "file:///" + path;
   }
 

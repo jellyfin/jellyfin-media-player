@@ -108,8 +108,11 @@ async function createApi() {
 }
 
 window.NativeShell.AppHost = {
-    async init() {
-        window.api = await createApi();
+    init() {
+        window.apiPromise = createApi();
+        (async () => {
+            window.api = await window.apiPromise;
+        })();
     },
     getDefaultLayout() {
         return "desktop";

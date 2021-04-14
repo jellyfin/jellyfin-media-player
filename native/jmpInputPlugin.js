@@ -18,16 +18,20 @@ class jmpInputPlugin {
         this.type = 'input';
         this.id = 'jmpInputPlugin';
 
-        window.api.input.hostInput.connect((actions) => {
-            actions.forEach(action => {
-                if (remap.hasOwnProperty(action)) {
-                    action = remap[action];
-                }
-                inputManager.handleCommand(action, {});
-            });
-        });
+        (async () => {
+            const api = await window.apiPromise;
 
-        window.api.system.hello("jmpInputPlugin");
+            api.input.hostInput.connect((actions) => {
+                actions.forEach(action => {
+                    if (remap.hasOwnProperty(action)) {
+                        action = remap[action];
+                    }
+                    inputManager.handleCommand(action, {});
+                });
+            });
+
+            api.system.hello("jmpInputPlugin");
+        })();
     }
 }
 

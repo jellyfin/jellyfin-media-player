@@ -11,11 +11,16 @@ const features = [
     "multiserver",
     "remotecontrol",
     "fullscreenchange",
+    "filedownload",
+    "remotevideo",
+    "displaymode",
+    "screensaver"
 ];
 
 const plugins = [
     'mpvVideoPlayer',
     'mpvAudioPlayer',
+    'jmpInputPlugin'
 ];
 
 function loadScript(src) {

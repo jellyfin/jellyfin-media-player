@@ -28,7 +28,7 @@ jobs:
       run: |
         python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
         brew install create-dmg
-        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./Jellyfin Media Player.app"
+        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
     - name: Archive production artifacts
       uses: actions/upload-artifact@v2
       with:

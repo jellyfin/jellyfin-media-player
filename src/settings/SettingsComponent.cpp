@@ -476,7 +476,7 @@ bool SettingsComponent::loadDescription()
 
   m_sectionIndex = 0;
 
-  for(const QJsonValue& val : doc.array())
+  for(auto val : doc.array())
   {
     if (!val.isObject())
     {
@@ -533,7 +533,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     {
       defaultval = QVariant();
       // Whichever default matches the current platform first is used.
-      for(const auto& v : defaults.toArray())
+      for(auto v : defaults.toArray())
       {
         auto vobj = v.toObject();
         int defPlatformMask = platformMaskFromObject(vobj);
@@ -557,7 +557,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     if (valobj.contains("possible_values") && valobj.value("possible_values").isArray())
     {
       auto list = valobj.value("possible_values").toArray();
-      for(const auto& v : list)
+      for(auto v : list)
       {
         int platform = PLATFORM_ANY;
 
@@ -599,7 +599,7 @@ int SettingsComponent::platformMaskFromObject(const QJsonObject& object)
     // platforms can be both array or a single string
     if (platforms.isArray())
     {
-      for(const QJsonValue& pl : platforms.toArray())
+      for(auto pl : platforms.toArray())
       {
         if (!pl.isString())
           continue;
@@ -617,7 +617,7 @@ int SettingsComponent::platformMaskFromObject(const QJsonObject& object)
     QJsonValue val = object.value("platforms_excluded");
     if (val.isArray())
     {
-      for(const QJsonValue& pl : val.toArray())
+      for(auto pl : val.toArray())
       {
         if (!pl.isString())
           continue;

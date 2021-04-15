@@ -1,3 +1,5 @@
+#include <QOperatingSystemVersion>
+
 #include <windows.h>
 
 #include "PowerComponentWin.h"
@@ -40,7 +42,7 @@ bool PowerComponentWin::PowerOff()
 {
   DWORD shutdownFlags = SHUTDOWN_INSTALL_UPDATES | SHUTDOWN_POWEROFF;
 
-  if (QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8)
+  if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8)
     shutdownFlags |= SHUTDOWN_HYBRID;
 
   return InitiateShutdownW(NULL, NULL, 0, shutdownFlags,

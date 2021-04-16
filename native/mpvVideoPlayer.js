@@ -317,7 +317,7 @@
         setSubtitleOffset(offset) {
             const offsetValue = parseFloat(offset);
             this._currentTrackOffset = offsetValue;
-            window.api.player.setSubtitleDelay(offset);
+            window.api.player.setSubtitleDelay(Math.round(offsetValue * 1000));
         }
 
         getSubtitleOffset() {

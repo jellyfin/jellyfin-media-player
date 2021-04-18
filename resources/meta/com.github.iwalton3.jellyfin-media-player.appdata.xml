@@ -39,6 +39,19 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.4.0" date="2020-04-18">
+        <p>Changes:</p>
+        <ul>
+          <li>Backport fix for images not loading.</li>
+          <li>Enable mouse back/forward buttons. (#42)</li>
+          <li>Fix subtitle offset support. (#35)</li>
+          <li>Add back support for TV mode, and also use configuration/command line flags.</li>
+          <li>Add support for some media keys, remotes, and controllers through inputmanager.</li>
+          <li>Enable hardware video decoding by default.</li>
+          <li>Allow file download option in web client again.</li>
+          <li>Fix more warnings in the codebase. (#32)</li>
+        </ul>
+      </release>
       <release version="1.3.1" date="2020-04-13">
         <p>Changes:</p>
         <ul>

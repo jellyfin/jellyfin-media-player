@@ -65,7 +65,7 @@ You need to run these commands in git bash.
 git clone https://github.com/iwalton3/jellyfin-media-player
 cd jellyfin-media-player
 mkdir build && cd build
-curl -L https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-10.7.2/dist.zip > dist.zip
+curl -L https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-10.7.2-1/dist.zip > dist.zip
 unzip dist.zip
 ```
 
@@ -164,7 +164,7 @@ Assuming that everything else has installed correctly, building Jellyfin Media P
 * ``cd build``
 * ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.9.5/5.9/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
 * ``make -j4``
-* ``wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-10.7.2/dist.zip``
+* ``wget https://github.com/iwalton3/jellyfin-web-jmp/releases/download/jwc-10.7.2-1/dist.zip``
 * ``unzip dist.zip``
 * ``sudo make install``
 

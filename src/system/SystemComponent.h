@@ -39,9 +39,6 @@ public:
   Q_INVOKABLE QString debugInformation();
 
   Q_INVOKABLE QStringList networkAddresses() const;
-  Q_INVOKABLE int networkPort() const;
-
-  Q_INVOKABLE void userInformation(const QVariantMap& userModel);
 
   Q_INVOKABLE void openExternalUrl(const QString& url);
 

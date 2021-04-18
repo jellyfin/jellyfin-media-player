@@ -80,8 +80,6 @@ public:
   // part of the map.
   Q_SIGNAL void sectionValueUpdate(const QString& section, const QVariantMap& values);
 
-  void setUserRoleList(const QStringList& userRoles);
-
   // A hack to load a value from the config file at very early init time, before
   // the SettingsComponent is created.
   //

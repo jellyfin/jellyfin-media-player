@@ -1,7 +1,7 @@
 [
   {
     "section": "__meta__",
-    "version": 4
+    "version": 5
   },
   {
     "section": "state",
@@ -20,9 +20,8 @@
     "values": [
       {
         "value": "webMode",
-        "default": "tv",
+        "default": "desktop",
         "hidden": true,
-        "platforms": [ "windows", "macosx" ],
         "possible_values": [
           [ "desktop", "desktop" ],
           [ "tv", "tv" ]
@@ -30,17 +29,12 @@
       },
       {
         "value": "layout",
-        "default": "auto",
+        "default": "desktop",
         "hidden": true,
         "possible_values": [
-          [ "auto", "auto" ],
+          [ "desktop", "desktop" ],
           [ "tv", "tv" ]
         ]
-      },
-      {
-        "value": "remoteInspector",
-        "default": false,
-        "hidden": true
       },
       {
         "value": "fullscreen",
@@ -56,30 +50,6 @@
       {
         "value": "alwaysOnTop",
         "default": false
-      },
-      {
-        "value": "webserverport",
-        "default": 32433,
-        "hidden": true
-      },
-      {
-        "value": "automaticUpdates",
-        "default": true,
-        "hidden": true
-      },
-      {
-        "value": "manualUpdateCheck",
-        "input_type": "button",
-        "default": true,
-        "hidden": true
-      },
-      {
-        "value": "updateChannel",
-        "default": 0,
-        "hidden": true,
-        "possible_values": [
-          [ 0, "Stable" ]
-        ]
       },
       {
         "value": "hdmi_poweron",
@@ -113,11 +83,6 @@
         "platforms": [ "windows" ]
       },
       {
-        "value": "clientUUID",
-        "default": "",
-        "hidden": true
-      },
-      {
         "value": "showPowerOptions",
         "default": true,
         "hidden": true
@@ -134,16 +99,6 @@
             "value": false
           }
         ],
-        "hidden": true
-      },
-      {
-        "value": "preventSystemScreensaver",
-        "default": false,
-        "hidden": true
-      },
-      {
-        "value": "useHelper",
-        "default": true,
         "hidden": true
       },
       {
@@ -255,15 +210,7 @@
       },
       {
         "value": "hardwareDecoding",
-        "default": [
-          {
-            "value": "enabled",
-            "platforms": [ "oe" ]
-          },
-          {
-            "value": "disabled"
-          }
-        ],
+        "default": "enabled",
         "possible_values": [
           [ "enabled", "video.decode.enabled", { "platforms_excluded": "osx" } ],
           [ "enabled", "video.decode.enabled.modern", { "platforms": "osx" } ],
@@ -277,16 +224,6 @@
         "value": "deinterlace",
         "default": false,
         "platforms_excluded": "oe_rpi"
-      },
-      {
-        "value": "directPlay",
-        "default": true,
-        "hidden": true
-      },
-      {
-        "value": "directStream",
-        "default": true,
-        "hidden": true
       },
       {
         "value": "sync_mode",
@@ -404,46 +341,12 @@
     ]
   },
   {
-    "section": "manualServers",
-    "hidden": true,
-    "values": [
-      {
-        "value": "ip1",
-        "default": "",
-        "input_type": "ip"
-      },
-      {
-        "value": "port1",
-        "default": "32400",
-        "input_type": "port"
-      },
-      {
-        "value": "ip2",
-        "default": "",
-        "input_type": "ip"
-      },
-      {
-        "value": "port2",
-        "default": "32400",
-        "input_type": "port"
-      }
-    ]
-  },
-  {
     "section": "path",
     "hidden": true,
     "values": [
       {
-        "value": "startupurl_tv",
-        "default": "bundled"
-      },
-      {
         "value": "startupurl_desktop",
         "default": "bundled"
-      },
-      {
-        "value": "helperprogram",
-        "default": ""
       },
       {
         "value": "startupurl_extension",
@@ -496,12 +399,6 @@
     ]
   },
   {
-    "section": "webclient",
-    "hidden": true,
-    "storage": true,
-    "values": []
-  },
-  {
     "section": "system",
     "hidden": true,
     "values": [
@@ -527,10 +424,5 @@
           "platforms": [ "oe" ]
         }
     ]
-  },
-  {
-    "section": "privacy",
-    "hidden": true,
-    "values": []
   }
 ]

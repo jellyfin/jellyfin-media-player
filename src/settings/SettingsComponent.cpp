@@ -214,18 +214,14 @@ void SettingsComponent::load()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::loadConf(const QString& path, bool storage)
 {
-  bool migrateTvMode = false;
+  bool migrateJmpSettings = false;
   QJsonObject json = loadJson(path);
 
   int version = json["version"].toInt(0);
 
-  // Migrate to settings version 4
-  if (version == 3 && m_settingsVersion == 4)
+  if (version == 4 && m_settingsVersion == 5)
   {
-    // We only need to make sure that old users have the
-    // webmode set to "tv" so that we don't flip their
-    // interface unnecessarly
-    migrateTvMode = true;
+    migrateJmpSettings = true;
   }
   else if (version != m_settingsVersion)
   {
@@ -268,8 +264,13 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
       sec->setValue(setting, jsonSection.value(setting).toVariant());
   }
 
-  if (migrateTvMode)
-    getSection(SETTINGS_SECTION_MAIN)->setValue("webMode", "tv");
+  if (migrateJmpSettings) {
+    getSection(SETTINGS_SECTION_MAIN)->setValue("webMode", "desktop");
+    getSection(SETTINGS_SECTION_MAIN)->setValue("layout", "desktop");
+    if (getSection(SETTINGS_SECTION_VIDEO)->value("hardwareDecoding") == "disabled") {
+      getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "enabled");
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -699,23 +700,6 @@ void SettingsComponent::setupVersion()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void SettingsComponent::setUserRoleList(const QStringList& userRoles)
-{
-  QVariantList values;
-
-  // Channel names and values are aligned with values expected by plex.tv.
-  // See: https://github.com/plexinc/plex-media-player-private/issues/642
-
-  // Public is always available as the default value.
-  QVariantMap publicChannel;
-  publicChannel.insert("value", 0);
-  publicChannel.insert("title", "Public");
-  values << publicChannel;
-
-  updatePossibleValues(SETTINGS_SECTION_MAIN, "updateChannel", values);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsComponent::resetAndSaveOldConfiguration()
 {
   QFile settingsFile(Paths::dataDir("jellyfinmediaplayer.conf"));
@@ -774,8 +758,6 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
 {
   QLOG_DEBUG() << values;
 
-  QString mode = ""; // unset, different from "auto"
-
   for (const QString& value : values)
   {
     if (value == "fullscreen")
@@ -783,14 +765,9 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
     else if (value == "windowed")
       setValue(SETTINGS_SECTION_MAIN, "fullscreen", false);
     else if (value == "desktop")
-      mode = "desktop";
+      setValue(SETTINGS_SECTION_MAIN, "layout", "desktop");
     else if (value == "tv")
-      mode = "tv";
-    else if (value == "auto-layout")
-      mode = "auto";
+      setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
   }
-
-  setValue(SETTINGS_SECTION_MAIN, "layout", "auto");
-  setValue(SETTINGS_SECTION_MAIN, "webMode", "desktop");
 }
 

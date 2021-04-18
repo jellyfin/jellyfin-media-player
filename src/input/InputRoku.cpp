@@ -160,7 +160,7 @@ void InputRoku::handleQueryDeviceInfo(QHttpRequest* request, QHttpResponse* resp
 
   writer.writeStartDocument();
   writer.writeStartElement("device-info");
-  writer.writeTextElement("udn", Utils::ClientUUID());
+  //writer.writeTextElement("udn", Utils::ClientUUID());
   writer.writeTextElement("serial-number", ROKU_SERIAL_NUMBER);
   writer.writeTextElement("device-id", ROKU_SERIAL_NUMBER);
   writer.writeTextElement("vendor-name", "Roku");
@@ -243,7 +243,7 @@ void InputRoku::handleRootInfo(QHttpRequest* request, QHttpResponse* response)
   writer.writeTextElement("modelNumber", "4200X");
   writer.writeTextElement("modelURL", "http://www.roku.com");
   writer.writeTextElement("serialNumber", ROKU_SERIAL_NUMBER);
-  writer.writeTextElement("UDN", "uuid:" + Utils::ClientUUID());
+  //writer.writeTextElement("UDN", "uuid:" + Utils::ClientUUID());
 
   writer.writeStartElement("serviceList");
   writer.writeStartElement("service");

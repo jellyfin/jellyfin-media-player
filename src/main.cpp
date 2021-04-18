@@ -94,13 +94,10 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOptions({{{"l", "licenses"},         "Show license information"},
-                       {{"a", "from-auto-update"}, "When invoked from auto-update"},
                        {"desktop",                 "Start in desktop mode"},
                        {"tv",                      "Start in TV mode"},
-                       {"auto-layout",             "Use auto-layout mode"},
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
-                       {"no-updates",              "Disable auto-updating"},
                        {"terminal",                "Log to terminal"},
                        {"disable-gpu",             "Disable QtWebEngine gpu accel"}});
 
@@ -191,10 +188,6 @@ int main(int argc, char *argv[])
     ComponentManager::Get().initialize();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
-
-    // enable remote inspection if we have the correct setting for it.
-    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "remoteInspector").toBool())
-      qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "0.0.0.0:9992");
 
     QtWebEngine::initialize();
 

@@ -56,7 +56,6 @@ namespace Utils
   QString CurrentUserId();
   QString ComputerName();
   QString PrimaryIPv4Address();
-  QString ClientUUID();
   bool safelyWriteFile(const QString& filename, const QByteArray& data);
   QString sanitizeForHttpSeparators(const QString& input);
 }

@@ -1,5 +1,4 @@
 const viewdata = JSON.parse(window.atob("@@data@@"));
-console.log(viewdata);
 
 const features = [
     "filedownload",
@@ -115,7 +114,7 @@ window.NativeShell.AppHost = {
         })();
     },
     getDefaultLayout() {
-        return "desktop";
+        return viewdata.mode;
     },
     supports(command) {
         return features.includes(command.toLowerCase());

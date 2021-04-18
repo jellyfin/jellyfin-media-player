@@ -250,12 +250,6 @@ QString SystemComponent::debugInformation()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-int SystemComponent::networkPort() const
-{
-  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webserverport").toInt();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 QStringList SystemComponent::networkAddresses() const
 {
   QStringList list;
@@ -271,21 +265,6 @@ QStringList SystemComponent::networkAddresses() const
   }
 
   return list;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void SystemComponent::userInformation(const QVariantMap& userModel)
-{
-  QStringList roleList;
-  for(const QVariant& role : userModel.value("roles").toList())
-  { 
-    roleList << role.toMap().value("id").toString();
-  }
-
-  SettingsComponent::Get().setUserRoleList(roleList);
-
-  m_authenticationToken = userModel.value("authToken").toString();
-  emit userInfoChanged();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -347,6 +326,7 @@ QString SystemComponent::getNativeShellScript()
   QJsonObject clientData;
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
+  clientData.insert("mode", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString()));
   nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
   return nativeshellString;
 }

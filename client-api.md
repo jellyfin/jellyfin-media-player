@@ -141,8 +141,6 @@ system/SystemComponent - [header](https://github.com/plexinc/plex-media-player/b
 - str getUserAgent()
 - str debugInformation()
 - list[str] networkAddresses()
-- int networkPort()
-- void userInformation(dict userModel)
 - void openExternalUrl(str url) - Opens in external browser.
 - void runUserScript(str script) - Starts processes in the datadir + scripts/
 - void hello(str version) - called by web client when loading done

@@ -142,20 +142,6 @@ QString Utils::PrimaryIPv4Address()
   return "";
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-QString Utils::ClientUUID()
-{
-  QString storedUUID = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "clientUUID").toString();
-  if (storedUUID.isEmpty())
-  {
-    QString newUUID = QUuid::createUuid().toString();
-    newUUID = newUUID.replace("{", "").replace("}", "");
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "clientUUID", newUUID);
-    return newUUID;
-  }
-  return storedUUID;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool Utils::safelyWriteFile(const QString& filename, const QByteArray& data)
 {

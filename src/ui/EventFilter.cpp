@@ -7,6 +7,7 @@
 #include "settings/SettingsComponent.h"
 #include "input/InputKeyboard.h"
 #include "KonvergoWindow.h"
+#include <QQuickItem>
 
 #include <QKeyEvent>
 #include <QObject>
@@ -85,6 +86,22 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
         }
       }
     }
+
+    if (event->type() == QEvent::MouseButtonPress)
+    {
+      QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+
+      if (mouseEvent) {
+        QQuickItem* webView = window->findChild<QQuickItem*>("web");
+
+        if (mouseEvent->button() == Qt::BackButton)
+          QMetaObject::invokeMethod(webView, "goBack");
+
+        if (mouseEvent->button() == Qt::ForwardButton)
+          QMetaObject::invokeMethod(webView, "goForward");
+      }
+    }
+
     return QObject::eventFilter(watched, event);
   }
 

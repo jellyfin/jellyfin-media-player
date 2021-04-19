@@ -19,7 +19,8 @@ const features = [
 const plugins = [
     'mpvVideoPlayer',
     'mpvAudioPlayer',
-    'jmpInputPlugin'
+    'jmpInputPlugin',
+    'jmpUpdatePlugin'
 ];
 
 function loadScript(src) {

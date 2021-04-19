@@ -6,6 +6,9 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QJsonObject>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
@@ -329,6 +332,33 @@ QString SystemComponent::getNativeShellScript()
   clientData.insert("mode", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString()));
   nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
   return nativeshellString;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::checkForUpdates()
+{
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "checkForUpdates").toBool()) {
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QString checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
+    QUrl qCheckUrl = QUrl(checkUrl);
+    QLOG_DEBUG() << QString("Checking URL for updates: %1").arg(checkUrl);
+    QNetworkRequest req(qCheckUrl);
+
+    connect(manager, &QNetworkAccessManager::finished, this, &SystemComponent::updateInfoHandler);
+    manager->get(req);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::updateInfoHandler(QNetworkReply* reply)
+{
+  if (reply->error() == QNetworkReply::NoError) {
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if(statusCode == 302) {
+      QUrl redirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+      emit updateInfoEmitted(redirectUrl.toString());
+    }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

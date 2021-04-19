@@ -115,6 +115,10 @@
         "value": "sdlEnabled",
         "default": true,
         "hidden": true
+      },
+      {
+        "value": "checkForUpdates",
+        "default": true
       }
     ]
   },

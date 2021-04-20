@@ -47,16 +47,12 @@ public:
 
   Q_INVOKABLE QString getNativeShellScript();
 
-  Q_INVOKABLE void checkForUpdates();
-
   // called by the web-client when everything is properly inited
   Q_INVOKABLE void hello(const QString& version);
 
   Q_INVOKABLE QString getCapabilitiesString();
   Q_SIGNAL void capabilitiesChanged(const QString& capabilities);
   Q_SIGNAL void userInfoChanged();
-
-  Q_SIGNAL void updateInfoEmitted(QString url);
 
   // possible os types type enum
   enum PlatformType
@@ -92,9 +88,6 @@ public:
   Q_INVOKABLE void crashApp();
 
   void updateScale(qreal scale);
-
-private Q_SLOTS:
-  void updateInfoHandler(QNetworkReply* reply);
 
 signals:
   void hostMessage(const QString& message);

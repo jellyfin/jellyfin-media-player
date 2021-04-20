@@ -39,6 +39,15 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.4.1" date="2020-04-19">
+        <p>Changes:</p>
+        <ul>
+          <li>Add update notifier.</li>
+          <li>Add option to disable input repeat. (#49)</li>
+          <li>Add config-only option to ignore SSL certificates. (#48)</li>
+          <li>Fix excessive width of options drop-downs in some cases.</li>
+        </ul>
+      </release>
       <release version="1.4.0" date="2020-04-18">
         <p>Changes:</p>
         <ul>

@@ -1,3 +1,12 @@
+jellyfin-media-player (1.4.1-1) unstable; urgency=medium
+
+  * Add update notifier.
+  * Add option to disable input repeat. (#49)
+  * Add config-only option to ignore SSL certificates. (#48)
+  * Fix excessive width of options drop-downs in some cases.
+
+ -- Ian Walton <ian@iwalton.com>  Mon, 19 Apr 2021 22:28:20 -0400
+
 jellyfin-media-player (1.4.0-1) unstable; urgency=medium
 
   * Backport fix for images not loading.

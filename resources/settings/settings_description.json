@@ -123,6 +123,11 @@
       {
         "value": "enableInputRepeat",
         "default": true
+      },
+      {
+        "value": "ignoreSSLErrors",
+        "default": false,
+        "hidden": true
       }
     ]
   },

@@ -754,6 +754,12 @@ QString SettingsComponent::getClientName()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+bool SettingsComponent::ignoreSSLErrors()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "ignoreSSLErrors").toBool();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::setCommandLineValues(const QStringList& values)
 {
   QLOG_DEBUG() << values;

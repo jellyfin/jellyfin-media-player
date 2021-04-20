@@ -216,6 +216,9 @@ KonvergoWindow
     onCertificateError:
     {
       console.log(error.url + " :" + error.description + error.error)
+      if (components.settings.ignoreSSLErrors()) {
+        error.ignoreCertificateError()
+      }
     }
   }
 

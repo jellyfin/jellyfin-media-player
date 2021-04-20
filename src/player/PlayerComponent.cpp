@@ -128,35 +128,40 @@ bool PlayerComponent::componentInitialize()
   // See: https://github.com/plexinc/plex-media-player/issues/736
   mpv::qt::set_property(m_mpv, "cache-seek-min", 5000);
 
+  if (!SettingsComponent::Get().ignoreSSLErrors()) {
+    mpv::qt::set_property(m_mpv, "tls-ca-file", "");
+    mpv::qt::set_property(m_mpv, "tls-verify", "no");
+  } else {
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
-  QList<QByteArray> list;
-  list << "/etc/ssl/certs/ca-certificates.crt"
-       << "/etc/pki/tls/certs/ca-bundle.crt"
-       << "/usr/share/ssl/certs/ca-bundle.crt"
-       << "/usr/local/share/certs/ca-root-nss.crt"
-       << "/etc/ssl/cert.pem"
-       << "/usr/share/curl/curl-ca-bundle.crt"
-       << "/usr/local/share/curl/curl-ca-bundle.crt"
-       << "/var/lib/ca-certificates/ca-bundle.pem";
+    QList<QByteArray> list;
+    list << "/etc/ssl/certs/ca-certificates.crt"
+        << "/etc/pki/tls/certs/ca-bundle.crt"
+        << "/usr/share/ssl/certs/ca-bundle.crt"
+        << "/usr/local/share/certs/ca-root-nss.crt"
+        << "/etc/ssl/cert.pem"
+        << "/usr/share/curl/curl-ca-bundle.crt"
+        << "/usr/local/share/curl/curl-ca-bundle.crt"
+        << "/var/lib/ca-certificates/ca-bundle.pem";
 
-  bool success = false;
+    bool success = false;
 
-  for (auto path : list)
-  {
-    if (access(path.data(), R_OK) == 0) {
-      mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
-      mpv::qt::set_property(m_mpv, "tls-verify", "yes");
-      success = true;
-      break;
+    for (auto path : list)
+    {
+      if (access(path.data(), R_OK) == 0) {
+        mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
+        mpv::qt::set_property(m_mpv, "tls-verify", "yes");
+        success = true;
+        break;
+      }
     }
-  }
 
-  if (!success)
-    throw FatalException(tr("Failed to locate CA bundle."));
+    if (!success)
+      throw FatalException(tr("Failed to locate CA bundle."));
 #else
-  // We need to not use Shinchiro's personal CA file...
-  mpv::qt::set_property(m_mpv, "tls-ca-file", "");
+    // We need to not use Shinchiro's personal CA file...
+    mpv::qt::set_property(m_mpv, "tls-ca-file", "");
 #endif
+  }
 
   // Apply some low-memory settings on RPI, which is relatively memory-constrained.
 #ifdef TARGET_RPI

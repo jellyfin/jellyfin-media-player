@@ -11,6 +11,10 @@
         "string": "cpp",
         "unordered_map": "cpp",
         "vector": "cpp",
-        "qnetworkaccessmanager": "cpp"
+        "qnetworkaccessmanager": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "variant": "cpp"
     }
 }

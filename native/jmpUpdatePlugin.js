@@ -8,6 +8,13 @@ class jmpUpdatePlugin {
             const api = await window.apiPromise;
 
             const onUpdateNotify = async (url) => {
+                if (url == "SSL_UNAVAILABLE") {
+                    // Windows (and possibly macOS) don't ship with SSL in QT......
+                    // So we get to do a full request to GitHub here :(
+                    const checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
+                    url = (await fetch(checkUrl)).url;
+                }
+
                 const urlSegments = url.split("/");
                 const version = urlSegments[urlSegments.length - 1].substring(1);
                 const currentVersion = navigator.userAgent.split(" ")[1];

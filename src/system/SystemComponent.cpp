@@ -338,6 +338,7 @@ QString SystemComponent::getNativeShellScript()
 void SystemComponent::checkForUpdates()
 {
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "checkForUpdates").toBool()) {
+#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QString checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
     QUrl qCheckUrl = QUrl(checkUrl);
@@ -346,6 +347,9 @@ void SystemComponent::checkForUpdates()
 
     connect(manager, &QNetworkAccessManager::finished, this, &SystemComponent::updateInfoHandler);
     manager->get(req);
+#else
+    emit updateInfoEmitted("SSL_UNAVAILABLE");
+#endif
   }
 }
 

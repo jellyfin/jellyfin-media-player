@@ -208,6 +208,7 @@ async function showSettingsModal() {
                 if (setting.options) {
                     const safeValues = {};
                     const control = document.createElement("select");
+                    control.style.maxWidth = "350px";
                     for (const option of setting.options) {
                         safeValues[String(option.value)] = option.value;
                         const opt = document.createElement("option");

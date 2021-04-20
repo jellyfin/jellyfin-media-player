@@ -1,6 +1,6 @@
 #! /usr/bin/make -f
 
-JWC_RELEASE := 1.7.1
+JWC_RELEASE := 1.7.2-2
 
 %:
 	dh $@

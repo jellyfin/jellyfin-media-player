@@ -219,7 +219,8 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, I
     }
   }
 
-  if (!m_autoRepeatActions.isEmpty() && keyState != InputBase::KeyPressed)
+  if (!m_autoRepeatActions.isEmpty() && keyState != InputBase::KeyPressed
+      && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableInputRepeat").toBool())
     m_autoRepeatTimer->start(INITAL_AUTOREPEAT_MSEC);
 
   if (!queuedActions.isEmpty())

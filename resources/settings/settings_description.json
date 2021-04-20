@@ -119,6 +119,10 @@
       {
         "value": "checkForUpdates",
         "default": true
+      },
+      {
+        "value": "enableInputRepeat",
+        "default": true
       }
     ]
   },

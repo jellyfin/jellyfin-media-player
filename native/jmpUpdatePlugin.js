@@ -7,34 +7,37 @@ class jmpUpdatePlugin {
         (async () => {
             const api = await window.apiPromise;
 
-            const checkForUpdates = await new Promise(resolve => {
-                api.settings.value("main", "checkForUpdates", resolve);
-            });
+            const onUpdateNotify = async (url) => {
+                if (url == "SSL_UNAVAILABLE") {
+                    // Windows (and possibly macOS) don't ship with SSL in QT......
+                    // So we get to do a full request to GitHub here :(
+                    const checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
+                    url = (await fetch(checkUrl)).url;
+                }
 
-            if (!checkForUpdates) return;
+                const urlSegments = url.split("/");
+                const version = urlSegments[urlSegments.length - 1].substring(1);
+                const currentVersion = navigator.userAgent.split(" ")[1];
 
-            const checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
-            const url = (await fetch(checkUrl)).url;
+                if (version == currentVersion) return;
+                if (!/^[0-9.-]+$/.test(version)) return;
 
-            const urlSegments = url.split("/");
-            const version = urlSegments[urlSegments.length - 1].substring(1);
-            const currentVersion = navigator.userAgent.split(" ")[1];
+                try {
+                    await confirm({
+                        title: "Update Available",
+                        text: `Jellyfin Media Player version ${version} is available.`,
+                        cancelText: "Ignore",
+                        confirmText: "Download"
+                    });
 
-            if (version == currentVersion) return;
-            if (!/^[0-9.-]+$/.test(version)) return;
-
-            try {
-                await confirm({
-                    title: "Update Available",
-                    text: `Jellyfin Media Player version ${version} is available.`,
-                    cancelText: "Ignore",
-                    confirmText: "Download"
-                });
-
-                api.system.openExternalUrl(url);
-            } catch (e) {
-                // User cancelled update
+                    api.system.openExternalUrl(url);
+                } catch (e) {
+                    // User cancelled update
+                }
             }
+
+            api.system.updateInfoEmitted.connect(onUpdateNotify);
+            api.system.checkForUpdates();
         })();
     }
 }

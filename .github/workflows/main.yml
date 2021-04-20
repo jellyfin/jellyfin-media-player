@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - release
+      - test
 jobs:
   build-mac:
     runs-on: macOS-latest

@@ -78,6 +78,22 @@ ninja
 ninja windows_package
 ```
 
+## Log File Location
+
+ - Windows: `%LOCALAPPDATA%\JellyfinMediaPlayer\logs`
+ - Linux: `~/.local/share/jellyfinmediaplayer/logs/`
+ - Linux (Flatpak): `~/.var/app/com.github.iwalton3.jellyfin-media-player/data/jellyfinmediaplayer/logs/`
+ - macOS: `~/Library/Logs/Jellyfin Media Player/`
+
+## Config File Location
+
+The main configuration file is called `jellyfinmediaplayer.conf`. You can also add a `mpv.conf` to configure MPV directly.
+
+ - Windows: `%LOCALAPPDATA%\JellyfinMediaPlayer\`
+ - Linux: `~/.local/share/jellyfinmediaplayer/`
+ - Linux (Flatpak): `~/.var/app/com.github.iwalton3.jellyfin-media-player/data/jellyfinmediaplayer/`
+ - macOS: `~/Library/Application Support/Jellyfin Media Player/`
+
 ## License
 
 Jellyfin Media Player is licensed under GPL v2. See the ``LICENSE`` file.

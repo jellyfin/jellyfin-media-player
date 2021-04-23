@@ -65,6 +65,7 @@ class mpvAudioPlayer {
                 player.updateDuration.connect(onDuration);
                 player.error.connect(onError);
                 player.paused.connect(onPause);
+                window.api.taskbar.pauseClicked.connect(onPauseClicked);
             }
 
             return setCurrentSrc(options);
@@ -95,6 +96,7 @@ class mpvAudioPlayer {
             };
 
             self.events.trigger(self, 'stopped', [stopInfo]);
+            window.api.taskbar.setControlsVisible(false);
 
             self._currentTime = null;
             self._currentSrc = null;
@@ -135,6 +137,7 @@ class mpvAudioPlayer {
             player.updateDuration.disconnect(onDuration);
             player.error.disconnect(onError);
             player.paused.disconnect(onPause);
+            window.api.taskbar.pauseClicked.disconnect(onPauseClicked);
         };
 
         function onDuration(duration) {
@@ -150,12 +153,14 @@ class mpvAudioPlayer {
             if (!self._isFadingOut) {
                 self._currentTime = time;
                 self.events.trigger(self, 'timeupdate');
+                window.api.taskbar.setProgress(time * 100 / self._duration);
             }
         }
 
         function onPlaying() {
             if (!self._started) {
                 self._started = true;
+                window.api.taskbar.setControlsVisible(true);
             }
 
             self.setPlaybackRate(1);
@@ -164,6 +169,7 @@ class mpvAudioPlayer {
             if (self._paused) {
                 self._paused = false;
                 self.events.trigger(self, 'unpause');
+                window.api.taskbar.setPaused(false);
             }
 
             self.events.trigger(self, 'playing');
@@ -172,6 +178,7 @@ class mpvAudioPlayer {
         function onPause() {
             self._paused = true;
             self.events.trigger(self, 'pause');
+            window.api.taskbar.setPaused(true);
         }
 
         function onError(error) {
@@ -182,6 +189,10 @@ class mpvAudioPlayer {
                     type: 'mediadecodeerror'
                 }
             ]);
+        }
+
+        function onPauseClicked() {
+            self.paused() ? self.unpause() : self.pause();
         }
     }
 

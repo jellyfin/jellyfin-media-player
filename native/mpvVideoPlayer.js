@@ -126,6 +126,7 @@
 
                 this._currentTime = time;
                 this.events.trigger(this, 'timeupdate');
+                window.api.taskbar.setProgress(time * 100 / this._duration);
             };
 
             /**
@@ -164,11 +165,13 @@
 
                     // Need to override default style.
                     this._videoDialog.style.setProperty('background', 'transparent', 'important');
+                    window.api.taskbar.setControlsVisible(true);
                 }
 
                 if (this._paused) {
                     this._paused = false;
                     this.events.trigger(this, 'unpause');
+                    window.api.taskbar.setPaused(false);
                 }
 
                 this.events.trigger(this, 'playing');
@@ -181,6 +184,7 @@
                 this._paused = true;
                 // For Syncplay ready notification
                 this.events.trigger(this, 'pause');
+                window.api.taskbar.setPaused(true);
             };
 
             this.onWaiting = () => {
@@ -205,6 +209,9 @@
                 this._duration = duration;
             };
 
+            this.onPauseClicked = () => {
+                this.paused() ? this.unpause() : this.pause();
+            };
         }
 
         currentSrc() {
@@ -360,6 +367,7 @@
             };
 
             this.events.trigger(this, 'stopped', [stopInfo]);
+            window.api.taskbar.setControlsVisible(false);
 
             this._currentTime = null;
             this._currentSrc = null;
@@ -394,6 +402,7 @@
             player.updateDuration.disconnect(this.onDuration);
             player.error.disconnect(this.onError);
             player.paused.disconnect(this.onPause);
+            window.api.taskbar.pauseClicked.disconnect(this.onPauseClicked);
 
             const dlg = this._videoDialog;
             if (dlg) {
@@ -446,6 +455,7 @@
                     player.updateDuration.connect(this.onDuration);
                     player.error.connect(this.onError);
                     player.paused.connect(this.onPause);    
+                    window.api.taskbar.pauseClicked.connect(this.onPauseClicked);
                 }
 
                 if (options.fullscreen) {

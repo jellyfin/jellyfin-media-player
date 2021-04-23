@@ -33,6 +33,10 @@ if(LINUX_DBUS)
   set(components ${components} DBus)
 endif(LINUX_DBUS)
 
+if(WIN32)
+  set(components ${components} WinExtras)
+endif(WIN32)
+
 foreach(COMP ${components})
 	set(mod Qt5${COMP})
 	

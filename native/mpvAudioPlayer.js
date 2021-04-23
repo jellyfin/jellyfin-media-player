@@ -95,7 +95,6 @@ class mpvAudioPlayer {
             };
 
             self.events.trigger(self, 'stopped', [stopInfo]);
-            window.api.taskbar.setControlsVisible(false);
 
             self._currentTime = null;
             self._currentSrc = null;
@@ -157,7 +156,6 @@ class mpvAudioPlayer {
         function onPlaying() {
             if (!self._started) {
                 self._started = true;
-                window.api.taskbar.setControlsVisible(true);
             }
 
             self.setPlaybackRate(1);
@@ -166,7 +164,6 @@ class mpvAudioPlayer {
             if (self._paused) {
                 self._paused = false;
                 self.events.trigger(self, 'unpause');
-                window.api.taskbar.setPaused(false);
             }
 
             self.events.trigger(self, 'playing');
@@ -175,7 +172,6 @@ class mpvAudioPlayer {
         function onPause() {
             self._paused = true;
             self.events.trigger(self, 'pause');
-            window.api.taskbar.setPaused(true);
         }
 
         function onError(error) {

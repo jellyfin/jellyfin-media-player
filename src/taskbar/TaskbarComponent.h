@@ -20,10 +20,6 @@ public:
 
   virtual void setWindow(QQuickWindow* window);
 
-public Q_SLOTS:
-  virtual void setControlsVisible(bool value) {}
-  virtual void setPaused(bool value) {}
-
 protected:
   QQuickWindow* m_window;
 };

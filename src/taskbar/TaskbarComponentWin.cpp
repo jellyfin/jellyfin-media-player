@@ -3,6 +3,8 @@
 
 
 #include "TaskbarComponentWin.h"
+#include "PlayerComponent.h"
+#include "input/InputComponent.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setWindow(QQuickWindow* window)
@@ -32,6 +34,9 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
   m_toolbar->addButton(m_next);
 
   connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &TaskbarComponentWin::setProgress);
+  connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &TaskbarComponentWin::playing);
+  connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &TaskbarComponentWin::paused);
+  connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &TaskbarComponentWin::stopped);
 
   setControlsVisible(false);
   setPaused(false);
@@ -56,6 +61,25 @@ void TaskbarComponentWin::onPrevClicked()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+void TaskbarComponentWin::playing()
+{
+  setControlsVisible(true);
+  setPaused(false);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void TaskbarComponentWin::paused()
+{
+  setPaused(true);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void TaskbarComponentWin::stopped()
+{
+  setControlsVisible(false);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setControlsVisible(bool value)
 {
   m_button->progress()->setVisible(value);
@@ -72,7 +96,7 @@ void TaskbarComponentWin::setProgress(quint64 value)
   qint64 duration = PlayerComponent::Get().getDuration();
   int progress = 0;
   if (duration != 0) {
-    progress = (int) (value * 100 / duration)
+    progress = (int) (value / duration / 10);
   }
   m_button->progress()->setValue(progress);
 }

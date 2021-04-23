@@ -164,13 +164,11 @@
 
                     // Need to override default style.
                     this._videoDialog.style.setProperty('background', 'transparent', 'important');
-                    window.api.taskbar.setControlsVisible(true);
                 }
 
                 if (this._paused) {
                     this._paused = false;
                     this.events.trigger(this, 'unpause');
-                    window.api.taskbar.setPaused(false);
                 }
 
                 this.events.trigger(this, 'playing');
@@ -183,7 +181,6 @@
                 this._paused = true;
                 // For Syncplay ready notification
                 this.events.trigger(this, 'pause');
-                window.api.taskbar.setPaused(true);
             };
 
             this.onWaiting = () => {
@@ -362,7 +359,6 @@
             };
 
             this.events.trigger(this, 'stopped', [stopInfo]);
-            window.api.taskbar.setControlsVisible(false);
 
             this._currentTime = null;
             this._currentSrc = null;

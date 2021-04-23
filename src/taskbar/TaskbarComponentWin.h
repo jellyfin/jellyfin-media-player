@@ -13,16 +13,18 @@ class TaskbarComponentWin : public TaskbarComponent
 {
 public:
   TaskbarComponentWin(): TaskbarComponent(nullptr) {}
-  virtual void setControlsVisible(bool value) override;
-  virtual void setPaused(bool value) override;
-
   virtual void setWindow(QQuickWindow* window) override;
 
 private:
   void onPauseClicked();
   void onPrevClicked();
   void onNextClicked();
-  virtual void setProgress(quint64 value) override;
+  void setProgress(quint64 value);
+  void setControlsVisible(bool value);
+  void setPaused(bool value);
+  void playing();
+  void stopped();
+  void paused();
 
   QWinTaskbarButton* m_button;
   QWinThumbnailToolBar* m_toolbar;

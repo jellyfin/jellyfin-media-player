@@ -24,6 +24,7 @@ add_subdirectory(input)
 add_subdirectory(system)
 add_subdirectory(settings)
 add_subdirectory(power)
+add_subdirectory(taskbar)
 
 get_property(ALL_SRCS GLOBAL PROPERTY SRCS_LIST)
 set(MAIN_SRCS main.cpp)

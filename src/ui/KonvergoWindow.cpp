@@ -15,6 +15,7 @@
 #include "player/PlayerComponent.h"
 #include "player/PlayerQuickItem.h"
 #include "display/DisplayComponent.h"
+#include "taskbar/TaskbarComponent.h"
 #include "QsLog.h"
 #include "utils/Utils.h"
 #include "Globals.h"
@@ -284,6 +285,7 @@ void KonvergoWindow::enableVideoWindow()
 {
   PlayerComponent::Get().setWindow(this);
   DisplayComponent::Get().setApplicationWindow(this);
+  TaskbarComponent::Get().setWindow(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

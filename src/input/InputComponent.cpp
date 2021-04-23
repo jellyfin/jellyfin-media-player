@@ -246,6 +246,14 @@ void InputComponent::executeActions(const QStringList& actions)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::sendAction(const QString action)
+{
+  QStringList actionsToSend;
+  actionsToSend.append(action);
+  emit hostInput(actionsToSend);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void InputComponent::registerHostCommand(const QString& command, QObject* receiver, const char* slot)
 {
   auto  recvSlot = new ReceiverSlot;

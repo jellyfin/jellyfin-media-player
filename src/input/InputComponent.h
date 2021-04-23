@@ -106,6 +106,7 @@ public:
   // should be actually dispatched.
   Q_INVOKABLE void executeActions(const QStringList& actions);
   void cancelAutoRepeat();
+  void sendAction(const QString action);
 
 signals:
   // Always emitted when any input arrives

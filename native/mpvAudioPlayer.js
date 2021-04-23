@@ -65,7 +65,6 @@ class mpvAudioPlayer {
                 player.updateDuration.connect(onDuration);
                 player.error.connect(onError);
                 player.paused.connect(onPause);
-                window.api.taskbar.pauseClicked.connect(onPauseClicked);
             }
 
             return setCurrentSrc(options);
@@ -137,7 +136,6 @@ class mpvAudioPlayer {
             player.updateDuration.disconnect(onDuration);
             player.error.disconnect(onError);
             player.paused.disconnect(onPause);
-            window.api.taskbar.pauseClicked.disconnect(onPauseClicked);
         };
 
         function onDuration(duration) {
@@ -153,7 +151,6 @@ class mpvAudioPlayer {
             if (!self._isFadingOut) {
                 self._currentTime = time;
                 self.events.trigger(self, 'timeupdate');
-                window.api.taskbar.setProgress(time * 100 / self._duration);
             }
         }
 
@@ -189,10 +186,6 @@ class mpvAudioPlayer {
                     type: 'mediadecodeerror'
                 }
             ]);
-        }
-
-        function onPauseClicked() {
-            self.paused() ? self.unpause() : self.pause();
         }
     }
 

@@ -15,10 +15,23 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
   m_toolbar = new QWinThumbnailToolBar(m_window);
   m_toolbar->setWindow(m_window);
 
+  m_prev = new QWinThumbnailToolButton(m_toolbar);
+  connect(m_prev, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onPrevClicked);
+
   m_pause = new QWinThumbnailToolButton(m_toolbar);
   connect(m_pause, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onPauseClicked);
 
+  m_next = new QWinThumbnailToolButton(m_toolbar);
+  connect(m_next, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onNextClicked);
+
+  m_prev->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaSkipBackward));
+  m_next->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaSkipForward));
+
+  m_toolbar->addButton(m_prev);
   m_toolbar->addButton(m_pause);
+  m_toolbar->addButton(m_next);
+
+  connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &TaskbarComponentWin::setProgress);
 
   setControlsVisible(false);
   setPaused(false);
@@ -27,7 +40,19 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::onPauseClicked()
 {
-  emit pauseClicked();
+  InputComponent::Get().sendAction("play_pause");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void TaskbarComponentWin::onNextClicked()
+{
+  InputComponent::Get().sendAction("next");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void TaskbarComponentWin::onPrevClicked()
+{
+  InputComponent::Get().sendAction("previous");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -42,9 +67,14 @@ void TaskbarComponentWin::setControlsVisible(bool value)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void TaskbarComponentWin::setProgress(int value)
+void TaskbarComponentWin::setProgress(quint64 value)
 {
-  m_button->progress()->setValue(value);
+  qint64 duration = PlayerComponent::Get().getDuration();
+  int progress = 0;
+  if (duration != 0) {
+    progress = (int) (value * 100 / duration)
+  }
+  m_button->progress()->setValue(progress);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

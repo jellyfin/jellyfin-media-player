@@ -120,6 +120,7 @@ public:
   Q_INVOKABLE void setPlaybackRate(int rate);
 
   Q_INVOKABLE qint64 getPosition();
+  Q_INVOKABLE qint64 getDuration();
 
   QRect videoRectangle() { return m_videoRectangle; }
 

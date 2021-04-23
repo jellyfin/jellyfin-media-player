@@ -22,11 +22,7 @@ public:
 
 public Q_SLOTS:
   virtual void setControlsVisible(bool value) {}
-  virtual void setProgress(int value) {}
   virtual void setPaused(bool value) {}
-
-Q_SIGNALS:
-  void pauseClicked();
 
 protected:
   QQuickWindow* m_window;

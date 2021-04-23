@@ -126,7 +126,6 @@
 
                 this._currentTime = time;
                 this.events.trigger(this, 'timeupdate');
-                window.api.taskbar.setProgress(time * 100 / this._duration);
             };
 
             /**
@@ -207,10 +206,6 @@
 
             this.onDuration = (duration) => {
                 this._duration = duration;
-            };
-
-            this.onPauseClicked = () => {
-                this.paused() ? this.unpause() : this.pause();
             };
         }
 
@@ -402,7 +397,6 @@
             player.updateDuration.disconnect(this.onDuration);
             player.error.disconnect(this.onError);
             player.paused.disconnect(this.onPause);
-            window.api.taskbar.pauseClicked.disconnect(this.onPauseClicked);
 
             const dlg = this._videoDialog;
             if (dlg) {
@@ -455,7 +449,6 @@
                     player.updateDuration.connect(this.onDuration);
                     player.error.connect(this.onError);
                     player.paused.connect(this.onPause);    
-                    window.api.taskbar.pauseClicked.connect(this.onPauseClicked);
                 }
 
                 if (options.fullscreen) {

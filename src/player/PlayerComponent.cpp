@@ -949,6 +949,15 @@ qint64 PlayerComponent::getPosition()
   return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+qint64 PlayerComponent::getDuration()
+{
+  QVariant time = mpv::qt::get_property(m_mpv, "duration");
+  if (time.canConvert(QMetaType::Double))
+    return time.toDouble();
+  return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // This is called with the set of previous audio devices that were detected, and the set of current
 // audio devices. From this we guess whether we should reopen the audio device. If the user-selected

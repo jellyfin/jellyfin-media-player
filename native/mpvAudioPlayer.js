@@ -159,7 +159,7 @@ class mpvAudioPlayer {
             }
 
             self.setPlaybackRate(1);
-            self.setMute(false);
+            self.setMute(false, false);
 
             if (self._paused) {
                 self._paused = false;
@@ -315,9 +315,12 @@ class mpvAudioPlayer {
         this.setVolume(Math.max(this.getVolume() - 2, 0));
     }
 
-    setMute(mute) {
+    setMute(mute, triggerEvent = true) {
         this._muted = mute;
         window.api.player.setMuted(mute);
+        if (triggerEvent) {
+            this.events.trigger(this, 'volumechange');
+        }
     }
 
     isMuted() {

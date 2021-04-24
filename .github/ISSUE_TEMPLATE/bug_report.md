@@ -7,8 +7,10 @@ assignees: ''
 
 ---
 
-Two considerations:
+Three considerations:
  - Please make sure the issue only pertains to Jellyfin Media Player. If it also occurs in the web client, send the issue to jellyfin-web instead.
+ - Please make sure that your issue is not being caused by errors in custom CSS or note that you are using custom CSS.
+     - Notably, there have been instances of custom CSS breaking TV mode.
  - Please provide logs:
      - Windows: `%LOCALAPPDATA%\JellyfinMediaPlayer\logs`
      - Linux: `~/.local/share/jellyfinmediaplayer/logs/`

@@ -153,7 +153,7 @@
                     }
 
                     this.setPlaybackRate(1);
-                    this.setMute(false);
+                    this.setMute(false, false);
 
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
@@ -635,9 +635,12 @@
         this.setVolume(Math.max(this.getVolume() - 2, 0));
     }
 
-    setMute(mute) {
+    setMute(mute, triggerEvent = true) {
         this._muted = mute;
         window.api.player.setMuted(mute);
+        if (triggerEvent) {
+            this.events.trigger(this, 'volumechange');
+        }
     }
 
     isMuted() {

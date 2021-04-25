@@ -75,6 +75,26 @@ ninja
 ninja windows_package
 ```
 
+## Building for MacOS
+
+Install [QT 5.15.2](https://www.qt.io/download-thank-you?hsLang=en), remember to check `Qt WebEngine`.
+
+Then run the following commands (replace <QT_DIR> with your QT installation location):
+
+```bash
+brew install mpv ninja
+./download_webclient.sh
+cd build
+cmake -GNinja -DQTROOT=<QT_DIR> -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
+ninja install
+```
+
+To create redistributable bundle, some library paths need to be fixed. At the project root directory, run:
+
+```bash
+python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
+```
+
 ## Log File Location
 
  - Windows: `%LOCALAPPDATA%\JellyfinMediaPlayer\logs`

@@ -1,3 +1,14 @@
+jellyfin-media-player (1.5.0-1) unstable; urgency=medium
+
+  * Remember intended subtitle and audio selection between episodes.
+  * Allow disabling the server's custom CSS.
+  * Allow using custom CSS locally on the client. (Per user)
+  * Fix scroll bar styling on TV mode.
+  * Add Windows taskbar integration. (#61)
+  * Fix volume OSD not showing on mute toggle. (#63)
+
+ -- Ian Walton <ian@iwalton.com>  Sat, 24 Apr 2021 20:42:29 -0400
+
 jellyfin-media-player (1.4.1-1) unstable; urgency=medium
 
   * Add update notifier.

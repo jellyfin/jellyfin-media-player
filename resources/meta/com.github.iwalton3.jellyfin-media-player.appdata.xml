@@ -39,6 +39,17 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.5.0" date="2020-04-24">
+        <p>Changes:</p>
+        <ul>
+          <li>Remember intended subtitle and audio selection between episodes.</li>
+          <li>Allow disabling the server's custom CSS.</li>
+          <li>Allow using custom CSS locally on the client. (Per user)</li>
+          <li>Fix scroll bar styling on TV mode.</li>
+          <li>Add Windows taskbar integration. (#61)</li>
+          <li>Fix volume OSD not showing on mute toggle. (#63)</li>
+        </ul>
+      </release>
       <release version="1.4.1" date="2020-04-19">
         <p>Changes:</p>
         <ul>

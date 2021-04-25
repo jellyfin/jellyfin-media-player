@@ -61,10 +61,13 @@ then
     echo "Downloading web client..."
     wc_version=$(get_resource_version iwalton3/jellyfin-web-jmp)
     download_compat dist.zip "https://github.com/iwalton3/jellyfin-web-jmp/releases/download/$wc_version/dist.zip" "wc"
-    rm -r build/dist 2> /dev/null
-    rm -r dist 2> /dev/null
-    unzip dist.zip > /dev/null && rm dist.zip
-    mv dist build/
+    if [[ "$DOWNLOAD_ONLY" != "1" ]]
+    then
+        rm -r build/dist 2> /dev/null
+        rm -r dist 2> /dev/null
+        unzip dist.zip > /dev/null && rm dist.zip
+        mv dist build/
+    fi
     echo "$wc_version" > .last_wc_version
 fi
 

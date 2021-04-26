@@ -83,6 +83,7 @@
       Path='[PreviousInstallFolder]' Variable='InstallFolder' After='PreviousInstallFolderSearch' Condition='PreviousInstallFolder' />
 
     <Variable Name="LaunchTarget" Value="[InstallFolder]\JellyfinMediaPlayer.exe"/>
+    <Variable Name="AddDesktopShortcut" Value="1" />
 
     <!-- Is Media Feature Pack present? (This should be enough for detecting if we are running on Windows N or not) -->
     <util:FileSearch Variable="FoundMfPlatDll" Path="[SystemFolder]mfplat.dll" Result="exists" />
@@ -242,6 +243,7 @@
         <MsiProperty Name="INSTALLLOCATION" Value="[InstallFolder]" />
         <MsiProperty Name="AUTOLAUNCH" Value="[autolaunch]" />
         <MsiProperty Name="WINDOWSTYPE" Value="[WinRegInstallationType]" />
+        <MsiProperty Name="ADDDESKTOPSHORTCUT" Value="[AddDesktopShortcut]" />
       </MsiPackage>
       <ExePackage Id="vcredist_repair"
                   SourceFile="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Redist\MSVC\v142\vcredist_x64.exe"

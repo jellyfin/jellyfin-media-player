@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Theme xmlns="http://wixtoolset.org/schemas/thmutil/2010">
   <Window Width="485" Height="390" HexStyle="100a0000" FontId="0">#(loc.Caption)</Window>
-  <Font Id="0" Height="-12" Weight="500" Foreground="FFFFFF" Background="1F1F1F">Segoe UI</Font>
+  <Font Id="0" Height="-12" Weight="500" Foreground="FFFFFF" Background="000000">Segoe UI</Font>
   <Font Id="1" Height="-24" Weight="500" Foreground="FFFFFF">Segoe UI</Font>
   <Font Id="2" Height="-22" Weight="500" Foreground="666666">Segoe UI</Font>
-  <Font Id="3" Height="-12" Weight="500" Foreground="FFFFFF" Background="1F1F1F">Segoe UI</Font>
-  <Font Id="4" Height="-12" Weight="500" Foreground="ff0000" Background="1F1F1F" Underline="yes">Segoe UI</Font>
+  <Font Id="3" Height="-12" Weight="500" Foreground="FFFFFF" Background="000000">Segoe UI</Font>
+  <Font Id="4" Height="-12" Weight="500" Foreground="ff0000" Background="000000" Underline="yes">Segoe UI</Font>
   <Font Id="5" Height="-24" Weight="500" Foreground="a75dc3">Segoe UI</Font>
   
   <Text X="11" Y="26" Width="-11" Height="30" FontId="5" Visible="yes" DisablePrefix="yes" Center="yes">#(loc.Title)</Text>
-  <Image X="200" Y="75" Width="85" Height="85" ImageFile="jellyfin-chevron-85.png" Visible="yes" />
+  <Image X="197" Y="75" Width="85" Height="85" ImageFile="jellyfin-chevron-85.png" Visible="yes" />
 
   <Page Name="Help">
     <Text X="65" Y="180" Width="-65" Center="yes" Height="30" FontId="2" DisablePrefix="yes">#(loc.HelpHeader)</Text>
@@ -26,6 +26,8 @@
     <Button Name="OptionsButton" X="-171" Y="-11" Width="75" Height="23" TabStop="yes" FontId="0" HideWhenDisabled="yes">#(loc.InstallOptionsButton)</Button>
     <Button Name="InstallButton" X="-91" Y="-11" Width="75" Height="23" TabStop="yes" FontId="0">#(loc.InstallInstallButton)</Button>
     <Button Name="WelcomeCancelButton" X="-11" Y="-11" Width="75" Height="23" TabStop="yes" FontId="0">#(loc.InstallCloseButton)</Button>
+    <Checkbox Name="AddDesktopShortcut" X="11" Y="-11" Width="13" Height="17" FontId="0" TabStop="yes"></Checkbox>
+    <Text X="25" Y="-10" Width="200" Height="17" FontId="0" DisablePrefix="yes">#(loc.DesktopShortcutCheckbox)</Text>
   </Page>
   <Page Name="Options">
     <Text X="11" Y="170" Width="-11" Height="30" FontId="2" DisablePrefix="yes" Center="yes">#(loc.OptionsHeader)</Text>

@@ -5,6 +5,9 @@
   <?include Global.wxi ?>
   <?include Version.wxi ?>
 
+  <!-- https://stackoverflow.com/questions/4658220/create-shortcut-checkbox -->
+  <!-- https://stackoverflow.com/questions/11868499/create-shortcut-to-desktop-using-wix -->
+  <!-- https://michielsioen.be/2017-12-02-wix-bootstrapper-customization/ -->
 
   <?define FirstProductVersion=0.0.0 ?>
   <?define JellyfinMediaPlayerRegistryKey=Software\Jellyfin\Jellyfin Media Player?>
@@ -86,6 +89,24 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="JellyfinStartMenuFolder" Name="Jellyfin Media Player"/>
       </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop">
+        <Component Id="ApplicationShortcutDesktop" Guid="{b2a1316d-917f-433f-bd87-02ec717c2648}">
+            <Condition>ADDDESKTOPSHORTCUT=1</Condition>
+            <Shortcut Id="ApplicationDesktopShortcut"
+                Name="Jellyfin Media Player"
+                Description="Desktop client for Jellyfin"
+                Target="[INSTALLLOCATION]JellyfinMediaPlayer.exe"
+                WorkingDirectory="INSTALLLOCATION"/>
+            <RemoveFolder Id="DesktopFolder" On="uninstall"/>
+            <RegistryValue
+                Root="HKCU"
+                Key="Software\Jellyfin\Jellyfin Media Player"
+                Name="installed"
+                Type="integer"
+                Value="1"
+                KeyPath="yes"/>
+        </Component>
+      </Directory>
     </Directory>
     
     <!-- Start Menu shortcut -->
@@ -111,6 +132,7 @@
     <Feature Id="ProductFeature" Title="Jellyfin" Level="1">
       <ComponentGroupRef Id="ProgramFilesComponentGroup" />
       <ComponentRef Id="JellyfinMediaPlayerShortcuts" />
+      <ComponentRef Id="ApplicationShortcutDesktop" />
     </Feature>
 
   </Product>

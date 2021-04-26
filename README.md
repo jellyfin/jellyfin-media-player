@@ -111,6 +111,21 @@ The main configuration file is called `jellyfinmediaplayer.conf`. You can also a
  - Linux (Flatpak): `~/.var/app/com.github.iwalton3.jellyfin-media-player/data/jellyfinmediaplayer/`
  - macOS: `~/Library/Application Support/Jellyfin Media Player/`
 
+## Web Debugger
+
+To get browser devtools, use remote debugging.
+
+ - Run the application with the command argument `--remote-debugging-port=9222`.
+ - Open Chromium or Google Chrome.
+ - Navigate to `chrome://inspect/#devices`.
+ - You can now access the developer tools.
+
+If you have problems:
+
+ - Make sure "Discover Network Targets" is checked.
+ - Make sure `localhost:9222` is in the list under "Configure...".
+ - Make sure `--remote-debugging-port=9222` is specified correctly.
+
 ## License
 
 Jellyfin Media Player is licensed under GPL v2. See the ``LICENSE`` file.

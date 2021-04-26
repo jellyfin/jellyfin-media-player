@@ -273,7 +273,7 @@
                 this._subtitleTrackIndexToSetOnPlaying = options.mediaSource.DefaultSubtitleStreamIndex == null ? -1 : options.mediaSource.DefaultSubtitleStreamIndex;
                 this._audioTrackIndexToSetOnPlaying = options.playMethod === 'Transcode' ? null : options.mediaSource.DefaultAudioStreamIndex;
 
-                const streamdata = {type: 'video', headers: {'User-Agent': 'JellyfinMediaPlayer'}, media: {}};
+                const streamdata = {type: 'video', headers: {'User-Agent': 'JellyfinMediaPlayer'}, metadata: options.item, media: {}};
                 const fps = this.tryGetFramerate(options);
                 if (fps) {
                     streamdata.frameRate = fps;

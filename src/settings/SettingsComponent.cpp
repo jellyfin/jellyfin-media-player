@@ -214,14 +214,19 @@ void SettingsComponent::load()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::loadConf(const QString& path, bool storage)
 {
-  bool migrateJmpSettings = false;
+  bool migrateJmpSettings4 = false;
+  bool migrateJmpSettings5 = false;
   QJsonObject json = loadJson(path);
 
   int version = json["version"].toInt(0);
 
-  if (version == 4 && m_settingsVersion == 5)
+  if (version == 4 && m_settingsVersion == 6)
   {
-    migrateJmpSettings = true;
+    migrateJmpSettings4 = true;
+  }
+  else if (version == 5 && m_settingsVersion == 6)
+  {
+    migrateJmpSettings5 = true;
   }
   else if (version != m_settingsVersion)
   {
@@ -264,11 +269,15 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
       sec->setValue(setting, jsonSection.value(setting).toVariant());
   }
 
-  if (migrateJmpSettings) {
+  if (migrateJmpSettings4) {
     getSection(SETTINGS_SECTION_MAIN)->setValue("webMode", "desktop");
     getSection(SETTINGS_SECTION_MAIN)->setValue("layout", "desktop");
     if (getSection(SETTINGS_SECTION_VIDEO)->value("hardwareDecoding") == "disabled") {
-      getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "enabled");
+      getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "copy");
+    }
+  } else if (migrateJmpSettings5) {
+    if (getSection(SETTINGS_SECTION_VIDEO)->value("hardwareDecoding") == "enabled") {
+      getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "copy");
     }
   }
 }

@@ -341,6 +341,8 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   command << extraArgs;
 
   mpv::qt::command(m_mpv, command);
+
+  emit onMetaData(metadata["metadata"].toMap(), qurl.adjusted(QUrl::RemovePath | QUrl::RemoveQuery));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

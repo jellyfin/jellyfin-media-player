@@ -12,6 +12,9 @@
 #include <QKeyEvent>
 #include <QObject>
 
+#ifdef Q_OS_WIN
+static QStringList desktopWhiteListedKeys = { "Back"};
+#else
 static QStringList desktopWhiteListedKeys = { "Media Play",
                                               "Media Pause",
                                               "Media Stop",
@@ -20,6 +23,8 @@ static QStringList desktopWhiteListedKeys = { "Media Play",
                                               "Media Rewind",
                                               "Media FastForward",
                                               "Back"};
+#endif
+
 // These just happen to be mostly the same.
 static QStringList win32AppcommandBlackListedKeys = desktopWhiteListedKeys;
 

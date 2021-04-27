@@ -13,7 +13,8 @@ const features = [
     "filedownload",
     "remotevideo",
     "displaymode",
-    "screensaver"
+    "screensaver",
+    "fileinput"
 ];
 
 const plugins = [

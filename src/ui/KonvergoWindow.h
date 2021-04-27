@@ -18,7 +18,7 @@
 //
 #define WEBUI_MAX_HEIGHT 1440.0
 #define WEBUI_SIZE QSize(1280, 720)
-#define WINDOWW_MIN_SIZE QSize(426, 240)
+#define WINDOWW_MIN_SIZE QSize(213, 120)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class KonvergoWindow : public QQuickWindow

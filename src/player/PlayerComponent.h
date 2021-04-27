@@ -186,6 +186,8 @@ Q_SIGNALS:
   void onVideoRecangleChanged();
 
   void onMpvEvents();
+
+  void onMetaData(const QVariantMap &meta, QUrl baseUrl);
   
 private:
   // this is the function actually implemented in the backends. the variantmap contains

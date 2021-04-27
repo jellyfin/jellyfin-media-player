@@ -82,7 +82,7 @@ class mpvAudioPlayer {
 
                 window.api.player.load(val,
                     { startMilliseconds: ms, autoplay: true },
-                    {type: 'music', headers: {'User-Agent': 'JellyfinMediaPlayer'}, media: {}},
+                    {type: 'music', headers: {'User-Agent': 'JellyfinMediaPlayer'}, metadata: options.item, media: {}},
                     '#1',
                     '',
                     resolve);

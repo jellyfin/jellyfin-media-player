@@ -195,6 +195,11 @@ void TaskbarComponentWin::initializeMediaTransport(HWND hwnd)
   hr = m_systemControls->put_IsPauseEnabled(true);
   hr = m_systemControls->put_IsPreviousEnabled(true);
   hr = m_systemControls->put_IsNextEnabled(true);
+  hr = m_systemControls->put_IsStopEnabled(true);
+  hr = m_systemControls->put_IsRewindEnabled(true);
+  hr = m_systemControls->put_IsFastForwardEnabled(true);
+  hr = m_systemControls->put_IsChannelDownEnabled(true);
+  hr = m_systemControls->put_IsChannelUpEnabled(true);
 
   hr = m_systemControls->get_DisplayUpdater(&m_displayUpdater);
   if (FAILED(hr))
@@ -330,21 +335,39 @@ void TaskbarComponentWin::setVideoMeta(const QVariantMap& meta)
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setThumbnail(const QVariantMap& meta, QUrl baseUrl)
 {
+  QString imgUrl;
+  HRESULT hr;
+
   auto images = meta["ImageTags"].toMap();
-  if (!images.contains("Primary"))
+  if (images.contains("Primary"))
+  {
+    auto itemId = meta["Id"].toString();
+    auto imgTag = images["Primary"].toString();
+    QUrlQuery query;
+    query.addQueryItem("tag", imgTag);
+    baseUrl.setPath("/Items/" + itemId + "/Images/Primary");
+    baseUrl.setQuery(query);
+    imgUrl = baseUrl.toString();
+  }
+  else if (meta.contains("AlbumId") && meta.contains("AlbumPrimaryImageTag")
+           && meta["AlbumId"].canConvert(QMetaType::QString)
+           && meta["AlbumPrimaryImageTag"].canConvert(QMetaType::QString))
+  {
+    auto itemId = meta["AlbumId"].toString();
+    auto imgTag = meta["AlbumPrimaryImageTag"].toString();
+    QUrlQuery query;
+    query.addQueryItem("tag", imgTag);
+    baseUrl.setPath("/Items/" + itemId + "/Images/Primary");
+    baseUrl.setQuery(query);
+    imgUrl = baseUrl.toString();
+  }
+  else
   {
     QLOG_DEBUG() << "No Primary image found. Do nothing";
     return;
   }
 
-  HRESULT hr;
-  auto itemId = meta["Id"].toString();
-  auto imgTag = images["Primary"].toString();
-  QUrlQuery query;
-  query.addQueryItem("tag", imgTag);
-  baseUrl.setPath("/Items/" + itemId + "/Images/Primary");
-  baseUrl.setQuery(query);
-  auto imgUrl = baseUrl.toString();
+  
 
   ComPtr<IRandomAccessStreamReferenceStatics> streamRefFactory;
   hr = GetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_Streams_RandomAccessStreamReference).Get(),
@@ -420,11 +443,23 @@ HRESULT TaskbarComponentWin::buttonPressed(ISystemMediaTransportControls* sender
       InputComponent::Get().sendAction("stop");
       QLOG_DEBUG() << "Received stop button press";
       break;
-    case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Record:
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_FastForward:
+      InputComponent::Get().sendAction("seek_forward");
+      QLOG_DEBUG() << "Received seek_forward button press";
+      break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Rewind:
+      InputComponent::Get().sendAction("seek_backward");
+      QLOG_DEBUG() << "Received seek_backward button press";
+      break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_ChannelUp:
+      InputComponent::Get().sendAction("channelup");
+      QLOG_DEBUG() << "Received channelup button press";
+      break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_ChannelDown:
+      InputComponent::Get().sendAction("channeldown");
+      QLOG_DEBUG() << "Received channeldown button press";
+      break;
+    case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Record:
       QLOG_DEBUG() << "Received unsupported button press";
       break;
   }

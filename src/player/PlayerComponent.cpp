@@ -128,7 +128,7 @@ bool PlayerComponent::componentInitialize()
   // See: https://github.com/plexinc/plex-media-player/issues/736
   mpv::qt::set_property(m_mpv, "cache-seek-min", 5000);
 
-  if (!SettingsComponent::Get().ignoreSSLErrors()) {
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
     mpv::qt::set_property(m_mpv, "tls-ca-file", "");
     mpv::qt::set_property(m_mpv, "tls-verify", "no");
   } else {

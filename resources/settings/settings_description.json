@@ -1,7 +1,7 @@
 [
   {
     "section": "__meta__",
-    "version": 5
+    "version": 6
   },
   {
     "section": "state",
@@ -223,7 +223,7 @@
       },
       {
         "value": "hardwareDecoding",
-        "default": "enabled",
+        "default": "copy",
         "possible_values": [
           [ "enabled", "video.decode.enabled", { "platforms_excluded": "osx" } ],
           [ "enabled", "video.decode.enabled.modern", { "platforms": "osx" } ],

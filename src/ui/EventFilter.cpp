@@ -20,8 +20,15 @@ static QStringList desktopWhiteListedKeys = { "Media Play",
                                               "Media Rewind",
                                               "Media FastForward",
                                               "Back"};
+
 // These just happen to be mostly the same.
-static QStringList win32AppcommandBlackListedKeys = desktopWhiteListedKeys;
+static QStringList win32BlackListedKeys = { "Media Play",
+                                                      "Media Pause",
+                                                      "Media Stop",
+                                                      "Media Next",
+                                                      "Media Previous",
+                                                      "Media Rewind",
+                                                      "Media FastForward"};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString keyEventToKeyString(QKeyEvent *kevent)
@@ -79,6 +86,13 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
           keystatus = InputBase::KeyUp;
 
         QString seq = keyEventToKeyString(key);
+#ifdef Q_OS_WIN32
+        if (win32BlackListedKeys.contains(seq))
+        {
+          return true;
+        }
+#endif
+
         if (desktopWhiteListedKeys.contains(seq))
         {
           InputKeyboard::Get().keyPress(seq, keystatus);
@@ -138,12 +152,9 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     QString keyName = keyEventToKeyString(kevent);
 
 #ifdef Q_OS_WIN32
-    // On Windows, we get some media keys twice. This is because Windows supports both
-    // normal key events and APPCOMMAND_ messages for media keys. To avoid getting two
-    // key events per key press, filter out non-APPCOMMAND media keys by using the fact
-    // that APPCOMMAND media keys won't have a key code.
-    if (win32AppcommandBlackListedKeys.contains(keyName) && kevent->nativeVirtualKey())
-      return QObject::eventFilter(watched, event);
+    // On Windows, ignore media keys as they are handled elsewhere.
+    if (win32BlackListedKeys.contains(keyName))
+      return true;
 #endif
 
     if (keystatus == InputBase::KeyDown)

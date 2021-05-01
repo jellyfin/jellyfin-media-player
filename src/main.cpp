@@ -155,9 +155,14 @@ int main(int argc, char *argv[])
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
     QApplication app(newArgc, newArgv);
-#if defined(Q_OS_WIN)
-    // Setting window icon on OSX or Linux will break user ability to change it
+#if defined(Q_OS_WIN) 
+    // Setting window icon on OSX will break user ability to change it
     app.setWindowIcon(QIcon(":/images/icon.png"));
+#endif
+
+#if defined(Q_OS_LINUX)
+  	// Set window icon on Linux using system icon theme
+  	app.setWindowIcon(QIcon::fromTheme("com.github.iwalton3.jellyfin-media-player"));
 #endif
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)

@@ -49,6 +49,7 @@ Depends: libmpv1,
          libcec4 | libcec6,
          qml-module-qtwebengine,
          qml-module-qtwebchannel,
-         qml-module-qtquick-controls
+         qml-module-qtquick-controls,
+         libqt5x11extras5
 Description: Jellyfin is the Free Software Media System.
  This package provides the Jellyfin desktop media player.

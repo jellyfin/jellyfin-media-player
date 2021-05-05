@@ -18,8 +18,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        brew install ninja
-        brew install mpv --HEAD
+        brew install ninja mpv
     - name: Release build
       run: |
         ./download_webclient.sh

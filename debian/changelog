@@ -1,3 +1,18 @@
+jellyfin-media-player (1.6.0-1) unstable; urgency=medium
+
+  * Always set volume on playback. (#78)
+  * Allow user to theme application icon on Linux. (#75)
+  * Fix ignoreSSLErrors option on Linux. (#74)
+  * Add Global Windows Media Key/OSD integration. (#73)
+  * Enable drag-drop file uploads into web client. (#56)
+  * Add option to create a Windows Desktop Shortcut.
+  * Use smaller jellyfin icon on macOS to match other icons.
+  * Change default hwdec from enabled to copy.
+  * Allow smaller window size.
+  * Add more error handling to AutoSet feature. 
+
+ -- Ian Walton <ian@iwalton.com>  Tue, 04 May 2021 20:51:33 -0400
+
 jellyfin-media-player (1.5.0-1) unstable; urgency=medium
 
   * Remember intended subtitle and audio selection between episodes.

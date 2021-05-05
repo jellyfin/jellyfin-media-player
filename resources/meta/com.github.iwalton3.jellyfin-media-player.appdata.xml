@@ -39,6 +39,21 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.6.0" date="2020-05-04">
+        <p>Changes:</p>
+        <ul>
+          <li>Always set volume on playback. (#78)</li>
+          <li>Allow user to theme application icon on Linux. (#75)</li>
+          <li>Fix ignoreSSLErrors option on Linux. (#74)</li>
+          <li>Add Global Windows Media Key/OSD integration. (#73)</li>
+          <li>Enable drag-drop file uploads into web client. (#56)</li>
+          <li>Add option to create a Windows Desktop Shortcut.</li>
+          <li>Use smaller jellyfin icon on macOS to match other icons.</li>
+          <li>Change default hwdec from enabled to copy.</li>
+          <li>Allow smaller window size.</li>
+          <li>Add more error handling to AutoSet feature.</li>
+        </ul>
+      </release>
       <release version="1.5.0" date="2020-04-24">
         <p>Changes:</p>
         <ul>

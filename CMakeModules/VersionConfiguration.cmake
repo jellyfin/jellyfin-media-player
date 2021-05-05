@@ -20,14 +20,14 @@ else()
   set(VERSION_BUILD_NR "0")
 endif()
 
-set(VERSION_MAJOR 2)
-set(VERSION_MINOR 58)
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 6)
 set(VERSION_NANO 0)
 
 option(UPGRADE_DEBUG "" OFF)
 
-set(VERSION_STRING "1.5.0")
-set(VERSION_STRING_SHORT "1.5.0")
-set(CANONICAL_VERSION_STRING "1.5.0")
+set(VERSION_STRING "1.6.0")
+set(VERSION_STRING_SHORT "1.6.0")
+set(CANONICAL_VERSION_STRING "1.6.0")
 
 configure_file(src/core/Version.cpp.in src/core/Version.cpp)

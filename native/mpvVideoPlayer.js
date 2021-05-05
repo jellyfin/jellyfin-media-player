@@ -148,9 +148,7 @@
                     this.loading.hide();
 
                     const volume = this.getSavedVolume() * 100;
-                    if (volume != this._volume) {
-                        this.setVolume(volume, false);
-                    }
+                    this.setVolume(volume, false);
 
                     this.setPlaybackRate(1);
                     this.setMute(false, false);

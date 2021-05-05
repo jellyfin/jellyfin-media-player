@@ -46,7 +46,7 @@ class mpvAudioPlayer {
         self._duration = undefined;
         self._currentTime = undefined;
         self._paused = false;
-        self._volume = this.getSavedVolume() * 100;
+        self._volume = self.getSavedVolume() * 100;
         self._playRate = 1;
         self._hasConnection = false;
 
@@ -157,6 +157,9 @@ class mpvAudioPlayer {
             if (!self._started) {
                 self._started = true;
             }
+
+            const volume = self.getSavedVolume() * 100;
+            self.setVolume(volume, volume != self._volume);
 
             self.setPlaybackRate(1);
             self.setMute(false, false);

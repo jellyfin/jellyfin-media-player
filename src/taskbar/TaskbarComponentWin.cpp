@@ -424,11 +424,11 @@ HRESULT TaskbarComponentWin::buttonPressed(ISystemMediaTransportControls* sender
   switch (button)
   {
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Play:
-      InputComponent::Get().sendAction("play");
+      InputComponent::Get().sendAction("play_pause");
       QLOG_DEBUG() << "Received play button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Pause:
-      InputComponent::Get().sendAction("pause");
+      InputComponent::Get().sendAction("play_pause");
       QLOG_DEBUG() << "Received pause button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Next:

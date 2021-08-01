@@ -7,7 +7,7 @@
     }
 
     class mpvVideoPlayer {
-        constructor({ events, loading, appRouter, globalize, appHost, appSettings }) {
+        constructor({ events, loading, appRouter, globalize, appHost, appSettings, toast }) {
             this.events = events;
             this.loading = loading;
             this.appRouter = appRouter;
@@ -190,11 +190,20 @@
              * @param e {Event} The event received from the `<video>` element
              */
             this.onError = (error) => {
-                console.error(`media element error: ${error}`);
+                this.removeMediaDialog();
+                toast(`media error: ${error}`);
+                console.error(`media error: ${error}`);
 
                 this.events.trigger(this, 'error', [
                     {
-                        type: 'mediadecodeerror'
+                        type: 'mediadecodeerror',
+                        // Prevent jellyfin-web retrying with transcode
+                        // which crashes the player
+                        streamInfo: {
+                            mediaSource: {
+                                SupportsTranscoding: false
+                            }
+                        }
                     }
                 ]);
             };
@@ -375,22 +384,13 @@
             return Promise.resolve();
         }
 
-        destroy() {
+        removeMediaDialog() {
+            this.loading.hide();
             window.api.player.stop();
             window.api.power.setScreensaverEnabled(true);
 
             this.appRouter.setTransparency('none');
             document.body.classList.remove('hide-scroll');
-
-            const player = window.api.player;
-            this._hasConnection = false;
-            player.playing.disconnect(this.onPlaying);
-            player.positionUpdate.disconnect(this.onTimeUpdate);
-            player.finished.disconnect(this.onEnded);
-            this._duration = undefined;
-            player.updateDuration.disconnect(this.onDuration);
-            player.error.disconnect(this.onError);
-            player.paused.disconnect(this.onPause);
 
             const dlg = this._videoDialog;
             if (dlg) {
@@ -402,6 +402,20 @@
             if (document.webkitIsFullScreen && document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
             }
+        }
+
+        destroy() {
+            this.removeMediaDialog();
+
+            const player = window.api.player;
+            this._hasConnection = false;
+            player.playing.disconnect(this.onPlaying);
+            player.positionUpdate.disconnect(this.onTimeUpdate);
+            player.finished.disconnect(this.onEnded);
+            this._duration = undefined;
+            player.updateDuration.disconnect(this.onDuration);
+            player.error.disconnect(this.onError);
+            player.paused.disconnect(this.onPause);
         }
 
         /**

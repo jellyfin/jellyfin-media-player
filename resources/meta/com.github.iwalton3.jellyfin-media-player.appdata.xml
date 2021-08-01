@@ -39,7 +39,7 @@
     <category>TV</category>
   </categories>
   <releases>
-      <release version="1.6.1" date="2021-08-04">
+      <release version="1.6.1" date="2021-08-01">
         <p>Changes:</p>
         <ul>
           <li>Update jellyfin-web to 10.7.6.</li>

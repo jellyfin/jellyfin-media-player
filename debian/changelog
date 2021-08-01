@@ -1,3 +1,13 @@
+jellyfin-media-player (1.6.1-1) unstable; urgency=medium
+
+  * Update jellyfin-web to 10.7.6.
+  * Add dependency to libqt5xml5. (#103)
+  * Fix hang after playback error. (#88)
+  * Fix alt+tab switching on GNOME. (#84)
+  * Fix media key pause/play on Windows. (#83) 
+
+ -- Ian Walton <ian@iwalton.com>  Sun, 01 Aug 2021 13:54:03 -0400
+
 jellyfin-media-player (1.6.0-1) unstable; urgency=medium
 
   * Always set volume on playback. (#78)

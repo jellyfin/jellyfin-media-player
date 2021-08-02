@@ -140,19 +140,8 @@ async function showSettingsModal() {
     });
 
     const modalContainer = document.createElement("div");
-    Object.assign(modalContainer.style, {
-        position: "fixed",
-        top: 10,
-        bottom: 10,
-        left: 10,
-        right: 10,
-        zIndex: 2000,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "#000000C0",
-        display: "flex",
-        justifyContent: "center"
-    });
+    modalContainer.className = "dialogContainer";
+    modalContainer.style.backgroundColor = "rgba(0,0,0,0.5)";
     modalContainer.addEventListener("click", e => {
         if (e.target == modalContainer) {
             modalContainer.remove();
@@ -161,34 +150,29 @@ async function showSettingsModal() {
     document.body.appendChild(modalContainer);
 
     const modalContainer2 = document.createElement("div");
-    Object.assign(modalContainer2.style, {
-        width: "100%",
-        maxWidth: "500px",
-        overflowY: "auto",
-        margin: "20px",
-        height: "auto"
-    });
+    modalContainer2.className = "focuscontainer dialog dialog-fixedSize dialog-small formDialog opened";
     modalContainer.appendChild(modalContainer2);
 
-    const modal = document.createElement("div");
-    modal.className = "jmp-settings-modal";
-    Object.assign(modal.style, {
-        width: "100%",
-        padding: "20px",
-        boxSizing: "border-box",
-        backgroundColor: "#202020",
-        height: "min-content",
-        color: "#fff"
-    });
-    modalContainer2.appendChild(modal);
+    const modalHeader = document.createElement("div");
+    modalHeader.className = "formDialogHeader";
+    modalContainer2.appendChild(modalHeader);
 
-    const title = document.createElement("h1");
+    const title = document.createElement("h3");
+    title.className = "formDialogHeaderTitle";
     title.textContent = "Jellyfin Media Player Settings";
-    modal.appendChild(title);
-
+    modalHeader.appendChild(title);
+    
+    const modalContents = document.createElement("div");
+    modalContents.className = "formDialogContent smoothScrollY";
+    modalContents.style.paddingTop = "2em";
+    modalContainer2.appendChild(modalContents);
+    
     for (let section of settings) {
         const group = document.createElement("fieldset");
-        modal.appendChild(group);
+        group.className = "editItemMetadataForm editMetadataForm dialog-content-centered";
+        group.style.border = 0;
+        group.style.outline = 0;
+        modalContents.appendChild(group);
 
         const createSection = async (clear) => {
             if (clear) {
@@ -200,16 +184,22 @@ async function showSettingsModal() {
             });
 
             const legend = document.createElement("legend");
-            legend.textContent = section.key;
+            const legendHeader = document.createElement("h2");
+            legendHeader.textContent = section.key;
+            legendHeader.style.textTransform = "capitalize";
+            legend.appendChild(legendHeader);
             group.appendChild(legend);
 
             for (const setting of section.settings) {
                 const label = document.createElement("label");
+                label.className = "inputContainer";
+                label.style.marginBottom = "1.8em";
                 label.style.display = "block";
+                label.style.textTransform = "capitalize";
                 if (setting.options) {
                     const safeValues = {};
                     const control = document.createElement("select");
-                    control.style.maxWidth = "350px";
+                    control.className = "emby-select-withcolor emby-select";
                     for (const option of setting.options) {
                         safeValues[String(option.value)] = option.value;
                         const opt = document.createElement("option");
@@ -238,7 +228,10 @@ async function showSettingsModal() {
                             createSection(true);
                         }
                     });
-                    label.appendChild(document.createTextNode(setting.key + " "));
+                    const labelText = document.createElement('label');
+                    labelText.className = "inputLabel";
+                    labelText.textContent = setting.key + ": ";
+                    label.appendChild(labelText);
                     label.appendChild(control);
                 } else {
                     const control = document.createElement("input");
@@ -257,15 +250,11 @@ async function showSettingsModal() {
     }
 
     const closeContainer = document.createElement("div");
-    Object.assign(closeContainer.style, {
-        width: "100%",
-        display: "flex",
-        justifyContent: "flex-end",
-        paddingTop: "10px"
-    });
-    modal.appendChild(closeContainer);
+    closeContainer.className = "formDialogFooter";
+    modalContents.appendChild(closeContainer);
 
     const close = document.createElement("button");
+    close.className = "raised button-cancel block btnCancel formDialogFooterItem emby-button";
     close.textContent = "Close"
     close.addEventListener("click", () => {
         modalContainer.remove();

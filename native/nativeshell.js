@@ -184,8 +184,10 @@ async function showSettingsModal() {
             });
 
             const legend = document.createElement("legend");
-            legend.innerHTML = "<h2>" + section.key + "</h2>";
-            legend.style.textTransform = "capitalize";
+            const legendHeader = document.createElement("h2");
+            legendHeader.textContent = section.key;
+            legendHeader.style.textTransform = "capitalize";
+            legend.appendChild(legendHeader);
             group.appendChild(legend);
 
             for (const setting of section.settings) {

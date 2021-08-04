@@ -6,6 +6,7 @@ Exec=jellyfinmediaplayer
 Icon=com.github.iwalton3.jellyfin-media-player
 Terminal=false
 Type=Application
+StartupWMClass=jellyfinmediaplayer
 Categories=AudioVideo;Video;Player;TV;
 
 Actions=DesktopF;DesktopW;TVF;TVW

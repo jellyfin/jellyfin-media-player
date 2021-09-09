@@ -165,6 +165,7 @@ async function showSettingsModal() {
     const modalContents = document.createElement("div");
     modalContents.className = "formDialogContent smoothScrollY";
     modalContents.style.paddingTop = "2em";
+    modalContents.style.marginBottom = "6.2em";
     modalContainer2.appendChild(modalContents);
     
     for (let section of settings) {

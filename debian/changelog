@@ -1,3 +1,9 @@
+jellyfin-media-player (1.7.0-pre1) unstable; urgency=medium
+
+  * This is a prerelease build to test for jellyfin-web 10.8.0.
+
+ -- Ian Walton <ian@iwalton.com>  Sat, 18 Dec 2021 08:15:55 -0500
+
 jellyfin-media-player (1.6.1-1) unstable; urgency=medium
 
   * Update jellyfin-web to 10.7.6.

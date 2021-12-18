@@ -30,8 +30,7 @@ function download_compat {
 }
 
 function get_resource_version {
-    curl -s --head https://github.com/"$1"/releases/latest | \
-        grep -i '^location: ' | sed 's/.*tag\///g' | tr -d '\r'
+    echo "jwc-10.8.0-alpha-3"
 }
 
 if [[ "$1" == "--gen-fingerprint" ]]

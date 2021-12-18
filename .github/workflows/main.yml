@@ -127,7 +127,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        tag: [focal, groovy]
+        tag: [focal, hirsute, impish]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
@@ -144,7 +144,7 @@ jobs:
   build-debian:
     strategy:
       matrix:
-        tag: [buster, bullseye]
+        tag: [bullseye, bookworm]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2

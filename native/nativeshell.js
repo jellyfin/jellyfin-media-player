@@ -63,6 +63,7 @@ window.NativeShell = {
 function getDeviceProfile() {
     return {
         'Name': 'Jellyfin Media Player',
+        'MaxStaticBitrate': 1000000000,
         'MusicStreamingTranscodingBitrate': 1280000,
         'TimelineOffsetSeconds': 5,
         'TranscodingProfiles': [

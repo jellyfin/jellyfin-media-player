@@ -61,7 +61,7 @@ jobs:
         mv mpv include
         mkdir mpv
         mv include mpv
-        mv mpv-1.dll mpv/mpv.dll
+        mv mpv-2.dll mpv/mpv.dll
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash
@@ -105,7 +105,7 @@ jobs:
         mv mpv include
         mkdir mpv
         mv include mpv
-        mv mpv-1.dll mpv/mpv.dll
+        mv mpv-2.dll mpv/mpv.dll
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash

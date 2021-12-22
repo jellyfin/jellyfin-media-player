@@ -54,7 +54,7 @@ jobs:
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20210404-git-dd86f19.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20211219-git-fd63bf3.7z/download > mpv.7z
         7z x mpv.7z
         mv include mpv
         mkdir include
@@ -98,7 +98,7 @@ jobs:
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20210404-git-dd86f19.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20211219-git-fd63bf3.7z/download > mpv.7z
         7z x mpv.7z
         mv include mpv
         mkdir include

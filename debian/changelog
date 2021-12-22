@@ -1,3 +1,10 @@
+jellyfin-media-player (1.7.0-pre2) unstable; urgency=medium
+
+  * Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.
+  * Upgrade to MPV version 20211219 fd63bf3.
+
+ -- Ian Walton <ian@iwalton.com>  Wed, 22 Dec 2021 17:34:43 -0500
+
 jellyfin-media-player (1.7.0-pre1) unstable; urgency=medium
 
   * This is a prerelease build to test for jellyfin-web 10.8.0.

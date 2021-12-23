@@ -54,14 +54,14 @@ jobs:
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20211219-git-fd63bf3.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20211212-git-0e76372.7z/download > mpv.7z
         7z x mpv.7z
         mv include mpv
         mkdir include
         mv mpv include
         mkdir mpv
         mv include mpv
-        mv mpv-2.dll mpv/mpv.dll
+        mv mpv-1.dll mpv/mpv.dll
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash
@@ -98,14 +98,14 @@ jobs:
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20211219-git-fd63bf3.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20211212-git-0e76372.7z/download > mpv.7z
         7z x mpv.7z
         mv include mpv
         mkdir include
         mv mpv include
         mkdir mpv
         mv include mpv
-        mv mpv-2.dll mpv/mpv.dll
+        mv mpv-1.dll mpv/mpv.dll
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash

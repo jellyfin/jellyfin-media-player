@@ -8,7 +8,7 @@ const features = [
     "externallinks",
     "clientsettings",
     "multiserver",
-    "quitapp",
+    "exitmenu",
     "remotecontrol",
     "fullscreenchange",
     "filedownload",
@@ -54,10 +54,6 @@ window.NativeShell = {
 
     openClientSettings() {
         showSettingsModal();
-    },
-
-    quitApp() {
-        window.api.system.exit();
     },
 
     getPlugins() {
@@ -137,6 +133,9 @@ window.NativeShell.AppHost = {
     },
     deviceName() {
         return viewdata.deviceName;
+    },
+    exit() {
+        window.api.system.exit();
     }
 };
 

@@ -128,6 +128,9 @@ bool PlayerComponent::componentInitialize()
   // See: https://github.com/plexinc/plex-media-player/issues/736
   mpv::qt::set_property(m_mpv, "cache-seek-min", 5000);
 
+  // Disable ytdl
+  mpv::qt::set_property(m_mpv, "ytdl", false);
+
   if (SettingsComponent::Get().ignoreSSLErrors()) {
     mpv::qt::set_property(m_mpv, "tls-ca-file", "");
     mpv::qt::set_property(m_mpv, "tls-verify", "no");

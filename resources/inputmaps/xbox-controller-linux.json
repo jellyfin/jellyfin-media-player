@@ -1,0 +1,77 @@
+{
+  "name": "Xbox Controller",
+  "idmatcher": "Xbox One",
+  "mapping": 
+  {
+    // A
+    "KEY_BUTTON_0": "enter",
+
+    // B
+    "KEY_BUTTON_1": {
+      "short": "back",
+      "long": "home"
+    },
+
+    // X
+    "KEY_BUTTON_2": "cycle_audio",
+
+    // Y
+    "KEY_BUTTON_3": "cycle_subtitle",
+    "KEY_BUTTON_3": "search",
+
+    // LB
+    "KEY_BUTTON_4": "seek_backward",
+
+    // RB
+    "KEY_BUTTON_5": "seek_forward",
+
+    // left thumbstick press
+    "KEY_BUTTON_6": "host:toggleDebug",
+
+    // right thumbstick press
+    "KEY_BUTTON_7": "host:fullscreen",
+
+    // start
+    "KEY_BUTTON_8": "",
+
+    // back
+    "KEY_BUTTON_9": "",
+
+    // Windows button
+    "KEY_BUTTON_10": {
+      "short": "home",
+      "long": "exit"
+    },
+
+    // D-PAD
+    "KEY_BUTTON_11": "up",
+    "KEY_BUTTON_12": "down",
+    "KEY_BUTTON_13": "left",
+    "KEY_BUTTON_14": "right",
+
+    // left thumbstick axis
+    "KEY_AXIS_0_UP": "left",
+    "KEY_AXIS_0_DOWN": "right",
+    "KEY_AXIS_1_UP": "up",
+    "KEY_AXIS_1_DOWN": "down",
+
+    // right thumbstick axis
+    "KEY_AXIS_4_UP": "increase_volume",
+    "KEY_AXIS_4_DOWN": "decrease_volume",
+    "KEY_AXIS_3_UP": "decrease_audio_delay",
+    "KEY_AXIS_3_DOWN": "increase_audio_delay",
+
+    // left trigger
+    "KEY_AXIS_2_UP": "",
+
+    // right trigger
+    "KEY_AXIS_5_UP": "",
+    
+    // D-Pad with JoyHat events
+    "KEY_HAT_DOWN": "down",
+    "KEY_HAT_UP": "up",
+    "KEY_HAT_RIGHT": "right",
+    "KEY_HAT_LEFT": "left"
+
+  }
+}

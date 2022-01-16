@@ -7,7 +7,7 @@
     }
 
     class mpvVideoPlayer {
-        constructor({ events, loading, appRouter, globalize, appHost, appSettings, toast }) {
+        constructor({ events, loading, appRouter, globalize, appHost, appSettings, confirm }) {
             this.events = events;
             this.loading = loading;
             this.appRouter = appRouter;
@@ -189,23 +189,33 @@
              * @private
              * @param e {Event} The event received from the `<video>` element
              */
-            this.onError = (error) => {
+            this.onError = async (error) => {
                 this.removeMediaDialog();
-                toast(`media error: ${error}`);
                 console.error(`media error: ${error}`);
 
-                this.events.trigger(this, 'error', [
-                    {
-                        type: 'mediadecodeerror',
+                const errorData = {
+                    type: 'mediadecodeerror'
+                };
+
+                try {
+                    await confirm({
+                        title: "Playback Failed",
+                        text: `Playback failed with error "${error}". Retry with transcode? (Note this may hang the player.)`,
+                        cancelText: "Cancel",
+                        confirmText: "Retry"
+                    });
+                } catch (ex) {
+                    // User declined retry
+                    errorData.streamInfo = {
                         // Prevent jellyfin-web retrying with transcode
                         // which crashes the player
-                        streamInfo: {
-                            mediaSource: {
-                                SupportsTranscoding: false
-                            }
+                        mediaSource: {
+                            SupportsTranscoding: false
                         }
-                    }
-                ]);
+                    };
+                }
+
+                this.events.trigger(this, 'error', [errorData]);
             };
 
             this.onDuration = (duration) => {

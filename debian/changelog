@@ -1,3 +1,14 @@
+jellyfin-media-player (1.7.0-pre3) unstable; urgency=medium
+
+  * Update web client to 10.8.0 Alpha 5.
+  * Add --platform option. (#159)
+  * Added Xbox input mapping. (#197)
+  * Disable youtube-dl attempts on media errors.
+  * Allow retry with transcode instead of usng a hard failure. (#127)
+  * Add exit app function (not used yet) (#198)
+
+ -- Ian Walton <ian@iwalton.com>  Sun, 16 Jan 2022 13:20:56 -0500
+
 jellyfin-media-player (1.7.0-pre2) unstable; urgency=medium
 
   * Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.

@@ -8,6 +8,7 @@ const features = [
     "externallinks",
     "clientsettings",
     "multiserver",
+    "exitmenu",
     "remotecontrol",
     "fullscreenchange",
     "filedownload",
@@ -132,6 +133,9 @@ window.NativeShell.AppHost = {
     },
     deviceName() {
         return viewdata.deviceName;
+    },
+    exit() {
+        window.api.system.exit();
     }
 };
 

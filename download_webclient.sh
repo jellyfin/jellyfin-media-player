@@ -30,7 +30,7 @@ function download_compat {
 }
 
 function get_resource_version {
-    echo "jwc-10.8.0-alpha-5"
+    echo "jwc-10.8.0-beta-1"
 }
 
 if [[ "$1" == "--gen-fingerprint" ]]

@@ -1,3 +1,9 @@
+jellyfin-media-player (1.7.0-pre4) unstable; urgency=medium
+
+  * Update web client to 10.8.0 Beta 1.
+
+ -- Ian Walton <ian@iwalton.com>  Mon, 28 Mar 2022 21:21:58 -0400
+
 jellyfin-media-player (1.7.0-pre3) unstable; urgency=medium
 
   * Update web client to 10.8.0 Alpha 5.

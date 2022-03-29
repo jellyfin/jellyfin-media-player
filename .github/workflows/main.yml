@@ -51,7 +51,7 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
@@ -68,7 +68,7 @@ jobs:
       shell: bash
     - name: Build
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cd build
         set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
@@ -95,7 +95,7 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
@@ -112,7 +112,7 @@ jobs:
       shell: bash
     - name: Build
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
         cd build
         set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..

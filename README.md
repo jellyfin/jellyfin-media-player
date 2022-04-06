@@ -28,7 +28,7 @@ echo --disable-cplayer >> mpv_options
 sudo ./install
 sudo ldconfig
 cd ~/jmp/
-git clone git://github.com/jellyfin/jellyfin-media-player
+git clone https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player
 ./download_webclient.sh
 cd build

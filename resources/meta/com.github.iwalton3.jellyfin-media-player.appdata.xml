@@ -39,6 +39,20 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.7.0" date="2022-06-11">
+        <p>Changes:</p>
+        <ul>
+          <li>Update web client to 10.8.0.</li>
+          <li>Add --platform option. (#159)</li>
+          <li>Added Xbox input mapping. (#197)</li>
+          <li>Disable youtube-dl attempts on media errors.</li>
+          <li>Allow retry with transcode instead of usng a hard failure. (#127)</li>
+          <li>Add exit app function (#198)</li>
+          <li>Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.</li>
+          <li>Add build for Ubuntu 22.04 (#256)</li>
+          <li>Enable windows dark mode support. (#247)</li>
+        </ul>
+      </release>
       <release version="1.6.1" date="2021-08-01">
         <p>Changes:</p>
         <ul>

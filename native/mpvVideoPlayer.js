@@ -266,11 +266,24 @@
         /**
          * @private
          */
+        getStreamByIndex(mediaStreams, jellyIndex) {
+            for (const source of mediaStreams) {
+                if (source.Index == jellyIndex) {
+                    return source;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * @private
+         */
         getSubtitleParam() {
             const options = this._currentPlayOptions;
 
             if (this._subtitleTrackIndexToSetOnPlaying != null && this._subtitleTrackIndexToSetOnPlaying >= 0) {
-                const initialSubtitleStream = options.mediaSource.MediaStreams[this._subtitleTrackIndexToSetOnPlaying];
+                const initialSubtitleStream = this.getStreamByIndex(options.mediaSource.MediaStreams, this._subtitleTrackIndexToSetOnPlaying);
                 if (!initialSubtitleStream || initialSubtitleStream.DeliveryMethod === 'Encode') {
                     this._subtitleTrackIndexToSetOnPlaying = -1;
                 } else if (initialSubtitleStream.DeliveryMethod === 'External') {
@@ -300,7 +313,7 @@
             const options = this._currentPlayOptions;
 
             if (this._audioTrackIndexToSetOnPlaying != null && this._audioTrackIndexToSetOnPlaying >= 0) {
-                const initialAudioStream = options.mediaSource.MediaStreams[this._audioTrackIndexToSetOnPlaying];
+                const initialAudioStream = this.getStreamByIndex(options.mediaSource.MediaStreams, this._audioTrackIndexToSetOnPlaying);
                 if (!initialAudioStream) {
                     return '#1';
                 }

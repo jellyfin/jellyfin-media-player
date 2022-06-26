@@ -876,20 +876,21 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   QString selection = "no";
 
-  for (auto stream : findStreamsForURL(streamName))
+  if (!streamID.isEmpty())
   {
-    auto map = stream.toMap();
-
-    if (map["type"].toString() != mpvStreamTypeName)
-      continue;
-
-    if (!streamID.isEmpty() && map["ff-index"].toString() == streamID)
+    selection = streamID;
+  } else {
+    for (auto stream : findStreamsForURL(streamName))
     {
-      selection = map["id"].toString();
-      break;
-    } else if (streamID.isEmpty() && map["external-filename"].toString() == streamName) {
-      selection = map["id"].toString();
-      break;
+      auto map = stream.toMap();
+
+      if (map["type"].toString() != mpvStreamTypeName)
+      {
+        continue;
+      } else if (map["external-filename"].toString() == streamName) {
+        selection = map["id"].toString();
+        break;
+      }
     }
   }
 

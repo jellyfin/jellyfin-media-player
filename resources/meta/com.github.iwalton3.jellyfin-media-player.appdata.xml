@@ -44,6 +44,7 @@
         <ul>
           <li>Fix audio and subtitle selection for 10.8.0. (#271)</li>
           <li>Stop forcing fullscreen on Windows when visibility changes. (#94)</li>
+          <li>Update jellyfin-web client to 10.8.1.</li>
         </ul>
       </release>
       <release version="1.7.0" date="2022-06-11">

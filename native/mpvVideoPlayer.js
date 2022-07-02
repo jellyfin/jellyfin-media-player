@@ -648,6 +648,7 @@
 
     pause() {
         window.api.player.pause();
+        window.api.power.setScreensaverEnabled(true);
     }
 
     // This is a retry after error

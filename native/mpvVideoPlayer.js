@@ -659,6 +659,7 @@
 
     unpause() {
         window.api.player.play();
+        window.api.power.setScreensaverEnabled(false);
     }
 
     paused() {

@@ -96,6 +96,7 @@ function getDeviceProfile() {
             {'Format': 'smi', 'Method': 'External'},
             {'Format': 'pgssub', 'Method': 'Embed'},
             {'Format': 'dvdsub', 'Method': 'Embed'},
+            {'Format': 'dvbsub', 'Method': 'Embed'},
             {'Format': 'pgs', 'Method': 'Embed'}
         ]
     };

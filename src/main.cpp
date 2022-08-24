@@ -81,7 +81,8 @@ void ShowLicenseInfo()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStringList g_qtFlags = {
-  "--disable-web-security"
+  "--disable-web-security",
+  "--enable-gpu-rasterization"
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -106,10 +107,15 @@ int main(int argc, char *argv[])
     scaleOption.setValueName("scale");
     scaleOption.setDefaultValue("auto");
     
+    auto platformOption = QCommandLineOption("platform", "Equivalant to QT_QPA_PLATFORM.");
+    platformOption.setValueName("platform");
+    platformOption.setDefaultValue("default");
+
     auto devOption = QCommandLineOption("remote-debugging-port", "Port number for devtools.");
     devOption.setValueName("port");
     parser.addOption(scaleOption);
     parser.addOption(devOption);
+    parser.addOption(platformOption);
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     int newArgc = argc + g_qtFlags.size();
@@ -154,7 +160,15 @@ int main(int argc, char *argv[])
     else if (scale != "none")
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
 
+    auto platform = parser.value("platform");
+    if (!(platform.isEmpty() || platform == "default"))
+    {
+      qputenv("QT_QPA_PLATFORM", platform.toUtf8());
+    }
+
     QApplication app(newArgc, newArgv);
+    app.setApplicationName("Jellyfin Media Player");
+
 #if defined(Q_OS_WIN) 
     // Setting window icon on OSX will break user ability to change it
     app.setWindowIcon(QIcon(":/images/icon.png"));

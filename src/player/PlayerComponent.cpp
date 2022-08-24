@@ -128,6 +128,9 @@ bool PlayerComponent::componentInitialize()
   // See: https://github.com/plexinc/plex-media-player/issues/736
   mpv::qt::set_property(m_mpv, "cache-seek-min", 5000);
 
+  // Disable ytdl
+  mpv::qt::set_property(m_mpv, "ytdl", false);
+
   if (SettingsComponent::Get().ignoreSSLErrors()) {
     mpv::qt::set_property(m_mpv, "tls-ca-file", "");
     mpv::qt::set_property(m_mpv, "tls-verify", "no");
@@ -873,20 +876,21 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   QString selection = "no";
 
-  for (auto stream : findStreamsForURL(streamName))
+  if (!streamID.isEmpty())
   {
-    auto map = stream.toMap();
-
-    if (map["type"].toString() != mpvStreamTypeName)
-      continue;
-
-    if (!streamID.isEmpty() && map["ff-index"].toString() == streamID)
+    selection = streamID;
+  } else {
+    for (auto stream : findStreamsForURL(streamName))
     {
-      selection = map["id"].toString();
-      break;
-    } else if (streamID.isEmpty() && map["external-filename"].toString() == streamName) {
-      selection = map["id"].toString();
-      break;
+      auto map = stream.toMap();
+
+      if (map["type"].toString() != mpvStreamTypeName)
+      {
+        continue;
+      } else if (map["external-filename"].toString() == streamName) {
+        selection = map["id"].toString();
+        break;
+      }
     }
   }
 

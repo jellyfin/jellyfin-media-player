@@ -30,7 +30,7 @@ function cancelFadeTimeout() {
 }
 
 class mpvAudioPlayer {
-    constructor({ events, appHost, appSettings }) {
+    constructor({ events, appHost, appSettings, toast }) {
         const self = this;
 
         self.events = events;
@@ -178,7 +178,8 @@ class mpvAudioPlayer {
         }
 
         function onError(error) {
-            console.error(`media element error: ${error}`);
+            console.error(`media error: ${error}`);
+            toast(`media error: ${error}`);
 
             self.events.trigger(self, 'error', [
                 {

@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - release
+      - prerelease
       - test
 jobs:
   build-mac:
-    runs-on: macOS-latest
+    runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v2
     - name: Install Qt 5.15.2
@@ -15,6 +16,7 @@ jobs:
       with:
         version: "5.15.2"
         modules: "qtwebengine"  
+        setup-python: 'false'
     - name: Install dependencies
       run: |
         brew update
@@ -49,11 +51,12 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
+        ls -R "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/"*
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(ls -d "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\vc_redist.x64.exe#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20210404-git-dd86f19.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20211212-git-0e76372.7z/download > mpv.7z
         7z x mpv.7z
         mv include mpv
         mkdir include
@@ -66,7 +69,7 @@ jobs:
       shell: bash
     - name: Build
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cd build
         set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
@@ -93,11 +96,12 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\#'"$(ls -d "/c/Program Files (x86)/Microsoft Visual Studio/2019/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\#g" bundle/win/Bundle.wxs
+        ls -R "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/"*
+        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(ls -d "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\vc_redist.x86.exe#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20210404-git-dd86f19.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20211212-git-0e76372.7z/download > mpv.7z
         7z x mpv.7z
         mv include mpv
         mkdir include
@@ -110,7 +114,7 @@ jobs:
       shell: bash
     - name: Build
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
         cd build
         set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt5_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/mpv.dll -DCMAKE_INSTALL_PREFIX=output ..
@@ -127,7 +131,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        tag: [focal, groovy]
+        tag: [focal, hirsute, impish, jammy]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
@@ -144,7 +148,7 @@ jobs:
   build-debian:
     strategy:
       matrix:
-        tag: [buster, bullseye]
+        tag: [bullseye, bookworm]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2

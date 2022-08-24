@@ -39,7 +39,39 @@
     <category>TV</category>
   </categories>
   <releases>
-      <release version="1.6.0" date="2020-05-04">
+      <release version="1.7.1" date="2022-06-26">
+        <p>Changes:</p>
+        <ul>
+          <li>Fix audio and subtitle selection for 10.8.0. (#271)</li>
+          <li>Stop forcing fullscreen on Windows when visibility changes. (#94)</li>
+          <li>Update jellyfin-web client to 10.8.1.</li>
+        </ul>
+      </release>
+      <release version="1.7.0" date="2022-06-11">
+        <p>Changes:</p>
+        <ul>
+          <li>Update web client to 10.8.0.</li>
+          <li>Add --platform option. (#159)</li>
+          <li>Added Xbox input mapping. (#197)</li>
+          <li>Disable youtube-dl attempts on media errors.</li>
+          <li>Allow retry with transcode instead of usng a hard failure. (#127)</li>
+          <li>Add exit app function (#198)</li>
+          <li>Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.</li>
+          <li>Add build for Ubuntu 22.04 (#256)</li>
+          <li>Enable windows dark mode support. (#247)</li>
+        </ul>
+      </release>
+      <release version="1.6.1" date="2021-08-01">
+        <p>Changes:</p>
+        <ul>
+          <li>Update jellyfin-web to 10.7.6.</li>
+          <li>Add dependency to libqt5xml5. (#103)</li>
+          <li>Fix hang after playback error. (#88)</li>
+          <li>Fix alt+tab switching on GNOME. (#84)</li>
+          <li>Fix media key pause/play on Windows. (#83)</li>
+        </ul>
+      </release>
+      <release version="1.6.0" date="2021-05-04">
         <p>Changes:</p>
         <ul>
           <li>Always set volume on playback. (#78)</li>
@@ -54,7 +86,7 @@
           <li>Add more error handling to AutoSet feature.</li>
         </ul>
       </release>
-      <release version="1.5.0" date="2020-04-24">
+      <release version="1.5.0" date="2021-04-24">
         <p>Changes:</p>
         <ul>
           <li>Remember intended subtitle and audio selection between episodes.</li>
@@ -65,7 +97,7 @@
           <li>Fix volume OSD not showing on mute toggle. (#63)</li>
         </ul>
       </release>
-      <release version="1.4.1" date="2020-04-19">
+      <release version="1.4.1" date="2021-04-19">
         <p>Changes:</p>
         <ul>
           <li>Add update notifier.</li>
@@ -74,7 +106,7 @@
           <li>Fix excessive width of options drop-downs in some cases.</li>
         </ul>
       </release>
-      <release version="1.4.0" date="2020-04-18">
+      <release version="1.4.0" date="2021-04-18">
         <p>Changes:</p>
         <ul>
           <li>Backport fix for images not loading.</li>
@@ -87,7 +119,7 @@
           <li>Fix more warnings in the codebase. (#32)</li>
         </ul>
       </release>
-      <release version="1.3.1" date="2020-04-13">
+      <release version="1.3.1" date="2021-04-13">
         <p>Changes:</p>
         <ul>
           <li>Add builds for win32, debian, and ubuntu.</li>
@@ -100,7 +132,7 @@
           <li>Upgrade jellyfin-web to 10.7.2.</li>
         </ul>
       </release>
-      <release version="1.3.0" date="2020-04-11">
+      <release version="1.3.0" date="2021-04-11">
         <p>Changes:</p>
         <ul>
           <li>Add settings menu for built-in player settings.</li>
@@ -114,7 +146,7 @@
           <li>Fix F11 key for fullscreen.</li>
         </ul>
       </release>
-      <release version="1.2.1" date="2020-04-06">
+      <release version="1.2.1" date="2021-04-06">
         <p>Changes:</p>
         <ul>
           <li>Fix external subtitle support.</li>
@@ -122,7 +154,7 @@
           <li>Make easier to compile on Linux.</li>
         </ul>
       </release>
-      <release version="1.2.0" date="2020-04-05">
+      <release version="1.2.0" date="2021-04-05">
         <p>Changes:</p>
         <ul>
           <li>Add native music playback.</li>
@@ -130,7 +162,7 @@
           <li>Remove breakpad.</li>
         </ul>
       </release>
-      <release version="1.1.0" date="2020-04-05">
+      <release version="1.1.0" date="2021-04-05">
         <p>Changes:</p>
         <ul>
           <li>Added support for setting playback rate.</li>

@@ -478,20 +478,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << "QWindow visibility set to" << visibility;
 
-#ifdef Q_OS_WIN32
-  if (visibility == QWindow::Windowed)
-  {
-    QScreen* realScreen = findCurrentScreen();
-    if (realScreen && realScreen->geometry() == geometry())
-    {
-      QLOG_WARN() << "winging it!";
-      setScreen(realScreen);
-      setVisibility(QWindow::FullScreen);
-      return;
-    }
-  }
-#endif
-
   if (visibility == QWindow::Windowed && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFS").toBool())
   {
     QLOG_WARN() << "Forcing re-entering fullscreen because of forceAlwaysFS setting!";

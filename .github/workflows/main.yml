@@ -131,7 +131,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        tag: [focal, hirsute, impish, jammy]
+        tag: [focal, jammy]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2

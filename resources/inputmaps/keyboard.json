@@ -1,8 +1,7 @@
 {
   "name": "Keyboard Generic",
   "idmatcher": "Keyboard.*",
-  "mapping":
-  {
+  "mapping": {
     // standard navigation, we allow shift modifiers
     "(Shift\\+)?Left": "left",
     "(Shift\\+)?Right": "right",
@@ -41,6 +40,8 @@
     "Alt\\+Shift\\+A": "decrease_audio_delay",
     "Alt\\+S": "increase_subtitles_delay",
     "Alt\\+Shift\\+S": "decrease_subtitles_delay",
+    "Ctrl\\+Shift\\+K": "decreaseplaybackrate",
+    "Ctrl\\+Shift\\+L": "increaseplaybackrate",
     "PgUp": "seek_backward",
     "PgDown": "seek_forward",
     "Home": "step_backward",

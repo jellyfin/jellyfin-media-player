@@ -6,7 +6,7 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/toolchain.cmake")
 endif()
 
 project(JellyfinMediaPlayer CXX C)
-
+message(STATUS "DSDSDASDSA")
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 

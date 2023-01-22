@@ -3,6 +3,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILER_FLAGS_THIRD_PARTY}")
 
 add_subdirectory(qslog)
 add_subdirectory(qhttp)
+add_subdirectory(discord)
 
 if(APPLE)
   add_subdirectory(plistparser)

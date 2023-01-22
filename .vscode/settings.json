@@ -20,6 +20,10 @@
         "ostream": "cpp",
         "ratio": "cpp",
         "functional": "cpp",
-        "type_traits": "cpp"
-    }
+        "type_traits": "cpp",
+        "qdebug": "cpp"
+    },
+    "search.useIgnoreFiles": true,
+    "search.useGlobalIgnoreFiles": true,
+    "cmake.configureOnOpen": true
 }

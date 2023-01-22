@@ -16,6 +16,7 @@ public:
     const char* componentName() override { return "discord"; }
     bool componentExport() override { return true; }
     explicit DiscordComponent(QObject* parent = nullptr): ComponentBase(parent) {}
+    void onMetaData(const QVariantMap &meta, QUrl baseUrl);
 
 private:
     // test

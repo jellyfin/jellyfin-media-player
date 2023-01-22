@@ -2,6 +2,44 @@
 #include "discord.h"
 #include "QsLog.h"
 #include <QTimer>
+#include "PlayerComponent.h"
+/*
+Here are all the possible map keys
+
+Map:  "BackdropImageTags" 
+Map:  "ChannelId" 
+Map:  "Chapters" 
+Map:  "CommunityRating" 
+Map:  "Container" 
+Map:  "HasSubtitles" 
+Map:  "Id" 
+Map:  "ImageBlurHashes" 
+Map:  "ImageTags" 
+Map:  "IndexNumber" 
+Map:  "IsFolder" 
+Map:  "LocationType" 
+Map:  "MediaType" 
+Map:  "Name" 
+Map:  "OfficialRating" 
+Map:  "ParentBackdropImageTags" 
+Map:  "ParentBackdropItemId" 
+Map:  "ParentIndexNumber" 
+Map:  "ParentLogoImageTag" 
+Map:  "ParentLogoItemId" 
+Map:  "PremiereDate" 
+Map:  "ProductionYear" 
+Map:  "RunTimeTicks" 
+Map:  "SeasonId" 
+Map:  "SeasonName" 
+Map:  "SeriesId" 
+Map:  "SeriesName" 
+Map:  "SeriesPrimaryImageTag" 
+Map:  "ServerId" 
+Map:  "Type" 
+Map:  "UserData" 
+Map:  "VideoType" 
+Map:  "playOptions" 
+*/
 
 discord::Core* core{};
 
@@ -12,82 +50,48 @@ bool DiscordComponent::componentInitialize() {
 
     timer->start(1000);
     
+    connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
+
     return true;
 }
 
 void DiscordComponent::RunCallbacks() {
     core->RunCallbacks();
+
 }
 
 void DiscordComponent::componentPostInitialize() {
-        auto discordCore = discord::Core::Create(1063276729617092729, DiscordCreateFlags_Default, &core);
+    auto discordCore = discord::Core::Create(1063276729617092729, DiscordCreateFlags_Default, &core);
     // auto activityManager = core->ActivityManager();
     // auto userManager = discord::Core.UserManager();
 
     discord::Activity activity{};
-    activity.SetName("Mega test");
-	activity.SetState("Testing");
-	activity.SetDetails("Fruit Loops");
+    activity.SetDetails("In the menus");
+
     QLOG_DEBUG() << "Discord: inside postinit";
     core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
-        if (result == discord::Result::ServiceUnavailable) {
+        if (result == discord::Result::Ok) {
 		    QLOG_DEBUG() << "Discord : New activity success";
             
         } else {
-		    QLOG_DEBUG() << "Discord : New activity failed";
+		    QLOG_DEBUG() << "Discord : Error = " << (int)result;
         }
     });    
-        // activity.SetName("TEST");
-    // var activity = new Discord.Activity
-    // {
-    //     State = "In Play Mode",
-    //     Details = "Playing the Trumpet!",
-    //     Timestamps =
-    //     {
-    //         Start = 5,
-    //     },
-    //             Assets =
-    //     {
-    //         LargeImage = "foo largeImageKey", // Larger Image Asset Value
-    //         LargeText = "foo largeImageText", // Large Image Tooltip
-    //         SmallImage = "foo smallImageKey", // Small Image Asset Value
-    //         SmallText = "foo smallImageText", // Small Image Tooltip
-    //     },
-    //             Party =
-    //     {
-    //         Id = "foo partyID",
-    //         Size = {
-    //             CurrentSize = 1,
-    //             MaxSize = 4,
-    //         },
-    //     },
-    //             Secrets =
-    //     {
-    //         Match = "foo matchSecret",
-    //         Join = "foo joinSecret",
-    //         Spectate = "foo spectateSecret",
-    //     },
-    //     Instance = true,
-    // };
+}
 
-    // activityManager.UpdateActivity(activity, (result) =>
-    // {
-    //     if (result == Discord.Result.Ok)
-    //     {
-    //         Console.WriteLine("Success!");
-    //     }
-    //     else
-    //     {
-    //         Console.WriteLine("Failed");
-    //     }
-    // });
+void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
+    discord::Activity activity{};
+    QString details = QString("%1 - Season %2 Episode %3 : %4").arg(meta["SeriesName"].toString(), meta["ParentIndexNumber"].toString(), meta["IndexNumber"].toString(), meta["Name"].toString());
 
-    // // Return normally
-    // userManager.OnCurrentUserUpdate += () =>
-    // {
-    //     var currentUser = userManager.GetCurrentUser();
-    //     Console.WriteLine(currentUser.Username);
-    //     Console.WriteLine(currentUser.Discriminator);
-    //     Console.WriteLine(currentUser.Id);
-    // };
+    activity.SetState(details.toStdString().c_str());
+    activity.SetDetails("Watching a show on Jellyfin");
+
+    QLOG_DEBUG() << "Discord: Received metadata";
+    core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
+        if (result == discord::Result::Ok) {
+		    QLOG_DEBUG() << "Discord : New activity success";
+        } else {
+		    QLOG_DEBUG() << "Discord : Error = " << (int)result;
+        }
+    }); 
 }

@@ -21,9 +21,14 @@
         "ratio": "cpp",
         "functional": "cpp",
         "type_traits": "cpp",
-        "qdebug": "cpp"
+        "qdebug": "cpp",
+        "atomic": "cpp",
+        "xhash": "cpp",
+        "memory": "cpp",
+        "stop_token": "cpp",
+        "qapplication": "cpp"
     },
-    "search.useIgnoreFiles": true,
-    "search.useGlobalIgnoreFiles": true,
+    "search.useIgnoreFiles": false,
+    "search.useGlobalIgnoreFiles": false,
     "cmake.configureOnOpen": true
 }

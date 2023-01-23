@@ -24,8 +24,10 @@ private:
     qint64 m_duration;
     QVariantMap metadata;
     QUrl m_baseUrl;
-    void handleUpdateDuration(qint64 duration);
-    discord::Activity buildActivity();
+    void onUpdateDuration(qint64 duration);
+    discord::Activity buildWatchingActivity();
+    discord::Activity buildMenuActivity();
+    void onStop();
 
 private slots:
     void RunCallbacks();

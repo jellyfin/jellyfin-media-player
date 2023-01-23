@@ -72,7 +72,8 @@ bool DiscordComponent::componentInitialize() {
     timer->start(1000);
     
     connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
-    connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &DiscordComponent::handleUpdateDuration);
+    connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &DiscordComponent::onUpdateDuration);
+    connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
 
     return true;
 }
@@ -87,11 +88,8 @@ void DiscordComponent::componentPostInitialize() {
     // auto activityManager = core->ActivityManager();
     // auto userManager = discord::Core.UserManager();
 
-    discord::Activity activity{};
-    activity.SetDetails("In the menus");
-    activity.SetType(discord::ActivityType::Watching);
+    discord::Activity activity = buildMenuActivity();
 
-    QLOG_DEBUG() << "Discord: inside postinit";
     core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
         if (result == discord::Result::Ok) {
 		    QLOG_DEBUG() << "Discord : New activity success";
@@ -105,31 +103,21 @@ void DiscordComponent::componentPostInitialize() {
 void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
     metadata = meta;
     m_baseUrl = baseUrl;
-    // discord::Activity activity = buildActivity();
 
-    for (auto i = meta.begin(); i != meta.end(); i++) {
-        QLOG_DEBUG() << "Key: " << i.key() << " Value: " << i.value();
-    }
+    // for (auto i = meta.begin(); i != meta.end(); i++) {
+    //     QLOG_DEBUG() << "Key: " << i.key() << " Value: " << i.value();
+    // }
      
-    QLOG_DEBUG() << "Discord: Received metadata";
-    // core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
-    //     if (result == discord::Result::Ok) {
-	// 	    QLOG_DEBUG() << "Discord : New activity success";
-    //     } else {
-	// 	    QLOG_DEBUG() << "Discord : Error = " << (int)result;
-    //     }
-    // }); 
 }
 
-void DiscordComponent::handleUpdateDuration(qint64 duration) {
+void DiscordComponent::onUpdateDuration(qint64 duration) {
     // m_duration = duration;
-    discord::Activity activity = buildActivity();
+    discord::Activity activity = buildWatchingActivity();
 
     auto start = metadata["playOptions"].toMap()["startPositionTicks"].toLongLong();
     qint64 formatted = duration + QDateTime::currentMSecsSinceEpoch();
-	QLOG_DEBUG() << "Discord :" << formatted;
-
     activity.GetTimestamps().SetEnd(formatted - start);
+
     core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
         if (result == discord::Result::Ok) {
 		    QLOG_DEBUG() << "Discord : New activity success";
@@ -152,7 +140,7 @@ void DiscordComponent::handlePositionUpdate(quint64 position) {
     // }); 
 }
 
-discord::Activity DiscordComponent::buildActivity() {
+discord::Activity DiscordComponent::buildWatchingActivity() {
     discord::Activity activity{};
     QString state;
     QString details;
@@ -173,4 +161,27 @@ discord::Activity DiscordComponent::buildActivity() {
     activity.GetAssets().SetLargeImage(thumbnailUrl.toStdString().c_str());
 
     return activity;
+}
+
+discord::Activity DiscordComponent::buildMenuActivity() {
+    discord::Activity activity{};
+    activity.SetDetails("In the menus");
+    activity.SetType(discord::ActivityType::Watching);
+
+    QLOG_DEBUG() << "Discord: set activity to menu";
+
+    return activity;
+}
+
+void DiscordComponent::onStop() {
+    discord::Activity activity = buildMenuActivity();
+
+    core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
+        if (result == discord::Result::Ok) {
+		    QLOG_DEBUG() << "Discord : New activity success";
+            
+        } else {
+		    QLOG_DEBUG() << "Discord : Error = " << (int)result;
+        }
+    }); 
 }

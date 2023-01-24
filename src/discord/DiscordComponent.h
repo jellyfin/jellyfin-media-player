@@ -18,7 +18,7 @@ public:
     bool componentExport() override { return true; }
     explicit DiscordComponent(QObject* parent = nullptr): ComponentBase(parent) {}
     void onMetaData(const QVariantMap &meta, QUrl baseUrl);
-    void handlePositionUpdate(quint64 position);
+    void onPositionUpdate(quint64 position);
 
 private:
     qint64 m_duration;
@@ -28,6 +28,10 @@ private:
     discord::Activity buildWatchingActivity();
     discord::Activity buildMenuActivity();
     void onStop();
+    void onPause();
+    void updateActivity(discord::Activity& activity);
+    void onPlaying();
+    uint64_t m_position;
 
 private slots:
     void RunCallbacks();

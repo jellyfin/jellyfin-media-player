@@ -1,8 +1,10 @@
+#include <QTimer>
 #include "DiscordComponent.h"
 #include "discord.h"
 #include "QsLog.h"
-#include <QTimer>
 #include "PlayerComponent.h"
+#include "system/SystemComponent.h"
+
 /*
 Here are all the possible map keys
 
@@ -66,14 +68,17 @@ discord::Core* core{};
 
 bool DiscordComponent::componentInitialize() {
     QTimer *timer = new QTimer(this);
-
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(RunCallbacks()));
-
     timer->start(1000);
-    
+
+    m_position = 0;    
+
     connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
     connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &DiscordComponent::onUpdateDuration);
+    connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &DiscordComponent::onPositionUpdate);
     connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
+    connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
+    connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
 
     return true;
 }
@@ -85,25 +90,16 @@ void DiscordComponent::RunCallbacks() {
 
 void DiscordComponent::componentPostInitialize() {
     auto discordCore = discord::Core::Create(1063276729617092729, DiscordCreateFlags_Default, &core);
-    // auto activityManager = core->ActivityManager();
-    // auto userManager = discord::Core.UserManager();
 
     discord::Activity activity = buildMenuActivity();
 
-    core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
-        if (result == discord::Result::Ok) {
-		    QLOG_DEBUG() << "Discord : New activity success";
-            
-        } else {
-		    QLOG_DEBUG() << "Discord : Error = " << (int)result;
-        }
-    });    
+    updateActivity(activity);   
 }
 
 void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
     metadata = meta;
+    m_position = 0;
     m_baseUrl = baseUrl;
-
     // for (auto i = meta.begin(); i != meta.end(); i++) {
     //     QLOG_DEBUG() << "Key: " << i.key() << " Value: " << i.value();
     // }
@@ -111,33 +107,11 @@ void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
 }
 
 void DiscordComponent::onUpdateDuration(qint64 duration) {
-    // m_duration = duration;
-    discord::Activity activity = buildWatchingActivity();
-
-    auto start = metadata["playOptions"].toMap()["startPositionTicks"].toLongLong();
-    qint64 formatted = duration + QDateTime::currentMSecsSinceEpoch();
-    activity.GetTimestamps().SetEnd(formatted - start);
-
-    core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
-        if (result == discord::Result::Ok) {
-		    QLOG_DEBUG() << "Discord : New activity success";
-        } else {
-		    QLOG_DEBUG() << "Discord : Error = " << (int)result;
-        }
-    }); 
+    m_duration = duration;
 }
 
-void DiscordComponent::handlePositionUpdate(quint64 position) {
-    // discord::Activity activity = buildActivity();
-
-
-    // core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
-    //     if (result == discord::Result::Ok) {
-	// 	    QLOG_DEBUG() << "Discord : New activity success";
-    //     } else {
-	// 	    QLOG_DEBUG() << "Discord : Error = " << (int)result;
-    //     }
-    // }); 
+void DiscordComponent::onPositionUpdate(quint64 position) {
+    m_position = position;
 }
 
 discord::Activity DiscordComponent::buildWatchingActivity() {
@@ -165,10 +139,10 @@ discord::Activity DiscordComponent::buildWatchingActivity() {
 
 discord::Activity DiscordComponent::buildMenuActivity() {
     discord::Activity activity{};
-    activity.SetDetails("In the menus");
-    activity.SetType(discord::ActivityType::Watching);
 
-    QLOG_DEBUG() << "Discord: set activity to menu";
+    activity.SetDetails("In the menus");
+
+    QLOG_DEBUG() << "Discord: Set activity to menu";
 
     return activity;
 }
@@ -176,6 +150,25 @@ discord::Activity DiscordComponent::buildMenuActivity() {
 void DiscordComponent::onStop() {
     discord::Activity activity = buildMenuActivity();
 
+    updateActivity(activity);
+}
+
+void DiscordComponent::onPause() {
+    discord::Activity activity = buildWatchingActivity();
+
+    updateActivity(activity);
+}
+
+void DiscordComponent::onPlaying() {
+    discord::Activity activity = buildWatchingActivity();
+
+    qint64 formatted = (m_duration - m_position + QDateTime::currentMSecsSinceEpoch()) / 1000;
+    activity.GetTimestamps().SetEnd(formatted);
+    
+    updateActivity(activity); 
+}
+
+void DiscordComponent::updateActivity(discord::Activity& activity) {
     core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
         if (result == discord::Result::Ok) {
 		    QLOG_DEBUG() << "Discord : New activity success";

@@ -9,7 +9,7 @@ discord::Core* core{};
 
 bool DiscordComponent::componentInitialize() {
     QTimer *timer = new QTimer(this);
-    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(RunCallbacks()));
+    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(runCallbacks()));
     timer->start(1000);
 
     m_position = 0;    
@@ -21,20 +21,38 @@ bool DiscordComponent::componentInitialize() {
     connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
     connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
 
+    m_timer = std::make_unique<QTimer>(new QTimer(this));
+    QObject::connect(m_timer.get(), SIGNAL(timeout()), this, SLOT(tryConnect()));
+    m_timer->setInterval(10000);
+
     return true;
 }
 
-void DiscordComponent::RunCallbacks() {
-    core->RunCallbacks();
+void DiscordComponent::componentPostInitialize() {
+    // tryConnect();
+    m_timer->start();
 
 }
 
-void DiscordComponent::componentPostInitialize() {
-    auto discordCore = discord::Core::Create(1063276729617092729, DiscordCreateFlags_Default, &core);
+void DiscordComponent::runCallbacks() {
+    if (core == nullptr) {
+        return;
+    }
+    core->RunCallbacks();
+}
 
-    discord::Activity activity = buildMenuActivity();
+void DiscordComponent::tryConnect() {
+    auto result = discord::Core::Create(1063276729617092729, DiscordCreateFlags_NoRequireDiscord, &core);
 
-    updateActivity(activity);   
+    if (result == discord::Result::Ok) {
+        m_timer->stop();
+        QLOG_DEBUG() << "Successfully connected to Discord";
+        discord::Activity activity = buildMenuActivity();
+        updateActivity(activity);   
+    } else {
+        QLOG_DEBUG() << "Failed to connect to Discord. Retrying in 10 seconds";
+        m_timer->start();
+    }
 }
 
 void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
@@ -53,6 +71,27 @@ void DiscordComponent::onUpdateDuration(qint64 duration) {
 
 void DiscordComponent::onPositionUpdate(quint64 position) {
     m_position = position;
+}
+
+void DiscordComponent::onStop() {
+    discord::Activity activity = buildMenuActivity();
+
+    updateActivity(activity);
+}
+
+void DiscordComponent::onPause() {
+    discord::Activity activity = buildWatchingActivity();
+
+    updateActivity(activity);
+}
+
+void DiscordComponent::onPlaying() {
+    discord::Activity activity = buildWatchingActivity();
+
+    qint64 formatted = (m_duration - m_position + QDateTime::currentMSecsSinceEpoch()) / 1000;
+    activity.GetTimestamps().SetEnd(formatted);
+    
+    updateActivity(activity); 
 }
 
 discord::Activity DiscordComponent::buildWatchingActivity() {
@@ -83,39 +122,23 @@ discord::Activity DiscordComponent::buildMenuActivity() {
 
     activity.SetDetails("In the menus");
 
-    QLOG_DEBUG() << "Discord: Set activity to menu";
-
     return activity;
 }
 
-void DiscordComponent::onStop() {
-    discord::Activity activity = buildMenuActivity();
-
-    updateActivity(activity);
-}
-
-void DiscordComponent::onPause() {
-    discord::Activity activity = buildWatchingActivity();
-
-    updateActivity(activity);
-}
-
-void DiscordComponent::onPlaying() {
-    discord::Activity activity = buildWatchingActivity();
-
-    qint64 formatted = (m_duration - m_position + QDateTime::currentMSecsSinceEpoch()) / 1000;
-    activity.GetTimestamps().SetEnd(formatted);
-    
-    updateActivity(activity); 
-}
-
 void DiscordComponent::updateActivity(discord::Activity& activity) {
-    core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
+	QLOG_DEBUG() << "Setting new activity";
+
+    if (core == nullptr) {
+        QLOG_DEBUG() << "Discord core not set";
+        return;
+    }
+
+    core->ActivityManager().UpdateActivity(activity, [this](discord::Result result) {
         if (result == discord::Result::Ok) {
 		    QLOG_DEBUG() << "Discord : New activity success";
-            
         } else {
-		    QLOG_DEBUG() << "Discord : Error = " << (int)result;
+		    QLOG_DEBUG() << "Unable to launch activity. Error = " << int(result);
+            tryConnect();
         }
     }); 
 }

@@ -32,9 +32,11 @@ private:
     void updateActivity(discord::Activity& activity);
     void onPlaying();
     uint64_t m_position;
+    std::unique_ptr<QTimer> m_timer;
 
 private slots:
-    void RunCallbacks();
+    void runCallbacks();
+    void tryConnect();
 
 };
 

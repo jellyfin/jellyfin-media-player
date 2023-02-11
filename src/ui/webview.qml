@@ -1,9 +1,9 @@
-import QtQuick 2.4
+import QtQuick
 import Konvergo 1.0
-import QtWebEngine 1.1
-import QtWebChannel 1.0
+import QtWebEngine
+import QtWebChannel
 import QtQuick.Window 2.2
-import QtQuick.Controls 1.4
+import QtQuick.Controls 6.0
 
 KonvergoWindow
 {
@@ -128,7 +128,6 @@ KonvergoWindow
     onTriggered: runWebAction(WebEngineView.Forward)
     id: action_forward
   }
-
   MpvVideo
   {
     id: video
@@ -152,15 +151,7 @@ KonvergoWindow
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
     width: mainWindow.width
     height: mainWindow.height
-    userScripts: [
-      WebEngineScript
-      {
-        sourceCode: components.system.getNativeShellScript()
-        injectionPoint: WebEngineScript.DocumentCreation
-        worldId: WebEngineScript.MainWorld
-      }
-    ]
-
+    
     Component.onCompleted:
     {
       forceActiveFocus()
@@ -192,7 +183,7 @@ KonvergoWindow
       }
     }
 
-    onNewViewRequested:
+    onNewWindowRequested:
     {
       if (request.userInitiated)
       {

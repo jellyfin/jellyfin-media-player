@@ -8,7 +8,7 @@
 #include <signal.h>
 #endif
 
-bool PlatformUtils::isProcessAlive(Q_PID pid)
+bool PlatformUtils::isProcessAlive(qint64 pid)
 {
 #ifdef Q_OS_UNIX
   int ret = kill((pid_t)pid, 0);

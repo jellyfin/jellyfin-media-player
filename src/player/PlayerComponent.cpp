@@ -151,8 +151,7 @@ bool PlayerComponent::componentInitialize()
     for (auto path : list)
     {
       if (access(path.data(), R_OK) == 0) {
-        mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
-        mpv::qt::set_property(m_mpv, "tls-verify", "yes");
+        
         success = true;
         break;
       }

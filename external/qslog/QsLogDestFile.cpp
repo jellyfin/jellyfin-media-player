@@ -130,7 +130,7 @@ QsLogging::FileDestination::FileDestination(const QString& filePath, RotationStr
   if (!mFile.open(QFile::WriteOnly | QFile::Text | mRotationStrategy->recommendedOpenModeFlag()))
     std::cerr << "QsLog: could not open log file " << qPrintable(filePath);
   mOutputStream.setDevice(&mFile);
-  mOutputStream.setCodec("UTF-8");
+  //mOutputStream.setEncoding("UTF-8");
 
   mRotationStrategy->setInitialInfo(mFile);
 }
@@ -159,5 +159,5 @@ void QsLogging::FileDestination::rotate()
     std::cerr << "QsLog: could not reopen log file " << qPrintable(mFile.fileName());
   mRotationStrategy->setInitialInfo(mFile);
   mOutputStream.setDevice(&mFile);
-  mOutputStream.setCodec("UTF-8");
+  //mOutputStream.setEncoding("UTF-8");
 }

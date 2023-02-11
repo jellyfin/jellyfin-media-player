@@ -11,7 +11,7 @@ class PlatformUtils
 {
 public:
   PlatformUtils() { }
-  static bool isProcessAlive(Q_PID pid);
+  static bool isProcessAlive(qint64 pid);
 };
 
 

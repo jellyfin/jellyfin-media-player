@@ -176,7 +176,7 @@ void DisplayManagerRPI::resetRendering()
     QLOG_INFO() << "Recreating Qt UI renderer";
 
     // destroy the window to reset  OpenGL context
-    window->setPersistentOpenGLContext(false);
+    window->setPersistentGraphics(false);
     window->setPersistentSceneGraph(false);
     window->destroy();
 

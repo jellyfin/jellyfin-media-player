@@ -22,7 +22,7 @@
 #include "EventFilter.h"
 
 #ifdef USE_X11EXTRAS
-#include <QX11Info>
+#include <QGuiApplication>
 #include <X11/Xlib.h>
 #endif
 
@@ -73,21 +73,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   setColor(QColor("#000000"));
 #endif
 
-#ifdef USE_X11EXTRAS
-  // On Gnome show a darker title bar
-  if (QX11Info::isPlatformX11())
-  {
-    Display* dpy = QX11Info::display();
-    if (dpy)
-    {
-      WId win = winId();
-      XChangeProperty(dpy, win,
-                      XInternAtom(dpy, "_GTK_THEME_VARIANT", false),
-                      XInternAtom(dpy, "UTF8_STRING", false),
-                      8, PropModeReplace, (unsigned char *) "dark", 4);
-    }
-  }
-#endif
+
 
   loadGeometry();
 

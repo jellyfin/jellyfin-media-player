@@ -5,9 +5,11 @@
 #include <QFileInfo>
 #include <QIcon>
 #include <QtQml>
-#include <QtWebEngine/qtwebengineglobal.h>
+#include <QtWebEngineQuick>
+#include <qtwebenginecoreglobal.h>
 #include <QtWebEngineWidgets/QWebEngineProfile>
 #include <QErrorMessage>
+#include <QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
 #include <QSettings>
@@ -153,6 +155,7 @@ int main(int argc, char *argv[])
       // a small chicken-or-egg problem, which we "solve" by making
       // this temporary console app.
       //
+      QtWebEngineQuick::initialize();
       QCoreApplication core(newArgc, newArgv);
 
       // Now parse the command line.
@@ -263,7 +266,7 @@ int main(int argc, char *argv[])
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
-    QtWebEngine::initialize();
+    
 
     // Configure QtWebEngine paths
     QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();

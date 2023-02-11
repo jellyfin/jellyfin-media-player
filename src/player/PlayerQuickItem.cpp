@@ -7,7 +7,7 @@
 #include <QOpenGLContext>
 #include <QRunnable>
 
-#include <QtGui/QOpenGLFramebufferObject>
+#include <QOpenGLFramebufferObject>
 
 #include <QtQuick/QQuickWindow>
 #include <QOpenGLFunctions>
@@ -24,7 +24,7 @@
 #endif
 
 #ifdef USE_X11EXTRAS
-#include <QX11Info>
+#include <QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
 #endif
 
@@ -113,7 +113,8 @@ mpv_opengl_init_params opengl_params = {
 #ifdef USE_X11EXTRAS
   if (platformName.contains("xcb")) {
     params[2].type = MPV_RENDER_PARAM_X11_DISPLAY;
-    params[2].data = QX11Info::display();
+    QNativeInterface::QX11Application *x11AppInfo = qApp->nativeInterface<QNativeInterface::QX11Application>();
+    params[2].data = x11AppInfo->display();
   } else if (platformName.contains("wayland")) {
     QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
     params[2].type = MPV_RENDER_PARAM_WL_DISPLAY;
@@ -154,7 +155,7 @@ void PlayerRenderer::render()
   QSize fboSize = m_size;
   QOpenGLFramebufferObject *blitFbo = 0;
 
-  m_window->resetOpenGLState();
+  m_window->beginExternalCommands();
 
   QRect fullWindow(0, 0, m_size.width(), m_size.height());
   if (m_videoRectangle.width() > 0 && m_videoRectangle.height() > 0 && m_videoRectangle != fullWindow && QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() && QOpenGLFramebufferObject::hasOpenGLFramebufferObjects())
@@ -196,7 +197,7 @@ void PlayerRenderer::render()
   };
   mpv_render_context_render(m_mpvGL, params);
 
-  m_window->resetOpenGLState();
+  m_window->endExternalCommands();
 
   if (blitFbo)
   {
@@ -295,9 +296,9 @@ void PlayerQuickItem::onSynchronize()
     connect(window(), &QQuickWindow::frameSwapped, m_renderer, &PlayerRenderer::swap, Qt::DirectConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::videoPlaybackActive, m_renderer, &PlayerRenderer::onVideoPlaybackActive, Qt::QueuedConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::onVideoRecangleChanged, window(), &QQuickWindow::update, Qt::QueuedConnection);
-    window()->setPersistentOpenGLContext(true);
+    window()->setPersistentGraphics(true);
     window()->setPersistentSceneGraph(true);
-    window()->setClearBeforeRendering(false);
+    //window()->setClearBeforeRendering(false);
     m_debugInfo = "";
     QOpenGLContext* glctx = QOpenGLContext::currentContext();
     if (glctx && glctx->isValid())

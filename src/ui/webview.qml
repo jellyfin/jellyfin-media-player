@@ -160,6 +160,14 @@ KonvergoWindow
     {
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
+      var nativeshell = 
+      { 
+        sourceCode: components.system.getNativeShellScript(),
+        injectionPoint: WebEngineScript.DocumentCreation,
+        worldId: WebEngineScript.MainWorld
+      }
+
+      webEngineView.userScripts.collection = [ nativeshell ];
     }
 
     onLoadingChanged:

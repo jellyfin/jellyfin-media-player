@@ -25,14 +25,20 @@ private:
     QVariantMap metadata;
     QUrl m_baseUrl;
     void onUpdateDuration(qint64 duration);
-    discord::Activity buildWatchingActivity();
+    discord::Activity buildWatchingActivity(bool isPaused);
     discord::Activity buildMenuActivity();
     void onStop();
     void onPause();
     void updateActivity(discord::Activity& activity);
     void onPlaying();
+    void updateMainSectionSettings(const QVariantMap& values);
     uint64_t m_position;
-    std::unique_ptr<QTimer> m_timer;
+    std::unique_ptr<QTimer> m_callbackTimer;
+    std::unique_ptr<QTimer> m_tryConnectTimer;
+    enum State { PAUSED, PLAYING, MENU };
+    discord::Activity buildActivity(State state);
+
+
 
 private slots:
     void runCallbacks();

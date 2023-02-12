@@ -4,13 +4,17 @@
 #include "QsLog.h"
 #include "PlayerComponent.h"
 #include "system/SystemComponent.h"
+#include "settings/SettingsComponent.h"
+#include "settings/SettingsSection.h"
+
 
 discord::Core* core{};
 
 bool DiscordComponent::componentInitialize() {
-    QTimer *timer = new QTimer(this);
-    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(runCallbacks()));
-    timer->start(1000);
+    m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
+    QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
+    m_callbackTimer->setInterval(1000);
+    m_callbackTimer->start();
 
     m_position = 0;    
 
@@ -20,38 +24,50 @@ bool DiscordComponent::componentInitialize() {
     connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
     connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
     connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
+    connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
+          this, &DiscordComponent::updateMainSectionSettings);
 
-    m_timer = std::make_unique<QTimer>(new QTimer(this));
-    QObject::connect(m_timer.get(), SIGNAL(timeout()), this, SLOT(tryConnect()));
-    m_timer->setInterval(10000);
+    m_tryConnectTimer = std::make_unique<QTimer>(new QTimer(this));
+    QObject::connect(m_tryConnectTimer.get(), SIGNAL(timeout()), this, SLOT(tryConnect()));
+    m_tryConnectTimer->setInterval(10000);
+
 
     return true;
 }
 
 void DiscordComponent::componentPostInitialize() {
-    // tryConnect();
-    m_timer->start();
-
+    // m_tryConnectTimer->start();
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "EnableDiscordRichPresence").toBool()) {
+        tryConnect();
+    }
 }
 
 void DiscordComponent::runCallbacks() {
+    // If discord integration is disabled, do nothing
     if (core == nullptr) {
         return;
     }
-    core->RunCallbacks();
+    auto result = core->RunCallbacks();
+
+    if (result != discord::Result::Ok) {
+        QLOG_DEBUG() << "RunCallback failed: " << int(result);
+        if (!m_tryConnectTimer->isActive()) {
+            m_tryConnectTimer->start();
+        }
+    }
 }
 
 void DiscordComponent::tryConnect() {
-    auto result = discord::Core::Create(1063276729617092729, DiscordCreateFlags_NoRequireDiscord, &core);
+    auto result = discord::Core::Create(743296148592263240, DiscordCreateFlags_NoRequireDiscord, &core);
 
     if (result == discord::Result::Ok) {
-        m_timer->stop();
+        m_tryConnectTimer->stop();
         QLOG_DEBUG() << "Successfully connected to Discord";
-        discord::Activity activity = buildMenuActivity();
+        discord::Activity activity = buildActivity(State::MENU);
         updateActivity(activity);   
     } else {
         QLOG_DEBUG() << "Failed to connect to Discord. Retrying in 10 seconds";
-        m_timer->start();
+        m_tryConnectTimer->start();
     }
 }
 
@@ -59,10 +75,6 @@ void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
     metadata = meta;
     m_position = 0;
     m_baseUrl = baseUrl;
-    // for (auto i = meta.begin(); i != meta.end(); i++) {
-    //     QLOG_DEBUG() << "Key: " << i.key() << " Value: " << i.value();
-    // }
-     
 }
 
 void DiscordComponent::onUpdateDuration(qint64 duration) {
@@ -74,27 +86,40 @@ void DiscordComponent::onPositionUpdate(quint64 position) {
 }
 
 void DiscordComponent::onStop() {
-    discord::Activity activity = buildMenuActivity();
+    discord::Activity activity = buildActivity(State::MENU);
 
     updateActivity(activity);
 }
 
 void DiscordComponent::onPause() {
-    discord::Activity activity = buildWatchingActivity();
+    discord::Activity activity = buildActivity(State::PAUSED);
 
     updateActivity(activity);
 }
 
 void DiscordComponent::onPlaying() {
-    discord::Activity activity = buildWatchingActivity();
-
-    qint64 formatted = (m_duration - m_position + QDateTime::currentMSecsSinceEpoch()) / 1000;
-    activity.GetTimestamps().SetEnd(formatted);
+    discord::Activity activity = buildActivity(State::PLAYING);
     
     updateActivity(activity); 
 }
 
-discord::Activity DiscordComponent::buildWatchingActivity() {
+void DiscordComponent::updateMainSectionSettings(const QVariantMap& values) {
+    if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "EnableDiscordRichPresence").toBool()) {
+        core->ActivityManager().ClearActivity([this](discord::Result result) {
+            if (result == discord::Result::Ok) {
+                QLOG_DEBUG() << "Cleared discord activity";
+            } else {
+                QLOG_DEBUG() << "Error clearing activity. Error = " << int(result);
+            }
+            delete core;
+            core = nullptr;
+        });
+    } else {
+        tryConnect();
+    }
+}
+
+discord::Activity DiscordComponent::buildWatchingActivity(bool isPaused) {
     discord::Activity activity{};
     QString state;
     QString details;
@@ -114,8 +139,26 @@ discord::Activity DiscordComponent::buildWatchingActivity() {
     activity.SetDetails(details.toStdString().c_str());
     activity.GetAssets().SetLargeImage(thumbnailUrl.toStdString().c_str());
 
+    if (!isPaused) {
+        qint64 formatted = (m_duration - m_position + QDateTime::currentMSecsSinceEpoch()) / 1000;
+        activity.GetTimestamps().SetEnd(formatted);
+    }
     return activity;
 }
+
+discord::Activity DiscordComponent::buildActivity(State state) {
+    switch (state) {
+        case State::PAUSED:
+            return buildWatchingActivity(true);
+        case State::PLAYING:
+            return buildWatchingActivity(false);
+        case State::MENU:
+            return buildMenuActivity();
+        default:
+            QLOG_INFO() << "Invalid state";
+    }
+}
+
 
 discord::Activity DiscordComponent::buildMenuActivity() {
     discord::Activity activity{};
@@ -138,7 +181,6 @@ void DiscordComponent::updateActivity(discord::Activity& activity) {
 		    QLOG_DEBUG() << "Discord : New activity success";
         } else {
 		    QLOG_DEBUG() << "Unable to launch activity. Error = " << int(result);
-            tryConnect();
         }
     }); 
 }

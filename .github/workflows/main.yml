@@ -58,9 +58,6 @@ jobs:
         mv ninja.exe build/
         curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-v3-20230205-git-e439ddc.7z/download > mpv.7z
         7z x mpv.7z
-        mv include mpv
-        mkdir include
-        mv mpv include
         mkdir mpv
         mv include mpv
         mv libmpv-2.dll mpv/mpv.dll
@@ -103,9 +100,6 @@ jobs:
         mv ninja.exe build/
         curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20230205-git-e439ddc.7z/download > mpv.7z
         7z x mpv.7z
-        mv include mpv
-        mkdir include
-        mv mpv include
         mkdir mpv
         mv include mpv
         mv libmpv-2.dll mpv/mpv.dll

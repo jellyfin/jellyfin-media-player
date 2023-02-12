@@ -131,3 +131,7 @@ If you have problems:
 Jellyfin Media Player is licensed under GPL v2. See the ``LICENSE`` file.
 Licenses of dependencies are summarized under ``resources/misc/licenses.txt``.
 This file can also be printed at runtime when using the ``--licenses`` option.
+
+## Unofficial Plugin Support
+
+You can enable experimental support for [Jellyscrub](https://github.com/nicknsy/jellyscrub) and [Skip Intro](https://github.com/ConfusedPolarBear/intro-skipper) in client settings. These are included for convenience only and is not an endorsement or long-term commitment to ensure functionality. See `src/native` for details on what the plugins modify code-wise.

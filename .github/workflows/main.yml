@@ -20,6 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
+        rm /usr/local/bin/2to3-3.11
         brew install ninja mpv
     - name: Release build
       run: |

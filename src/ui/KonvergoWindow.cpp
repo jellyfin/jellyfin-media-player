@@ -73,7 +73,23 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   setColor(QColor("#000000"));
 #endif
 
-
+#ifdef USE_X11EXTRAS
+  // On Gnome show a darker title bar
+  if (QGuiApplication::platformName() == "xcb")
+  {
+    QNativeInterface::QX11Application *x11AppInfo = qApp->nativeInterface<QNativeInterface::QX11Application>();
+    Display* dpy = x11AppInfo->display();
+    
+    if (dpy)
+    {
+      WId win = winId();
+      XChangeProperty(dpy, win,
+                      XInternAtom(dpy, "_GTK_THEME_VARIANT", false),
+                      XInternAtom(dpy, "UTF8_STRING", false),
+                      8, PropModeReplace, (unsigned char *) "dark", 4);
+    }
+  }
+#endif
 
   loadGeometry();
 

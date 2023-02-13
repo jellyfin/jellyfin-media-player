@@ -61,7 +61,7 @@ jobs:
         mkdir mpv
         mv include mpv
         mv libmpv-2.dll mpv/mpv.dll
-        echo "LIBRARY MPV-1" > mpv.def.fixed
+        echo "LIBRARY MPV" > mpv.def.fixed
         echo "EXPORTS" >> mpv.def.fixed
         cat mpv.def >> mpv.def.fixed
         mv mpv.def.fixed mpv.def
@@ -107,7 +107,7 @@ jobs:
         mkdir mpv
         mv include mpv
         mv libmpv-2.dll mpv/mpv.dll
-        echo "LIBRARY MPV-1" > mpv.def.fixed
+        echo "LIBRARY MPV" > mpv.def.fixed
         echo "EXPORTS" >> mpv.def.fixed
         cat mpv.def >> mpv.def.fixed
         mv mpv.def.fixed mpv.def

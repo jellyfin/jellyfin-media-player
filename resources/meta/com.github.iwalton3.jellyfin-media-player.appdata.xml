@@ -39,6 +39,17 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.8.0" date="2023-02-12">
+        <p>Changes:</p>
+        <ul>
+          <li>Update web client to 10.8.9.</li>
+          <li>Add support for Jellyscrub and Skip Intro. (Must be enabled manually, requires third-party plugins.)</li>
+          <li>Update to MPV version v0.35.1.</li>
+          <li>Add input map for DualShock 4 connected via USB (#359)</li>
+          <li>Add support for DVBSUB subtitles (#279)</li>
+          <li>Allow screensaver when video is paused (#276)</li>
+        </ul>
+      </release>
       <release version="1.7.1" date="2022-06-26">
         <p>Changes:</p>
         <ul>

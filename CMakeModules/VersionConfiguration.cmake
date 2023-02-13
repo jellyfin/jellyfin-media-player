@@ -21,13 +21,13 @@ else()
 endif()
 
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 7)
-set(VERSION_NANO 1)
+set(VERSION_MINOR 8)
+set(VERSION_NANO 0)
 
 option(UPGRADE_DEBUG "" OFF)
 
-set(VERSION_STRING "1.7.1")
-set(VERSION_STRING_SHORT "1.7.1")
-set(CANONICAL_VERSION_STRING "1.7.1")
+set(VERSION_STRING "1.8.0")
+set(VERSION_STRING_SHORT "1.8.0")
+set(CANONICAL_VERSION_STRING "1.8.0")
 
 configure_file(src/core/Version.cpp.in src/core/Version.cpp)

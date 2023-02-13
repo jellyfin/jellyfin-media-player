@@ -163,7 +163,7 @@ KonvergoWindow
         worldId: WebEngineScript.MainWorld
       }
 
-      webEngineView.userScripts.collection = [ nativeshell ];
+      web.userScripts.collection = [ nativeshell ];
     }
 
     onLoadingChanged:

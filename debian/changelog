@@ -1,4 +1,4 @@
-jellyfin-media-player (1.8.0-1) unstable; urgency=medium
+jellyfin-media-player (1.8.1-1) unstable; urgency=medium
 
   * Update web client to 10.8.9.
   * Add support for Jellyscrub and Skip Intro. (Must be enabled manually,
@@ -8,7 +8,7 @@ jellyfin-media-player (1.8.0-1) unstable; urgency=medium
   * Allow screensaver when video is paused (#276)
   * Fix debian package for bookworm.
 
- -- Ian Walton <ian@iwalton.com>  Sun, 12 Feb 2023 19:07:42 -0500
+ -- Ian Walton <ian@iwalton.com>  Sun, 13 Feb 2023 05:36:50 -0500
 
 jellyfin-media-player (1.7.1-1) unstable; urgency=medium
 

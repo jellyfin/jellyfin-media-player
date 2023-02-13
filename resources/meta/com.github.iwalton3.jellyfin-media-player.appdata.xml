@@ -39,7 +39,7 @@
     <category>TV</category>
   </categories>
   <releases>
-      <release version="1.8.0" date="2023-02-12">
+      <release version="1.8.1" date="2023-02-13">
         <p>Changes:</p>
         <ul>
           <li>Update web client to 10.8.9.</li>

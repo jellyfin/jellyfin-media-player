@@ -132,6 +132,19 @@
     ]
   },
   {
+    "section": "plugins",
+    "values": [
+      {
+        "value": "skipintro",
+        "default": false
+      },
+      {
+        "value": "jellyscrub",
+        "default": false
+      }
+    ]
+  },
+  {
     "section": "audio",
     "values": [
       {

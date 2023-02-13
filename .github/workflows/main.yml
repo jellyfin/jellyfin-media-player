@@ -8,11 +8,11 @@ on:
       - test
 jobs:
   build-mac:
-    runs-on: macos-10.15
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
         version: "5.15.2"
         modules: "qtwebengine"  
@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        brew install ninja mpv
+        brew install ninja mpv || true
     - name: Release build
       run: |
         ./download_webclient.sh
@@ -43,7 +43,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
         version: "5.15.2"
         arch: "win64_msvc2019_64"
@@ -51,19 +51,20 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        ls -R "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/"*
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(ls -d "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\vc_redist.x64.exe#g" bundle/win/Bundle.wxs
+        curl -L https://aka.ms/vs/17/release/vc_redist.x64.exe > vc_redist.x64.exe
+        sed -i 's#C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(readlink -f vc_redist.x64.exe | sed 's#/\([a-z]\)/#\1:\\#g' | tr '/' '\\' | sed 's/\\/\\\\/g')#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20211212-git-0e76372.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20230205-git-e439ddc.7z/download > mpv.7z
         7z x mpv.7z
-        mv include mpv
-        mkdir include
-        mv mpv include
         mkdir mpv
         mv include mpv
-        mv mpv-1.dll mpv/mpv.dll
+        mv libmpv-2.dll mpv/mpv.dll
+        echo "LIBRARY MPV" > mpv.def.fixed
+        echo "EXPORTS" >> mpv.def.fixed
+        cat mpv.def >> mpv.def.fixed
+        mv mpv.def.fixed mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash
@@ -88,7 +89,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
         version: "5.15.2"
         arch: "win32_msvc2019"
@@ -96,19 +97,20 @@ jobs:
     - name: Install dependencies
       run: |
         ./download_webclient.sh
-        ls -R "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/"*
-        sed -i 's#Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(ls -d "/c/Program Files/Microsoft Visual Studio/2022/"*"/VC/Redist/MSVC/v"* | head -n 1 | sed 's#/c/##g' | tr '/' '\\' | sed 's/\\/\\\\/g')\\\\vc_redist.x86.exe#g" bundle/win/Bundle.wxs
+        curl -L https://aka.ms/vs/17/release/vc_redist.x86.exe > vc_redist.x86.exe
+        sed -i 's#C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(readlink -f vc_redist.x86.exe | sed 's#/\([a-z]\)/#\1:\\#g' | tr '/' '\\' | sed 's/\\/\\\\/g')#g" bundle/win/Bundle.wxs
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20211212-git-0e76372.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-20230205-git-e439ddc.7z/download > mpv.7z
         7z x mpv.7z
-        mv include mpv
-        mkdir include
-        mv mpv include
         mkdir mpv
         mv include mpv
-        mv mpv-1.dll mpv/mpv.dll
+        mv libmpv-2.dll mpv/mpv.dll
+        echo "LIBRARY MPV" > mpv.def.fixed
+        echo "EXPORTS" >> mpv.def.fixed
+        cat mpv.def >> mpv.def.fixed
+        mv mpv.def.fixed mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash
@@ -131,7 +133,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        tag: [focal, jammy]
+        tag: [kinetic, jammy, focal]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2

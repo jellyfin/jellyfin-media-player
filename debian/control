@@ -44,7 +44,7 @@ Vcs-Browser: https://github.org/jellyfin/jellyfin-media-player
 
 Package: jellyfin-media-player
 Architecture: any
-Depends: libmpv1,
+Depends: libmpv1 | libmpv2,
          libqt5webengine5,
          libcec4 | libcec6,
          qml-module-qtwebengine,

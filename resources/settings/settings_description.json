@@ -252,6 +252,14 @@
         "platforms_excluded": "oe_rpi"
       },
       {
+        "value": "allow_transcode_to_hevc",
+        "default": false
+      },
+      {
+        "value": "force_transcode_hdr",
+        "default": false
+      },
+      {
         "value": "sync_mode",
         "default": "audio",
         "possible_values": [

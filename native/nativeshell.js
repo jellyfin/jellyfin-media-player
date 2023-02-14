@@ -64,6 +64,32 @@ window.NativeShell = {
 };
 
 function getDeviceProfile() {
+    const CodecProfiles = [
+        {
+            'Type': 'Video',
+            'Conditions': [
+                {
+                    'Condition': 'NotEquals',
+                    'Property': 'VideoRangeType',
+                    'Value': 'DOVI'
+                }
+            ]
+        }
+    ];
+
+    if (viewdata.force_transcode_hdr) {
+        CodecProfiles.push({
+            'Type': 'Video',
+            'Conditions': [
+                {
+                    'Condition': 'Equals',
+                    'Property': 'VideoRangeType',
+                    'Value': 'SDR'
+                }
+            ]
+        });
+    }
+
     return {
         'Name': 'Jellyfin Media Player',
         'MaxStaticBitrate': 1000000000,
@@ -76,7 +102,9 @@ function getDeviceProfile() {
                 'Type': 'Video',
                 'Protocol': 'hls',
                 'AudioCodec': 'aac,mp3,ac3,opus,flac,vorbis',
-                'VideoCodec': 'h264,h265,hevc,mpeg4,mpeg2video',
+                'VideoCodec': viewdata.allow_transcode_to_hevc
+                    ? 'h264,h265,hevc,mpeg4,mpeg2video'
+                    : 'h264,mpeg4,mpeg2video',
                 'MaxAudioChannels': '6'
             },
             {'Container': 'jpeg', 'Type': 'Photo'}
@@ -84,18 +112,7 @@ function getDeviceProfile() {
         'DirectPlayProfiles': [{'Type': 'Video'}, {'Type': 'Audio'}, {'Type': 'Photo'}],
         'ResponseProfiles': [],
         'ContainerProfiles': [],
-        'CodecProfiles': [
-            {
-                'Type': 'Video',
-                'Conditions': [
-                    {
-                        'Condition': 'NotEquals',
-                        'Property': 'VideoRangeType',
-                        'Value': 'DOVI'
-                    }
-                ]
-            }
-        ],
+        CodecProfiles,
         'SubtitleProfiles': [
             {'Format': 'srt', 'Method': 'External'},
             {'Format': 'srt', 'Method': 'Embed'},

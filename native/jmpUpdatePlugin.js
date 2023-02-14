@@ -1,5 +1,5 @@
 class jmpUpdatePlugin {
-    constructor({ confirm, toast }) {
+    constructor({ confirm }) {
         this.name = 'JMP Update Plugin';
         this.type = 'input';
         this.id = 'jmpUpdatePlugin';
@@ -24,6 +24,9 @@ class jmpUpdatePlugin {
                 if (!/^[0-9.-]+$/.test(version)) return;
 
                 try {
+                    // wait 3 seconds before showing the dialog to prevent race conditions
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+
                     await confirm({
                         title: "Update Available",
                         text: `Jellyfin Media Player version ${version} is available.`,

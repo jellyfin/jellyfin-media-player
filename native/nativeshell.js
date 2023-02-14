@@ -84,7 +84,18 @@ function getDeviceProfile() {
         'DirectPlayProfiles': [{'Type': 'Video'}, {'Type': 'Audio'}, {'Type': 'Photo'}],
         'ResponseProfiles': [],
         'ContainerProfiles': [],
-        'CodecProfiles': [],
+        'CodecProfiles': [
+            {
+                'Type': 'Video',
+                'Conditions': [
+                    {
+                        'Condition': 'NotEquals',
+                        'Property': 'VideoRangeType',
+                        'Value': 'DOVI'
+                    }
+                ]
+            }
+        ],
         'SubtitleProfiles': [
             {'Format': 'srt', 'Method': 'External'},
             {'Format': 'srt', 'Method': 'Embed'},

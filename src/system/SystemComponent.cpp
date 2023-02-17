@@ -330,6 +330,8 @@ QString SystemComponent::getNativeShellScript()
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
   clientData.insert("mode", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString()));
+  clientData.insert("allow_transcode_to_hevc", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "allow_transcode_to_hevc").toBool()));
+  clientData.insert("force_transcode_hdr", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "force_transcode_hdr").toBool()));
   nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
   return nativeshellString;
 }

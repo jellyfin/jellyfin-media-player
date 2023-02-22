@@ -6,6 +6,8 @@
 #include <QGuiApplication>
 #include <QOpenGLContext>
 #include <QRunnable>
+#include <QSGRendererInterface>
+#include <QQuickOpenGLUtils>
 
 #include <QOpenGLFramebufferObject>
 
@@ -144,7 +146,9 @@ PlayerRenderer::~PlayerRenderer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerRenderer::render()
 {
-  QOpenGLContext *context = QOpenGLContext::currentContext();
+  QOpenGLContext *context = (QOpenGLContext*) (m_window->rendererInterface()->getResource(m_window, QSGRendererInterface::OpenGLContextResource));
+  if (!context)
+    return;
 
   GLint fbo = 0;
   context->functions()->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
@@ -155,8 +159,16 @@ void PlayerRenderer::render()
   bool screenFlip = flip;
   QSize fboSize = m_size;
   QOpenGLFramebufferObject *blitFbo = 0;
+  QQuickOpenGLUtils::resetOpenGLState();
 
   m_window->beginExternalCommands();
+
+  // this may help: https://doc.qt.io/qt-6/quick-changes-qt6.html#changes-to-qquick-apis
+
+  // this is a canary. if the window retains textures, this is broken
+  // remove this when the window is fixed
+  context->functions()->glClearColor(0, 0, 0, 0);
+  context->functions()->glClear(GL_COLOR_BUFFER_BIT);
 
   QRect fullWindow(0, 0, m_size.width(), m_size.height());
   if (m_videoRectangle.width() > 0 && m_videoRectangle.height() > 0 && m_videoRectangle != fullWindow && QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() && QOpenGLFramebufferObject::hasOpenGLFramebufferObjects())
@@ -197,8 +209,7 @@ void PlayerRenderer::render()
     {MPV_RENDER_PARAM_INVALID}
   };
   mpv_render_context_render(m_mpvGL, params);
-
-  m_window->endExternalCommands();
+  QQuickOpenGLUtils::resetOpenGLState();
 
   if (blitFbo)
   {
@@ -208,6 +219,8 @@ void PlayerRenderer::render()
 
     QOpenGLFramebufferObject::blitFramebuffer(0, dstRect, blitFbo, QRect(QPoint(0, 0), blitFbo->size()));
   }
+
+  m_window->endExternalCommands();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -293,7 +306,7 @@ void PlayerQuickItem::onSynchronize()
       emit onFatalError(tr("Could not initialize OpenGL."));
       return;
     }
-    connect(window(), &QQuickWindow::beforeRendering, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
+    connect(window(), &QQuickWindow::beforeRenderPassRecording, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
     connect(window(), &QQuickWindow::frameSwapped, m_renderer, &PlayerRenderer::swap, Qt::DirectConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::videoPlaybackActive, m_renderer, &PlayerRenderer::onVideoPlaybackActive, Qt::QueuedConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::onVideoRecangleChanged, window(), &QQuickWindow::update, Qt::QueuedConnection);

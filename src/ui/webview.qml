@@ -151,7 +151,9 @@ KonvergoWindow
     onLinkHovered: web.currentHoveredUrl = hoveredUrl
     width: mainWindow.width
     height: mainWindow.height
-    
+    profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
+    profile.offTheRecord: false
+
     Component.onCompleted:
     {
       forceActiveFocus()

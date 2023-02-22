@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
 
     preinitQt();
     detectOpenGLEarly();
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)

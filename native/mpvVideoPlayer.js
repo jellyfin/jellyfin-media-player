@@ -7,13 +7,18 @@
     }
 
     class mpvVideoPlayer {
-        constructor({ events, loading, appRouter, globalize, appHost, appSettings, confirm }) {
+        constructor({ events, loading, appRouter, globalize, appHost, appSettings, confirm, dashboard }) {
             this.events = events;
             this.loading = loading;
             this.appRouter = appRouter;
             this.globalize = globalize;
             this.appHost = appHost;
             this.appSettings = appSettings;
+
+            // this can be removed after 10.9
+            this.setTransparency = (dashboard && dashboard.setBackdropTransparency)
+                ? dashboard.setBackdropTransparency.bind(dashboard)
+                : appRouter.setTransparency.bind(appRouter);
 
             /**
              * @type {string}
@@ -156,7 +161,7 @@
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
                     } else {
-                        this.appRouter.setTransparency('backdrop');
+                        this.setTransparency('backdrop');
                         this._videoDialog.dlg.style.zIndex = 'unset';
                     }
 
@@ -467,7 +472,8 @@
             window.api.player.stop();
             window.api.power.setScreensaverEnabled(true);
 
-            this.appRouter.setTransparency('none');
+            this.setTransparency('none');
+
             document.body.classList.remove('hide-scroll');
 
             const dlg = this._videoDialog;

@@ -1,5 +1,5 @@
 class jellyscrubPlugin {
-    constructor({ playbackManager, events }) {
+    constructor({ playbackManager, events, ServerConnections }) {
         this.name = 'Jellyscrub Plugin';
         this.type = 'input';
         this.id = 'jellyscrubPlugin';
@@ -392,12 +392,17 @@ class jellyscrubPlugin {
             }
             
             function getServerUrl() {
-                const apiClient = window.ApiClient;
+                const apiClient = ServerConnections
+                    ? ServerConnections.currentApiClient()
+                    : window.ApiClient;
                 return apiClient.serverAddress();
             }
 
             function assignAuth(request) {
-                const apiClient = window.ApiClient;
+                const apiClient = ServerConnections
+                    ? ServerConnections.currentApiClient()
+                    : window.ApiClient;
+
                 const address = apiClient.serverAddress();
 
 

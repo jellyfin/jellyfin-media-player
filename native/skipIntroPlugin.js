@@ -1,7 +1,7 @@
 let tvIntro;
 
 class skipIntroPlugin {
-    constructor({ events, playbackManager }) {
+    constructor({ events, playbackManager, ServerConnections }) {
         this.name = 'Skip Intro Plugin';
         this.type = 'input';
         this.id = 'skipIntroPlugin';
@@ -141,7 +141,9 @@ class skipIntroPlugin {
             
 
             function getIntroTimestamps(item) {
-                const apiClient = window.ApiClient;
+                const apiClient = ServerConnections
+                    ? ServerConnections.currentApiClient()
+                    : window.ApiClient;
                 const address = apiClient.serverAddress();
 
                 const url = `${address}/Episode/${item.Id}/IntroTimestamps`;

@@ -153,6 +153,7 @@ KonvergoWindow
     height: mainWindow.height
     profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
     profile.offTheRecord: false
+    backgroundColor: "transparent"
 
     Component.onCompleted:
     {

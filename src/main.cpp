@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QIcon>
 #include <QtQml>
+#include <Qt>
 #include <QtWebEngineQuick>
 #include <qtwebenginecoreglobal.h>
 #include <QtWebEngineWidgets/QWebEngineProfile>
@@ -143,6 +144,7 @@ int main(int argc, char *argv[])
     preinitQt();
     detectOpenGLEarly();
     QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -156,7 +158,6 @@ int main(int argc, char *argv[])
       // a small chicken-or-egg problem, which we "solve" by making
       // this temporary console app.
       //
-      QtWebEngineQuick::initialize();
       QCoreApplication core(newArgc, newArgv);
 
       // Now parse the command line.
@@ -219,6 +220,7 @@ int main(int argc, char *argv[])
       webEngineDataDir = d.absolutePath() + "/QtWebEngine";
     }
 
+    QtWebEngineQuick::initialize();
     QApplication app(newArgc, newArgv);
 
 #if defined(Q_OS_WIN) 

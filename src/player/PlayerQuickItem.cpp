@@ -145,7 +145,7 @@ PlayerRenderer::~PlayerRenderer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerRenderer::render()
 {
-  QOpenGLContext *context = (QOpenGLContext*) (m_window->rendererInterface()->getResource(m_window, QSGRendererInterface::OpenGLContextResource));
+  QOpenGLContext *context = QOpenGLContext::currentContext(); // same as (QOpenGLContext*) (m_window->rendererInterface()->getResource(m_window, QSGRendererInterface::OpenGLContextResource));
   if (!context)
     return;
 
@@ -161,13 +161,6 @@ void PlayerRenderer::render()
   QQuickOpenGLUtils::resetOpenGLState();
 
   m_window->beginExternalCommands();
-
-  // this may help: https://doc.qt.io/qt-6/quick-changes-qt6.html#changes-to-qquick-apis
-
-  // this is a canary. if the window retains textures, this is broken
-  // remove this when the window is fixed
-  context->functions()->glClearColor(0, 0, 0, 0);
-  context->functions()->glClear(GL_COLOR_BUFFER_BIT);
 
   QRect fullWindow(0, 0, m_size.width(), m_size.height());
   if (m_videoRectangle.width() > 0 && m_videoRectangle.height() > 0 && m_videoRectangle != fullWindow && QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() && QOpenGLFramebufferObject::hasOpenGLFramebufferObjects())

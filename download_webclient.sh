@@ -29,15 +29,17 @@ function download_compat {
     fi
 }
 
-function get_resource_version {
-    curl -s --head https://github.com/"$1"/releases/latest | \
-        grep -i '^location: ' | sed 's/.*tag\///g' | tr -d '\r'
+function get_webclient_version {
+    curl https://repo.jellyfin.org/releases/server/portable/versions/stable/web/ \
+     | grep '[0-9]\+\.[0-9]\+\.[0-9]\+' \
+     | sed 's/.*>\([0-9]\+\.[0-9]\+\.[0-9]\+\)\/.*/\1/g' \
+     | sort -h | tail -n 1
 }
 
 if [[ "$1" == "--gen-fingerprint" ]]
 then
     (
-        get_resource_version iwalton3/jellyfin-web-jmp
+        get_webclient_version
     ) | tee az-cache-fingerprint.list
     exit 0
 fi
@@ -50,7 +52,7 @@ then
     update_web_client="yes"
 elif [[ -e ".last_wc_version" ]]
 then
-    if [[ "$(get_resource_version iwalton3/jellyfin-web-jmp)" != "$(cat .last_wc_version)" ]]
+    if [[ "$(get_webclient_version)" != "$(cat .last_wc_version)" ]]
     then
         update_web_client="yes"
     fi
@@ -59,14 +61,14 @@ fi
 if [[ "$update_web_client" == "yes" ]]
 then
     echo "Downloading web client..."
-    wc_version=$(get_resource_version iwalton3/jellyfin-web-jmp)
-    download_compat dist.zip "https://github.com/iwalton3/jellyfin-web-jmp/releases/download/$wc_version/dist.zip" "wc"
+    wc_version=$(get_webclient_version)
+    download_compat dist.tar.gz "https://repo.jellyfin.org/releases/server/portable/versions/stable/web/${wc_version}/jellyfin-web_${wc_version}_portable.tar.gz" "wc"
     if [[ "$DOWNLOAD_ONLY" != "1" ]]
     then
         rm -r build/dist 2> /dev/null
         rm -r dist 2> /dev/null
-        unzip dist.zip > /dev/null && rm dist.zip
-        mv dist build/
+        tar -xvf dist.tar.gz > /dev/null && rm dist.tar.gz
+        mv "jellyfin-web_${wc_version}" build/dist
     fi
     echo "$wc_version" > .last_wc_version
 fi

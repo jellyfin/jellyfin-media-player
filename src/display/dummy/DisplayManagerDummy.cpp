@@ -1,4 +1,5 @@
-#include "QsLog.h"
+#include <QDebug>
+
 #include "DisplayManagerDummy.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +42,7 @@ bool DisplayManagerDummy::setDisplayMode(int display, int mode)
   DMDisplayPtr displayptr = m_displays[display];
   DMVideoModePtr videomode = displayptr->m_videoModes[mode];
 
-  QLOG_INFO() << "Switching to" << videomode->m_width << "x" << videomode->m_height << "@" << videomode->m_refreshRate;
+  qInfo() << "Switching to" << videomode->m_width << "x" << videomode->m_height << "@" << videomode->m_refreshRate;
 
   m_currentMode = videomode->m_id;
 

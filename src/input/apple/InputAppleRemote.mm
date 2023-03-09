@@ -1,6 +1,6 @@
+#include <QDebug>
 #include "settings/SettingsComponent.h"
 #include "InputAppleRemote.h"
-#include "QsLog.h"
 
 #include "HIDRemote.h"
 #include "AppleRemoteDelegate.h"
@@ -15,21 +15,21 @@ bool InputAppleRemote::initInput()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputAppleRemote::addRemoteFailed(const QString &error)
 {
-  QLOG_ERROR() << error;
+  qCritical() << error;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputAppleRemote::addRemote(const QString &name)
 {
   m_remotes << name;
-  QLOG_DEBUG() << "Added remote:" << name;
+  qDebug() << "Added remote:" << name;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputAppleRemote::removeRemote(const QString &name)
 {
   m_remotes.removeOne(name);
-  QLOG_DEBUG() << "Remove remote:" << name;
+  qDebug() << "Remove remote:" << name;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

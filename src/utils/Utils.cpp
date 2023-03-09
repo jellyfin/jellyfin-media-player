@@ -13,13 +13,12 @@
 #include <QFile>
 #include <QSaveFile>
 #include <QRegExp>
+#include <QDebug>
 
 #include <mutex>
 
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
-
-#include "QsLog.h"
 
 QList<QChar> httpSeparators = { '(', ')', '<', '>', '@', ',', ';', ':', '\\', '\"', '/', '[', ']', '?', '=', '{', '}', '\'' };
 

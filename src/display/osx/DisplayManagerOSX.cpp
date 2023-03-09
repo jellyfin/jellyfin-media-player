@@ -7,10 +7,9 @@
 //
 
 #include <CoreGraphics/CoreGraphics.h>
+#include <QDebug>
 #include "utils/osx/OSXUtils.h"
 #include "DisplayManagerOSX.h"
-
-#include "QsLog.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerOSX::initialize()
@@ -30,7 +29,7 @@ bool DisplayManagerOSX::initialize()
   if (err)
   {
     m_osxnumDisplays = 0;
-    QLOG_ERROR() << "CGGetActiveDisplayList returned failure:" << err;
+    qCritical() << "CGGetActiveDisplayList returned failure:" << err;
     return false;
   }
 
@@ -101,7 +100,7 @@ bool DisplayManagerOSX::setDisplayMode(int display, int mode)
   CGError err = CGDisplaySetDisplayMode(m_osxDisplays[display], displayMode, nullptr);
   if (err)
   {
-    QLOG_ERROR() << "CGDisplaySetDisplayMode() returned failure:" << err;
+    qCritical() << "CGDisplaySetDisplayMode() returned failure:" << err;
     return false;
   }
 

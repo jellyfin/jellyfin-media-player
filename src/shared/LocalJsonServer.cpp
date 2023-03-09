@@ -2,9 +2,10 @@
 // Created by Tobias Hieta on 30/08/15.
 //
 
+#include <QDebug>
+#include <QFile>
 #include "LocalJsonServer.h"
 #include "Paths.h"
-#include "QsLog.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 LocalJsonServer::LocalJsonServer(const QString& serverName, QObject* parent) : QObject(parent)
@@ -26,11 +27,11 @@ bool LocalJsonServer::listen()
       continue;
     }
 
-    QLOG_WARN() << "Failed to listen to local socket:" << m_server->errorString();
+    qWarning() << "Failed to listen to local socket:" << m_server->errorString();
     return false;
   }
 
-  QLOG_INFO() << "Listening to socket:" << m_serverName;
+  qInfo() << "Listening to socket:" << m_serverName;
   return true;
 }
 
@@ -90,7 +91,7 @@ QVariantList LocalJsonServer::readFromSocket(QLocalSocket* socket)
       QJsonDocument doc = QJsonDocument::fromJson(data, &err);
       if (doc.isNull())
       {
-        QLOG_WARN() << "Failed to parse message from client:" << err.errorString();
+        qWarning() << "Failed to parse message from client:" << err.errorString();
         continue;
       }
 

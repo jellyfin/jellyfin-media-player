@@ -9,17 +9,18 @@
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QDebug>
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
 #include "Version.h"
-#include "QsLog.h"
 #include "settings/SettingsComponent.h"
 #include "ui/KonvergoWindow.h"
 #include "settings/SettingsSection.h"
 #include "Paths.h"
 #include "Names.h"
 #include "utils/Utils.h"
+#include "utils/Log.h"
 
 #define MOUSE_TIMEOUT 5 * 1000
 
@@ -153,7 +154,7 @@ QVariantMap SystemComponent::systemInformation() const
   info["version"] = Version::GetVersionString();
   info["productid"] = productid;
   
- QLOG_DEBUG() << QString(
+ qDebug() << QString(
                 "System Information : build(%1)-arch(%2).dist(%3).version(%4).productid(%5)")
                 .arg(build)
                 .arg(arch)
@@ -179,8 +180,8 @@ void SystemComponent::restart()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::info(QString text)
 {
-  if (QsLogging::Logger::instance().loggingLevel() <= QsLogging::InfoLevel)
-    QsLogging::Logger::Helper(QsLogging::InfoLevel).stream() << "JS:" << qPrintable(text);
+  if (Log::ShouldLogInfo())
+    qInfo() << "JS:" << qPrintable(text);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -293,27 +294,27 @@ void SystemComponent::runUserScript(QString script)
   {
     if (!QFileInfo(scriptFile).isExecutable())
     {
-      QLOG_WARN() << "Script:" << script << "is not executable";
+      qWarning() << "Script:" << script << "is not executable";
       return;
     }
 
-    QLOG_INFO() << "Running script:" << scriptPath;
+    qInfo() << "Running script:" << scriptPath;
 
     if (QProcess::startDetached(scriptPath, QStringList()))
-      QLOG_DEBUG() << "Script started successfully";
+      qDebug() << "Script started successfully";
     else
-      QLOG_WARN() << "Error running script:" << scriptPath;
+      qWarning() << "Error running script:" << scriptPath;
   }
   else
   {
-    QLOG_WARN() << "Could not find script:" << scriptPath;
+    qWarning() << "Could not find script:" << scriptPath;
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::hello(const QString& version)
 {
-  QLOG_DEBUG() << QString("Web-client (%1) fully inited.").arg(version);
+  qDebug() << QString("Web-client (%1) fully inited.").arg(version);
   m_webClientVersion = version;
 }
 
@@ -321,7 +322,7 @@ void SystemComponent::hello(const QString& version)
 QString SystemComponent::getNativeShellScript()
 {
   auto path = SettingsComponent::Get().getExtensionPath();
-  QLOG_DEBUG() << QString("Using path for extension: %1").arg(path);
+  qDebug() << QString("Using path for extension: %1").arg(path);
 
   QFile file {path + "nativeshell.js"};
   file.open(QIODevice::ReadOnly);
@@ -344,7 +345,7 @@ void SystemComponent::checkForUpdates()
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QString checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
     QUrl qCheckUrl = QUrl(checkUrl);
-    QLOG_DEBUG() << QString("Checking URL for updates: %1").arg(checkUrl);
+    qDebug() << QString("Checking URL for updates: %1").arg(checkUrl);
     QNetworkRequest req(qCheckUrl);
 
     connect(manager, &QNetworkAccessManager::finished, this, &SystemComponent::updateInfoHandler);

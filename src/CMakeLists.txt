@@ -1,6 +1,4 @@
 include_directories(
-  ${CMAKE_SOURCE_DIR}/external/qhttp/src
-  ${CMAKE_SOURCE_DIR}/external/qslog
   ${CMAKE_SOURCE_DIR}/external/SPMediaKeyTap
   ${CMAKE_SOURCE_DIR}/external/HIDRemote
   ${CMAKE_SOURCE_DIR}/external/plistparser
@@ -170,8 +168,6 @@ endif()
 
 target_link_libraries(${MAIN_TARGET}
   shared
-  qhttp
-  qslog
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
   ${QT5_LIBRARIES}

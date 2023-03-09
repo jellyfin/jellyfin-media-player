@@ -1,10 +1,10 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+#include <QDebug>
 #include <private/qguiapplication_p.h>
 #include <qpa/qplatformintegration.h>
 
-#include "QsLog.h"
 #include "DisplayManagerRPI.h"
 #include "display/DisplayComponent.h"
 
@@ -35,7 +35,7 @@ DisplayManagerRPI::~DisplayManagerRPI()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DisplayManagerRPI::handleTvChange(uint32_t reason)
 {
-  QLOG_INFO() << "tv_service notification:" << reason;
+  qInfo() << "tv_service notification:" << reason;
 
   if (reason & (VC_HDMI_DVI | VC_HDMI_HDMI))
   {
@@ -45,13 +45,13 @@ void DisplayManagerRPI::handleTvChange(uint32_t reason)
   else if (reason & VC_HDMI_ATTACHED)
   {
     // Plugged in, but is in standby mode. May happen when reconnecting a monitor via HDMI.
-    QLOG_INFO() << "Powering on screen.";
+    qInfo() << "Powering on screen.";
     initialize();
     DisplayComponent::Get().switchToBestOverallVideoMode(0);
   }
   else if (reason & VC_HDMI_UNPLUGGED)
   {
-    QLOG_INFO() << "Screen was unplugged.";
+    qInfo() << "Screen was unplugged.";
   }
 }
 
@@ -128,7 +128,7 @@ bool DisplayManagerRPI::setDisplayMode(int display, int mode)
   bool ret = vc_tv_hdmi_power_on_explicit_new(HDMI_MODE_HDMI, (HDMI_RES_GROUP_T)tvmode->group, tvmode->code) == 0;
   if (!ret)
   {
-    QLOG_ERROR() << "Failed to switch display mode" << ret;
+    qCritical() << "Failed to switch display mode" << ret;
   }
 
   return ret;
@@ -173,7 +173,7 @@ void DisplayManagerRPI::resetRendering()
   QQuickWindow *window = (QQuickWindow*)guiApp->focusWindow();
   if (window)
   {
-    QLOG_INFO() << "Recreating Qt UI renderer";
+    qInfo() << "Recreating Qt UI renderer";
 
     // destroy the window to reset  OpenGL context
     window->setPersistentGraphics(false);
@@ -193,7 +193,7 @@ void DisplayManagerRPI::resetRendering()
     }
     else
     {
-      QLOG_ERROR() << "Failed to retrieve platform integration";
+      qCritical() << "Failed to retrieve platform integration";
     }
 
     // now recreate the window OpenGL context

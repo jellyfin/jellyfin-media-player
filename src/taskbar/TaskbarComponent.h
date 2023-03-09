@@ -1,7 +1,7 @@
 #ifndef TASKBARCOMPONENT_H
 #define TASKBARCOMPONENT_H
 
-#include <QsLog.h>
+#include <QDebug>
 #include <QQuickWindow>
 #include "ComponentManager.h"
 

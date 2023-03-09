@@ -1,5 +1,5 @@
 
-#include "QsLog.h"
+#include <QDebug>
 #include "InputCEC.h"
 #include "settings/SettingsComponent.h"
 #include "power/PowerComponent.h"
@@ -105,11 +105,11 @@ bool InputCECWorker::init()
   m_adapter = (ICECAdapter*)CECInitialise(&m_configuration);
   if (!m_adapter)
   {
-    QLOG_ERROR() << "Unable to initialize libCEC.";
+    qCritical() << "Unable to initialize libCEC.";
     return false;
   }
 
-  QLOG_INFO() << "libCEC was successfully initialized, found version"
+  qInfo() << "libCEC was successfully initialized, found version"
               << m_configuration.serverVersion;
 
   // init video on targets that need this
@@ -138,7 +138,7 @@ void InputCECWorker::closeCec()
 
   if (m_adapter)
   {
-    QLOG_DEBUG() << "Closing libCEC.";
+    qDebug() << "Closing libCEC.";
     closeAdapter();
     CECDestroy(m_adapter);
   }
@@ -155,18 +155,18 @@ bool InputCECWorker::openAdapter()
   if (devicesCount > 0)
   {
     // list devices
-    QLOG_INFO() << "libCEC found" << devicesCount << "CEC adapters.";
+    qInfo() << "libCEC found" << devicesCount << "CEC adapters.";
 
     // open first adapter
     m_adapterPort = devices[0].strComName;
     if (m_adapter->Open(m_adapterPort.toStdString().c_str()))
     {
-      QLOG_INFO() << "Device " << devices[0].strComName << "was successfully openned";
+      qInfo() << "Device " << devices[0].strComName << "was successfully openned";
       ret = true;
     }
     else
     {
-      QLOG_ERROR() << "Opening device" << devices[0].strComName << "failed";
+      qCritical() << "Opening device" << devices[0].strComName << "failed";
       ret = false;
     }
   }
@@ -222,21 +222,21 @@ void InputCECWorker::CecLogMessage(void* cbParam, const cec_log_message *message
   switch (message->level)
   {
     case CEC_LOG_ERROR:
-      QLOG_ERROR() << "libCEC ERROR:" << message->message;
+      qCritical() << "libCEC ERROR:" << message->message;
       break;
 
     case CEC_LOG_WARNING:
-      QLOG_WARN() << "libCEC WARNING:" << message->message;
+      qWarning() << "libCEC WARNING:" << message->message;
       break;
 
     case CEC_LOG_NOTICE:
-      QLOG_INFO() << "libCEC NOTICE:" << message->message;
+      qInfo() << "libCEC NOTICE:" << message->message;
       break;
 
     case CEC_LOG_DEBUG:
       if (cec->m_verboseLogging)
       {
-        QLOG_DEBUG() << "libCEC DEBUG:" << message->message;
+        qDebug() << "libCEC DEBUG:" << message->message;
       }
       break;
 
@@ -274,7 +274,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
 
   if (cec->m_verboseLogging)
   {
-    QLOG_DEBUG() << "CecCommand received " << QString::number(command->opcode, 16).toUpper() << "," << cec->getCommandParamsList(command);
+    qDebug() << "CecCommand received " << QString::number(command->opcode, 16).toUpper() << "," << cec->getCommandParamsList(command);
   }
 
   switch(command->opcode)
@@ -324,7 +324,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
 
       if (cec->m_verboseLogging)
       {
-        QLOG_DEBUG() << "CecCommand button (Down= " << down << ")" << cec->getCommandParamsList(command);
+        qDebug() << "CecCommand button (Down= " << down << ")" << cec->getCommandParamsList(command);
       }
 
       if (command->parameters.size && down)
@@ -363,7 +363,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
       break;
 
     case CEC_OPCODE_STANDBY:
-      QLOG_DEBUG() << "CecCommand : Got a standby Request";
+      qDebug() << "CecCommand : Got a standby Request";
       if ((SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "suspendonstandby").toBool()) && PowerComponent::Get().canSuspend())
       {
         PowerComponent::Get().Suspend();
@@ -375,7 +375,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
       break;
 
     default:
-      QLOG_DEBUG() << "Unhandled CEC command " << command->opcode << ", " << cec->getCommandParamsList(command);
+      qDebug() << "Unhandled CEC command " << command->opcode << ", " << cec->getCommandParamsList(command);
       break;
   }
 
@@ -390,21 +390,21 @@ void InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libc
   switch (type)
   {
     case CEC_ALERT_SERVICE_DEVICE:
-      QLOG_ERROR() << "libCEC : Alert CEC_ALERT_SERVICE_DEVICE";
+      qCritical() << "libCEC : Alert CEC_ALERT_SERVICE_DEVICE";
       break;
 
     case CEC_ALERT_CONNECTION_LOST:
-      QLOG_ERROR() << "libCEC : Alert CEC_ALERT_CONNECTION_LOST";
+      qCritical() << "libCEC : Alert CEC_ALERT_CONNECTION_LOST";
       reopen = true;
       break;
 
     case CEC_ALERT_PERMISSION_ERROR:
-      QLOG_ERROR() << "libCEC : Alert CEC_ALERT_PERMISSION_ERROR";
+      qCritical() << "libCEC : Alert CEC_ALERT_PERMISSION_ERROR";
       reopen = true;
       break;
 
     case CEC_ALERT_PORT_BUSY:
-      QLOG_ERROR() << "libCEC : Alert CEC_ALERT_PORT_BUSY";
+      qCritical() << "libCEC : Alert CEC_ALERT_PORT_BUSY";
       reopen = true;
       break;
 
@@ -414,7 +414,7 @@ void InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libc
 
   if (reopen)
   {
-    QLOG_DEBUG() << "libCEC : Reopenning adapter";
+    qDebug() << "libCEC : Reopenning adapter";
     auto cec = static_cast<InputCECWorker*>(cbParam);
     if (cec)
       cec->closeAdapter();

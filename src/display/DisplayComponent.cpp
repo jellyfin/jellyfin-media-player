@@ -1,10 +1,10 @@
 
-#include "QsLog.h"
 #include "DisplayComponent.h"
 #include "DisplayManager.h"
 #include "settings/SettingsComponent.h"
 #include <QGuiApplication>
 #include <QWindow>
+#include <QDebug>
 #include <math.h>
 
 #ifdef Q_OS_MAC
@@ -78,7 +78,7 @@ bool DisplayComponent::componentInitialize()
 
 #ifdef TARGET_RPI
     // The firmware doesn't always make the best decision. Hope we do better.
-    QLOG_INFO() << "Trying to switch to best display mode.";
+    qInfo() << "Trying to switch to best display mode.";
     switchToBestOverallVideoMode(0);
 #endif
 
@@ -91,7 +91,7 @@ bool DisplayComponent::componentInitialize()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void DisplayComponent::monitorChange()
 {
-  QLOG_INFO() << "Monitor change detected.";
+  qInfo() << "Monitor change detected.";
 
   if (!m_initTimer.isSingleShot())
   {
@@ -111,7 +111,7 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
   int currentDisplay = getApplicationDisplay();
   if (currentDisplay < 0)
   {
-    QLOG_INFO() << "Not switching rate - current display not found.";
+    qInfo() << "Not switching rate - current display not found.";
     return false;
   }
 
@@ -122,7 +122,7 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
     m_lastDisplay = currentDisplay;
   }
 
-  QLOG_DEBUG() << "Current display:" << currentDisplay << "mode:" << currentMode;
+  qDebug() << "Current display:" << currentDisplay << "mode:" << currentMode;
 
   DMMatchMediaInfo matchInfo(frameRate, false);
   int bestmode = m_displayManager->findBestMatch(currentDisplay, matchInfo);
@@ -130,23 +130,23 @@ bool DisplayComponent::switchToBestVideoMode(float frameRate)
   {
     if (bestmode != currentMode)
     {
-      QLOG_DEBUG()
+      qDebug()
       << "Best video matching mode is "
       << m_displayManager->m_displays[currentDisplay]->m_videoModes[bestmode]->getPrettyName()
       << "on display" << currentDisplay;
 
       if (!m_displayManager->setDisplayMode(currentDisplay, bestmode))
       {
-        QLOG_INFO() << "Mode switching failed.";
+        qInfo() << "Mode switching failed.";
         return false;
       }
       return true;
     }
-    QLOG_INFO() << "No better video mode than the currently active one found.";
+    qInfo() << "No better video mode than the currently active one found.";
   }
   else
   {
-    QLOG_DEBUG() << "No video mode found as better match.";
+    qDebug() << "No video mode found as better match.";
   }
 
   return false;
@@ -162,7 +162,7 @@ bool DisplayComponent::switchToBestOverallVideoMode(int display)
 
   if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "hdmi_poweron").toBool())
   {
-    QLOG_INFO() << "Switching to best mode disabled.";
+    qInfo() << "Switching to best mode disabled.";
     return false;
   }
 
@@ -170,21 +170,21 @@ bool DisplayComponent::switchToBestOverallVideoMode(int display)
   if (bestmode < 0)
     return false;
 
-  QLOG_INFO() << "We think mode" << bestmode << "is the best mode.";
+  qInfo() << "We think mode" << bestmode << "is the best mode.";
 
   if (bestmode == m_displayManager->getCurrentDisplayMode(display))
   {
-    QLOG_INFO() << "This mode is the currently active one. Not switching.";
+    qInfo() << "This mode is the currently active one. Not switching.";
     return false;
   }
 
   if (!m_displayManager->setDisplayMode(display, bestmode))
   {
-    QLOG_INFO() << "Switching mode failed.";
+    qInfo() << "Switching mode failed.";
     return false;
   }
 
-  QLOG_INFO() << "Switching mode successful.";
+  qInfo() << "Switching mode successful.";
   return true;
 }
 
@@ -218,7 +218,7 @@ bool DisplayComponent::restorePreviousVideoMode()
 
   if (m_displayManager->getCurrentDisplayMode(m_lastDisplay) != m_lastVideoMode)
   {
-    QLOG_DEBUG()
+    qDebug()
     << "Restoring VideoMode to"
     << m_displayManager->m_displays[m_lastDisplay]->m_videoModes[m_lastVideoMode]->getPrettyName()
     << "on display" << m_lastDisplay;
@@ -243,7 +243,7 @@ int DisplayComponent::getApplicationDisplay(bool silent)
   {
     if (!silent)
     {
-      QLOG_TRACE() << "Looking for a display at:" << activeWindow->geometry()
+      qInfo() << "Looking for a display at:" << activeWindow->geometry()
                    << "(center:" << activeWindow->geometry().center() << ")";
     }
     display = m_displayManager->getDisplayFromPoint(activeWindow->geometry().center());
@@ -251,7 +251,7 @@ int DisplayComponent::getApplicationDisplay(bool silent)
 
   if (!silent)
   {
-    QLOG_TRACE() << "Display index:" << display;
+    qInfo() << "Display index:" << display;
   }
   return display;
 }
@@ -327,26 +327,26 @@ void DisplayComponent::switchCommand(QString command)
 {
   if (!m_displayManager)
   {
-    QLOG_ERROR() << "Display manager not set";
+    qCritical() << "Display manager not set";
     return;
   }
 
   if (!initializeDisplayManager())
   {
-    QLOG_ERROR() << "Could not reinitialize display manager";
+    qCritical() << "Could not reinitialize display manager";
     return;
   }
 
   int currentDisplay = getApplicationDisplay();
   if (currentDisplay < 0)
   {
-    QLOG_ERROR() << "Current display not found";
+    qCritical() << "Current display not found";
     return;
   }
   int id = m_displayManager->getCurrentDisplayMode(currentDisplay);
   if (id < 0)
   {
-    QLOG_ERROR() << "Current mode not found";
+    qCritical() << "Current mode not found";
     return;
   }
   DMVideoMode currentMode = *m_displayManager->m_displays[currentDisplay]->m_videoModes[id];
@@ -397,11 +397,11 @@ void DisplayComponent::switchCommand(QString command)
     }
   }
 
-  QLOG_INFO() << "Current mode:" << currentMode.getPrettyName();
+  qInfo() << "Current mode:" << currentMode.getPrettyName();
 
   if (bestMode < 0)
   {
-    QLOG_INFO() << "Mode requested by command:" << mode.getPrettyName();
+    qInfo() << "Mode requested by command:" << mode.getPrettyName();
 
     for(auto cur : m_displayManager->m_displays[currentDisplay]->m_videoModes)
     {
@@ -426,19 +426,19 @@ void DisplayComponent::switchCommand(QString command)
 
   if (bestMode >= 0)
   {
-    QLOG_INFO() << "Found mode to switch to:" << m_displayManager->m_displays[currentDisplay]->m_videoModes[bestMode]->getPrettyName();
+    qInfo() << "Found mode to switch to:" << m_displayManager->m_displays[currentDisplay]->m_videoModes[bestMode]->getPrettyName();
     if (m_displayManager->setDisplayMode(currentDisplay, bestMode))
     {
       m_lastDisplay = m_lastVideoMode = -1;
     }
     else
     {
-      QLOG_INFO() << "Switching failed.";
+      qInfo() << "Switching failed.";
     }
     return;
   }
 
-  QLOG_INFO() << "Requested mode not found.";
+  qInfo() << "Requested mode not found.";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

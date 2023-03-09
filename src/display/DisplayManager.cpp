@@ -6,7 +6,7 @@
 //
 //
 
-#include "QsLog.h"
+#include <QDebug>
 #include "DisplayManager.h"
 #include "math.h"
 #include "settings/SettingsComponent.h"
@@ -17,17 +17,17 @@ DisplayManager::DisplayManager(QObject* parent) : QObject(parent) {}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManager::initialize()
 {
-  QLOG_INFO() << QString("DisplayManager found %1 Display(s).").arg(m_displays.size());
+  qInfo() << QString("DisplayManager found %1 Display(s).").arg(m_displays.size());
 
   // list video modes
   for(int displayid : m_displays.keys())
   {
     DMDisplayPtr display = m_displays[displayid];
-    QLOG_INFO() << QString("Available modes for Display #%1 (%2)").arg(displayid).arg(display->m_name);
+    qInfo() << QString("Available modes for Display #%1 (%2)").arg(displayid).arg(display->m_name);
     for (int modeid = 0; modeid < display->m_videoModes.size(); modeid++)
     {
       DMVideoModePtr mode = display->m_videoModes[modeid];
-      QLOG_INFO() << QString("Mode %1: %2").arg(modeid, 2).arg(mode->getPrettyName());
+      qInfo() << QString("Mode %1: %2").arg(modeid, 2).arg(mode->getPrettyName());
     }
   }
 
@@ -37,14 +37,14 @@ bool DisplayManager::initialize()
   {
     int currentMode = getCurrentDisplayMode(mainDisplay);
     if (currentMode >= 0)
-      QLOG_INFO() << QString("DisplayManager : Current Display Mode on Display #%1 is %2")
+      qInfo() << QString("DisplayManager : Current Display Mode on Display #%1 is %2")
                      .arg(mainDisplay)
                      .arg(m_displays[mainDisplay]->m_videoModes[currentMode]->getPrettyName());
     else
-      QLOG_ERROR() << "DisplayManager : unable to retrieve current video mode";
+      qCritical() << "DisplayManager : unable to retrieve current video mode";
   }
   else
-    QLOG_ERROR() << "DisplayManager : unable to retrieve main display";
+    qCritical() << "DisplayManager : unable to retrieve main display";
 
   return true;
 }
@@ -122,7 +122,7 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
     {
       if (avoid_25_30)
       {
-        QLOG_INFO() << "DisplayManager RefreshMatch : skipping rate " << candidate->m_refreshRate << "as requested";
+        qInfo() << "DisplayManager RefreshMatch : skipping rate " << candidate->m_refreshRate << "as requested";
         modeit++;
         continue;
       }
@@ -176,7 +176,7 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
   DMVideoModeWeightMap::const_iterator weightit = weights.constBegin();
   while (weightit != weights.constEnd())
   {
-    QLOG_DEBUG() << "Mode " << weightit.value()->m_mode->m_id << "("
+    qDebug() << "Mode " << weightit.value()->m_mode->m_id << "("
                  << weightit.value()->m_mode->getPrettyName() << ") has weight "
                  << weightit.value()->m_weight;
     if (weightit.value()->m_weight > maxWeight)
@@ -190,12 +190,12 @@ int DisplayManager::findBestMatch(int display, DMMatchMediaInfo& matchInfo)
 
   if ((chosen) && (chosen->m_weight > MATCH_WEIGHT_RES))
   {
-    QLOG_INFO() << "DisplayManager RefreshMatch : found a suitable mode : "
+    qInfo() << "DisplayManager RefreshMatch : found a suitable mode : "
                 << chosen->m_mode->getPrettyName();
     return chosen->m_mode->m_id;
   }
 
-  QLOG_INFO() << "DisplayManager RefreshMatch : found no suitable videomode";
+  qInfo() << "DisplayManager RefreshMatch : found no suitable videomode";
   return -1;
 }
 

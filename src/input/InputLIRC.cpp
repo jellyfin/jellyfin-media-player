@@ -1,6 +1,6 @@
 
 #include <QGuiApplication>
-#include "QsLog.h"
+#include <QDebug>
 #include "InputLIRC.h"
 
 #define DEFAULT_LIRC_ADDRESS "/run/lirc/lircd"
@@ -67,19 +67,19 @@ bool InputLIRC::isConnected()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputLIRC::connected()
 {
-  QLOG_INFO() << "LIRC socket connected ";
+  qInfo() << "LIRC socket connected ";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputLIRC::disconnected()
 {
-  QLOG_INFO() << "LIRC socket disconnected ";
+  qInfo() << "LIRC socket disconnected ";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputLIRC::socketerror(QLocalSocket::LocalSocketError socketError)
 {
-  QLOG_ERROR() << "LIRC Socket Error : " << socketError;
+  qCritical() << "LIRC Socket Error : " << socketError;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ void InputLIRC::read(int handle)
 
       int repeatCount = repeat.toInt();
 
-      QLOG_INFO() << "LIRC Got Key : " << command << ", repeat count:" << repeatCount
+      qInfo() << "LIRC Got Key : " << command << ", repeat count:" << repeatCount
                   << ", from remote " << remote;
 
       // we dont want to have all the IR Bursts when we press a key
@@ -112,6 +112,6 @@ void InputLIRC::read(int handle)
       }
     }
     else
-      QLOG_ERROR() << "Unknown LIRC input: " << input;
+      qCritical() << "Unknown LIRC input: " << input;
   }
 }

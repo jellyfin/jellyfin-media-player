@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QMap>
 #include <QVariant>
+#include <QDebug>
 #include "SettingsValue.h"
 #include "SettingsComponent.h"
-#include "QsLog.h"
 
 class SettingsSection : public QObject
 {

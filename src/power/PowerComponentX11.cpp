@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
 #include "PowerComponentX11.h"
-#include "QsLog.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PowerComponentX11::PowerComponentX11() : PowerComponent(0)
@@ -37,7 +36,7 @@ void PowerComponentX11::onProcessFinished(int exitCode, QProcess::ExitStatus exi
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PowerComponentX11::onProcessError(QProcess::ProcessError error)
 {
-  QLOG_ERROR() << "Disabling screensaver is not working. Make sure xdg-screensaver is installed.";
+  qCritical() << "Disabling screensaver is not working. Make sure xdg-screensaver is installed.";
   m_broken = true;
   onProcessFinished(-1, QProcess::CrashExit);
 }

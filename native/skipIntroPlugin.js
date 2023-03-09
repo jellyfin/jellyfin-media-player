@@ -1,7 +1,7 @@
 let tvIntro;
 
 class skipIntroPlugin {
-    constructor({ events, playbackManager }) {
+    constructor({ events, playbackManager, ServerConnections }) {
         this.name = 'Skip Intro Plugin';
         this.type = 'input';
         this.id = 'skipIntroPlugin';
@@ -107,41 +107,46 @@ class skipIntroPlugin {
             }
 
             
-            async function onPlayback(e, player, state) {
+            function onPlayback(e, player, state) {
                 if (state.NowPlayingItem) {
-                    await injectSkipIntroHtml();
                     getIntroTimestamps(state.NowPlayingItem);
+
+                    const onTimeUpdate = async () => {
+                        // Check if an introduction sequence was detected for this item.
+                        if (!tvIntro?.Valid) {
+                            return;
+                        }
+
+                        const seconds = playbackManager.currentTime(player) / 1000;
+
+                        await injectSkipIntroHtml(); // I have trust issues
+                        const skipIntro = document.querySelector(".skipIntro");
+    
+                        // If the skip prompt should be shown, show it.
+                        if (seconds >= tvIntro.ShowSkipPromptAt && seconds < tvIntro.HideSkipPromptAt) {
+                            skipIntro.classList.remove("hide");
+                            return;
+                        }
+
+                        skipIntro.classList.add("hide");
+                    };
+
+                    events.on(player, 'timeupdate', onTimeUpdate);
+
+                    const onPlaybackStop = () => {
+                        events.off(player, 'timeupdate', onTimeUpdate);
+                        events.off(player, 'playbackstop', onPlaybackStop);
+                    };
+                    events.on(player, 'playbackstop', onPlaybackStop);
                 }
-
-                const onTimeUpdate = () => {
-                    // Check if an introduction sequence was detected for this item.
-                    if (!tvIntro?.Valid) {
-                        return;
-                    }
-
-                    const seconds = playbackManager.currentTime(player) / 1000;
-                    const skipIntro = document.querySelector(".skipIntro");
-
-                    // If the skip prompt should be shown, show it.
-                    if (seconds >= tvIntro.ShowSkipPromptAt && seconds < tvIntro.HideSkipPromptAt) {
-                        skipIntro.classList.remove("hide");
-                        return;
-                    }
-
-                    skipIntro.classList.add("hide");
-                };
-
-                events.on(player, 'timeupdate', onTimeUpdate);
-
-                events.on(player, 'playbackstop', () => {
-                    events.off(player, 'timeupdate', onTimeUpdate);
-                });
             };
             events.on(playbackManager, 'playbackstart', onPlayback);
             
 
             function getIntroTimestamps(item) {
-                const apiClient = window.ApiClient;
+                const apiClient = ServerConnections
+                    ? ServerConnections.currentApiClient()
+                    : window.ApiClient;
                 const address = apiClient.serverAddress();
 
                 const url = `${address}/Episode/${item.Id}/IntroTimestamps`;

@@ -1,6 +1,7 @@
 #include <QObject>
 #include <QtQml>
 #include <qqmlwebchannel.h>
+#include <QDebug>
 
 #include "ComponentManager.h"
 
@@ -16,8 +17,6 @@
 #include "system/openelec/OESystemComponent.h"
 #endif
 
-#include "QsLog.h"
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ComponentManager::ComponentManager() : QObject(nullptr)
 {
@@ -28,13 +27,13 @@ void ComponentManager::registerComponent(ComponentBase* comp)
 {
   if (m_components.contains(comp->componentName()))
   {
-    QLOG_ERROR() << "Component" << comp->componentName() << "already registered!";
+    qCritical() << "Component" << comp->componentName() << "already registered!";
     return;
   }
   
   if (comp->componentInitialize())
   {
-    QLOG_INFO() << "Component:" << comp->componentName() << "inited";
+    qInfo() << "Component:" << comp->componentName() << "inited";
     m_components[comp->componentName()] = comp;
 
     // define component as property for qml
@@ -42,7 +41,7 @@ void ComponentManager::registerComponent(ComponentBase* comp)
   }
   else
   {
-    QLOG_ERROR() << "Failed to init component:" << comp->componentName();
+    qCritical() << "Failed to init component:" << comp->componentName();
   }
 }
 
@@ -75,7 +74,7 @@ void ComponentManager::setWebChannel(QWebChannel* webChannel)
   {
     if (comp->componentExport())
     {
-      QLOG_DEBUG() << "Adding component:" << comp->componentName() << "to webchannel";
+      qDebug() << "Adding component:" << comp->componentName() << "to webchannel";
       webChannel->registerObject(comp->componentName(), comp);
     }
   }

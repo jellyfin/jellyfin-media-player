@@ -16,7 +16,6 @@
 
 #include <mpv/render_gl.h>
 
-#include "QsLog.h"
 #include "utils/Utils.h"
 
 

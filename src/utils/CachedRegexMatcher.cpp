@@ -2,8 +2,8 @@
 // Created by Tobias Hieta on 20/08/15.
 //
 
+#include <QDebug>
 #include "CachedRegexMatcher.h"
-#include "QsLog.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 bool CachedRegexMatcher::addMatcher(const QString& pattern, const QVariant& result)
@@ -11,7 +11,7 @@ bool CachedRegexMatcher::addMatcher(const QString& pattern, const QVariant& resu
   QRegExp matcher(pattern);
   if (!matcher.isValid())
   {
-    QLOG_WARN() << "Could not compile pattern:" << pattern;
+    qWarning() << "Could not compile pattern:" << pattern;
     return false;
   }
 
@@ -65,7 +65,7 @@ QVariantList CachedRegexMatcher::match(const QString& input)
     }
   }
 
-  QLOG_DEBUG() << "No match for:" << input;
+  qDebug() << "No match for:" << input;
 
   if (!matches.isEmpty())
   {

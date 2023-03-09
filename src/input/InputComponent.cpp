@@ -1,11 +1,10 @@
-#include "QsLog.h"
+#include <QDebug>
 #include "InputComponent.h"
 #include "settings/SettingsComponent.h"
 #include "system/SystemComponent.h"
 #include "power/PowerComponent.h"
 #include "InputKeyboard.h"
 #include "InputSocket.h"
-#include "InputRoku.h"
 
 #ifdef Q_OS_MAC
 #include "apple/InputAppleRemote.h"
@@ -47,11 +46,11 @@ bool InputComponent::addInput(InputBase* base)
 {
   if (!base->initInput())
   {
-    QLOG_WARN() << "Failed to init input:" << base->inputName();
+    qWarning() << "Failed to init input:" << base->inputName();
     return false;
   }
 
-  QLOG_INFO() << "Successfully inited input:" << base->inputName();
+  qInfo() << "Successfully inited input:" << base->inputName();
   m_inputs.push_back(base);
 
   // we connect to the provider receivedInput signal, then we check if the name
@@ -66,7 +65,7 @@ bool InputComponent::addInput(InputBase* base)
   {
     if (!m_autoRepeatActions.isEmpty())
     {
-      QLOG_DEBUG() << "Emit input action (autorepeat):" << m_autoRepeatActions;
+      qDebug() << "Emit input action (autorepeat):" << m_autoRepeatActions;
       emit hostInput(m_autoRepeatActions);
     }
 
@@ -84,7 +83,6 @@ bool InputComponent::componentInitialize()
 
   addInput(&InputKeyboard::Get());
   addInput(new InputSocket(this));
-  addInput(new InputRoku(this));
 
 #ifdef Q_OS_MAC
   addInput(new InputAppleRemote(this));
@@ -120,7 +118,7 @@ void InputComponent::handleAction(const QString& action)
       hostArguments = argList.join(" ");
     }
 
-    QLOG_DEBUG() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
+    qDebug() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
     if (m_hostCommands.contains(hostCommand))
     {
       ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
@@ -128,12 +126,12 @@ void InputComponent::handleAction(const QString& action)
       {
         if (recvSlot->m_function)
         {
-          QLOG_DEBUG() << "Invoking anonymous function";
+          qDebug() << "Invoking anonymous function";
           recvSlot->m_function();
         }
         else
         {
-          QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
+          qDebug() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
           QGenericArgument arg0 = QGenericArgument();
 
           if (recvSlot->m_hasArguments)
@@ -142,14 +140,14 @@ void InputComponent::handleAction(const QString& action)
           if (!QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
                                          Qt::AutoConnection, arg0))
           {
-            QLOG_ERROR() << "Invoking slot" << qPrintable(recvSlot->m_slot.data()) << "failed!";
+            qCritical() << "Invoking slot" << qPrintable(recvSlot->m_slot.data()) << "failed!";
           }
         }
       }
     }
     else
     {
-      QLOG_WARN() << "No such host command:" << hostCommand;
+      qWarning() << "No such host command:" << hostCommand;
     }
   }
 }
@@ -157,7 +155,7 @@ void InputComponent::handleAction(const QString& action)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputComponent::remapInput(const QString &source, const QString &keycode, InputBase::InputkeyState keyState)
 {
-  QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode << ":" << keyState;
+  qDebug() << "Input received: source:" << source << "keycode:" << keycode << ":" << keyState;
 
   emit receivedInput();
 
@@ -177,7 +175,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, I
 
       m_currentLongPressAction.clear();
 
-      QLOG_DEBUG() << "Emit input action (" + type + "):" << action;
+      qDebug() << "Emit input action (" + type + "):" << action;
       emit hostInput(QStringList{action});
     }
 
@@ -227,12 +225,12 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, I
   {
     if (SystemComponent::Get().isWebClientConnected())
     {
-      QLOG_DEBUG() << "Emit input action:" << queuedActions;
+      qDebug() << "Emit input action:" << queuedActions;
       emit hostInput(queuedActions);
     }
     else
     {
-      QLOG_DEBUG() << "Web Client has not connected, handling input in host instead.";
+      qDebug() << "Web Client has not connected, handling input in host instead.";
       executeActions(queuedActions);
     }
   }
@@ -261,7 +259,7 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
   recvSlot->m_slot = QMetaObject::normalizedSignature(slot);
   recvSlot->m_hasArguments = false;
 
-  QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to"
+  qDebug() << "Adding host command:" << qPrintable(command) << "mapped to"
                << qPrintable(QString(receiver->metaObject()->className()) + "::" + recvSlot->m_slot);
 
   m_hostCommands.insert(command, recvSlot);
@@ -270,16 +268,16 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
   auto slotWithoutArgs = QString("%1()").arg(QString::fromLatin1(recvSlot->m_slot)).toLatin1();
   if (recvSlot->m_receiver->metaObject()->indexOfMethod(slotWithArgs.data()) != -1)
   {
-    QLOG_DEBUG() << "Host command maps to method with an argument.";
+    qDebug() << "Host command maps to method with an argument.";
     recvSlot->m_hasArguments = true;
   }
   else if (recvSlot->m_receiver->metaObject()->indexOfMethod(slotWithoutArgs.data()) != -1)
   {
-    QLOG_DEBUG() << "Host command maps to method without arguments.";
+    qDebug() << "Host command maps to method without arguments.";
   }
   else
   {
-    QLOG_ERROR() << "Slot for host command missing, or has incorrect signature!";
+    qCritical() << "Slot for host command missing, or has incorrect signature!";
   }
 }
 
@@ -288,7 +286,7 @@ void InputComponent::registerHostCommand(const QString& command, std::function<v
 {
   auto recvSlot = new ReceiverSlot;
   recvSlot->m_function = function;
-  QLOG_DEBUG() << "Adding host command:" << qPrintable(command) << "mapped to anonymous function";
+  qDebug() << "Adding host command:" << qPrintable(command) << "mapped to anonymous function";
   m_hostCommands.insert(command, recvSlot);
 }
 

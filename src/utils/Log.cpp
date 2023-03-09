@@ -6,41 +6,44 @@
 
 #include <QtQml>
 #include <QGuiApplication>
+#include <iostream>
 
-#include "QsLog.h"
 #include "shared/Names.h"
 #include "shared/Paths.h"
 #include "settings/SettingsComponent.h"
 #include "Version.h"
 
-using namespace QsLogging;
+int logLevel = 0;
+bool logToTerminal = false;
+QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// adapted from https://stackoverflow.com/a/62390212
 static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
-    QString prefix;
-    if (context.line)
-      prefix = QString("%1:%2:%3: ").arg(context.file).arg(context.line).arg(context.function);
-    QString text = prefix + msg;
-    switch (type)
-    {
-      case QtDebugMsg:
-        QLOG_DEBUG() << text;
-        break;
-      case QtInfoMsg:
-        QLOG_INFO() << text;
-        break;
-      case QtWarningMsg:
-        QLOG_WARN() << text;
-        break;
-      case QtCriticalMsg:
-        QLOG_ERROR() << text;
-        break;
-      case QtFatalMsg:
-        QLOG_FATAL() << text;
-        break;
-    }
+  static QMutex mutex;
+  QMutexLocker lock(&mutex);
+
+  if (messageLevelValue[type] < logLevel && type != QtFatalMsg)
+    return;
+
+  static QFile logFile(Paths::logDir(Names::MainName() + ".log"));
+  static bool logFileIsOpen = logFile.open(QIODevice::Truncate | QIODevice::WriteOnly | QIODevice::Text);
+
+  QString message = qFormatLogMessage(type, context, msg);
+  Log::CensorAuthTokens(message);
+
+  if (logToTerminal) {
+    std::cerr << qPrintable(message) << std::endl;
+  } 
+
+  if (logFileIsOpen) {
+    logFile.write(message.toUtf8() + '\n');
+    logFile.flush();
+  }
+
+  if (type == QtFatalMsg)
+    abort();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -61,26 +64,25 @@ static void elidePattern(QString& msg, const QString& substring, int chars)
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::CensorAuthTokens(QString& msg)
 {
-  elidePattern(msg, "api_key=", 20);
-  elidePattern(msg, "X-MediaBrowser-Token%3D", 20);
-  elidePattern(msg, "X-MediaBrowser-Token=", 20);
-  elidePattern(msg, "api_key=", 20);
-  elidePattern(msg, "ApiKey=", 20);
-  elidePattern(msg, "AccessToken=", 20);
+  elidePattern(msg, "api_key=", 32);
+  elidePattern(msg, "X-MediaBrowser-Token%3D", 32);
+  elidePattern(msg, "X-MediaBrowser-Token=", 32);
+  elidePattern(msg, "api_key=", 32);
+  elidePattern(msg, "ApiKey=", 32);
+  elidePattern(msg, "AccessToken=", 32);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-static QsLogging::Level logLevelFromString(const QString& str)
+static int logLevelFromString(const QString& str)
 {
-  if (str == "trace")     return QsLogging::Level::TraceLevel;
-  if (str == "debug")     return QsLogging::Level::DebugLevel;
-  if (str == "info")      return QsLogging::Level::InfoLevel;
-  if (str == "warn")      return QsLogging::Level::WarnLevel;
-  if (str == "error")     return QsLogging::Level::ErrorLevel;
-  if (str == "fatal")     return QsLogging::Level::FatalLevel;
-  if (str == "disable")   return QsLogging::Level::OffLevel;
+  if (str == "trace")     return 0;
+  if (str == "debug")     return 1;
+  if (str == "info")      return 2;
+  if (str == "warn")      return 3;
+  if (str == "error")     return 4;
+  if (str == "fatal")     return 5;
   // if not valid, use default
-  return QsLogging::Level::DebugLevel;
+  return 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -89,44 +91,39 @@ void Log::UpdateLogLevel()
   QString level = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "logLevel").toString();
   if (level.size())
   {
-    QLOG_INFO() << "Setting log level to:" << level;
-    Logger::instance().setLoggingLevel(logLevelFromString(level));
+    qInfo() << "Setting log level to:" << level;
+    logLevel = logLevelFromString(level);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool Log::ShouldLogInfo()
+{
+  return logLevel <= 2;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::Init()
 {
   // Note where the logfile is going to be
-  qDebug("Logging to %s", qPrintable(Paths::logDir(Names::MainName() + ".log")));
+  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
 
-  // init logging.
-  DestinationPtr dest = DestinationFactory::MakeFileDestination(
-    Paths::logDir(Names::MainName() + ".log"),
-    EnableLogRotationOnOpen,
-    MaxSizeBytes(1024 * 1024),
-    MaxOldLogCount(9));
-
-  Logger::instance().addDestination(dest);
-  Logger::instance().setLoggingLevel(DebugLevel);
-  Logger::instance().setProcessingCallback(Log::CensorAuthTokens);
-
+  qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} [%{type}] %{function} @ %{line} - %{message}");
   qInstallMessageHandler(qtMessageOutput);
 
-  QLOG_INFO() << "Starting Jellyfin Media Player version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
-  QLOG_INFO() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
-  QLOG_INFO() << "  Qt Version:" << QT_VERSION_STR << qPrintable(QString("[%1]").arg(QSysInfo::buildAbi()));
+  qInfo() << "Starting Jellyfin Media Player version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
+  qInfo() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
+  qInfo() << "  Qt Version:" << QT_VERSION_STR << qPrintable(QString("[%1]").arg(QSysInfo::buildAbi()));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::EnableTerminalOutput()
 {
-  Logger::instance().addDestination(DestinationFactory::MakeDebugOutputDestination());
+  logToTerminal = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::Uninit()
 {
   qInstallMessageHandler(0);
-  Logger::destroyInstance();
 }

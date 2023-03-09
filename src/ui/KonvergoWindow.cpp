@@ -6,6 +6,7 @@
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QDebug>
 
 #include "core/Version.h"
 #include "input/InputKeyboard.h"
@@ -16,7 +17,6 @@
 #include "player/PlayerQuickItem.h"
 #include "display/DisplayComponent.h"
 #include "taskbar/TaskbarComponent.h"
-#include "QsLog.h"
 #include "utils/Utils.h"
 #include "Globals.h"
 #include "EventFilter.h"
@@ -168,7 +168,7 @@ bool KonvergoWindow::fitsInScreens(const QRect& rc)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::saveGeometry()
 {
-  QLOG_DEBUG() << "Window state when saving geometry:" << visibility();
+  qDebug() << "Window state when saving geometry:" << visibility();
 
   QRect rc = geometry();
 
@@ -179,7 +179,7 @@ void KonvergoWindow::saveGeometry()
   if (!fitsInScreens(rc))
     return;
 
-  QLOG_DEBUG() << "Saving window geometry:" << rc;
+  qDebug() << "Saving window geometry:" << rc;
 
   if (visibility() == QWindow::Maximized)
   {
@@ -208,7 +208,7 @@ QRect KonvergoWindow::loadGeometry()
 
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
   {
-    QLOG_DEBUG() << "Load FullScreen geo...";
+    qDebug() << "Load FullScreen geo...";
 
     if (myScreen)
     {
@@ -256,11 +256,11 @@ QRect KonvergoWindow::loadGeometryRect()
 
   QRect rc(map["x"].toInt(), map["y"].toInt(), map["width"].toInt(), map["height"].toInt());
 
-  QLOG_DEBUG() << "Restoring geo:" << rc;
+  qDebug() << "Restoring geo:" << rc;
 
   if (!rc.isValid() || rc.isEmpty())
   {
-    QLOG_DEBUG() << "Geo bad, going for defaults";
+    qDebug() << "Geo bad, going for defaults";
     return defaultRect;
   }
 
@@ -275,7 +275,7 @@ QRect KonvergoWindow::loadGeometryRect()
   // also make sure we are not putting windows outside the screen somewhere
   if (!fitsInScreens(rc))
   {
-    QLOG_DEBUG() << "Could not fit stored geo into current screens";
+    qDebug() << "Could not fit stored geo into current screens";
     return defaultRect;
   }
 
@@ -293,7 +293,7 @@ void KonvergoWindow::enableVideoWindow()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::setFullScreen(bool enable)
 {
-  QLOG_DEBUG() << "setting fullscreen = " << enable;
+  qDebug() << "setting fullscreen = " << enable;
 
   SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", enable);
 }
@@ -310,7 +310,7 @@ void KonvergoWindow::toggleWebMode()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::setAlwaysOnTop(bool enable)
 {
-  QLOG_DEBUG() << "setting always on top = " << enable;
+  qDebug() << "setting always on top = " << enable;
 
   // Update the settings value.
   SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "alwaysOnTop", enable);
@@ -406,7 +406,7 @@ void KonvergoWindow::updateForcedScreen()
   {
     if (scr->name() == screenName)
     {
-      QLOG_DEBUG() << "Forcing screen to" << scr->name();
+      qDebug() << "Forcing screen to" << scr->name();
       setScreen(scr);
       setGeometry(scr->geometry());
       setVisibility(QWindow::FullScreen);
@@ -478,11 +478,11 @@ QScreen* KonvergoWindow::findCurrentScreen()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
-  QLOG_DEBUG() << "QWindow visibility set to" << visibility;
+  qDebug() << "QWindow visibility set to" << visibility;
 
   if (visibility == QWindow::Windowed && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFS").toBool())
   {
-    QLOG_WARN() << "Forcing re-entering fullscreen because of forceAlwaysFS setting!";
+    qWarning() << "Forcing re-entering fullscreen because of forceAlwaysFS setting!";
     updateForcedScreen(); // if a specific screen is forced, try to move the window there
     setVisibility(QWindow::FullScreen);
     return;
@@ -510,7 +510,7 @@ void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
   // The compositor will not properly redraw anything when focusing other windows.
   if (visibility() == QWindow::FullScreen && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "minimizeOnDefocus").toBool())
   {
-    QLOG_DEBUG() << "minimizing window";
+    qDebug() << "minimizing window";
     showMinimized();
   }
 #endif
@@ -581,7 +581,7 @@ void KonvergoWindow::toggleDebug()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::resizeEvent(QResizeEvent* event)
 {
-  QLOG_DEBUG() << "resize event:" << event->size();
+  qDebug() << "resize event:" << event->size();
 
   // This next block was added at some point to workaround a problem with
   // resizing on windows. Unfortunately it broke the desktop client behavior
@@ -601,7 +601,7 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
     QSize fsSize = screen()->size();
     if (event->size().width() < fsSize.width() || event->size().height() < fsSize.height())
     {
-      QLOG_DEBUG() << "Ignoring resize event when in fullscreen...";
+      qDebug() << "Ignoring resize event when in fullscreen...";
       return;
     }
   }
@@ -625,7 +625,7 @@ QScreen* KonvergoWindow::loadLastScreen()
       return scr;
   }
 
-  QLOG_DEBUG() << "Tried to find screen:" << screenName << "but it was not present";
+  qDebug() << "Tried to find screen:" << screenName << "but it was not present";
 
   return nullptr;
 }
@@ -670,7 +670,7 @@ void KonvergoWindow::updateScreens()
     if (selected)
       currentPresent = true;
 
-    QLOG_DEBUG() << "Screen" << (num++) << screen << screen->geometry()
+    qDebug() << "Screen" << (num++) << screen << screen->geometry()
                  << screen->virtualGeometry() << "active:" << active
                  << "selected:" << selected;
   }

@@ -1,6 +1,6 @@
 #include <QProcess>
+#include <QDebug>
 
-#include "QsLog.h"
 #include "SystemdManager.h"
 
 #define CACHE_DIR "/storage/.cache/services/"
@@ -19,14 +19,14 @@ bool SystemdManager::enable(SystemdService &Service, bool enable)
     QFile offFile(CACHE_DIR + Service.ConfigFile + ".disabled");
     QFile templateFile(TEMPLATE_DIR + Service.ConfigFile + ".conf");
 
-    QLOG_INFO() << "Setting service" << Service.Name << "to enable state :" << enable;
+    qInfo() << "Setting service" << Service.Name << "to enable state :" << enable;
 
     if (!onFile.exists() && !offFile.exists())
     {
         // we take the template file and copy it over
         if(!templateFile.copy(enable ? onFile.fileName() : offFile.fileName()))
         {
-            QLOG_ERROR() << "Failed to copy template file for service " << Service.Name;
+            qCritical() << "Failed to copy template file for service " << Service.Name;
             return false;
         }
     }
@@ -53,7 +53,7 @@ bool SystemdManager::enable(SystemdService &Service, bool enable)
         }
         else
         {
-            QLOG_ERROR() << "Failed to restart service " << Service.Name;
+            qCritical() << "Failed to restart service " << Service.Name;
             return false;
         }
     }

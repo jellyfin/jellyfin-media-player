@@ -8,10 +8,10 @@
 #include <QtWebEngine/qtwebengineglobal.h>
 #include <QErrorMessage>
 #include <QCommandLineOption>
+#include <QDebug>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
-#include "QsLog.h"
 #include "Paths.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
   }
   catch (FatalException& e)
   {
-    QLOG_FATAL() << "Unhandled FatalException:" << qPrintable(e.message());
+    qFatal("Unhandled FatalException: %s", qPrintable(e.message()));
     QApplication errApp(argc, argv);
 
     auto  msg = new ErrorMessage(e.message(), true);

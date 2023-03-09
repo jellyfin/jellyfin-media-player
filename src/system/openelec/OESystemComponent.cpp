@@ -2,7 +2,7 @@
 #include "settings/SettingsSection.h"
 #include "OESystemComponent.h"
 #include "SystemdManager.h"
-#include "QsLog.h"
+#include <QDebug>
 #include <unistd.h>
 #include <QFile>
 
@@ -30,7 +30,7 @@ bool OESystemComponent::componentInitialize()
   foreach(QString service, services.keys())
   {
     bool Enabled = SystemdManager::isEnabled(services[service]);
-    QLOG_ERROR() << "Service " << services[service].Name << " enabled :" << Enabled;
+    qCritical() << "Service " << services[service].Name << " enabled :" << Enabled;
     SettingsComponent::Get().setValue(SETTINGS_SECTION_SYSTEM,
                                       services[service].Name + "_enabled",
                                       Enabled);
@@ -62,7 +62,7 @@ bool OESystemComponent::setHostName(QString name)
   QFile file("/storage/.cache/hostname");
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
   {
-    QLOG_ERROR() << "setHostName : Failed to open" << file.fileName();
+    qCritical() << "setHostName : Failed to open" << file.fileName();
     return false;
   }
 

@@ -1,8 +1,9 @@
+#include <QDebug>
+#include <QFile>
 #include "SettingsComponent.h"
 #include "SettingsSection.h"
 #include "Paths.h"
 #include "utils/Utils.h"
-#include "QsLog.h"
 #include "AudioSettingsController.h"
 #include "Names.h"
 
@@ -37,7 +38,7 @@ void SettingsComponent::cycleSettingCommand(const QString& args)
   QStringList sub = settingName.split(".");
   if (sub.size() != 2)
   {
-    QLOG_ERROR() << "Setting must be in the form section.name but got:" << settingName;
+    qCritical() << "Setting must be in the form section.name but got:" << settingName;
     return;
   }
   QString sectionID = sub[0];
@@ -45,7 +46,7 @@ void SettingsComponent::cycleSettingCommand(const QString& args)
   SettingsSection* section = getSection(sectionID);
   if (!section)
   {
-    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    qCritical() << "Section" << sectionID << "is unknown";
     return;
   }
   QVariantList values = section->possibleValues(valueName);
@@ -59,13 +60,13 @@ void SettingsComponent::cycleSettingCommand(const QString& args)
       QVariant currentValue = section->value(valueName);
       auto nextValue = currentValue.toBool() ? false : true;
       setValue(sectionID, valueName, nextValue);
-      QLOG_DEBUG() << "Setting" << settingName << "to " << (nextValue ? "Enabled" : "Disabled");
+      qDebug() << "Setting" << settingName << "to " << (nextValue ? "Enabled" : "Disabled");
       emit SystemComponent::Get().settingsMessage(valueName, nextValue ? "Enabled" : "Disabled");
       return;
     }
     else
     {
-      QLOG_ERROR() << "Setting" << settingName << "is unknown or is not cycleable.";
+      qCritical() << "Setting" << settingName << "is unknown or is not cycleable.";
       return;
     }
   }
@@ -83,7 +84,7 @@ void SettingsComponent::cycleSettingCommand(const QString& args)
     nextValueIndex = 0;
   auto nextSetting = values[nextValueIndex].toMap();
   auto nextValue = nextSetting["value"];
-  QLOG_DEBUG() << "Setting" << settingName << "to" << nextValue;
+  qDebug() << "Setting" << settingName << "to" << nextValue;
   setValue(sectionID, valueName, nextValue);
   emit SystemComponent::Get().settingsMessage(valueName, nextSetting["title"].toString());
 }
@@ -94,7 +95,7 @@ void SettingsComponent::setSettingCommand(const QString& args)
   int spaceIndex = args.indexOf(" ");
   if (spaceIndex < 0)
   {
-    QLOG_ERROR() << "No value provided to settings set command.";
+    qCritical() << "No value provided to settings set command.";
     return;
   }
   QString settingName = args.mid(0, spaceIndex);
@@ -102,7 +103,7 @@ void SettingsComponent::setSettingCommand(const QString& args)
   int subIndex = settingName.indexOf(".");
   if (subIndex < 0 || subIndex == args.size() - 1)
   {
-    QLOG_ERROR() << "Setting must be in the form section.name but got:" << settingName;
+    qCritical() << "Setting must be in the form section.name but got:" << settingName;
     return;
   }
   QString sectionID = settingName.mid(0, subIndex);
@@ -110,7 +111,7 @@ void SettingsComponent::setSettingCommand(const QString& args)
   SettingsSection* section = getSection(sectionID);
   if (!section)
   {
-    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    qCritical() << "Section" << sectionID << "is unknown";
     return;
   }
   QString jsonString = "{\"value\": " + settingValue + "}";
@@ -119,10 +120,10 @@ void SettingsComponent::setSettingCommand(const QString& args)
   printf("val: '%s'\n", settingValue.toUtf8().data());
   if (!value.isValid())
   {
-    QLOG_ERROR() << "Invalid settings value:" << settingValue << "(if it's a string, make sure to quote it)";
+    qCritical() << "Invalid settings value:" << settingValue << "(if it's a string, make sure to quote it)";
     return;
   }
-  QLOG_DEBUG() << "Setting" << settingName << "to" << value;
+  qDebug() << "Setting" << settingName << "to" << value;
   setValue(sectionID, valueName, value);
   emit SystemComponent::Get().settingsMessage(valueName, value.toString());
 }
@@ -133,11 +134,11 @@ void SettingsComponent::updatePossibleValues(const QString &sectionID, const QSt
   SettingsSection* section = getSection(sectionID);
   if (!section)
   {
-    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    qCritical() << "Section" << sectionID << "is unknown";
     return;
   }
   section->updatePossibleValues(key, possibleValues);
-  QLOG_DEBUG() << "Updated possible values for:" << key << "to" << possibleValues;
+  qDebug() << "Updated possible values for:" << key << "to" << possibleValues;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +170,7 @@ static void writeFile(const QString& filename, const QByteArray& data)
   file.write(data);
   if (!file.commit())
   {
-    QLOG_ERROR() << "Could not write" << filename;
+    qCritical() << "Could not write" << filename;
   }
 }
 
@@ -185,7 +186,7 @@ static QJsonObject loadJson(const QString& filename)
   QJsonDocument json = Utils::OpenJsonDocument(filename, &err);
   if (json.isNull())
   {
-    QLOG_ERROR() << "Could not open" << filename << "due to" << err.errorString();
+    qCritical() << "Could not open" << filename << "due to" << err.errorString();
   }
   return json.object();
 }
@@ -234,9 +235,9 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
     QFile::remove(backup);
     QFile::rename(path, backup);
     if (version == 0)
-      QLOG_ERROR() << "Could not read config file.";
+      qCritical() << "Could not read config file.";
     else
-      QLOG_ERROR() << "Config version is" << version << "but" << m_settingsVersion << "expected. Moving old config to" << backup;
+      qCritical() << "Config version is" << version << "but" << m_settingsVersion << "expected. Moving old config to" << backup;
     // Overwrite/create it with the defaults.
     if (storage)
       saveStorage();
@@ -261,7 +262,7 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
     }
     else if (!sec)
     {
-      QLOG_ERROR() << "Trying to load section:" << section << "from config file, but we don't want that.";
+      qCritical() << "Trying to load section:" << section << "from config file, but we don't want that.";
       continue;
     }
 
@@ -287,7 +288,7 @@ void SettingsComponent::saveSettings()
 {
   if (m_oldestPreviousVersion.isEmpty())
   {
-    QLOG_ERROR() << "Not writing settings: uninitialized.\n";
+    qCritical() << "Not writing settings: uninitialized.\n";
     return;
   }
 
@@ -337,7 +338,7 @@ QVariant SettingsComponent::value(const QString& sectionID, const QString &key)
   SettingsSection* section = getSection(sectionID);
   if (!section)
   {
-    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    qCritical() << "Section" << sectionID << "is unknown";
     return QVariant();
   }
   return section->value(key);
@@ -349,7 +350,7 @@ void SettingsComponent::setValue(const QString& sectionID, const QString &key, c
   SettingsSection* section = getSection(sectionID);
   if (!section)
   {
-    QLOG_ERROR() << "Section" << sectionID << "is unknown";
+    qCritical() << "Section" << sectionID << "is unknown";
     return;
   }
   section->setValue(key, value);
@@ -390,7 +391,7 @@ void SettingsComponent::setValues(const QVariantMap& options)
   }
   else
   {
-    QLOG_WARN() << "the values sent was not a map, string or empty value. it will be ignored";
+    qWarning() << "the values sent was not a map, string or empty value. it will be ignored";
 
     // return so we don't call save()
     return;
@@ -474,13 +475,13 @@ bool SettingsComponent::loadDescription()
   auto doc = Utils::OpenJsonDocument(":/settings/settings_description.json", &err);
   if (doc.isNull())
   {
-    QLOG_ERROR() << "Failed to read settings description:" << err.errorString();
+    qCritical() << "Failed to read settings description:" << err.errorString();
     throw FatalException("Failed to read settings description!");
   }
 
   if (!doc.isArray())
   {
-    QLOG_ERROR() << "The object needs to be an array";
+    qCritical() << "The object needs to be an array";
     return false;
   }
 
@@ -490,14 +491,14 @@ bool SettingsComponent::loadDescription()
   {
     if (!val.isObject())
     {
-      QLOG_ERROR() << "Hoped to find sections in the root array, but they where not JSON objects";
+      qCritical() << "Hoped to find sections in the root array, but they where not JSON objects";
       return false;
     }
 
     QJsonObject section = val.toObject();
     if (!section.contains("section"))
     {
-      QLOG_ERROR() << "A section needs to contain the section keyword.";
+      qCritical() << "A section needs to contain the section keyword.";
       return false;
     }
 
@@ -516,7 +517,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
   QString sectionName = sectionObject.value("section").toString();
   if (!sectionObject.contains("values") || !sectionObject.value("values").isArray())
   {
-    QLOG_ERROR() << "section object:" << sectionName << "did not contain a values array";
+    qCritical() << "section object:" << sectionName << "did not contain a values array";
     return;
   }
 
@@ -728,7 +729,7 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
     url = "file:///" + path;
   }
 
-  QLOG_DEBUG() << "Using web-client URL: " << url;
+  qDebug() << "Using web-client URL: " << url;
 
   return url;
 }
@@ -771,7 +772,7 @@ bool SettingsComponent::ignoreSSLErrors()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::setCommandLineValues(const QStringList& values)
 {
-  QLOG_DEBUG() << values;
+  qDebug() << values;
 
   for (const QString& value : values)
   {

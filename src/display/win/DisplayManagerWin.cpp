@@ -7,9 +7,9 @@
 //
 
 #include <QRect>
+#include <QDebug>
 #include <math.h>
 
-#include "QsLog.h"
 #include "DisplayManagerWin.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ bool DisplayManagerWin::initialize()
 
   if (m_displays.isEmpty())
   {
-    QLOG_DEBUG() << "No display found.";
+    qDebug() << "No display found.";
     return false;
   }
   else
@@ -98,7 +98,7 @@ bool DisplayManagerWin::setDisplayMode(int display, int mode)
 
   if (getModeInfo(display, mode, modeInfo))
   {
-    QLOG_DEBUG() << "Switching to mode" << mode << "on display" << display << ":" << m_displays[display]->m_videoModes[mode]->getPrettyName();
+    qDebug() << "Switching to mode" << mode << "on display" << display << ":" << m_displays[display]->m_videoModes[mode]->getPrettyName();
 
     modeInfo.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY | DM_DISPLAYFLAGS;
 
@@ -107,7 +107,7 @@ bool DisplayManagerWin::setDisplayMode(int display, int mode)
 
     if (rc != DISP_CHANGE_SUCCESSFUL)
     {
-      QLOG_ERROR() << "Failed to changed DisplayMode, error" << rc;
+      qCritical() << "Failed to changed DisplayMode, error" << rc;
       return false;
     }
     else
@@ -134,7 +134,7 @@ int DisplayManagerWin::getCurrentDisplayMode(int display)
   if (!EnumDisplaySettingsW((LPCWSTR)m_displayAdapters[display].utf16(), ENUM_CURRENT_SETTINGS,
                             &modeInfo))
   {
-    QLOG_ERROR() << "Failed to retrieve current mode";
+    qCritical() << "Failed to retrieve current mode";
     return -1;
   }
 
@@ -181,18 +181,18 @@ int DisplayManagerWin::getDisplayFromPoint(int x, int y)
     DEVMODEW modeInfo = {};
     modeInfo.dmSize = sizeof(modeInfo);
 
-    QLOG_TRACE() << "Looking at display" << displayId << dispName;
+    qInfo() << "Looking at display" << displayId << dispName;
 
     if (!EnumDisplaySettingsW((LPCWSTR)dispName.utf16(), ENUM_CURRENT_SETTINGS,
                               &modeInfo))
     {
-      QLOG_ERROR() << "Failed to retrieve current mode.";
+      qCritical() << "Failed to retrieve current mode.";
     }
     else
     {
       QRect displayRect(modeInfo.dmPosition.x, modeInfo.dmPosition.y, modeInfo.dmPelsWidth,
                         modeInfo.dmPelsHeight);
-      QLOG_TRACE() << "Position on virtual desktop:" << displayRect;
+      qInfo() << "Position on virtual desktop:" << displayRect;
 
       if (displayRect.contains(x, y))
         return displayId;

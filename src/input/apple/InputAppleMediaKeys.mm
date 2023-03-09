@@ -2,9 +2,9 @@
 // Created by Tobias Hieta on 21/08/15.
 //
 
+#include <QDebug>
 #include "InputAppleMediaKeys.h"
 #include "SPMediaKeyTap.h"
-#include "QsLog.h"
 
 #import <dlfcn.h>
 
@@ -45,7 +45,7 @@
       if ([SPMediaKeyTap usesGlobalMediaKeyTap])
         [keyTap startWatchingMediaKeys];
       else
-        QLOG_WARN() << "Could not grab global media keys";
+        qWarning() << "Could not grab global media keys";
     }
   }
   return self;

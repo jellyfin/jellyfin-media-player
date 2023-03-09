@@ -42,19 +42,19 @@ bool PowerComponentDBus::callPowerMethod(QString method)
       }
       else
       {
-        QLOG_ERROR() << "callPowerMethod : Error while calling" << method << ":"
+        qCritical() << "callPowerMethod : Error while calling" << method << ":"
                      << reply.error().message();
         return false;
       }
     }
     else
     {
-      QLOG_ERROR() << "callPowerMethod : failed to retrieve interface.";
+      qCritical() << "callPowerMethod : failed to retrieve interface.";
     }
   }
   else
   {
-    QLOG_ERROR() << "callPowerMethod : could not find system bus";
+    qCritical() << "callPowerMethod : could not find system bus";
   }
 
   return false;
@@ -78,19 +78,19 @@ bool PowerComponentDBus::isPowerMethodAvailable(QString method)
       }
       else
       {
-        QLOG_ERROR() << "isPowerMethodAvailable : Error while calling" << method << ":"
+        qCritical() << "isPowerMethodAvailable : Error while calling" << method << ":"
                      << reply.error().message();
         return false;
       }
     }
     else
     {
-      QLOG_ERROR() << "isPowerMethodAvailable : failed to retrieve interface.";
+      qCritical() << "isPowerMethodAvailable : failed to retrieve interface.";
     }
   }
   else
   {
-    QLOG_ERROR() << "isPowerMethodAvailable : could not find system bus";
+    qCritical() << "isPowerMethodAvailable : could not find system bus";
   }
 
   return false;
@@ -100,7 +100,7 @@ void PowerComponentDBus::doDisableScreensaver()
 {
   if (screensaver_inhibit_cookie)
   {
-    QLOG_INFO() << "doDisableScreensaver : already disabled.";
+    qInfo() << "doDisableScreensaver : already disabled.";
     return;
   }
   if (QDBusConnection::systemBus().isConnected())
@@ -117,18 +117,18 @@ void PowerComponentDBus::doDisableScreensaver()
       }
       else
       {
-        QLOG_ERROR() << "doDisableScreensaver : Error while calling UnInhibit:"
+        qCritical() << "doDisableScreensaver : Error while calling UnInhibit:"
                      << reply.error().message();
       }
     }
     else
     {
-      QLOG_ERROR() << "doDisableScreensaver : failed to retrieve interface.";
+      qCritical() << "doDisableScreensaver : failed to retrieve interface.";
     }
   }
   else
   {
-    QLOG_ERROR() << "doDisableScreensaver : could not find system bus";
+    qCritical() << "doDisableScreensaver : could not find system bus";
   }
 }
 
@@ -137,7 +137,7 @@ void PowerComponentDBus::doEnableScreensaver()
 {
   if (!screensaver_inhibit_cookie)
   {
-    QLOG_INFO() << "doEnableScreensaver : already enabled.";
+    qInfo() << "doEnableScreensaver : already enabled.";
     return;
   }
   if (QDBusConnection::systemBus().isConnected())
@@ -154,18 +154,18 @@ void PowerComponentDBus::doEnableScreensaver()
       }
       else
       {
-        QLOG_ERROR() << "doEnableScreensaver : Error while calling UnInhibit:"
+        qCritical() << "doEnableScreensaver : Error while calling UnInhibit:"
                      << reply.error().message();
       } 
     }
     else
     {
-      QLOG_ERROR() << "doEnableScreensaver : failed to retrieve interface.";
+      qCritical() << "doEnableScreensaver : failed to retrieve interface.";
     }
   }
   else
   {
-    QLOG_ERROR() << "doEnableScreensaver : could not find system bus";
+    qCritical() << "doEnableScreensaver : could not find system bus";
   }
 }
 

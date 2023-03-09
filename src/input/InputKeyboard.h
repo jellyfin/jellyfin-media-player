@@ -6,8 +6,8 @@
 #define KONVERGO_INPUTKEYBOARD_H
 
 #include <QKeySequence>
+#include <QDebug>
 #include "InputComponent.h"
-#include "QsLog.h"
 
 class InputKeyboard : public InputBase
 {

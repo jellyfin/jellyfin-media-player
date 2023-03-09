@@ -6,8 +6,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QDebug>
 
-#include "QsLog.h"
 #include "Paths.h"
 #include "utils/Utils.h"
 
@@ -22,7 +22,7 @@ InputMapping::InputMapping(QObject *parent) : QObject(parent), m_sourceMatcher(f
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputMapping::dirChange()
 {
-  QLOG_INFO() << "Change to user input path, reloading mappings.";
+  qInfo() << "Change to user input path, reloading mappings.";
   loadMappings();
 }
 
@@ -74,7 +74,7 @@ bool InputMapping::loadMappingFile(const QString& path, QPair<QString, QVariantM
   auto doc = Utils::OpenJsonDocument(path, &err);
   if (doc.isNull())
   {
-    QLOG_WARN() << "Failed to parse input mapping file:" << path << "," << err.errorString();
+    qWarning() << "Failed to parse input mapping file:" << path << "," << err.errorString();
     return false;
   }
 
@@ -83,19 +83,19 @@ bool InputMapping::loadMappingFile(const QString& path, QPair<QString, QVariantM
     auto obj = doc.object();
     if (!obj.contains("name"))
     {
-      QLOG_WARN() << "Missing elements 'name' from mapping file:" << path;
+      qWarning() << "Missing elements 'name' from mapping file:" << path;
       return false;
     }
 
     if (!obj.contains("idmatcher"))
     {
-      QLOG_WARN() << "Missing element 'idmatcher' from mapping file:" << path;
+      qWarning() << "Missing element 'idmatcher' from mapping file:" << path;
       return false;
     }
 
     if (!obj.contains("mapping"))
     {
-      QLOG_WARN() << "Missing element 'mapping' from mapping file:" << path;
+      qWarning() << "Missing element 'mapping' from mapping file:" << path;
       return false;
     }
 
@@ -103,14 +103,14 @@ bool InputMapping::loadMappingFile(const QString& path, QPair<QString, QVariantM
     return true;
   }
 
-  QLOG_WARN() << "Wrong format for file:" << path;
+  qWarning() << "Wrong format for file:" << path;
   return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
 {
-  QLOG_INFO() << "Loading inputmaps from:" << path;
+  qInfo() << "Loading inputmaps from:" << path;
   QDirIterator it(path);
   while (it.hasNext())
   {

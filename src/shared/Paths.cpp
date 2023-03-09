@@ -8,8 +8,8 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QGuiApplication>
-#include <QsLog.h>
 #include <QtGui/qguiapplication.h>
+#include <QDebug>
 #include "Names.h"
 #include "Version.h"
 
@@ -19,7 +19,7 @@ static QDir writableLocation(QStandardPaths::StandardLocation loc)
   QDir d(QStandardPaths::writableLocation(loc));
   if (!d.mkpath(d.absolutePath() + "/" + Names::MainName()))
   {
-    QLOG_WARN() << "Failed to create directory:" << d.absolutePath();
+    qWarning() << "Failed to create directory:" << d.absolutePath();
     return QDir();
   }
 
@@ -120,7 +120,7 @@ QString Paths::soundsPath(const QString& sound)
   f = QFileInfo(":/sounds/" + sound);
   if (!f.exists())
   {
-    QLOG_WARN() << "Can't find sound:" << sound;
+    qWarning() << "Can't find sound:" << sound;
     return QString();
   }
 

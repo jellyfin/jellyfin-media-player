@@ -2,10 +2,10 @@
 #include <QSurfaceFormat>
 #include <QCoreApplication>
 #include <QOpenGLContext>
+#include <QDebug>
 
 #include <mpv/client.h>
 
-#include "QsLog.h"
 
 #include "QtHelper.h"
 #include "OpenGLDetect.h"
@@ -87,7 +87,7 @@ void detectOpenGLLate()
   QList<int> versions = { 3, 2 };
   for (auto version : versions)
   {
-    QLOG_INFO() << "Trying GLES version" << version;
+    qInfo() << "Trying GLES version" << version;
     QSurfaceFormat fmt = QSurfaceFormat::defaultFormat();
     fmt.setMajorVersion(version);
 #ifdef HAVE_OPTIMALORIENTATION
@@ -97,7 +97,7 @@ void detectOpenGLLate()
     ctx.setFormat(fmt);
     if (ctx.create())
     {
-      QLOG_INFO() << "Using GLES version" << version;
+      qInfo() << "Using GLES version" << version;
       QSurfaceFormat::setDefaultFormat(fmt);
       break;
     }

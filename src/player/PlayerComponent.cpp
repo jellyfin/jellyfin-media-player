@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QGuiApplication>
+#include <QDebug>
 #include "display/DisplayComponent.h"
 #include "settings/SettingsComponent.h"
 #include "system/SystemComponent.h"
@@ -14,8 +15,6 @@
 
 #include "PlayerQuickItem.h"
 #include "input/InputComponent.h"
-
-#include "QsLog.h"
 
 #include <math.h>
 #include <string.h>
@@ -237,7 +236,7 @@ bool PlayerComponent::componentInitialize()
         codecInfo += "(enc)";
     }
   }
-  QLOG_INFO() << "Present codecs:" << qPrintable(codecInfo);
+  qInfo() << "Present codecs:" << qPrintable(codecInfo);
 
   connect(this, &PlayerComponent::onMpvEvents, this, &PlayerComponent::handleMpvEvents, Qt::QueuedConnection);
   emit onMpvEvents();
@@ -357,11 +356,11 @@ void PlayerComponent::streamSwitch()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool PlayerComponent::switchDisplayFrameRate()
 {
-  QLOG_DEBUG() << "Video framerate:" << m_mediaFrameRate << "fps";
+  qDebug() << "Video framerate:" << m_mediaFrameRate << "fps";
 
   if (!SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "refreshrate.auto_switch").toBool())
   {
-    QLOG_DEBUG() << "Not switching refresh-rate (disabled by settings).";
+    qDebug() << "Not switching refresh-rate (disabled by settings).";
     return false;
   }
 
@@ -371,13 +370,13 @@ bool PlayerComponent::switchDisplayFrameRate()
 #endif
   if (!fs)
   {
-    QLOG_DEBUG() << "Not switching refresh-rate (not in fullscreen mode).";
+    qDebug() << "Not switching refresh-rate (not in fullscreen mode).";
     return false;
   }
 
   if (m_mediaFrameRate < 1)
   {
-    QLOG_DEBUG() << "Not switching refresh-rate (no known video framerate).";
+    qDebug() << "Not switching refresh-rate (no known video framerate).";
     return false;
   }
 
@@ -388,7 +387,7 @@ bool PlayerComponent::switchDisplayFrameRate()
   DisplayComponent* display = &DisplayComponent::Get();
   if (!display->switchToBestVideoMode(m_mediaFrameRate))
   {
-    QLOG_DEBUG() << "Switching refresh-rate failed or unnecessary.";
+    qDebug() << "Switching refresh-rate failed or unnecessary.";
     return false;
   }
 
@@ -449,29 +448,29 @@ void PlayerComponent::updatePlaybackState()
   {
     switch (newState) {
     case State::paused:
-      QLOG_INFO() << "Entering state: paused";
+      qInfo() << "Entering state: paused";
       emit paused();
       break;
     case State::playing:
-      QLOG_INFO() << "Entering state: playing";
+      qInfo() << "Entering state: playing";
       emit playing();
       break;
     case State::buffering:
-      QLOG_INFO() << "Entering state: buffering";
+      qInfo() << "Entering state: buffering";
       m_lastBufferingPercentage = -1; /* force update below */
       break;
     case State::finished:
-      QLOG_INFO() << "Entering state: finished";
+      qInfo() << "Entering state: finished";
       emit finished();
       emit stopped();
       break;
     case State::canceled:
-      QLOG_INFO() << "Entering state: canceled";
+      qInfo() << "Entering state: canceled";
       emit canceled();
       emit stopped();
       break;
     case State::error:
-      QLOG_INFO() << ("Entering state: error (" + m_playbackError + ")");
+      qInfo() << ("Entering state: error (" + m_playbackError + ")");
       emit error(m_playbackError);
       break;
     }
@@ -585,13 +584,13 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
         len -= 1;
       QString logline = QString::fromUtf8(msg->prefix) + ": " + QString::fromUtf8(msg->text, (int)len);
       if (msg->log_level >= MPV_LOG_LEVEL_V)
-        QLOG_DEBUG() << qPrintable(logline);
+        qDebug() << qPrintable(logline);
       else if (msg->log_level >= MPV_LOG_LEVEL_INFO)
-        QLOG_INFO() << qPrintable(logline);
+        qInfo() << qPrintable(logline);
       else if (msg->log_level >= MPV_LOG_LEVEL_WARN)
-        QLOG_WARN() << qPrintable(logline);
+        qWarning() << qPrintable(logline);
       else
-        QLOG_ERROR() << qPrintable(logline);
+        qCritical() << qPrintable(logline);
       break;
     }
     case MPV_EVENT_CLIENT_MESSAGE:
@@ -607,9 +606,9 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
-          QLOG_INFO() << "checking codecs";
+          qInfo() << "checking codecs";
           startCodecsLoading([=] {
-            QLOG_INFO() << "resuming loading";
+            qInfo() << "resuming loading";
             mpv::qt::command(m_mpv, QStringList() << "hook-ack" << resumeId);
           });
         };
@@ -620,7 +619,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
           // to various strange OS-related reasons.
           // (Better hope the user doesn't try to exit Konvergo during mode change.)
           int pause = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "refreshrate.delay").toInt() * 1000;
-          QLOG_INFO() << "waiting" << pause << "msec after rate switch before loading";
+          qInfo() << "waiting" << pause << "msec after rate switch before loading";
           QTimer::singleShot(pause, resume);
         }
         else
@@ -652,9 +651,9 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
-          QLOG_INFO() << "checking codecs";
+          qInfo() << "checking codecs";
           startCodecsLoading([=] {
-            QLOG_INFO() << "resuming loading";
+            qInfo() << "resuming loading";
             mpv_hook_continue(m_mpv, id);
           });
         };
@@ -665,7 +664,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
           // to various strange OS-related reasons.
           // (Better hope the user doesn't try to exit Konvergo during mode change.)
           int pause = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "refreshrate.delay").toInt() * 1000;
-          QLOG_INFO() << "waiting" << pause << "msec after rate switch before loading";
+          qInfo() << "waiting" << pause << "msec after rate switch before loading";
           QTimer::singleShot(pause, resume);
         }
         else
@@ -976,9 +975,9 @@ void PlayerComponent::checkCurrentAudioDevice(const QSet<QString>& old_devs, con
   QSet<QString> removed = old_devs - new_devs;
   QSet<QString> added = new_devs - old_devs;
 
-  QLOG_DEBUG() << "Audio devices removed:" << removed;
-  QLOG_DEBUG() << "Audio devices added:" << added;
-  QLOG_DEBUG() << "Audio device selected:" << userDevice;
+  qDebug() << "Audio devices removed:" << removed;
+  qDebug() << "Audio devices added:" << added;
+  qDebug() << "Audio device selected:" << userDevice;
 
   if (userDevice.length())
   {
@@ -1043,7 +1042,7 @@ void PlayerComponent::updateAudioDevice()
 
   if (!m_audioDevices.contains(device))
   {
-    QLOG_WARN() << "Not using audio device" << device << "because it's not present.";
+    qWarning() << "Not using audio device" << device << "because it's not present.";
     device = "auto";
   }
 
@@ -1133,7 +1132,7 @@ void PlayerComponent::setAudioConfiguration()
                                                                    layout.toString(),
                                                                    passthroughCodecs.isEmpty() ? "none" : passthroughCodecs,
                                                                    m_doAc3Transcoding ? "yes" : "no");
-  QLOG_INFO() << qPrintable(audioConfig);
+  qInfo() << qPrintable(audioConfig);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1270,7 +1269,7 @@ void PlayerComponent::initializeCodecSupport()
     ok = !!strstr(res, "=enabled");
 #endif
     m_codecSupport[name] = ok;
-    QLOG_INFO() << "Codec" << name << (ok ? "present" : "disabled");
+    qInfo() << "Codec" << name << (ok ? "present" : "disabled");
   }
 }
 
@@ -1389,7 +1388,7 @@ PlaybackInfo PlayerComponent::getPlaybackInfo()
           if (streamInfoMap["index"].toInt(&ok) == index && ok)
           {
             stream.profile = streamInfoMap["profile"].toString();
-            QLOG_DEBUG() << "h264profile:" << stream.profile;
+            qDebug() << "h264profile:" << stream.profile;
           }
         }
       }

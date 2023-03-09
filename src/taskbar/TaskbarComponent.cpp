@@ -11,7 +11,7 @@ TaskbarComponent& TaskbarComponent::Get()
   static TaskbarComponentWin instance;
   return instance;
 #else
-  QLOG_WARN() << "Could not find a taskbar component matching this platform. Taskbar functions disabled.";
+  qWarning() << "Could not find a taskbar component matching this platform. Taskbar functions disabled.";
 
   static TaskbarComponent instance;
   return instance;

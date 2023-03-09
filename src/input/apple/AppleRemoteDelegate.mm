@@ -1,7 +1,6 @@
+#include <QDebug>
 #import "AppleRemoteDelegate.h"
 #import "InputAppleRemote.h"
-
-#include "QsLog.h"
 
 @implementation AppleRemoteDelegate
 
@@ -23,7 +22,7 @@
   [[HIDRemote sharedHIDRemote] setExclusiveLockLendingEnabled:YES];
   if (![[HIDRemote sharedHIDRemote] startRemoteControl:kHIDRemoteModeExclusive])
   {
-    QLOG_ERROR() << "Failed to init AppleRemote";
+    qCritical() << "Failed to init AppleRemote";
     return false;
   }
   

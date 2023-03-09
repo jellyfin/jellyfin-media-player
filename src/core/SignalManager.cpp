@@ -1,8 +1,9 @@
+#include <QDebug>
+
 #include "sys/socket.h"
 #include "unistd.h"
 #include "signal.h"
 
-#include "QsLog.h"
 #include "SignalManager.h"
 #include "settings/SettingsComponent.h"
 
@@ -13,14 +14,14 @@ SignalManager::SignalManager(QGuiApplication* app) : QObject(nullptr), m_app(app
 {
   if (setupHandlers())
   {
-    QLOG_ERROR() << "Failed to install SignalDaemon handlers.";
+    qCritical() << "Failed to install SignalDaemon handlers.";
   }
 
-  QLOG_DEBUG() << "Signal handlers installed successfully.";
+  qDebug() << "Signal handlers installed successfully.";
 
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, SignalManager::g_sigtermFd))
   {
-    QLOG_ERROR() << "Couldn't create TERM socketpair";
+    qCritical() << "Couldn't create TERM socketpair";
   }
 
   m_snTerm = new QSocketNotifier(SignalManager::g_sigtermFd[1], QSocketNotifier::Read, this);
@@ -66,12 +67,12 @@ void SignalManager::handleSignal()
   // do Qt stuff
   if (signalNumber == SIGUSR1)
   {
-    QLOG_DEBUG() << "Received SIGUSR1, reloading config file";
+    qDebug() << "Received SIGUSR1, reloading config file";
     SettingsComponent::Get().load();
   }
   else
   {
-    QLOG_DEBUG() << "Received signal, closing application";
+    qDebug() << "Received signal, closing application";
     closeApplication();
   }
 

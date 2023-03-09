@@ -1,5 +1,5 @@
+#include <QDebug>
 #include "SettingsSection.h"
-#include "QsLog.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 SettingsSection::SettingsSection(const QString& sectionID, quint8 platforms, int _orderIndex, QObject* parent)
@@ -13,7 +13,7 @@ void SettingsSection::registerSetting(SettingsValue* value)
 {
   if (m_values.contains(value->key()))
   {
-    QLOG_WARN() << QString("Trying to register %1.%2 multiple times").arg(m_sectionID).arg(value->key());
+    qWarning() << QString("Trying to register %1.%2 multiple times").arg(m_sectionID).arg(value->key());
     return;
   }
 
@@ -69,7 +69,7 @@ QVariant SettingsSection::defaultValue(const QString& key)
   if (m_values.contains(key))
     return m_values[key]->defaultValue();
 
-  QLOG_WARN() << "Looking for defaultValue:" << key << "in section:" << m_sectionID << "but it can't be found";
+  qWarning() << "Looking for defaultValue:" << key << "in section:" << m_sectionID << "but it can't be found";
   return QVariant();
 }
 
@@ -79,7 +79,7 @@ QVariant SettingsSection::value(const QString& key)
   if (m_values.contains(key))
     return m_values[key]->value();
 
-  QLOG_WARN() << "Looking for value:" << key << "in section:" << m_sectionID << "but it can't be found";
+  qWarning() << "Looking for value:" << key << "in section:" << m_sectionID << "but it can't be found";
   return QVariant();
 }
 

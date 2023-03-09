@@ -32,7 +32,7 @@ TaskbarComponentWin::~TaskbarComponentWin()
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setWindow(QQuickWindow* window)
 {
-  QLOG_DEBUG() << "Taskbar initialization started";
+  qDebug() << "Taskbar initialization started";
   TaskbarComponent::setWindow(window);
 
   m_button = new QWinTaskbarButton(m_window);
@@ -164,14 +164,14 @@ void TaskbarComponentWin::initializeMediaTransport(HWND hwnd)
   auto hr = GetActivationFactory(HStringReference(RuntimeClass_Windows_Media_SystemMediaTransportControls).Get(), &interop);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed instantiating interop object";
+    qWarning() << "Failed instantiating interop object";
     return;
   }
 
   hr = interop->GetForWindow(hwnd, IID_PPV_ARGS(&m_systemControls));
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to GetForWindow";
+    qWarning() << "Failed to GetForWindow";
     return;
   }
 
@@ -185,7 +185,7 @@ void TaskbarComponentWin::initializeMediaTransport(HWND hwnd)
   hr = m_systemControls->add_ButtonPressed(handler.Get(), &m_buttonPressedToken);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to add callback handler";
+    qWarning() << "Failed to add callback handler";
     return;
   }
 
@@ -204,12 +204,12 @@ void TaskbarComponentWin::initializeMediaTransport(HWND hwnd)
   hr = m_systemControls->get_DisplayUpdater(&m_displayUpdater);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to get Display updater";
+    qWarning() << "Failed to get Display updater";
     return;
   }
 
   m_initialized = true;
-  QLOG_INFO() << "SystemMediaTransportControls successfully initialized";
+  qInfo() << "SystemMediaTransportControls successfully initialized";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -224,7 +224,7 @@ void TaskbarComponentWin::onMetaData(const QVariantMap& meta, QUrl baseUrl)
   hr = m_displayUpdater->ClearAll();
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to clear display metadata";
+    qWarning() << "Failed to clear display metadata";
     return;
   }
 
@@ -242,7 +242,7 @@ void TaskbarComponentWin::onMetaData(const QVariantMap& meta, QUrl baseUrl)
   hr = m_displayUpdater->Update();
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to update the display";
+    qWarning() << "Failed to update the display";
     return;
   }
 }
@@ -255,7 +255,7 @@ void TaskbarComponentWin::setAudioMeta(const QVariantMap& meta)
   hr = m_displayUpdater->put_Type(MediaPlaybackType::MediaPlaybackType_Music);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set the media type to music";
+    qWarning() << "Failed to set the media type to music";
     return;
   }
 
@@ -263,7 +263,7 @@ void TaskbarComponentWin::setAudioMeta(const QVariantMap& meta)
   hr = m_displayUpdater->get_MusicProperties(musicProps.GetAddressOf());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to get music properties";
+    qWarning() << "Failed to get music properties";
     return;
   }
 
@@ -271,7 +271,7 @@ void TaskbarComponentWin::setAudioMeta(const QVariantMap& meta)
   hr = musicProps->put_Artist(HStringReference((const wchar_t*)artist.utf16()).Get());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set the music's artist";
+    qWarning() << "Failed to set the music's artist";
     return;
   }
 
@@ -279,7 +279,7 @@ void TaskbarComponentWin::setAudioMeta(const QVariantMap& meta)
   hr = musicProps->put_Title(HStringReference((const wchar_t*)title.utf16()).Get());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set the music's title";
+    qWarning() << "Failed to set the music's title";
     return;
   }
 
@@ -287,7 +287,7 @@ void TaskbarComponentWin::setAudioMeta(const QVariantMap& meta)
   hr = musicProps->put_AlbumArtist(HStringReference((const wchar_t*)albumArtist.utf16()).Get());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set the music's album artist";
+    qWarning() << "Failed to set the music's album artist";
     return;
   }
 }
@@ -300,7 +300,7 @@ void TaskbarComponentWin::setVideoMeta(const QVariantMap& meta)
   hr = m_displayUpdater->put_Type(MediaPlaybackType::MediaPlaybackType_Video);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set the media type to video";
+    qWarning() << "Failed to set the media type to video";
     return;
   }
 
@@ -308,7 +308,7 @@ void TaskbarComponentWin::setVideoMeta(const QVariantMap& meta)
   hr = m_displayUpdater->get_VideoProperties(videoProps.GetAddressOf());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to get video properties";
+    qWarning() << "Failed to get video properties";
     return;
   }
 
@@ -316,7 +316,7 @@ void TaskbarComponentWin::setVideoMeta(const QVariantMap& meta)
   hr = videoProps->put_Title(HStringReference((const wchar_t*)title.utf16()).Get());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set the video title";
+    qWarning() << "Failed to set the video title";
     return;
   }
 
@@ -326,7 +326,7 @@ void TaskbarComponentWin::setVideoMeta(const QVariantMap& meta)
     hr = videoProps->put_Subtitle(HStringReference((const wchar_t*)subtitle.utf16()).Get());
     if (FAILED(hr))
     {
-      QLOG_WARN() << "Failed to set the video subtitle";
+      qWarning() << "Failed to set the video subtitle";
       return;
     }
   }
@@ -363,7 +363,7 @@ void TaskbarComponentWin::setThumbnail(const QVariantMap& meta, QUrl baseUrl)
   }
   else
   {
-    QLOG_DEBUG() << "No Primary image found. Do nothing";
+    qDebug() << "No Primary image found. Do nothing";
     return;
   }
 
@@ -374,7 +374,7 @@ void TaskbarComponentWin::setThumbnail(const QVariantMap& meta, QUrl baseUrl)
     &streamRefFactory);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed instantiating stream factory";
+    qWarning() << "Failed instantiating stream factory";
     return;
   }
 
@@ -382,7 +382,7 @@ void TaskbarComponentWin::setThumbnail(const QVariantMap& meta, QUrl baseUrl)
   hr = GetActivationFactory(HStringReference(RuntimeClass_Windows_Foundation_Uri).Get(), &uriFactory);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed instantiating uri factory";
+    qWarning() << "Failed instantiating uri factory";
     return;
   }
 
@@ -390,21 +390,21 @@ void TaskbarComponentWin::setThumbnail(const QVariantMap& meta, QUrl baseUrl)
   hr = uriFactory->CreateUri(HStringReference((const wchar_t*)imgUrl.utf16()).Get(), &uri);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to create uri";
+    qWarning() << "Failed to create uri";
     return;
   }
 
   hr = streamRefFactory->CreateFromUri(uri.Get(), &m_thumbnail);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to create stream from uri";
+    qWarning() << "Failed to create stream from uri";
     return;
   }
 
   hr = m_displayUpdater->put_Thumbnail(m_thumbnail.Get());
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to set thumbnail";
+    qWarning() << "Failed to set thumbnail";
     return;
   }
 }
@@ -417,7 +417,7 @@ HRESULT TaskbarComponentWin::buttonPressed(ISystemMediaTransportControls* sender
   auto hr = args->get_Button(&button);
   if (FAILED(hr))
   {
-    QLOG_WARN() << "Failed to get the pressed button";
+    qWarning() << "Failed to get the pressed button";
     return hr;
   }
 
@@ -425,42 +425,42 @@ HRESULT TaskbarComponentWin::buttonPressed(ISystemMediaTransportControls* sender
   {
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Play:
       InputComponent::Get().sendAction("play_pause");
-      QLOG_DEBUG() << "Received play button press";
+      qDebug() << "Received play button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Pause:
       InputComponent::Get().sendAction("play_pause");
-      QLOG_DEBUG() << "Received pause button press";
+      qDebug() << "Received pause button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Next:
       InputComponent::Get().sendAction("next");
-      QLOG_DEBUG() << "Received next button press";
+      qDebug() << "Received next button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Previous:
       InputComponent::Get().sendAction("previous");
-      QLOG_DEBUG() << "Received previous button press";
+      qDebug() << "Received previous button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Stop:
       InputComponent::Get().sendAction("stop");
-      QLOG_DEBUG() << "Received stop button press";
+      qDebug() << "Received stop button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_FastForward:
       InputComponent::Get().sendAction("seek_forward");
-      QLOG_DEBUG() << "Received seek_forward button press";
+      qDebug() << "Received seek_forward button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Rewind:
       InputComponent::Get().sendAction("seek_backward");
-      QLOG_DEBUG() << "Received seek_backward button press";
+      qDebug() << "Received seek_backward button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_ChannelUp:
       InputComponent::Get().sendAction("channelup");
-      QLOG_DEBUG() << "Received channelup button press";
+      qDebug() << "Received channelup button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_ChannelDown:
       InputComponent::Get().sendAction("channeldown");
-      QLOG_DEBUG() << "Received channeldown button press";
+      qDebug() << "Received channeldown button press";
       break;
     case SystemMediaTransportControlsButton::SystemMediaTransportControlsButton_Record:
-      QLOG_DEBUG() << "Received unsupported button press";
+      qDebug() << "Received unsupported button press";
       break;
   }
 

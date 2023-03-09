@@ -7,8 +7,8 @@
 //
 
 #include <QKeyEvent>
+#include <QDebug>
 #include "InputSDL.h"
-#include "QsLog.h"
 
 #include <climits>
 #include <cstdlib>
@@ -22,7 +22,7 @@ bool InputSDLWorker::initialize()
   // init SDL
   if (SDL_Init(SDL_INIT_JOYSTICK) < 0)
   {
-    QLOG_ERROR() << "SDL failed to initialize : " << SDL_GetError();
+    qCritical() << "SDL failed to initialize : " << SDL_GetError();
     return false;
   }
 
@@ -39,7 +39,7 @@ void InputSDLWorker::close()
 {
   if (SDL_WasInit(SDL_INIT_JOYSTICK))
   {
-    QLOG_INFO() << "SDL is closing.";
+    qInfo() << "SDL is closing.";
 
     // we need to close all the openned joysticks here and then exit the thread
     for (int joyid = 0; joyid < m_joysticks.size(); joyid++)
@@ -95,14 +95,14 @@ void InputSDLWorker::run()
 
         case SDL_JOYDEVICEADDED:
         {
-          QLOG_INFO() << "SDL detected device was added.";
+          qInfo() << "SDL detected device was added.";
           refreshJoystickList();
           break;
         }
 
         case SDL_JOYDEVICEREMOVED:
         {
-          QLOG_INFO() << "SDL detected device was removed.";
+          qInfo() << "SDL detected device was removed.";
           refreshJoystickList();
           break;
         }
@@ -150,7 +150,7 @@ void InputSDLWorker::run()
           auto axis = event.jaxis.axis;
           auto value = event.jaxis.value;
 
-          QLOG_DEBUG() << "JoyAxisMotion:" << axis << value;
+          qDebug() << "JoyAxisMotion:" << axis << value;
 
           // handle the Digital conversion of the analog axis
           if (std::abs(value) > 32768 / 2)
@@ -176,7 +176,7 @@ void InputSDLWorker::run()
         }
         default:
         {
-          QLOG_WARN() << "Unhandled SDL event:" << event.type;
+          qWarning() << "Unhandled SDL event:" << event.type;
           break;
         }
       }
@@ -204,7 +204,7 @@ void InputSDLWorker::refreshJoystickList()
 
   // list all the joysticks and open them
   int numJoysticks = SDL_NumJoysticks();
-  QLOG_INFO() << "SDL found " << numJoysticks << " joysticks";
+  qInfo() << "SDL found " << numJoysticks << " joysticks";
 
   for (int joyid = 0; joyid < numJoysticks; joyid++)
   {
@@ -213,7 +213,7 @@ void InputSDLWorker::refreshJoystickList()
     if (joystick)
     {
       int instanceid = SDL_JoystickInstanceID(joystick);
-      QLOG_INFO() << "JoyStick #" << instanceid << " is " << SDL_JoystickName(joystick) << " with "
+      qInfo() << "JoyStick #" << instanceid << " is " << SDL_JoystickName(joystick) << " with "
                   << SDL_JoystickNumButtons(joystick) << " buttons and " << SDL_JoystickNumAxes(joystick)
                   << "axes";
       m_joysticks[instanceid] = joystick;

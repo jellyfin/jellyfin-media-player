@@ -1,4 +1,5 @@
 #include "CodecsComponent.h"
+#include <QDebug>
 #include <QString>
 #include <Qt>
 #include <QDir>
@@ -27,8 +28,6 @@
 #include "utils/Utils.h"
 #include "shared/Paths.h"
 #include "PlayerComponent.h"
-
-#include "QsLog.h"
 
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -422,7 +421,7 @@ static bool probeDecoder(QString decoder, QString resourceName)
 {
   QResource resource(resourceName);
 
-  QLOG_DEBUG() << "Testing decoding of" << resource.fileName();
+  qDebug() << "Testing decoding of" << resource.fileName();
 
   if (!resource.isValid())
     return false;
@@ -457,7 +456,7 @@ static bool probeDecoder(QString decoder, QString resourceName)
     }
   }
 
-  QLOG_DEBUG() << "Result:" << result;
+  qDebug() << "Result:" << result;
 
   return result;
 }
@@ -478,7 +477,7 @@ static void probeCodecs()
     else
       g_systemVideoDecoderWhitelist.remove("h264_mf");
 
-    QLOG_DEBUG() << "h264_mf max. resolution:" << g_mediaFoundationH264MaxResolution;
+    qDebug() << "h264_mf max. resolution:" << g_mediaFoundationH264MaxResolution;
   }
 #endif
 
@@ -539,12 +538,12 @@ static void updateCodecs()
     QStringList codecs;
     for (auto codec : install)
       codecs.append(codec.getMangledName());
-    QLOG_INFO() << "Updating some codecs: " + codecs.join(", ");
+    qInfo() << "Updating some codecs: " + codecs.join(", ");
 
     auto fetcher = new CodecsFetcher();
     QObject::connect(fetcher, &CodecsFetcher::done, [](CodecsFetcher* sender)
     {
-      QLOG_INFO() << "Codec update finished.";
+      qInfo() << "Codec update finished.";
       sender->deleteLater();
     });
     fetcher->startCodecs = false;
@@ -587,7 +586,7 @@ static void deleteOldCodecs()
     if (entry.startsWith(QString("EasyAudioEncoder-") + STRINGIFY(EAE_VERSION) + "-"))
       continue;
 
-    QLOG_DEBUG() << "Deleting old directory: " << entryPath.absolutePath();
+    qDebug() << "Deleting old directory: " << entryPath.absolutePath();
     entryPath.removeRecursively();
   }
 }
@@ -615,7 +614,7 @@ bool CodecsFetcher::codecNeedsDownload(const CodecDriver& codec)
     return false;
   if (!codec.external)
   {
-    QLOG_ERROR() << "Codec" << codec.driver << "does not exist and is not downloadable.";
+    qCritical() << "Codec" << codec.driver << "does not exist and is not downloadable.";
     return false;
   }
   for (int n = 0; n < m_Codecs.size(); n++)
@@ -626,11 +625,11 @@ bool CodecsFetcher::codecNeedsDownload(const CodecDriver& codec)
   QFile codecFile(codec.getPath());
   if (codecFile.exists())
   {
-    QLOG_ERROR() << "Codec" << codec.driver << "exists on disk as" << codec.getPath()
+    qCritical() << "Codec" << codec.driver << "exists on disk as" << codec.getPath()
                  << "but is not known as installed - broken codec?";
     if (!codecFile.remove())
       return false;
-    QLOG_ERROR() << "Retrying download.";
+    qCritical() << "Retrying download.";
   }
   return true;
 }
@@ -699,25 +698,25 @@ void CodecsFetcher::startNext()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool CodecsFetcher::processCodecInfoReply(const QVariant& context, const QByteArray& data)
 {
-  QLOG_INFO() << "Got reply:" << QString::fromUtf8(data);
+  qInfo() << "Got reply:" << QString::fromUtf8(data);
 
   QDomDocument dom;
   if (!dom.setContent(data))
   {
-    QLOG_ERROR() << "XML parsing error.";
+    qCritical() << "XML parsing error.";
     return false;
   }
 
   QDomNodeList list = dom.elementsByTagName("MediaContainer");
   if (list.count() != 1)
   {
-    QLOG_ERROR() << "MediaContainer XML element not found.";
+    qCritical() << "MediaContainer XML element not found.";
     return false;
   }
   list = dom.elementsByTagName("Codec");
   if (list.count() != 1)
   {
-    QLOG_ERROR() << "Codec XML element not found.";
+    qCritical() << "Codec XML element not found.";
     return false;
   }
 
@@ -725,7 +724,7 @@ bool CodecsFetcher::processCodecInfoReply(const QVariant& context, const QByteAr
   QString url = attrs.namedItem("url").toAttr().value();
   if (!url.size())
   {
-    QLOG_ERROR() << "No URL found.";
+    qCritical() << "No URL found.";
     return false;
   }
 
@@ -733,7 +732,7 @@ bool CodecsFetcher::processCodecInfoReply(const QVariant& context, const QByteAr
   m_currentHash = QByteArray::fromHex(hash.toUtf8());
   // it's hardcoded to SHA-1
   if (!m_currentHash.size()) {
-    QLOG_ERROR() << "Hash value in unexpected format or missing:" << hash;
+    qCritical() << "Hash value in unexpected format or missing:" << hash;
     return false;
   }
 
@@ -748,7 +747,7 @@ void CodecsFetcher::codecInfoDownloadDone(QVariant userData, bool success, const
 {
   if (!success || !processCodecInfoReply(userData, data))
   {
-    QLOG_ERROR() << "Codec download failed.";
+    qCritical() << "Codec download failed.";
     startNext();
   }
 }
@@ -824,7 +823,7 @@ static bool extractZip(QString zip, QString dest)
   unzFile file = unzOpen2(zip.toUtf8().data(), &unzfilefuncs);
   if (!file)
   {
-    QLOG_ERROR() << "could not open .zip file.";
+    qCritical() << "could not open .zip file.";
     goto fail;
   }
 
@@ -832,13 +831,13 @@ static bool extractZip(QString zip, QString dest)
   int unzerr;
   if ((unzerr = unzGetGlobalInfo(file, &info)) != UNZ_OK)
   {
-    QLOG_ERROR() << "unzGlobalInfo() failed with" << unzerr;
+    qCritical() << "unzGlobalInfo() failed with" << unzerr;
     goto fail;
   }
 
   if ((unzerr = unzGoToFirstFile(file)) != UNZ_OK)
   {
-    QLOG_ERROR() << "unzGoToFirstFile() failed with" << unzerr;
+    qCritical() << "unzGoToFirstFile() failed with" << unzerr;
     goto fail;
   }
 
@@ -846,7 +845,7 @@ static bool extractZip(QString zip, QString dest)
   {
     if (n > 0 && (unzerr = unzGoToNextFile(file)) != UNZ_OK)
     {
-      QLOG_ERROR() << "unzGoToNextFile() failed with" << unzerr;
+      qCritical() << "unzGoToNextFile() failed with" << unzerr;
       goto fail;
     }
 
@@ -855,13 +854,13 @@ static bool extractZip(QString zip, QString dest)
 
     if ((unzerr = unzGetCurrentFileInfo(file, &finfo, filename, sizeof(filename), 0, 0, 0, 0)) != UNZ_OK)
     {
-      QLOG_ERROR() << "unzGetCurrentFileInfo() failed with" << unzerr;
+      qCritical() << "unzGetCurrentFileInfo() failed with" << unzerr;
       goto fail;
     }
 
     if ((unzerr = unzOpenCurrentFile(file)) != UNZ_OK)
     {
-      QLOG_ERROR() << "unzOpenCurrentFile() failed with" << unzerr;
+      qCritical() << "unzOpenCurrentFile() failed with" << unzerr;
       goto fail;
     }
 
@@ -874,7 +873,7 @@ static bool extractZip(QString zip, QString dest)
       QDir dir(dest + "/" + filename);
       if (!dir.mkpath("."))
       {
-        QLOG_ERROR() << "could not create zip sub directory";
+        qCritical() << "could not create zip sub directory";
         goto fail;
       }
 
@@ -890,7 +889,7 @@ static bool extractZip(QString zip, QString dest)
     QSaveFile out(writepath);
     if (!out.open(QIODevice::WriteOnly))
     {
-      QLOG_ERROR() << "could not open output file" << filename;
+      qCritical() << "could not open output file" << filename;
       goto fail;
     }
 
@@ -904,20 +903,20 @@ static bool extractZip(QString zip, QString dest)
 
       if (read < 0)
       {
-        QLOG_ERROR() << "error decompressing zip entry" << filename;
+        qCritical() << "error decompressing zip entry" << filename;
         goto fail;
       }
 
       if (out.write(buf, read) != read)
       {
-        QLOG_ERROR() << "error writing output file" << filename;
+        qCritical() << "error writing output file" << filename;
         goto fail;
       }
     }
 
     if (!out.commit())
     {
-      QLOG_ERROR() << "error closing output file" << filename;
+      qCritical() << "error closing output file" << filename;
       goto fail;
     }
 
@@ -928,7 +927,7 @@ static bool extractZip(QString zip, QString dest)
     {
       if (!QFile::setPermissions(writepath, QFileDevice::Permissions(0x5145)))
       {
-        QLOG_ERROR() << "could not set output executable bit on extracted file";
+        qCritical() << "could not set output executable bit on extracted file";
         goto fail;
       }
     }
@@ -958,7 +957,7 @@ void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByt
 
   if (hash != m_currentHash)
   {
-    QLOG_ERROR() << "Checksum mismatch: got" << hash.toHex() << "expected" << m_currentHash.toHex();
+    qCritical() << "Checksum mismatch: got" << hash.toHex() << "expected" << m_currentHash.toHex();
     return;
   }
 
@@ -966,11 +965,11 @@ void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByt
   {
     QString dest = eaePrefixPath() + ".zip";
 
-    QLOG_INFO() << "Storing EAE as" << dest;
+    qInfo() << "Storing EAE as" << dest;
 
     if (!Utils::safelyWriteFile(dest, data))
     {
-      QLOG_ERROR() << "Writing codec file failed.";
+      qCritical() << "Writing codec file failed.";
       return;
     }
 
@@ -979,7 +978,7 @@ void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByt
 
     if (!extractZip(dest, eaePrefixPath()))
     {
-      QLOG_ERROR() << "Could not extract zip.";
+      qCritical() << "Could not extract zip.";
       dir.removeRecursively();
       return;
     }
@@ -990,11 +989,11 @@ void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByt
   {
     CodecDriver codec = context.value<CodecDriver>();
 
-    QLOG_INFO() << "Storing codec as" << codec.getPath();
+    qInfo() << "Storing codec as" << codec.getPath();
 
     if (!Utils::safelyWriteFile(codec.getPath(), data))
     {
-      QLOG_ERROR() << "Writing codec file failed.";
+      qCritical() << "Writing codec file failed.";
       return;
     }
 
@@ -1004,26 +1003,26 @@ void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByt
     {
       if (Codecs::sameCodec(item, codec) && !item.present)
       {
-        QLOG_ERROR() << "Codec could not be loaded after installing it.";
+        qCritical() << "Codec could not be loaded after installing it.";
         return;
       }
     }
   }
 
-  QLOG_INFO() << "Codec download and installation succeeded.";
+  qInfo() << "Codec download and installation succeeded.";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CodecsFetcher::codecDownloadDone(QVariant userData, bool success, const QByteArray& data)
 {
-  QLOG_INFO() << "Codec request finished.";
+  qInfo() << "Codec request finished.";
   if (success)
   {
     processCodecDownloadDone(userData, data);
   }
   else
   {
-    QLOG_ERROR() << "Codec download HTTP request failed.";
+    qCritical() << "Codec download HTTP request failed.";
   }
   startNext();
 }
@@ -1039,19 +1038,19 @@ void CodecsFetcher::startEAE()
     connect(g_eaeProcess, &QProcess::stateChanged,
       [](QProcess::ProcessState s)
       {
-        QLOG_INFO() << "EAE process state:" << s;
+        qInfo() << "EAE process state:" << s;
       }
     );
     connect(g_eaeProcess, &QProcess::errorOccurred,
       [](QProcess::ProcessError e)
       {
-        QLOG_INFO() << "EAE process error:" << e;
+        qInfo() << "EAE process error:" << e;
       }
     );
     connect(g_eaeProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
       [](int exitCode, QProcess::ExitStatus exitStatus)
       {
-        QLOG_INFO() << "EAE process finished:" << exitCode << exitStatus;
+        qInfo() << "EAE process finished:" << exitCode << exitStatus;
       }
     );
   }
@@ -1061,10 +1060,10 @@ void CodecsFetcher::startEAE()
     if (g_eaeProcess->program().size())
     {
       int exitCode = g_eaeProcess->exitStatus() == QProcess::NormalExit ? g_eaeProcess->exitCode() : -1;
-      QLOG_ERROR() << "EAE died with exit code" << exitCode;
+      qCritical() << "EAE died with exit code" << exitCode;
     }
 
-    QLOG_INFO() << "Starting EAE.";
+    qInfo() << "Starting EAE.";
 
     g_eaeProcess->setProgram(eaeBinaryPath());
     g_eaeProcess->setWorkingDirectory(g_eaeWatchFolder);
@@ -1086,7 +1085,7 @@ void CodecsFetcher::startEAE()
     {
       if (!dir.mkpath(folder))
       {
-        QLOG_ERROR() << "Could not create watch folder";
+        qCritical() << "Could not create watch folder";
       }
     }
 
@@ -1098,7 +1097,7 @@ void CodecsFetcher::startEAE()
 Downloader::Downloader(QVariant userData, const QUrl& url, const HeaderList& headers, QObject* parent)
   : QObject(parent), m_userData(userData), m_lastProgress(-1)
 {
-  QLOG_INFO() << "HTTP request:" << url.toDisplayString();
+  qInfo() << "HTTP request:" << url.toDisplayString();
   m_currentStartTime.start();
 
   connect(&m_WebCtrl, &QNetworkAccessManager::finished, this, &Downloader::networkFinished);
@@ -1122,7 +1121,7 @@ void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
     if (m_lastProgress < 0 || progress > m_lastProgress + 10)
     {
       m_lastProgress = progress;
-      QLOG_INFO() << "HTTP request at" << progress << "% (" << bytesReceived << "/" << bytesTotal << ")";
+      qInfo() << "HTTP request at" << progress << "% (" << bytesReceived << "/" << bytesTotal << ")";
     }
   }
 }
@@ -1130,7 +1129,7 @@ void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void Downloader::networkFinished(QNetworkReply* pReply)
 {
-  QLOG_INFO() << "HTTP finished after" << (m_currentStartTime.elapsed() + 500) / 1000
+  qInfo() << "HTTP finished after" << (m_currentStartTime.elapsed() + 500) / 1000
               << "seconds for a request of" << pReply->size() << "bytes.";
 
   if (pReply->error() == QNetworkReply::NoError)
@@ -1139,7 +1138,7 @@ void Downloader::networkFinished(QNetworkReply* pReply)
   }
   else
   {
-    QLOG_ERROR() << "HTTP download error:" << pReply->errorString();
+    qCritical() << "HTTP download error:" << pReply->errorString();
     emit done(m_userData, false, QByteArray());
   }
   pReply->deleteLater();
@@ -1216,11 +1215,11 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
 
   bool needAC3Encoder = false;
 
-  QLOG_INFO() << "Using system audio decoders:" << useSystemAudioDecoders();
-  QLOG_INFO() << "Using system video decoders:" << useSystemVideoDecoders();
+  qInfo() << "Using system audio decoders:" << useSystemAudioDecoders();
+  qInfo() << "Using system video decoders:" << useSystemVideoDecoders();
 
 #if !defined(HAVE_CODEC_MANIFEST)
-  QLOG_INFO() << "Not using on-demand codecs.";
+  qInfo() << "Not using on-demand codecs.";
 #endif
 
   for (auto stream : info.streams)
@@ -1229,7 +1228,7 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
       continue;
     if (!stream.codec.size())
     {
-      QLOG_ERROR() << "unidentified codec";
+      qCritical() << "unidentified codec";
       continue;
     }
 
@@ -1253,7 +1252,7 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
     }
     else
     {
-      QLOG_ERROR() << "no decoder for" << stream.codec;
+      qCritical() << "no decoder for" << stream.codec;
     }
   }
 
@@ -1277,7 +1276,7 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
     }
     else
     {
-      QLOG_ERROR() << "no AC3 encoder available";
+      qCritical() << "no AC3 encoder available";
     }
   }
 

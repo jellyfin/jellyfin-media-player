@@ -1,7 +1,7 @@
 #ifndef POWERMANAGER
 #define POWERMANAGER
 
-#include <QsLog.h>
+#include <QDebug>
 #include "ComponentManager.h"
 
 class PowerComponent : public ComponentBase

@@ -1,7 +1,6 @@
 //
 // Created by Tobias Hieta on 25/03/15.
 //
-
 #include "PowerComponent.h"
 #include "input/InputComponent.h"
 #include "settings/SettingsComponent.h"
@@ -32,7 +31,7 @@ PowerComponent& PowerComponent::Get()
   static PowerComponentWin instance;
   return instance;
 #else
-  QLOG_WARN() << "Could not find a power component matching this platform. OS screensaver control disabled.";
+  qWarning() << "Could not find a power component matching this platform. OS screensaver control disabled.";
 
   static PowerComponent instance;
   return instance;
@@ -50,12 +49,12 @@ void PowerComponent::setScreensaverEnabled(bool enabled)
 {
   if (enabled)
   {
-    QLOG_DEBUG() << "Enabling OS screensaver";
+    qDebug() << "Enabling OS screensaver";
     doEnableScreensaver();
   }
   else
   {
-    QLOG_DEBUG() << "Disabling OS screensaver";
+    qDebug() << "Disabling OS screensaver";
     doDisableScreensaver();
   }
 }

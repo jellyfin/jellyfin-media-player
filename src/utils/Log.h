@@ -14,6 +14,7 @@ namespace Log
   void UpdateLogLevel();
   void CensorAuthTokens(QString& msg);
   void EnableTerminalOutput();
+  bool ShouldLogInfo();
 }
 
 #endif //PLEXMEDIAPLAYER_LOG_H

@@ -31,9 +31,7 @@ function download_compat {
 
 function get_webclient_version {
     curl https://repo.jellyfin.org/releases/server/portable/versions/stable/web/ \
-     | grep '[0-9]\+\.[0-9]\+\.[0-9]\+' \
-     | sed 's/.*>\([0-9]\+\.[0-9]\+\.[0-9]\+\)\/.*/\1/g' \
-     | sort -h | tail -n 1
+     | tr '<>/' '\t' | grep '[0-9]\+\.[0-9]\+\.[0-9]\+' | cut -f 4 | sort -V | tail -n 1
 }
 
 if [[ "$1" == "--gen-fingerprint" ]]

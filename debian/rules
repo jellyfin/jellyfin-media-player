@@ -6,8 +6,9 @@
 override_dh_auto_build:
 	dh_auto_build $@
 	DOWNLOAD_ONLY=1 ./download_webclient.sh
-	unzip dist.zip -d obj-x86_64-linux-gnu/
+	tar -xzf dist.tar.gz
+	mv jellyfin-web_* obj-x86_64-linux-gnu/dist
 
 override_dh_auto_clean:
 	dh_auto_clean $@
-	rm dist.zip || true
+	rm dist.tar.gz || true

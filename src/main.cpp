@@ -100,7 +100,8 @@ int main(int argc, char *argv[])
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
                        {"terminal",                "Log to terminal"},
-                       {"disable-gpu",             "Disable QtWebEngine gpu accel"}});
+                       {"disable-gpu",             "Disable QtWebEngine gpu accel"},
+                       {"force-external-webclient","Use webclient provided by server"}});
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
                                                           "the scale (DPI) of the desktop interface.");

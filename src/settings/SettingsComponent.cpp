@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include "SettingsComponent.h"
 #include "SettingsSection.h"
 #include "Paths.h"
@@ -726,6 +727,13 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
   if (url == "bundled")
   {
     auto path = Paths::webClientPath("desktop");
+    QFileInfo check_file(path);
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceExternalWebclient").toBool() ||
+       !(check_file.exists() && check_file.isFile())) {
+      // use built-in fallback
+      path = Paths::webExtensionPath() + "find-webclient.html";
+    }
+
     url = "file:///" + path;
   }
 
@@ -784,6 +792,8 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
       setValue(SETTINGS_SECTION_MAIN, "layout", "desktop");
     else if (value == "tv")
       setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
+    else if (value == "force-external-webclient")
+      setValue(SETTINGS_SECTION_MAIN, "forceExternalWebclient", true);
   }
 }
 

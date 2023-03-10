@@ -11,7 +11,8 @@ Downloads:
  - [Flathub (Linux)](https://flathub.org/apps/details/com.github.iwalton3.jellyfin-media-player)
 
 Related Documents:
- - Corresponding web client: [Repo](https://github.com/iwalton3/jellyfin-web-jmp/) [Release](https://github.com/iwalton3/jellyfin-web-jmp/releases/)
+ - Web client: https://repo.jellyfin.org/releases/server/portable/versions/stable/web/
+     - Note: If you do not provide the web client, the application will use a fallback UI where the user must select a server which has a web client.
  - API Docs in [client-api.md](https://github.com/iwalton3/jellyfin-media-player/blob/master/client-api.md)
  - Tip: For help building, look at the GitHub Actions file!
 

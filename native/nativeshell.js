@@ -291,6 +291,39 @@ async function showSettingsModal() {
         createSection();
     }
 
+    if (window.localStorage.getItem("saved-server") != null) {
+        const group = document.createElement("fieldset");
+        group.className = "editItemMetadataForm editMetadataForm dialog-content-centered";
+        group.style.border = 0;
+        group.style.outline = 0;
+        modalContents.appendChild(group);
+        const legend = document.createElement("legend");
+        const legendHeader = document.createElement("h2");
+        legendHeader.textContent = "Saved Server";
+        legend.appendChild(legendHeader);
+        const legendSubHeader = document.createElement("h4");
+        legendSubHeader.textContent = (
+            "The server you first connected to is your saved server. " + 
+            "It provides the web client for Jellyfin Media Player in the absence of a bundled one. " +
+            "You can use this option to change it to another one. This does NOT log you off."
+        );
+        legend.appendChild(legendSubHeader);
+        group.appendChild(legend);
+
+        const resetSavedServer = document.createElement("button");
+        resetSavedServer.className = "raised button-cancel block btnCancel emby-button";
+        resetSavedServer.textContent = "Reset Saved Server"
+        resetSavedServer.style.marginLeft = "auto";
+        resetSavedServer.style.marginRight = "auto";
+        resetSavedServer.style.maxWidth = "50%";
+        resetSavedServer.addEventListener("click", () => {
+            window.localStorage.removeItem("saved-server");
+            window.location.hash = "";
+            window.location.reload();
+        });
+        group.appendChild(resetSavedServer);
+    }
+
     const closeContainer = document.createElement("div");
     closeContainer.className = "formDialogFooter";
     modalContents.appendChild(closeContainer);

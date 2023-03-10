@@ -5,6 +5,7 @@ set -o xtrace
 
 # move to source directory
 pushd ${SOURCE_DIR}
+cp debian-webclient-rules ./debian/rules
 
 # install deps
 echo y | mk-build-deps -i

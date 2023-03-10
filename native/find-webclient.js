@@ -70,8 +70,6 @@ async function tryConnect(server) {
                 window.location = server;
             }
 
-            window.localStorage.setItem("saved-server", server);
-            
             const api = await window.apiPromise;
             await new Promise(resolve => {
                 api.settings.setValue('main', 'userWebClient', server, resolve);

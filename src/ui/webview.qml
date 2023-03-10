@@ -1,6 +1,6 @@
 import QtQuick 2.4
 import Konvergo 1.0
-import QtWebEngine 1.1
+import QtWebEngine 1.7
 import QtWebChannel 1.0
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
@@ -145,6 +145,9 @@ KonvergoWindow
     objectName: "web"
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
+    settings.localContentCanAccessFileUrls: true
+    settings.allowRunningInsecureContent: components.settings.isUsingExternalWebClient()
+    settings.playbackRequiresUserGesture: false
     profile.httpUserAgent: components.system.getUserAgent()
     url: mainWindow.webUrl
     focus: true

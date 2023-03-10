@@ -133,7 +133,23 @@ function getDeviceProfile() {
 }
 
 async function createApi() {
-    await loadScript('qrc:///qtwebchannel/qwebchannel.js');
+    try {
+        await loadScript('qrc:///qtwebchannel/qwebchannel.js');
+    } catch (e) {
+        // try clearing out any cached CSPs
+        let foundCache = false;
+        for (const cache of await caches.keys()) {
+            const dataDeleted = await caches.delete(cache);
+            if (dataDeleted) {
+                foundCache = true;
+            }
+        }
+        if (foundCache) {
+            window.location.reload();
+        }
+        throw e;
+    }
+
     const channel = await new Promise((resolve) => {
         /*global QWebChannel */
         new QWebChannel(window.qt.webChannelTransport, resolve);
@@ -291,7 +307,11 @@ async function showSettingsModal() {
         createSection();
     }
 
-    if (window.localStorage.getItem("saved-server") != null) {
+    const savedServer = await new Promise(resolve => {
+        window.api.settings.value('main', 'userWebClient', resolve);
+    });
+
+    if (savedServer) {
         const group = document.createElement("fieldset");
         group.className = "editItemMetadataForm editMetadataForm dialog-content-centered";
         group.style.border = 0;
@@ -303,7 +323,7 @@ async function showSettingsModal() {
         legend.appendChild(legendHeader);
         const legendSubHeader = document.createElement("h4");
         legendSubHeader.textContent = (
-            "The server you first connected to is your saved server. " + 
+            "The server you first connected to is your saved server. " +
             "It provides the web client for Jellyfin Media Player in the absence of a bundled one. " +
             "You can use this option to change it to another one. This does NOT log you off."
         );
@@ -316,10 +336,11 @@ async function showSettingsModal() {
         resetSavedServer.style.marginLeft = "auto";
         resetSavedServer.style.marginRight = "auto";
         resetSavedServer.style.maxWidth = "50%";
-        resetSavedServer.addEventListener("click", () => {
-            window.localStorage.removeItem("saved-server");
-            window.location.hash = "";
-            window.location.reload();
+        resetSavedServer.addEventListener("click", async () => {
+            await new Promise(resolve => {
+                window.api.settings.setValue('main', 'userWebClient', '', resolve);
+            });
+            window.location.href = viewdata.scriptPath + "/find-webclient.html";
         });
         group.appendChild(resetSavedServer);
     }

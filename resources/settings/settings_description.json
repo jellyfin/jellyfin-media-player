@@ -132,6 +132,11 @@
       {
         "value": "forceExternalWebclient",
         "default": false
+      },
+      {
+        "value": "userWebClient",
+        "default": "",
+        "hidden": true
       }
     ]
   },

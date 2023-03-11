@@ -226,7 +226,7 @@ details of how to do that [from the signals here](https://github.com/jellyfin/je
 You need to call `window.NativeShell.AppHost.init()` before you can use this.
 
 ```js
-const updatePlugin = await window.jellyscrubPlugin();
+const updatePlugin = await window.jmpUpdatePlugin();
 updatePlugin({
   toast: () => new Promise((resolve, reject) => {
     // called if an update is available

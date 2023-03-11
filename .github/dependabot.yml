@@ -1,0 +1,12 @@
+# https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates#package-ecosystem
+
+version: 2
+updates:
+
+  # Enable updates for Github Actions
+  - package-ecosystem: "github-actions"
+    target-branch: "master"
+    directory: "/"
+    schedule:
+      # Check for updates to GitHub Actions every month
+      interval: "monthly"

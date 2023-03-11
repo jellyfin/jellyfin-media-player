@@ -13,7 +13,8 @@ Downloads:
 Related Documents:
  - Web client: https://repo.jellyfin.org/releases/server/portable/versions/stable/web/
      - Note: If you do not provide the web client, the application will use a fallback UI where the user must select a server which has a web client.
- - API Docs in [client-api.md](https://github.com/iwalton3/jellyfin-media-player/blob/master/client-api.md)
+ - Web client integration documentation: [for-web-developers.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/for-web-developers.md)
+ - API Docs in [client-api.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/client-api.md)
  - Tip: For help building, look at the GitHub Actions file!
 
 ## Building at a glance (Linux)
@@ -62,7 +63,7 @@ Please install:
 You need to run these commands in git bash.
 
 ```bash
-git clone https://github.com/iwalton3/jellyfin-media-player
+git clone https://github.com/jellyfin/jellyfin-media-player
 cd jellyfin-media-player
 ./download_webclient.sh
 cd build

@@ -10,12 +10,12 @@ jobs:
   build-mac:
     runs-on: macos-11
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install Qt 5.15.2
       uses: jurplel/install-qt-action@v3
       with:
         version: "5.15.2"
-        modules: "qtwebengine"  
+        modules: "qtwebengine"
         setup-python: 'false'
     - name: Install dependencies
       run: |
@@ -33,15 +33,15 @@ jobs:
         brew install create-dmg
         create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: macos
         path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
-        
+
   build-win64:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install Qt 5.15.2
       uses: jurplel/install-qt-action@v3
       with:
@@ -79,7 +79,7 @@ jobs:
         ninja windows_package
       shell: cmd
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: windows
         path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
@@ -87,7 +87,7 @@ jobs:
   build-win32:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install Qt 5.15.2
       uses: jurplel/install-qt-action@v3
       with:
@@ -125,7 +125,7 @@ jobs:
         ninja windows_package
       shell: cmd
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: windows-legacy32
         path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
@@ -136,13 +136,13 @@ jobs:
         tag: [kinetic, jammy, focal]
     runs-on: "ubuntu-latest"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Docker Build
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
         docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ubuntu-${{ matrix.tag }}
         path: ${{ github.workspace }}/deployment/dist/*
@@ -153,13 +153,13 @@ jobs:
         tag: [bullseye, bookworm]
     runs-on: "ubuntu-latest"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Docker Build
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} deployment
         docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: debian-${{ matrix.tag }}
         path: ${{ github.workspace }}/deployment/dist/*

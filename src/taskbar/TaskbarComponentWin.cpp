@@ -37,8 +37,8 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
   qDebug() << "Taskbar initialization started";
   TaskbarComponent::setWindow(window);
 
-  bool EnableTaskbar = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsTaskbarIntegration", true).toBool();
-  bool EnableMediaControls = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsMediaIntegration", true).toBool();
+  bool EnableTaskbar = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsTaskbarIntegration").toBool();
+  bool EnableMediaControls = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsMediaIntegration").toBool();
 
   if (EnableTaskbar) {
     m_button = new QWinTaskbarButton(m_window);

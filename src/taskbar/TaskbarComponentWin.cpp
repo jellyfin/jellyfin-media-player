@@ -10,6 +10,7 @@
 #include "TaskbarComponentWin.h"
 #include "PlayerComponent.h"
 #include "input/InputComponent.h"
+#include "settings/SettingsComponent.h"
 
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Media;

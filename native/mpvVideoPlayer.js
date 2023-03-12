@@ -156,7 +156,6 @@
                     this.setVolume(volume, false);
 
                     this.setPlaybackRate(1);
-                    this.setMute(false, false);
 
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);

@@ -1,3 +1,19 @@
+jellyfin-media-player (1.9.0-1) unstable; urgency=medium
+
+  * Add aspect ratio controls to player. (#388)
+  * Don't reset mute between videos. (#349)
+  * Auto-detect and switch SteamOS to TV mode. (#237)
+  * Allow forcing transcodes for HEVC, Hi10p, 4K, HDR, and/or AV1.
+  * Allow requesting the server to transcode to HEVC.
+  * Improve usability of client API to make integrations with other clients easier.
+  * Allow running JMP without an embedded webclient.
+  * JMP now uses the official webclient build from repo.jellyfin.org.
+  * Fix time breakage from skipIntroPlugin. (#387)
+  * Add delay to prevent broken update dialog. (#373)
+  * Prevent Dolby Vision content playing without server transcoding.
+
+ -- Ian Walton <ian@iwalton.com>  Sun, 12 Mar 2023 16:05:13 -0400
+
 jellyfin-media-player (1.8.1-1) unstable; urgency=medium
 
   * Update web client to 10.8.9.

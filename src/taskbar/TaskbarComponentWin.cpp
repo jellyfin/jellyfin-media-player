@@ -11,6 +11,7 @@
 #include "PlayerComponent.h"
 #include "input/InputComponent.h"
 #include "settings/SettingsComponent.h"
+#include "settings/SettingsSection.h"
 
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Media;
@@ -36,8 +37,8 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
   qDebug() << "Taskbar initialization started";
   TaskbarComponent::setWindow(window);
 
-  bool EnableTaskbar = SettingsComponent::Get().getSetting("enableWindowsTaskbarIntegration", true).toBool();
-  bool EnableMediaControls = SettingsComponent::Get().getSetting("enableWindowsMediaIntegration", true).toBool();
+  bool EnableTaskbar = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsTaskbarIntegration", true).toBool();
+  bool EnableMediaControls = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsMediaIntegration", true).toBool();
 
   if (EnableTaskbar) {
     m_button = new QWinTaskbarButton(m_window);

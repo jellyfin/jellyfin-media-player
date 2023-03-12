@@ -137,6 +137,16 @@
         "value": "userWebClient",
         "default": "",
         "hidden": true
+      },
+      {
+        "value": "enableWindowsMediaIntegration",
+        "default": true,
+        "platforms": [ "windows" ]
+      },
+      {
+        "value": "enableWindowsTaskbarIntegration",
+        "default": true,
+        "platforms": [ "windows" ]
       }
     ]
   },

@@ -39,6 +39,22 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.9.0" date="2023-03-12">
+        <p>Changes:</p>
+        <ul>
+          <li>Add aspect ratio controls to player. (#388)</li>
+          <li>Don't reset mute between videos. (#349)</li>
+          <li>Auto-detect and switch SteamOS to TV mode. (#237)</li>
+          <li>Allow forcing transcodes for HEVC, Hi10p, 4K, HDR, and/or AV1.</li>
+          <li>Allow requesting the server to transcode to HEVC.</li>
+          <li>Improve usability of client API to make integrations with other clients easier.</li>
+          <li>Allow running JMP without an embedded webclient.</li>
+          <li>JMP now uses the official webclient build from repo.jellyfin.org.</li>
+          <li>Fix time breakage from skipIntroPlugin. (#387)</li>
+          <li>Add delay to prevent broken update dialog. (#373)</li>
+          <li>Prevent Dolby Vision content playing without server transcoding.</li>
+        </ul>
+      </release>
       <release version="1.8.1" date="2023-02-13">
         <p>Changes:</p>
         <ul>

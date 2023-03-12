@@ -118,11 +118,13 @@ void TaskbarComponentWin::stopped()
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setControlsVisible(bool value)
 {
-  m_button->progress()->setVisible(value);
+  if (m_button) {
+    m_button->progress()->setVisible(value);
 
-  for (auto& button : m_toolbar->buttons())
-  {
-    button->setVisible(value);
+    for (auto& button : m_toolbar->buttons())
+    {
+      button->setVisible(value);
+    }
   }
 
   if (m_initialized)

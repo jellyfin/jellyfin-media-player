@@ -330,7 +330,20 @@ QString SystemComponent::getNativeShellScript()
   QJsonObject clientData;
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
-  clientData.insert("mode", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString()));
+  QString defaultMode = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString();
+
+  QFile flatpakOsFile {"/run/host/os-release"};
+  if (flatpakOsFile.exists()) {
+    qDebug() << "Found flatpak os-release file";
+    flatpakOsFile.open(QIODevice::ReadOnly);
+    QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
+    if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
+      qDebug() << "Detected SteamOS";
+      defaultMode = "tv";
+    }
+  }
+  clientData.insert("mode", QJsonValue::fromVariant(defaultMode));
+
   QVariantList settingsDescriptionsList = SettingsComponent::Get().settingDescriptions();
   QVariantMap settingsDescriptions = QVariantMap();
   for (auto setting : settingsDescriptionsList) {

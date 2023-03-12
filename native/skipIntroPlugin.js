@@ -7,10 +7,9 @@ class skipIntroPlugin {
         this.id = 'skipIntroPlugin';
 
         (async() => {
-            const api = await window.apiPromise;
-            const enabled = await new Promise(resolve => {
-                api.settings.value('plugins', 'skipintro', resolve);
-            });
+            await window.initCompleted;
+            const enabled = window.jmpInfo.settings.plugins.skipintro;
+
             console.log("Skip Intro Plugin enabled: " + enabled);
             if (!enabled) return;
 

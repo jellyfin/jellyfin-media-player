@@ -2,13 +2,7 @@
 
 ## Detection
 
-You can detect JMP by querying the injected utilities script:
-
-```js
-window?.NativeShell?.AppHost?.appName() === "Jellyfin Media Player"
-```
-
-This is not async. It can be queried immediately.
+You can detect JMP by looking for the object `window.jmpInfo`, which is defined immediately.
 
 ## Device Profile
 
@@ -28,7 +22,7 @@ The following functions are available immediately:
  - `window.NativeShell.AppHost.appVersion()` - Returns version number in `x.y.z` format.
  - `window.NativeShell.AppHost.deviceName()` - Returns computer hostname.
 
-The following functions require calling `window.NativeShell.AppHost.init()` before using them:
+The following functions are available after less than a second:
 
  - `window.NativeShell.openUrl(url)` - Opens a URL in the user's browser.
  - `window.NativeShell.openClientSettings()` - Opens prebuilt settings modal.
@@ -210,7 +204,17 @@ Current Settings:
      - `size: int`: Controls subtitle size. Default is `32`.
          - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L376-L382)
 
-API methods:
+The global `window.jmpInfo` object contains settings for the application in the form of `window.jmpInfo.settings.[section][key] = value`.
+Settings descriptions are stored in the form `window.jmpInfo.settingsDescriptions.[section] = [{ key, options }]`
+
+ - These are kept up-to-date in response to user changes.
+ - If you want to change any settings, `await window.initCompleted` first.
+ - To change a setting, simply set the setting to a new value. Don't overwrite an entire section.
+ - You can subscribe to settings changes by adding a `callback(section, changes)` to `window.jmpInfo.settingsUpdate`.
+ - Similarly, you can subscribe to settings description updates by adding a `callback(section, changes)` to `window.jmpInfo.settingsDescriptionsUpdate`.
+     - This is useful for reactive settings, for instance when you change the audio device type.
+
+You can also use the API to set and query settings. This is largely not needed unless you want to be sure a setting change is complete before you do something:
 
  - `api.settings.settingDescriptions(callback)`: Get list of all setting descriptions and options.
      - You may need to re-query this if you update certain settings.
@@ -218,12 +222,7 @@ API methods:
  - `api.settings.value(section, key, callback)`: Get a specific setting.
  - `api.settings.setValue(section, key, value, callback)`: Set a specific setting.
 
-You can also listen for setting and setting group option updates. I don't currently use this, but you can see
-details of how to do that [from the signals here](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/src/settings/SettingsComponent.h#L76-L83).
-
 ## Checking for Updates
-
-You need to call `window.NativeShell.AppHost.init()` before you can use this.
 
 ```js
 const updatePlugin = await window.jmpUpdatePlugin();
@@ -261,7 +260,7 @@ async function createApi() {
 ```
 
 The injected utilities script makes `window.apiPromise` available immediately and `window.api` available
-after less than a second available if you call `window.NativeShell.AppHost.init()`.
+after less than a second.
 
 ### Client API Usage
 

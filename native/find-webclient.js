@@ -1,24 +1,3 @@
-function loadScript(src) {
-    return new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-    });
-}
-
-async function createApi() {
-    await loadScript('qrc:///qtwebchannel/qwebchannel.js');
-    const channel = await new Promise((resolve) => {
-        /*global QWebChannel */
-        new QWebChannel(window.qt.webChannelTransport, resolve);
-    });
-    return channel.objects;
-}
-
-window.apiPromise = createApi();
-
 async function tryConnect(server) {
     document.getElementById('connect-button').disabled = true;
 
@@ -70,10 +49,9 @@ async function tryConnect(server) {
                 window.location = server;
             }
 
-            const api = await window.apiPromise;
-            await new Promise(resolve => {
-                api.settings.setValue('main', 'userWebClient', server, resolve);
-            });
+            await window.initCompleted;
+            window.jmpInfo.settings.main.userWebClient = server;
+
             return true;
         }
     } catch (e) {
@@ -99,10 +77,7 @@ document.getElementById('connect-fail-button').addEventListener('click', () => {
 
 // load the server if we have one
 (async() => {
-    const api = await window.apiPromise;
-    const savedServer = await new Promise(resolve => {
-        api.settings.value('main', 'userWebClient', resolve);
-    });
+    const savedServer = window.jmpInfo.settings.main.userWebClient;
 
     if (!savedServer || !(await tryConnect(savedServer))) {
         document.getElementById('splash').style.display = 'none';

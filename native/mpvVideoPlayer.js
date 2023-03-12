@@ -587,7 +587,7 @@
      * @private
      */
     static getSupportedFeatures() {
-        return ['PlaybackRate'];
+        return ['PlaybackRate', 'SetAspectRatio'];
     }
 
     supports(feature) {
@@ -745,20 +745,6 @@
         return this._muted;
     }
 
-    setAspectRatio() {
-    }
-
-    getAspectRatio() {
-        return this._currentAspectRatio || 'auto';
-    }
-
-    getSupportedAspectRatios() {
-        return [{
-            name: this.globalize.translate('Auto'),
-            id: 'auto'
-        }];
-    }
-
     togglePictureInPicture() {
     }
 
@@ -822,6 +808,37 @@
         return Promise.resolve({
             categories: categories
         });
+    }
+
+    getSupportedAspectRatios() {
+        const options = window.jmpInfo.settingsDescriptions.video.find(x => x.key == 'aspect').options;
+        const current = window.jmpInfo.settings.video.aspect;
+
+        const getOptionName = (option) => {
+            const canTranslate = {
+                'normal': 'Auto',
+                'zoom': 'AspectRatioCover',
+                'stretch': 'AspectRatioFill',
+            }
+            const name = option.replace('video.aspect.', '');
+            return canTranslate[name]
+                ? this.globalize.translate(canTranslate[name])
+                : name;
+        }
+
+        return options.map(x => ({
+            id: x.value,
+            name: getOptionName(x.title),
+            selected: x.value == current
+        }));
+    }
+
+    getAspectRatio() {
+        return window.jmpInfo.settings.video.aspect;
+    }
+
+    setAspectRatio(value) {
+        window.jmpInfo.settings.video.aspect = value;
     }
     }
 /* eslint-enable indent */

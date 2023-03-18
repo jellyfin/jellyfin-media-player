@@ -237,7 +237,7 @@ const languages = [
     "lang": "hr",
     "HeaderConnectToServer": "Spoji se na Server",
     "LabelServerHost": "Domaćin:",
-    "LabelServerHostHelp": "192.168.1.100 ili https://myserver.com",
+    "LabelServerHostHelp": "192.168.1.100:8096 ili https://myserver.com",
     "Connect": "Povezati",
     "HeaderConnectionFailure": "Neuspjelo spajanje",
     "MessageUnableToConnectToServer": "Nismo u mogućnosti spojiti se na odabrani poslužitelj. Provjerite dali je pokrenut i pokušajte ponovno.",

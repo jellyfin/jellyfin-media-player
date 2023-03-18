@@ -67,7 +67,7 @@ const languages = [
     "lang": "de",
     "HeaderConnectToServer": "Mit Server verbinden",
     "LabelServerHost": "Adresse:",
-    "LabelServerHostHelp": "192.168.1.100 oder https://myserver.com",
+    "LabelServerHostHelp": "192.168.1.100:8096 oder https://myserver.com",
     "Connect": "Verbinden",
     "HeaderConnectionFailure": "Verbindungsfehler",
     "MessageUnableToConnectToServer": "Wir können gerade keine Verbindung zum gewählten Server herstellen. Bitte stelle sicher, dass dieser läuft und versuche es erneut.",

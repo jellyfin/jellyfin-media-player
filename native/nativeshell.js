@@ -65,8 +65,10 @@ window.NativeShell = {
 };
 
 function getDeviceProfile() {
-    const CodecProfiles = [
-        {
+    const CodecProfiles = [];
+
+    if (jmpInfo.settings.video.force_transcode_dovi) {
+        CodecProfiles.push({
             'Type': 'Video',
             'Conditions': [
                 {
@@ -75,8 +77,8 @@ function getDeviceProfile() {
                     'Value': 'DOVI'
                 }
             ]
-        }
-    ];
+        });
+    }
 
     if (jmpInfo.settings.video.force_transcode_hdr) {
         CodecProfiles.push({
@@ -362,13 +364,13 @@ async function showSettingsModal() {
     title.className = "formDialogHeaderTitle";
     title.textContent = "Jellyfin Media Player Settings";
     modalHeader.appendChild(title);
-    
+
     const modalContents = document.createElement("div");
     modalContents.className = "formDialogContent smoothScrollY";
     modalContents.style.paddingTop = "2em";
     modalContents.style.marginBottom = "6.2em";
     modalContainer2.appendChild(modalContents);
-    
+
     const settingUpdateHandlers = {};
     for (const section of Object.keys(jmpInfo.settingsDescriptions)) {
         const group = document.createElement("fieldset");

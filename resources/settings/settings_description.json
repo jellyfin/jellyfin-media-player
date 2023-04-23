@@ -303,6 +303,10 @@
         "default": false
       },
       {
+        "value": "force_transcode_dovi",
+        "default": true
+      },
+      {
         "value": "sync_mode",
         "default": "audio",
         "possible_values": [

@@ -800,6 +800,12 @@ bool SettingsComponent::ignoreSSLErrors()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+bool SettingsComponent::autodetectCertBundle()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "autodetectCertBundle").toBool();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::setCommandLineValues(const QStringList& values)
 {
   qDebug() << values;

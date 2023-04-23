@@ -62,6 +62,7 @@ public:
   Q_INVOKABLE bool isUsingExternalWebClient();
   Q_INVOKABLE QString getClientName();
   Q_INVOKABLE bool ignoreSSLErrors();
+  Q_INVOKABLE bool autodetectCertBundle();
 
   // host commands
   Q_SLOT Q_INVOKABLE void cycleSettingCommand(const QString& args);

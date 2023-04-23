@@ -130,6 +130,11 @@
         "hidden": true
       },
       {
+        "value": "autodetectCertBundle",
+        "default": false,
+        "platforms": [ "linux" ]
+      },
+      {
         "value": "forceExternalWebclient",
         "default": false
       },

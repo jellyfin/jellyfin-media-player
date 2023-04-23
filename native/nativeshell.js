@@ -180,7 +180,7 @@ function getDeviceProfile() {
                 'Container': 'ts',
                 'Type': 'Video',
                 'Protocol': 'hls',
-                'AudioCodec': 'aac,mp3,ac3,opus,flac,vorbis',
+                'AudioCodec': 'aac,mp3,ac3,opus,vorbis',
                 'VideoCodec': jmpInfo.settings.video.allow_transcode_to_hevc
                     ? (
                         jmpInfo.settings.video.prefer_transcode_to_h265

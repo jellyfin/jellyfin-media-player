@@ -39,6 +39,17 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.9.1" date="2023-04-23">
+        <p>Changes:</p>
+        <ul>
+          <li>Update web client to 10.8.10 to patch stored XSS issue.</li>
+          <li>Skip searching for SSL bundles on Linux. (#301)</li>
+          <li>Disallow flac from video transcoding. (#423)</li>
+          <li>Allow disabling dovi transcode rule.</li>
+          <li>Fix missing port in translation. (#288)</li>
+          <li>Censor token from new stored creds block.</li>
+        </ul>
+      </release>
       <release version="1.9.0" date="2023-03-12">
         <p>Changes:</p>
         <ul>

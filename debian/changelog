@@ -1,3 +1,14 @@
+jellyfin-media-player (1.9.1-1) unstable; urgency=medium
+
+  * Update web client to 10.8.10 to patch stored XSS issue.
+  * Skip searching for SSL bundles on Linux. (#301)
+  * Disallow flac from video transcoding. (#423)
+  * Allow disabling dovi transcode rule.
+  * Fix missing port in translation. (#288)
+  * Censor token from new stored creds block.
+
+ -- Ian Walton <ian@iwalton.com>  Sun, 23 Apr 2023 13:12:09 -0400
+
 jellyfin-media-player (1.9.0-1) unstable; urgency=medium
 
   * Add aspect ratio controls to player. (#388)

@@ -226,6 +226,9 @@ QRect KonvergoWindow::loadGeometry()
   }
   else
   {
+    if (myScreen)
+      nsize = myScreen->geometry();
+
     setGeometry(nsize);
     if (SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "maximized").toBool())
       setVisibility(QWindow::Maximized);

@@ -155,7 +155,7 @@
                     const volume = this.getSavedVolume() * 100;
                     this.setVolume(volume, false);
 
-                    this.setPlaybackRate(1);
+                    this.setPlaybackRate(this.getPlaybackRate());
 
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
@@ -672,8 +672,9 @@
     }
 
     setPlaybackRate(value) {
-        this._playRate = value;
-        window.api.player.setPlaybackRate(value * 1000);
+        let playSpeed = +value; //this comes as a string from player force int for now
+        this._playRate = playSpeed;
+        window.api.player.setPlaybackRate(playSpeed * 1000);
     }
 
     getPlaybackRate() {

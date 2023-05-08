@@ -108,7 +108,7 @@
             /**
              * @type {float}
              */
-            this._playRate = 1;
+            this._playRate;
             /**
              * @type {boolean}
              */
@@ -678,6 +678,15 @@
     }
 
     getPlaybackRate() {
+        if(!this._playRate) //On startup grab default
+        {
+            let playRate = window.jmpInfo.settings.video.default_playback_speed;
+
+            if(!playRate) //fallback if default missing
+                playRate = 1;
+
+            this._playRate = playRate;
+        }
         return this._playRate;
     }
 

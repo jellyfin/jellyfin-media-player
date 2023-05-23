@@ -188,7 +188,7 @@ function getDeviceProfile() {
                          : 'h264,h265,hevc,mpeg4,mpeg2video'
                     )
                     : 'h264,mpeg4,mpeg2video',
-                'MaxAudioChannels': '6'
+                'MaxAudioChannels': jmpInfo.settings.audio.channels === "2.0" ? '2' : '6'
             },
             {'Container': 'jpeg', 'Type': 'Photo'}
         ],

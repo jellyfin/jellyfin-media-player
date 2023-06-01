@@ -81,7 +81,7 @@ void ShowLicenseInfo()
   QFile licenses(":/misc/licenses.txt");
   licenses.open(QIODevice::ReadOnly | QIODevice::Text);
   QByteArray contents = licenses.readAll();
-  printf("%.*s\n", contents.size(), contents.data());
+  printf("%.*s\n", static_cast<int>(contents.size()), contents.data());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -184,9 +184,15 @@ int main(int argc, char *argv[])
 
     auto scale = parser.value("scale-factor");
     if (scale.isEmpty() || scale == "auto")
+    {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
       QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    }
     else if (scale != "none")
+    {
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
+    }
 
     auto platform = parser.value("platform");
     if (!(platform.isEmpty() || platform == "default"))

@@ -958,7 +958,7 @@ void PlayerComponent::setPlaybackRate(int rate)
 qint64 PlayerComponent::getPosition()
 {
   QVariant time = mpv::qt::get_property(m_mpv, "playback-time");
-  if (time.canConvert(QMetaType::Double))
+  if (time.canConvert<double>())
     return time.toDouble();
   return 0;
 }
@@ -967,7 +967,7 @@ qint64 PlayerComponent::getPosition()
 qint64 PlayerComponent::getDuration()
 {
   QVariant time = mpv::qt::get_property(m_mpv, "duration");
-  if (time.canConvert(QMetaType::Double))
+  if (time.canConvert<double>())
     return time.toDouble();
   return 0;
 }
@@ -1011,7 +1011,7 @@ void PlayerComponent::updateAudioDeviceList()
   QSet<QString> devices;
   for(const QVariant& d : list.toList())
   {
-    Q_ASSERT(d.type() == QVariant::Map);
+    Q_ASSERT(d.typeId() == QMetaType::QVariantMap);
     QVariantMap dmap = d.toMap();
 
     QString device = dmap["name"].toString();

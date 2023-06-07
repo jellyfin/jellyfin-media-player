@@ -1122,13 +1122,13 @@ void PlayerComponent::setAudioConfiguration()
   // here for now. We might need to add support for DTS transcoding
   // if we see user requests for it.
   //
-  m_doAc3Transcoding = false;
-  if (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
-      SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool())
+  m_doAc3Transcoding =
+  (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
+   SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool());
+  if (m_doAc3Transcoding)
   {
     QString filterArgs = "";
-    mpv::qt::command(m_mpv, QStringList() << "af" << "add" << ("@ac3:lavcac3enc" + filterArgs));
-    m_doAc3Transcoding = true;
+    mpv::qt::command(m_mpv, QStringList() << "af" << "add" << ("lavcac3enc" + filterArgs));
   }
   else
   {
@@ -1621,7 +1621,7 @@ QString PlayerComponent::videoInformation() const
   info << "Aspect: " << MPV_PROPERTY("video-params/aspect") << "\n";
   info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << "\n";
   double displayFps = DisplayComponent::Get().currentRefreshRate();
-  info << "Display FPS: " << MPV_PROPERTY("display-fps")
+  info << "Display FPS: " << MPV_PROPERTY("override-display-fps")
                           << " (" << displayFps << ")" << "\n";
   info << "Hardware Decoding: " << MPV_PROPERTY("hwdec-current")
                                 << " (" << MPV_PROPERTY("hwdec-interop") << ")\n";

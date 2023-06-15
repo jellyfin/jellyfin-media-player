@@ -1,7 +1,7 @@
 import QtQuick
 import Konvergo 1.0
 import QtWebEngine
-import QtWebChannel
+import QtWebChannel 1.0
 import QtQuick.Window 2.2
 import QtQuick.Controls 6.0
 
@@ -148,7 +148,10 @@ KonvergoWindow
     url: mainWindow.webUrl
     focus: true
     property string currentHoveredUrl: ""
-    onLinkHovered: web.currentHoveredUrl = hoveredUrl
+    onLinkHovered: function(hoveredUrl) 
+    {
+      web.currentHoveredUrl = hoveredUrl;
+    }
     width: mainWindow.width
     height: mainWindow.height
     profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
@@ -169,27 +172,27 @@ KonvergoWindow
       web.userScripts.collection = [ nativeshell ];
     }
 
-    onLoadingChanged:
-    {
+    onLoadingChanged: function(loadingInfo)
+    {     
       // we use a timer here to switch to the webview since
       // it take a few moments for the webview to render
       // after it has loaded.
       //
-      if (loadRequest.status == WebEngineView.LoadStartedStatus)
+      if (loadingInfo.status == WebEngineView.LoadStartedStatus)
       {
-        console.log("WebEngineLoadRequest starting: " + loadRequest.url);
+        console.log("WebEngineLoadRequest starting: " + loadingInfo.url);
       }
-      else if (loadRequest.status == WebEngineView.LoadSucceededStatus)
+      else if (loadingInfo.status == WebEngineView.LoadSucceededStatus)
       {
-        console.log("WebEngineLoadRequest success: " + loadRequest.url);
+        console.log("WebEngineLoadRequest success: " + loadingInfo.url);
       }
-      else if (loadRequest.status == WebEngineView.LoadFailedStatus)
+      else if (loadingInfo.status == WebEngineView.LoadFailedStatus)
       {
-        console.log("WebEngineLoadRequest failure: " + loadRequest.url + " error code: " + loadRequest.errorCode);
+        console.log("WebEngineLoadRequest failure: " + loadingInfo.url + " error code: " + loadingInfo.errorCode);
         errorLabel.visible = true
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
                           "You can try to <a href='reload'>reload</a> or head to our <a href='http://jellyfin.org'>support page</a><br><br>Actual Error: <pre>" +
-                          loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
+                          loadingInfo.errorString + " [" + loadingInfo.errorCode + "]</pre><br><br>" +
                           "Provide the <a target='_blank' href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
       }
     }
@@ -210,7 +213,7 @@ KonvergoWindow
       request.accept()
     }
 
-    onJavaScriptConsoleMessage:
+    onJavaScriptConsoleMessage: function(message)
     {
       components.system.info(message)
     }
@@ -239,14 +242,14 @@ KonvergoWindow
     textFormat: Text.StyledText
     onLinkActivated:
     {
-      if (link == "reload")
+      if (url == "reload")
       {
         errorLabel.visible = false
         web.reload()
       }
       else
       {
-        Qt.openUrlExternally(link)
+        Qt.openUrlExternally(url)
       }
     }
   }

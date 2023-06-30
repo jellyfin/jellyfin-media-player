@@ -24,7 +24,7 @@ git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
 echo -Dlibmpv=true > mpv_options
 echo -Dpipewire=disabled >> mpv_options # hopefully temporary
-./rebuild -j4
+./rebuild -j`nproc`
 sudo ./install
 sudo ln -s /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1
 sudo ln -sf /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/libmpv.so.2
@@ -35,7 +35,7 @@ cd jellyfin-media-player
 ./download_webclient.sh
 cd build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
-make -j4
+make -j`nproc`
 sudo make install
 rm -rf ~/jmp/
 ```

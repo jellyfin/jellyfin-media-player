@@ -116,7 +116,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(&PlayerComponent::Get(), &PlayerComponent::windowVisible,
           this, &KonvergoWindow::playerWindowVisible, Qt::QueuedConnection);
 
-  connect(this, &KonvergoWindow::closing, this, &KonvergoWindow::closingWindow);
+  // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
+  connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
 
   connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
 

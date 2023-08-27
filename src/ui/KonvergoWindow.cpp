@@ -179,16 +179,12 @@ void KonvergoWindow::saveGeometry()
 
   qDebug() << "Saving window geometry:" << rc;
 
-  if (visibility() == QWindow::Maximized)
-  {
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "maximized", true);
-  }
-  else if (visibility() != QWindow::Hidden)
+  if (visibility() != QWindow::Hidden)
   {
     QVariantMap map = {{"x", rc.x()}, {"y", rc.y()},
                        {"width", rc.width()}, {"height", rc.height()}};
     SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "geometry", map);
-    SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "maximized", false);
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "maximized", visibility() == QWindow::Maximized);
   }
   QScreen *curScreen = screen();
   SettingsComponent::Get().setValue(SETTINGS_SECTION_STATE, "lastUsedScreen", curScreen ? curScreen->name() : "");
@@ -226,9 +222,6 @@ QRect KonvergoWindow::loadGeometry()
   }
   else
   {
-    if (myScreen)
-      nsize = myScreen->geometry();
-
     setGeometry(nsize);
     if (SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "maximized").toBool())
       setVisibility(QWindow::Maximized);

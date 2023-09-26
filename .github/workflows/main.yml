@@ -6,6 +6,7 @@ on:
       - release
       - prerelease
       - test
+  workflow_dispatch:
 jobs:
   build-mac:
     runs-on: macos-11

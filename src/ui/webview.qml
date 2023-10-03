@@ -157,14 +157,13 @@ KonvergoWindow
     height: mainWindow.height
     profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
     profile.offTheRecord: false
-    backgroundColor: "transparent"
 
     Component.onCompleted:
     {
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
-      var nativeshell = 
-      { 
+      var nativeshell =
+      {
         sourceCode: components.system.getNativeShellScript(),
         injectionPoint: WebEngineScript.DocumentCreation,
         worldId: WebEngineScript.MainWorld

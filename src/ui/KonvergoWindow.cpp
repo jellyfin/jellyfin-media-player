@@ -119,7 +119,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
 
-  connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::closingWindow);
+  connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
 
 #ifdef Q_OS_MAC
   m_osxPresentationOptions = 0;
@@ -145,6 +145,7 @@ void KonvergoWindow::closingWindow()
   if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
     saveGeometry();
 
+  qDebug() << "Quitting application...";
   qApp->quit();
 }
 

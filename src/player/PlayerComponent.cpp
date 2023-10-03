@@ -50,7 +50,7 @@ PlayerComponent::PlayerComponent(QObject* parent)
   m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false), m_doAc3Transcoding(false),
-  m_videoRectangle(-1, -1, -1, -1)
+  m_videoRectangle(-1, 0, 0, 0)
 {
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "MpvVideo"); // deprecated name
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "KonvergoVideo");
@@ -150,7 +150,7 @@ bool PlayerComponent::componentInitialize()
     for (auto path : list)
     {
       if (access(path.data(), R_OK) == 0) {
-        
+
         success = true;
         break;
       }

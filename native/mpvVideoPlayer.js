@@ -14,8 +14,7 @@
             this.globalize = globalize;
             this.appHost = appHost;
             this.appSettings = appSettings;
-
-            this.setTransparency = dashboard.default.setBackdropTransparency.bind(dashboard);
+            this.osdObserver = null;
 
             /**
              * @type {string}
@@ -138,6 +137,27 @@
                 if (dlg) {
                     dlg.style.zIndex = 'unset';
                 }
+
+                document.body.parentElement.classList.remove('transparentDocument');
+
+                // no direct way to know when OSD is hidden
+                if (this.osdObserver) {
+                    this.osdObserver.disconnect();
+                    this.osdObserver = null;
+                }
+
+                const target = document.querySelector('.videoOsdBottom');
+                this.osdObserver = new MutationObserver(function(mutations) {
+                    if (target.classList.contains('videoOsdBottom-hidden')) {
+                        console.log('OSD hidden');
+                        window.api.player.setVideoRectangle(0, 0, 0, 0);
+                    } else {
+                        console.log('OSD shown');
+                        window.api.player.setVideoRectangle(0, 68, 0, -100);
+                    }
+                });
+
+                this.osdObserver.observe(target, { attributes: true });
             };
 
             /**
@@ -157,12 +177,10 @@
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
                     } else {
-                        this.setTransparency('backdrop');
                         this._videoDialog.dlg.style.zIndex = 'unset';
                     }
 
-                    // Need to override default style.
-                    this._videoDialog.style.setProperty('background', 'transparent', 'important');
+                    window.api.player.setVideoRectangle(0, 68, 0, -100);
                 }
 
                 if (this._paused) {
@@ -468,7 +486,12 @@
             window.api.player.stop();
             window.api.power.setScreensaverEnabled(true);
 
-            this.setTransparency('none');
+            window.api.player.setVideoRectangle(-1, 0, 0, 0);
+
+            if (this.osdObserver) {
+                this.osdObserver.disconnect();
+                this.osdObserver = null;
+            }
 
             document.body.classList.remove('hide-scroll');
 

@@ -199,8 +199,10 @@ Current Settings:
  - Subtitle Section (`subtitles`):
      - `placement: string enum`: Controls where subtitles are displayed on the screen. Default: `center,bottom`
          - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L352-L359)
-     - `color: string enum`: Controls colors of subtitles. Default: `#EEEEEE,#000000`
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L364-L371)
+     - `color: string enum`: Controls colors of subtitles. Default: `#EEEEEE`
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L421-L427)
+     - `border_color: string enum`: Controls font border colors of subtitles. Default: `#000000`
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L434-L440)
      - `size: int`: Controls subtitle size. Default is `32`.
          - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L376-L382)
 

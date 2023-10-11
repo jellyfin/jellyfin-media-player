@@ -1145,12 +1145,16 @@ void PlayerComponent::updateSubtitleSettings()
   QVariant size = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "size");
   mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
 
-  QVariant colorsString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "color");
-  auto colors = colorsString.toString().split(",");
-  if (colors.length() == 2)
+  QString color = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "color").toString();
+  if (!color.isEmpty())
   {
-    mpv::qt::set_property(m_mpv, "sub-color", colors[0]);
-    mpv::qt::set_property(m_mpv, "sub-border-color", colors[1]);
+    mpv::qt::set_property(m_mpv, "sub-color", color);
+  }
+
+  QString borderColor = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "border_color").toString();
+  if (!borderColor.isEmpty())
+  {
+    mpv::qt::set_property(m_mpv, "sub-border-color", borderColor);
   }
 
   QVariant subposString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "placement");

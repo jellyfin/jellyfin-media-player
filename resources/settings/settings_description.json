@@ -416,14 +416,28 @@
       },
       {
         "value": "color",
-        "default": "#EEEEEE,#000000",
+        "default": "#EEEEEE",
         "possible_values": [
-          [ "#EEEEEE,#000000", "subtitles.lightGrey" ],
-          [ "#CCCCCC,#000000", "subtitles.blendedLightGrey" ],
-          [ "#FBF93E,#000000", "subtitles.yellow" ],
-          [ "#FFFFCC,#000000", "subtitles.lightYellow" ],
-          [ "#EEEDB8,#000000", "subtitles.blendedLightYellow" ],
-          [ "#FFFFFF,#000000", "subtitles.blackWhite" ]
+          [ "#000000", "subtitles.black" ],
+          [ "#FFFFFF", "subtitles.white" ],
+          [ "#EEEEEE", "subtitles.lightGrey" ],
+          [ "#CCCCCC", "subtitles.blendedLightGrey" ],
+          [ "#FBF93E", "subtitles.yellow" ],
+          [ "#FFFFCC", "subtitles.lightYellow" ],
+          [ "#EEEDB8", "subtitles.blendedLightYellow" ]
+        ]
+      },
+      {
+        "value": "border_color",
+        "default": "#000000",
+        "possible_values": [
+          [ "#000000", "subtitles.black" ],
+          [ "#FFFFFF", "subtitles.white" ],
+          [ "#EEEEEE", "subtitles.lightGrey" ],
+          [ "#CCCCCC", "subtitles.blendedLightGrey" ],
+          [ "#FBF93E", "subtitles.yellow" ],
+          [ "#FFFFCC", "subtitles.lightYellow" ],
+          [ "#EEEDB8", "subtitles.blendedLightYellow" ]
         ]
       },
       {

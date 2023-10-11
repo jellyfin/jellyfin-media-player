@@ -441,6 +441,30 @@
         ]
       },
       {
+        "value": "background_color",
+        "default": "#CCCCCC",
+        "possible_values": [
+          [ "#000000", "subtitles.black" ],
+          [ "#FFFFFF", "subtitles.white" ],
+          [ "#EEEEEE", "subtitles.lightGrey" ],
+          [ "#CCCCCC", "subtitles.blendedLightGrey" ],
+          [ "#FBF93E", "subtitles.yellow" ],
+          [ "#FFFFCC", "subtitles.lightYellow" ],
+          [ "#EEEDB8", "subtitles.blendedLightYellow" ]
+        ]
+      },
+      {
+        "value": "background_transparency",
+        "default": "00",
+        "possible_values": [
+          [ "FF", "0%" ],
+          [ "C0", "25%" ],
+          [ "80", "50%" ],
+          [ "40", "75%" ],
+          [ "00", "100%" ]
+        ]
+      },
+      {
         "value": "size",
         "default": 32,
         "possible_values": [

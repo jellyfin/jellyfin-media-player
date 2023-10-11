@@ -1157,6 +1157,15 @@ void PlayerComponent::updateSubtitleSettings()
     mpv::qt::set_property(m_mpv, "sub-border-color", borderColor);
   }
 
+  QString backgroundColor = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "background_color").toString();
+  QString backgroundTransparency = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "background_transparency").toString();
+  if (!backgroundColor.isEmpty() && !backgroundTransparency.isEmpty())
+  {
+    // Color is #RRGGBB or #AARRGGBB, insert Alpha after # (at position 1)
+    backgroundColor.insert(1, backgroundTransparency);
+    mpv::qt::set_property(m_mpv, "sub-back-color", backgroundColor);
+  }
+
   QVariant subposString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "placement");
   auto subpos = subposString.toString().split(",");
   if (subpos.length() == 2)

@@ -457,11 +457,11 @@
         "value": "background_transparency",
         "default": "00",
         "possible_values": [
-          [ "FF", "0%" ],
-          [ "C0", "25%" ],
-          [ "80", "50%" ],
-          [ "40", "75%" ],
-          [ "00", "100%" ]
+          [ "FF", "subtitles.0%" ],
+          [ "C0", "subtitles.25%" ],
+          [ "80", "subtitles.50%" ],
+          [ "40", "subtitles.75%" ],
+          [ "00", "subtitles.100%" ]
         ]
       },
       {

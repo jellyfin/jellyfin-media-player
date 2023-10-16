@@ -474,6 +474,19 @@
           [ 42, "subtitles.large" ],
           [ 60, "subtitles.huge" ]
         ]
+      },
+      {
+        "value": "font",
+        "default": "sans-serif",
+        "possible_values": [
+          [ "serif", "serif" ],
+          [ "sans-serif", "sans-serif" ],
+          [ "script", "script" ],
+          [ "monospace", "monospace" ],
+          [ "display", "display" ],
+          [ "cursive", "cursive" ],
+          [ "fantasy", "fantasy" ]
+        ]
       }
     ]
   },

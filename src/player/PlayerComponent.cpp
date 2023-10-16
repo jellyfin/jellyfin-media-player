@@ -1145,6 +1145,12 @@ void PlayerComponent::updateSubtitleSettings()
   QVariant size = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "size");
   mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
 
+  QString font = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "font").toString();
+  if (!font.isEmpty())
+  {
+    mpv::qt::set_property(m_mpv, "sub-font", font);
+  }
+
   QString color = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "color").toString();
   if (!color.isEmpty())
   {

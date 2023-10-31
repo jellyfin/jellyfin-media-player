@@ -178,6 +178,8 @@ int main(int argc, char *argv[])
 #if defined(Q_OS_LINUX)
   	// Set window icon on Linux using system icon theme
   	app.setWindowIcon(QIcon::fromTheme("com.github.iwalton3.jellyfin-media-player", QIcon(":/images/icon.png")));
+    // Set app id for Wayland compositor window icon
+    app.setDesktopFileName("com.github.iwalton3.jellyfin-media-player");
 #endif
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)

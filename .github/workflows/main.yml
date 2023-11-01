@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: "5.15.2"
         modules: "qtwebengine"
@@ -43,7 +43,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: "5.15.2"
         arch: "win64_msvc2019_64"
@@ -89,7 +89,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: "5.15.2"
         arch: "win32_msvc2019"

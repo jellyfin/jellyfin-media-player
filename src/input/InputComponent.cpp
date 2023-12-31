@@ -132,7 +132,11 @@ void InputComponent::handleAction(const QString& action)
         else
         {
           qDebug() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
-          QGenericArgument arg0 = QGenericArgument();
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+          QMetaMethodArgument arg0;
+#else
+          QGenericArgument arg0;
+#endif
 
           if (recvSlot->m_hasArguments)
             arg0 = Q_ARG(const QString&, hostArguments);

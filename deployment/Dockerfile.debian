@@ -1,6 +1,4 @@
-ARG IMG=debian
-ARG TAG=buster
-FROM $IMG:$TAG
+FROM debian:bookworm-slim
 
 # Docker build arguments
 ARG SOURCE_DIR=/jellyfin
@@ -15,8 +13,8 @@ ENV IS_DOCKER=YES
 # Prepare Debian build environment
 RUN apt-get update \
   && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" \
-     apt-get install -y debhelper mmv git curl devscripts equivs
-
+     apt-get install --no-install-recommends -y \
+     debhelper mmv git curl devscripts equivs
 
 # Link to build script
 RUN ln -sf ${SOURCE_DIR}/deployment/build.debian /build.sh

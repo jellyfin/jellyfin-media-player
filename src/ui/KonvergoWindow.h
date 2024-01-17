@@ -50,7 +50,7 @@ public:
   bool isAlwaysOnTop()
   {
     Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
     forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
 #endif
     return (flags() & forceOnTopFlags);

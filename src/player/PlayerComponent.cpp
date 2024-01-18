@@ -1062,14 +1062,11 @@ void PlayerComponent::setAudioConfiguration()
 
   updateAudioDevice();
 
-  QString resampleOpts = "";
   bool normalize = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "normalize").toBool();
-  resampleOpts += QString(":normalize=") + (normalize ? "yes" : "no");
+  mpv::qt::set_property(m_mpv, "audio-normalize-downmix", normalize ? "yes" : "no");
 
   // Make downmix more similar to PHT.
-  resampleOpts += ":o=[surround_mix_level=1]";
-
-  mpv::qt::set_property(m_mpv, "af-defaults", "lavrresample" + resampleOpts);
+  mpv::qt::set_property(m_mpv, "audio-swresample-o", "surround_mix_level=1");
 
   m_passthroughCodecs.clear();
 
@@ -1123,7 +1120,7 @@ void PlayerComponent::setAudioConfiguration()
   }
   else
   {
-    mpv::qt::command(m_mpv, QStringList() << "af" << "del" << "@ac3");
+    mpv::qt::command(m_mpv, QStringList() << "af" << "remove" << "@ac3");
   }
 
   QVariant device = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device");
@@ -1223,7 +1220,7 @@ void PlayerComponent::updateVideoAspectSettings()
   }
 
   mpv::qt::set_property(m_mpv, "video-unscaled", disableScaling);
-  mpv::qt::set_property(m_mpv, "video-aspect", forceAspect);
+  mpv::qt::set_property(m_mpv, "video-aspect-override", forceAspect);
   mpv::qt::set_property(m_mpv, "keepaspect", keepAspect);
   mpv::qt::set_property(m_mpv, "panscan", panScan);
 }
@@ -1259,7 +1256,7 @@ void PlayerComponent::updateVideoSettings()
 
 #ifndef TARGET_RPI
   double displayFps = DisplayComponent::Get().currentRefreshRate();
-  mpv::qt::set_property(m_mpv, "display-fps", displayFps);
+  mpv::qt::set_property(m_mpv, "display-fps-override", displayFps);
 #endif
 
   setAudioDelay(m_playbackAudioDelay);
@@ -1546,7 +1543,7 @@ QString PlayerComponent::videoInformation() const
                    << MPV_PROPERTY("video-params/dh") << "\n";
   info << "FPS (container): " << MPV_PROPERTY("container-fps") << "\n";
   info << "FPS (filters): " << MPV_PROPERTY("estimated-vf-fps") << "\n";
-  info << "Aspect: " << MPV_PROPERTY("video-aspect") << "\n";
+  info << "Aspect: " << MPV_PROPERTY("video-params/aspect") << "\n";
   info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << "\n";
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   info << "Display FPS: " << MPV_PROPERTY("display-fps")

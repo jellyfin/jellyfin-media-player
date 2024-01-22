@@ -30,7 +30,7 @@
 #include "PFMoveApplication.h"
 #endif
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
 #include "SignalManager.h"
 #endif
 
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":/images/icon.png"));
 #endif
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
   	// Set window icon on Linux using system icon theme
   	app.setWindowIcon(QIcon::fromTheme("com.github.iwalton3.jellyfin-media-player", QIcon(":/images/icon.png")));
     // Set app id for Wayland compositor window icon

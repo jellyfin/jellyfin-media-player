@@ -1,4 +1,6 @@
-FROM debian:bookworm-slim
+ARG IMG=debian
+ARG TAG=bookworm
+FROM $IMG:$TAG
 
 # Docker build arguments
 ARG SOURCE_DIR=/jellyfin

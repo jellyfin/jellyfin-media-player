@@ -1,5 +1,5 @@
 ARG IMG=debian
-ARG TAG=buster
+ARG TAG=bookworm
 FROM $IMG:$TAG
 
 # Docker build arguments
@@ -14,9 +14,9 @@ ENV IS_DOCKER=YES
 
 # Prepare Debian build environment
 RUN apt-get update \
-  && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" \
-     apt-get install -y debhelper mmv git curl devscripts equivs
-
+ && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" \
+    apt-get install --no-install-recommends -y \
+    debhelper mmv git curl devscripts equivs
 
 # Link to build script
 RUN ln -sf ${SOURCE_DIR}/deployment/build.debian /build.sh

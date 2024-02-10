@@ -1139,8 +1139,17 @@ void PlayerComponent::setAudioConfiguration()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::updateSubtitleSettings()
 {
+  QString assStyleOverride = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "ass_style_override").toString();
+  if (!assStyleOverride.isEmpty())
+  {
+    mpv::qt::set_property(m_mpv, "sub-ass-override", assStyleOverride);
+  }
+
   QVariant size = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "size");
-  mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
+  if (size != -1)
+  {
+    mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
+  }
 
   QString font = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "font").toString();
   if (!font.isEmpty())
@@ -1158,6 +1167,12 @@ void PlayerComponent::updateSubtitleSettings()
   if (!borderColor.isEmpty())
   {
     mpv::qt::set_property(m_mpv, "sub-border-color", borderColor);
+  }
+
+  QString borderSize = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "border_size").toString();
+  if (borderSize != -1)
+  {
+    mpv::qt::set_property(m_mpv, "sub-border-size", borderSize);
   }
 
   QString backgroundColor = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "background_color").toString();

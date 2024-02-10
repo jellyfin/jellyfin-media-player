@@ -403,9 +403,22 @@
     "section": "subtitles",
     "values": [
       {
-        "value": "placement",
-        "default": "center,bottom",
+        "value": "ass_style_override",
+        "default": "",
         "possible_values": [
+          [ "", "subtitles.default" ],
+          [ "yes", "subtitles.yes" ],
+          [ "no", "subtitles.no" ],
+          [ "force", "subtitles.force" ],
+          [ "scale", "subtitles.scale" ],
+          [ "strip", "subtitles.strip" ]
+        ]
+      },
+      {
+        "value": "placement",
+        "default": "",
+        "possible_values": [
+          [ "", "subtitles.default" ],
           [ "left,bottom", "subtitles.leftBottom" ],
           [ "right,bottom", "subtitles.rightBottom" ],
           [ "center,bottom", "subtitles.centerBottom" ],
@@ -416,8 +429,9 @@
       },
       {
         "value": "color",
-        "default": "#EEEEEE",
+        "default": "",
         "possible_values": [
+          [ "", "subtitles.default" ],
           [ "#000000", "subtitles.black" ],
           [ "#FFFFFF", "subtitles.white" ],
           [ "#EEEEEE", "subtitles.lightGrey" ],
@@ -429,8 +443,9 @@
       },
       {
         "value": "border_color",
-        "default": "#000000",
+        "default": "",
         "possible_values": [
+          [ "", "subtitles.default" ],
           [ "#000000", "subtitles.black" ],
           [ "#FFFFFF", "subtitles.white" ],
           [ "#EEEEEE", "subtitles.lightGrey" ],
@@ -441,9 +456,23 @@
         ]
       },
       {
-        "value": "background_color",
-        "default": "#CCCCCC",
+        "value": "border_size",
+        "default": -1,
         "possible_values": [
+          [ -1, "subtitles.default" ],
+          [ 0, "subtitles.none" ],
+          [ 1, "subtitles.tiny" ],
+          [ 2, "subtitles.small" ],
+          [ 3, "subtitles.normal" ],
+          [ 4, "subtitles.large" ],
+          [ 5, "subtitles.huge" ]
+        ]
+      },
+      {
+        "value": "background_color",
+        "default": "",
+        "possible_values": [
+          [ "", "subtitles.default" ],
           [ "#000000", "subtitles.black" ],
           [ "#FFFFFF", "subtitles.white" ],
           [ "#EEEEEE", "subtitles.lightGrey" ],
@@ -455,8 +484,9 @@
       },
       {
         "value": "background_transparency",
-        "default": "00",
+        "default": "",
         "possible_values": [
+          [ "", "subtitles.default" ],
           [ "FF", "subtitles.0%" ],
           [ "C0", "subtitles.25%" ],
           [ "80", "subtitles.50%" ],
@@ -466,8 +496,9 @@
       },
       {
         "value": "size",
-        "default": 32,
+        "default": -1,
         "possible_values": [
+          [ -1, "subtitles.default" ],
           [ 18, "subtitles.tiny" ],
           [ 24, "subtitles.small" ],
           [ 32, "subtitles.normal" ],
@@ -479,6 +510,7 @@
         "value": "font",
         "default": "sans-serif",
         "possible_values": [
+          [ "", "subtitles.default" ],
           [ "serif", "serif" ],
           [ "sans-serif", "sans-serif" ],
           [ "script", "script" ],

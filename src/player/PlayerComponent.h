@@ -148,10 +148,15 @@ public:
   };
   
 public Q_SLOTS:
-  void setAudioConfiguration();
   void updateAudioDeviceList();
-  void updateSubtitleSettings();
-  void updateVideoSettings();
+  void setAudioConfiguration();
+  void setSubtitleConfiguration();
+  void setVideoConfiguration();
+  void setOtherConfiguration();
+  void updateAudioConfiguration();
+  void updateSubtitleConfiguration();
+  void updateVideoConfiguration();
+  void updateConfiguration();
 
 private Q_SLOTS:
   void handleMpvEvents();

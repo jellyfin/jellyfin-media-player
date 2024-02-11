@@ -31,6 +31,7 @@ public:
 
   const QVariantMap allValues() const;
   const QVariantMap descriptions() const;
+  const QVariantMap sectionOrder() const;
 
   bool isValueHidden(const QString& key) const { return m_values[key]->isHidden(); }
   int orderIndex() const { return m_orderIndex; }

@@ -164,6 +164,20 @@ QVariant SettingsComponent::allValues(const QString& section)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+QVariant SettingsComponent::orderedSections()
+{
+  QJsonArray desc;
+
+  for(SettingsSection* section : m_sections.values())
+  {
+    if (!section->isHidden())
+      desc.push_back(QJsonValue::fromVariant(section->sectionOrder()));
+  }
+
+  return desc.toVariantList();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 static void writeFile(const QString& filename, const QByteArray& data)
 {
   QSaveFile file(filename);
@@ -486,8 +500,6 @@ bool SettingsComponent::loadDescription()
     return false;
   }
 
-  m_sectionIndex = 0;
-
   for(auto val : doc.array())
   {
     if (!val.isObject())
@@ -523,8 +535,9 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
   }
 
   int platformMask = platformMaskFromObject(sectionObject);
+  int sectionOrder = sectionObject.value("order").toInt(-1);
 
-  auto  section = new SettingsSection(sectionName, (quint8)platformMask, m_sectionIndex ++, this);
+  auto section = new SettingsSection(sectionName, (quint8)platformMask, sectionOrder, this);
   section->setHidden(sectionObject.value("hidden").toBool(false));
   section->setStorage(sectionObject.value("storage").toBool(false));
 
@@ -559,6 +572,13 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
 
     int vPlatformMask = platformMaskFromObject(valobj);
     SettingsValue* setting = new SettingsValue(valobj.value("value").toString(), defaultval, (quint8)vPlatformMask, this);
+
+    if (valobj.contains("display_name"))
+      setting->setDisplayName(valobj.value("display_name").toString());
+
+    if (valobj.contains("help"))
+      setting->setHelp(valobj.value("help").toString());
+
     setting->setHasDescription(true);
     setting->setHidden(valobj.value("hidden").toBool(false));
     setting->setIndexOrder(order ++);

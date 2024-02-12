@@ -34,6 +34,20 @@ public:
 
   const QString& key() const { return m_key; }
 
+  const QString& displayName() const { return m_displayName; }
+
+  void setDisplayName(const QString& displayName)
+  {
+    m_displayName = displayName;
+  }
+
+  const QString& help() const { return m_help; }
+
+  void setHelp(const QString& help)
+  {
+    m_help = help;
+  }
+
   const QVariant& value() const
   {
     if (!m_value.isValid())
@@ -104,12 +118,14 @@ public:
   {
     QVariantMap ret;
     ret.insert("key", m_key);
+    ret.insert("displayName", m_displayName);
+    ret.insert("help", m_help);
 
     if (!m_possibleValues.isEmpty())
       ret.insert("options", m_possibleValues);
 
     if (m_inputType.size())
-      ret.insert("input_type", m_inputType);
+      ret.insert("inputType", m_inputType);
 
     return ret;
   }
@@ -130,6 +146,8 @@ public:
 
 private:
   QString m_key;
+  QString m_displayName;
+  QString m_help;
   QVariant m_value;
   QVariant m_defaultValue;
   QVariantList m_possibleValues;

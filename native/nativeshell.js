@@ -245,6 +245,11 @@ async function createApi() {
     return channel.objects;
 }
 
+const sectionsFromStorage = window.sessionStorage.getItem('sections');
+if (sectionsFromStorage) {
+    jmpInfo.sections = JSON.parse(sectionsFromStorage);
+}
+
 let rawSettings = {};
 Object.assign(rawSettings, jmpInfo.settings);
 const settingsFromStorage = window.sessionStorage.getItem('settings');
@@ -342,6 +347,40 @@ window.NativeShell.AppHost = {
 async function showSettingsModal() {
     await initCompleted;
 
+    const tooltipCSS = `
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            font-size: 18px;
+            vertical-align: sub;
+        }
+      
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: max-content;
+            max-width: 40em;
+            background-color: black;
+            color: white;
+            text-align: left;
+            position: absolute;
+            z-index: 1;
+            border-radius: 6px;
+            padding: 5px;
+            top: -4px;
+            left: 25px;
+            border: solid 1px grey;
+            font-size: 12px;
+        }
+      
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+        }`;
+
+    var style = document.createElement('style')
+    style.innerText = tooltipCSS
+    document.head.appendChild(style)
+
     const modalContainer = document.createElement("div");
     modalContainer.className = "dialogContainer";
     modalContainer.style.backgroundColor = "rgba(0,0,0,0.5)";
@@ -372,7 +411,8 @@ async function showSettingsModal() {
     modalContainer2.appendChild(modalContents);
 
     const settingUpdateHandlers = {};
-    for (const section of Object.keys(jmpInfo.settingsDescriptions)) {
+    for (const sectionOrder of jmpInfo.sections.sort((a, b) => a.order - b.order)) {
+        const section = sectionOrder.key;
         const group = document.createElement("fieldset");
         group.className = "editItemMetadataForm editMetadataForm dialog-content-centered";
         group.style.border = 0;
@@ -396,6 +436,10 @@ async function showSettingsModal() {
                 const legendSubHeader = document.createElement("h4");
                 legendSubHeader.textContent = "Plugins are UNOFFICIAL and require a restart to take effect.";
                 legend.appendChild(legendSubHeader);
+            } else if (section == "other") {                
+                const legendSubHeader = document.createElement("h4");
+                legendSubHeader.textContent = "Use this section to input custom MPV configuration. These will override the above settings.";
+                legend.appendChild(legendSubHeader);
             }
             group.appendChild(legend);
 
@@ -404,7 +448,21 @@ async function showSettingsModal() {
                 label.className = "inputContainer";
                 label.style.marginBottom = "1.8em";
                 label.style.display = "block";
-                label.style.textTransform = "capitalize";
+
+                let helpElement;
+                if (setting.help) {
+                    helpElement = document.createElement("div");
+                    helpElement.className = "tooltip";
+                    const helpIcon = document.createElement("span");
+                    helpIcon.style.fontSize = "18px"
+                    helpIcon.className = "material-icons help_outline";
+                    helpElement.appendChild(helpIcon);
+                    const tooltipElement = document.createElement("span");
+                    tooltipElement.className = "tooltip-text";
+                    tooltipElement.innerText = setting.help;    
+                    helpElement.appendChild(tooltipElement);
+                }
+
                 if (setting.options) {
                     const safeValues = {};
                     const control = document.createElement("select");
@@ -430,8 +488,25 @@ async function showSettingsModal() {
                     });
                     const labelText = document.createElement('label');
                     labelText.className = "inputLabel";
-                    labelText.textContent = setting.key + ": ";
+                    labelText.textContent = (setting.displayName ? setting.displayName : setting.key) + ": ";
                     label.appendChild(labelText);
+                    if (helpElement) label.appendChild(helpElement);
+                    label.appendChild(control);
+                } else if (setting.inputType === "textarea") {
+                    const control = document.createElement("textarea");
+                    control.className = "emby-select-withcolor emby-select";
+                    control.style = "resize: none;"
+                    control.value = values[setting.key];
+                    control.rows = 5;
+                    control.addEventListener("change", e =>
+                    {
+                        jmpInfo.settings[section][setting.key] = e.target.value;
+                    });
+                    const labelText = document.createElement('label');
+                    labelText.className = "inputLabel";
+                    labelText.textContent = (setting.displayName ? setting.displayName : setting.key) + ": ";
+                    label.appendChild(labelText);
+                    if (helpElement) label.appendChild(helpElement);
                     label.appendChild(control);
                 } else {
                     const control = document.createElement("input");
@@ -441,8 +516,10 @@ async function showSettingsModal() {
                         jmpInfo.settings[section][setting.key] = e.target.checked;
                     });
                     label.appendChild(control);
-                    label.appendChild(document.createTextNode(" " + setting.key));
+                    label.appendChild(document.createTextNode(" " + (setting.displayName ? setting.displayName : setting.key)));
+                    if (helpElement) label.appendChild(helpElement);
                 }
+
                 group.appendChild(label);
             }
         };

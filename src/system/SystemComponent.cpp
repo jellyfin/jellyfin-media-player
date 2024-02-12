@@ -350,6 +350,7 @@ QString SystemComponent::getNativeShellScript()
     QVariantMap settingMap = setting.toMap();
     settingsDescriptions.insert(settingMap["key"].toString(), settingMap["settings"]);
   }
+  clientData.insert("sections", QJsonValue::fromVariant(SettingsComponent::Get().orderedSections()));
   clientData.insert("settingsDescriptions", QJsonValue::fromVariant(settingsDescriptions));
   clientData.insert("settings", QJsonValue::fromVariant(SettingsComponent::Get().allValues()));
   nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());

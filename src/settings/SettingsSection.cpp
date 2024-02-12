@@ -201,6 +201,17 @@ const QVariantMap SettingsSection::descriptions() const
   return map;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+const QVariantMap SettingsSection::sectionOrder() const
+{
+  QVariantMap map;
+
+  map.insert("key", m_sectionID);
+  map.insert("order", m_orderIndex);
+
+  return map;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsSection::isHidden() const
 {

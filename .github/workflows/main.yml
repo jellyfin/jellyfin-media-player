@@ -60,7 +60,7 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: macos
+        name: macos-arm64
         path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
 
   build-win64:

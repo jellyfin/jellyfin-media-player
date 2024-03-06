@@ -38,6 +38,31 @@ jobs:
         name: macos
         path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
 
+  build-macarm64:
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        brew update
+        brew install ninja mpv qt@5 || true
+    - name: Release build
+      run: |
+        ./download_webclient.sh
+        cd build
+        cmake -GNinja -DQTROOT=/opt/homebrew/opt/qt@5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
+        ninja install
+    - name: Fix library paths and create dmg
+      run: |
+        python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
+        brew install create-dmg
+        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos
+        path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
+
   build-win64:
     runs-on: windows-latest
     steps:

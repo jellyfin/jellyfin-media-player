@@ -23,13 +23,23 @@ def main(argv=tuple(sys.argv[1:])):
         result = subprocess.check_output(['otool', '-L', str(lib.resolve())], stderr=subprocess.STDOUT).decode('utf-8')
         for dependency in result.splitlines():
             dependency = dependency.strip().lstrip()
-            if dependency.startswith('/usr/local'):
+            if dependency.startswith('/usr/local') or dependency.startswith('/opt/homebrew') or dependency.startswith('@rpath') or dependency.startswith('@loader_path'):
                 # cut off trailing compatibility string
-                dependency = Path(dependency.split(' (compatibility')[0])
+                dependency_str = dependency.split(' (compatibility')[0].strip()
+                if dependency.startswith('@rpath'):
+                    dependency = dependency_str.replace("@rpath", "/opt/homebrew/lib")
+                    dependency = Path(dependency)
+                elif dependency.startswith('@loader_path'):
+                    dependency = dependency_str.replace("@loader_path", "/opt/homebrew/lib")
+                    dependency = Path(dependency)
+                    dependency_name = dependency.name
+                    dependency = (Path("/opt/homebrew/lib") / dependency_name).resolve()
+                else:
+                    dependency = Path(dependency_str)
 
                 # if somehow macdeployqt didn't copy the lib for us, we do a manual copy
                 if dependency.name not in framework_libs:
-                    shutil.copy(str(dependency.resolve()), str(framework_path.resolve()))
+                    shutil.copy(str(dependency.resolve()), str((framework_path / dependency.name).resolve()))
                     framework_libs.add(dependency.name)
                     # add the newly added library in to the to fix queue
                     libs_to_fix.append(framework_path / dependency.name)
@@ -38,9 +48,9 @@ def main(argv=tuple(sys.argv[1:])):
 
                 # now we fix the path using install_name_tool
                 target = f'@executable_path/../Frameworks/{dependency.name}'
-                print(f'Fixing dependency {dependency} of {lib} to {target}')
+                print(f'Fixing dependency {dependency_str} of {lib} to {target}')
                 subprocess.run(['install_name_tool', '-id', target, lib])
-                subprocess.run(['install_name_tool', '-change', str(dependency), target, lib])
+                subprocess.run(['install_name_tool', '-change', dependency_str, target, lib])
 
 
 if __name__ == '__main__':

@@ -55,6 +55,8 @@ jobs:
     - name: Fix library paths and create dmg
       run: |
         python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
+        python3 ./scripts/fix-webengine.py ./build/output/Jellyfin\ Media\ Player.app
+        codesign --force --deep -s - ./build/output/Jellyfin\ Media\ Player.app/
         brew install create-dmg
         create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
     - name: Archive production artifacts

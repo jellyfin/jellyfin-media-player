@@ -4,6 +4,7 @@ import argparse
 from collections import deque
 import subprocess
 import shutil
+import platform
 
 
 def main(argv=tuple(sys.argv[1:])):
@@ -13,6 +14,9 @@ def main(argv=tuple(sys.argv[1:])):
 
     bundle_path = Path(arguments.bundle[0])
     framework_path = bundle_path / 'Contents' / 'Frameworks'
+    rpath_str = '/usr/local/lib'
+    if platform.machine() == 'arm64':
+        rpath_str = '/opt/homebrew/lib'
     framework_libs = set(file.name for file in framework_path.glob('*.dylib')).union(set(file.name for file in framework_path.glob('*.so')))
     libs_to_fix = deque()
     libs_to_fix.extend(file for file in bundle_path.glob('**/*.dylib'))
@@ -27,13 +31,13 @@ def main(argv=tuple(sys.argv[1:])):
                 # cut off trailing compatibility string
                 dependency_str = dependency.split(' (compatibility')[0].strip()
                 if dependency.startswith('@rpath'):
-                    dependency = dependency_str.replace("@rpath", "/opt/homebrew/lib")
+                    dependency = dependency_str.replace("@rpath", rpath_str)
                     dependency = Path(dependency)
                 elif dependency.startswith('@loader_path'):
-                    dependency = dependency_str.replace("@loader_path", "/opt/homebrew/lib")
+                    dependency = dependency_str.replace("@loader_path", rpath_str)
                     dependency = Path(dependency)
                     dependency_name = dependency.name
-                    dependency = (Path("/opt/homebrew/lib") / dependency_name).resolve()
+                    dependency = (Path(rpath_str) / dependency_name).resolve()
                 else:
                     dependency = Path(dependency_str)
 

@@ -11,26 +11,22 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v4
-    - name: Install Qt 5.15.2
-      uses: jurplel/install-qt-action@v3
-      with:
-        version: "5.15.2"
-        modules: "qtwebengine"
-        setup-python: 'false'
     - name: Install dependencies
       run: |
         brew update
-        brew install ninja mpv || true
+        brew install ninja mpv qt@5 || true
     - name: Release build
       run: |
         ./download_webclient.sh
         sed -i '' 's/<body>/<body style="overscroll-behavior: none;">/' ./build/dist/index.html
         cd build
-        cmake -GNinja -DQTROOT=$Qt5_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
+        cmake -GNinja -DQTROOT=/usr/local/opt/qt@5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
         ninja install
     - name: Fix library paths and create dmg
       run: |
         python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
+        python3 ./scripts/fix-webengine.py ./build/output/Jellyfin\ Media\ Player.app
+        codesign --force --deep -s - ./build/output/Jellyfin\ Media\ Player.app/
         brew install create-dmg
         create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
     - name: Archive production artifacts

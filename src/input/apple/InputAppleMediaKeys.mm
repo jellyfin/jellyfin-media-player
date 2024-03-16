@@ -2,9 +2,8 @@
 // Created by Tobias Hieta on 21/08/15.
 //
 
-#include <QDebug>
 #include "InputAppleMediaKeys.h"
-#include "SPMediaKeyTap.h"
+#include <QDebug>
 
 #import <dlfcn.h>
 
@@ -12,7 +11,6 @@
 
 @interface MediaKeysDelegate : NSObject
 {
-  SPMediaKeyTap* keyTap;
   InputAppleMediaKeys* input;
 }
 -(instancetype)initWithInput:(InputAppleMediaKeys*)input;
@@ -25,35 +23,22 @@
   self = [super init];
   if (self) {
     input = input_;
-    if (NSClassFromString(@"MPRemoteCommandCenter")) {
-      MPRemoteCommandCenter* center = [MPRemoteCommandCenter sharedCommandCenter];
+    MPRemoteCommandCenter* center = [MPRemoteCommandCenter sharedCommandCenter];
 #define CONFIG_CMD(name) \
   [center.name ## Command addTarget:self action:@selector(gotCommand:)]
-      CONFIG_CMD(play);
-      CONFIG_CMD(pause);
-      CONFIG_CMD(togglePlayPause);
-      CONFIG_CMD(stop);
-      CONFIG_CMD(nextTrack);
-      CONFIG_CMD(previousTrack);
-      CONFIG_CMD(seekForward);
-      CONFIG_CMD(seekBackward);
-      CONFIG_CMD(skipForward);
-      CONFIG_CMD(skipBackward);
-      [center.changePlaybackPositionCommand addTarget:self action:@selector(gotPlaybackPosition:)];
-    } else {
-      keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
-      if ([SPMediaKeyTap usesGlobalMediaKeyTap])
-        [keyTap startWatchingMediaKeys];
-      else
-        qWarning() << "Could not grab global media keys";
-    }
+    CONFIG_CMD(play);
+    CONFIG_CMD(pause);
+    CONFIG_CMD(togglePlayPause);
+    CONFIG_CMD(stop);
+    CONFIG_CMD(nextTrack);
+    CONFIG_CMD(previousTrack);
+    CONFIG_CMD(seekForward);
+    CONFIG_CMD(seekBackward);
+    CONFIG_CMD(skipForward);
+    CONFIG_CMD(skipBackward);
+    [center.changePlaybackPositionCommand addTarget:self action:@selector(gotPlaybackPosition:)];
   }
   return self;
-}
-
-- (void)dealloc
-{
-  [super dealloc];
 }
 
 -(MPRemoteCommandHandlerStatus)gotCommand:(MPRemoteCommandEvent *)event
@@ -88,38 +73,6 @@
   return MPRemoteCommandHandlerStatusSuccess;
 }
 
--(void)mediaKeyTap:(SPMediaKeyTap *)keyTap receivedMediaKeyEvent:(NSEvent *)event
-{
-  int keyCode = (([event data1] & 0xFFFF0000) >> 16);
-  int keyFlags = ([event data1] & 0x0000FFFF);
-  BOOL keyIsPressed = (((keyFlags & 0xFF00) >> 8)) == 0xA;
-
-  QString keyPressed;
-
-  switch (keyCode) {
-    case NX_KEYTYPE_PLAY:
-      keyPressed = INPUT_KEY_PLAY_PAUSE;
-      break;
-    case NX_KEYTYPE_FAST:
-      keyPressed = "KEY_FAST";
-      break;
-    case NX_KEYTYPE_REWIND:
-      keyPressed = "KEY_REWIND";
-      break;
-    case NX_KEYTYPE_NEXT:
-      keyPressed = INPUT_KEY_NEXT;
-      break;
-    case NX_KEYTYPE_PREVIOUS:
-      keyPressed = INPUT_KEY_PREV;
-      break;
-    default:
-      break;
-      // More cases defined in hidsystem/ev_keymap.h
-  }
-
-  emit input->receivedInput("AppleMediaKeys", keyPressed, keyIsPressed ? InputBase::KeyDown : InputBase::KeyUp);
-}
-
 @end
 
 // macOS private enum
@@ -136,12 +89,18 @@ bool InputAppleMediaKeys::initInput()
   m_currentTime = 0;
   m_pendingUpdate = false;
   m_delegate = [[MediaKeysDelegate alloc] initWithInput:this];
-  if (NSClassFromString(@"MPNowPlayingInfoCenter")) {
-    connect(&PlayerComponent::Get(), &PlayerComponent::stateChanged, this, &InputAppleMediaKeys::handleStateChanged);
-    connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &InputAppleMediaKeys::handlePositionUpdate);
-    connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &InputAppleMediaKeys::handleUpdateDuration);
-    void* lib = dlopen("/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote", RTLD_NOW);
-    if (lib) {
+  connect(&PlayerComponent::Get(), &PlayerComponent::stateChanged, this,
+          &InputAppleMediaKeys::handleStateChanged);
+  connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this,
+          &InputAppleMediaKeys::handlePositionUpdate);
+  connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this,
+          &InputAppleMediaKeys::handleUpdateDuration);
+  connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this,
+          &InputAppleMediaKeys::handleUpdateMetaData);
+
+  if (auto lib =
+      dlopen("/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote", RTLD_NOW))
+  {
 #define LOAD_FUNC(name) \
   name = (name ## Func)dlsym(lib, "MRMediaRemote" #name)
       LOAD_FUNC(SetNowPlayingVisibility);
@@ -149,7 +108,6 @@ bool InputAppleMediaKeys::initInput()
       LOAD_FUNC(SetCanBeNowPlayingApplication);
       if (SetCanBeNowPlayingApplication)
         SetCanBeNowPlayingApplication(1);
-    }
   }
   return true;
 }
@@ -202,7 +160,6 @@ void InputAppleMediaKeys::handlePositionUpdate(quint64 position)
     NSMutableDictionary *playingInfo = [NSMutableDictionary dictionaryWithDictionary:center.nowPlayingInfo];
     [playingInfo setObject:[NSNumber numberWithDouble:(double)position / 1000] forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
     center.nowPlayingInfo = playingInfo;
-    [MPNowPlayingInfoCenter defaultCenter].playbackState = [MPNowPlayingInfoCenter defaultCenter].playbackState;
     m_pendingUpdate = false;
   }
 }
@@ -215,4 +172,38 @@ void InputAppleMediaKeys::handleUpdateDuration(qint64 duration)
   [playingInfo setObject:[NSNumber numberWithDouble:(double)duration / 1000] forKey:MPMediaItemPropertyPlaybackDuration];
   center.nowPlayingInfo = playingInfo;
   m_pendingUpdate = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void InputAppleMediaKeys::handleUpdateMetaData(const QVariantMap& meta)
+{
+  auto info = [NSMutableDictionary
+  dictionaryWithDictionary:MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo];
+  info[MPMediaItemPropertyTitle] = meta["Name"].toString().toNSString();
+
+  if (meta["MediaType"] == QLatin1String{ "Video" })
+  {
+    info[MPNowPlayingInfoPropertyMediaType] = @(MPNowPlayingInfoMediaTypeVideo);
+    if (meta["Type"] == QLatin1String{ "Episode" })
+    {
+      [info addEntriesFromDictionary:@{
+        MPMediaItemPropertyArtist : meta["SeriesName"].toString().toNSString(),
+        MPMediaItemPropertyMediaType : @(MPMediaTypeTVShow),
+      }];
+    }
+    else
+      info[MPMediaItemPropertyMediaType] = @(MPMediaTypeMovie);
+  }
+  else // audio most probably
+  {
+    [info addEntriesFromDictionary:@{
+      MPMediaItemPropertyAlbumArtist : meta["AlbumArtist"].toString().toNSString(),
+      MPMediaItemPropertyAlbumTitle : meta["Album"].toString().toNSString(),
+      MPMediaItemPropertyArtist : meta["Artists"].toStringList().join(", ").toNSString(),
+      MPMediaItemPropertyMediaType : @(MPMediaTypeMusic),
+      MPNowPlayingInfoPropertyMediaType : @(MPNowPlayingInfoMediaTypeAudio),
+    }];
+  }
+
+  MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo = info;
 }

@@ -16,11 +16,14 @@ public:
   bool initInput() override;
   const char* inputName() override { return "AppleMediaKeys"; }
 
-private:
-  void* m_delegate;
+private slots:
   void handleStateChanged(PlayerComponent::State newState, PlayerComponent::State oldState);
   void handlePositionUpdate(quint64 position);
   void handleUpdateDuration(qint64 duration);
+  void handleUpdateMetaData(const QVariantMap& meta);
+
+private:
+  void* m_delegate;
 
   typedef void (*SetNowPlayingVisibilityFunc)(void* origin, int visibility);
   typedef void* (*GetLocalOriginFunc)(void);

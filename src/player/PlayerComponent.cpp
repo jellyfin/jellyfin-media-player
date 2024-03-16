@@ -524,6 +524,8 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
           m_playbackCanceled = true;
           break;
         }
+        default:
+          break;
       }
 
       if (!m_streamSwitchImminent)

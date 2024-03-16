@@ -95,6 +95,8 @@ bool InputAppleMediaKeys::initInput()
           &InputAppleMediaKeys::handlePositionUpdate);
   connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this,
           &InputAppleMediaKeys::handleUpdateDuration);
+  connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this,
+          &InputAppleMediaKeys::handleUpdateMetaData);
 
   if (auto lib =
       dlopen("/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote", RTLD_NOW))
@@ -170,4 +172,38 @@ void InputAppleMediaKeys::handleUpdateDuration(qint64 duration)
   [playingInfo setObject:[NSNumber numberWithDouble:(double)duration / 1000] forKey:MPMediaItemPropertyPlaybackDuration];
   center.nowPlayingInfo = playingInfo;
   m_pendingUpdate = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void InputAppleMediaKeys::handleUpdateMetaData(const QVariantMap& meta)
+{
+  auto info = [NSMutableDictionary
+  dictionaryWithDictionary:MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo];
+  info[MPMediaItemPropertyTitle] = meta["Name"].toString().toNSString();
+
+  if (meta["MediaType"] == QLatin1String{ "Video" })
+  {
+    info[MPNowPlayingInfoPropertyMediaType] = @(MPNowPlayingInfoMediaTypeVideo);
+    if (meta["Type"] == QLatin1String{ "Episode" })
+    {
+      [info addEntriesFromDictionary:@{
+        MPMediaItemPropertyArtist : meta["SeriesName"].toString().toNSString(),
+        MPMediaItemPropertyMediaType : @(MPMediaTypeTVShow),
+      }];
+    }
+    else
+      info[MPMediaItemPropertyMediaType] = @(MPMediaTypeMovie);
+  }
+  else // audio most probably
+  {
+    [info addEntriesFromDictionary:@{
+      MPMediaItemPropertyAlbumArtist : meta["AlbumArtist"].toString().toNSString(),
+      MPMediaItemPropertyAlbumTitle : meta["Album"].toString().toNSString(),
+      MPMediaItemPropertyArtist : meta["Artists"].toStringList().join(", ").toNSString(),
+      MPMediaItemPropertyMediaType : @(MPMediaTypeMusic),
+      MPNowPlayingInfoPropertyMediaType : @(MPNowPlayingInfoMediaTypeAudio),
+    }];
+  }
+
+  MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo = info;
 }

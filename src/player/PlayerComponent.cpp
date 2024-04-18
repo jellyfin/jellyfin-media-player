@@ -313,6 +313,10 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   command << "loadfile" << qurl.toString(QUrl::FullyEncoded);
   command << "append-play"; // if nothing is playing, play it now, otherwise just enqueue it
 
+#if MPV_CLIENT_API_VERSION >= MPV_MAKE_VERSION(2, 3)
+  command << -1; // insert_at_idx
+#endif
+
   QVariantMap extraArgs;
 
   quint64 startMilliseconds = options["startMilliseconds"].toLongLong();

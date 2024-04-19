@@ -10,6 +10,8 @@
 #include "TaskbarComponentWin.h"
 #include "PlayerComponent.h"
 #include "input/InputComponent.h"
+#include "settings/SettingsComponent.h"
+#include "settings/SettingsSection.h"
 
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Media;
@@ -35,27 +37,32 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
   qDebug() << "Taskbar initialization started";
   TaskbarComponent::setWindow(window);
 
-  m_button = new QWinTaskbarButton(m_window);
-  m_button->setWindow(m_window);
+  bool EnableTaskbar = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsTaskbarIntegration").toBool();
+  bool EnableMediaControls = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "enableWindowsMediaIntegration").toBool();
 
-  m_toolbar = new QWinThumbnailToolBar(m_window);
-  m_toolbar->setWindow(m_window);
+  if (EnableTaskbar) {
+    m_button = new QWinTaskbarButton(m_window);
+    m_button->setWindow(m_window);
 
-  m_prev = new QWinThumbnailToolButton(m_toolbar);
-  connect(m_prev, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onPrevClicked);
+    m_toolbar = new QWinThumbnailToolBar(m_window);
+    m_toolbar->setWindow(m_window);
 
-  m_pause = new QWinThumbnailToolButton(m_toolbar);
-  connect(m_pause, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onPauseClicked);
+    m_prev = new QWinThumbnailToolButton(m_toolbar);
+    connect(m_prev, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onPrevClicked);
 
-  m_next = new QWinThumbnailToolButton(m_toolbar);
-  connect(m_next, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onNextClicked);
+    m_pause = new QWinThumbnailToolButton(m_toolbar);
+    connect(m_pause, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onPauseClicked);
 
-  m_prev->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaSkipBackward));
-  m_next->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaSkipForward));
+    m_next = new QWinThumbnailToolButton(m_toolbar);
+    connect(m_next, &QWinThumbnailToolButton::clicked, this, &TaskbarComponentWin::onNextClicked);
 
-  m_toolbar->addButton(m_prev);
-  m_toolbar->addButton(m_pause);
-  m_toolbar->addButton(m_next);
+    m_prev->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaSkipBackward));
+    m_next->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaSkipForward));
+
+    m_toolbar->addButton(m_prev);
+    m_toolbar->addButton(m_pause);
+    m_toolbar->addButton(m_next);
+  }
 
   connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &TaskbarComponentWin::setProgress);
   connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &TaskbarComponentWin::playing);
@@ -66,7 +73,9 @@ void TaskbarComponentWin::setWindow(QQuickWindow* window)
   setControlsVisible(false);
   setPaused(false);
 
-  initializeMediaTransport((HWND)window->winId());
+  if (EnableMediaControls) {
+    initializeMediaTransport((HWND)window->winId());
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -109,11 +118,13 @@ void TaskbarComponentWin::stopped()
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setControlsVisible(bool value)
 {
-  m_button->progress()->setVisible(value);
+  if (m_button) {
+    m_button->progress()->setVisible(value);
 
-  for (auto& button : m_toolbar->buttons())
-  {
-    button->setVisible(value);
+    for (auto& button : m_toolbar->buttons())
+    {
+      button->setVisible(value);
+    }
   }
 
   if (m_initialized)
@@ -126,29 +137,33 @@ void TaskbarComponentWin::setControlsVisible(bool value)
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setProgress(quint64 value)
 {
-  qint64 duration = PlayerComponent::Get().getDuration();
-  int progress = 0;
-  if (duration != 0) {
-    progress = (int) (value / duration / 10);
+  if (m_button) {
+    qint64 duration = PlayerComponent::Get().getDuration();
+    int progress = 0;
+    if (duration != 0) {
+      progress = (int) (value / duration / 10);
+    }
+    m_button->progress()->setValue(progress);
   }
-  m_button->progress()->setValue(progress);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void TaskbarComponentWin::setPaused(bool value)
 {
-  if (value)
-  {
-    // m_pause->setToolTip("Resume");
-    m_pause->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaPlay));
-  }
-  else
-  {
-    // m_pause->setToolTip("Pause");
-    m_pause->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaPause));
-  }
+  if (m_button) {
+    if (value)
+    {
+      // m_pause->setToolTip("Resume");
+      m_pause->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaPlay));
+    }
+    else
+    {
+      // m_pause->setToolTip("Pause");
+      m_pause->setIcon(QApplication::style()->standardIcon(QStyle::SP_MediaPause));
+    }
 
-  m_button->progress()->setPaused(value);
+    m_button->progress()->setPaused(value);
+  }
 
   if (m_initialized)
   {

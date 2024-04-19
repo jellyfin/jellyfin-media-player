@@ -46,7 +46,6 @@ set_policy(CMP0071 NEW)
 
 include(utils)
 include(CompilerFlags)
-include(WebClient)
 include(DependencyConfiguration)
 include(QtConfiguration)
 include(VersionConfiguration)

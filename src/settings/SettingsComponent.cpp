@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include "SettingsComponent.h"
 #include "SettingsSection.h"
 #include "Paths.h"
@@ -654,6 +655,8 @@ Platform SettingsComponent::platformFromString(const QString& platformString)
     return PLATFORM_WINDOWS;
   else if (platformString == "linux")
     return PLATFORM_LINUX;
+  else if (platformString == "freebsd")
+    return PLATFORM_FREEBSD;
   else if (platformString == "oe")
     return PLATFORM_OE;
   else if (platformString == "oe_rpi")
@@ -716,6 +719,28 @@ bool SettingsComponent::resetAndSaveOldConfiguration()
   return settingsFile.rename(Paths::dataDir("jellyfinmediaplayer.conf.old"));
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool SettingsComponent::isUsingExternalWebClient()
+{
+  QString url;
+
+  url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();
+
+  if (url == "bundled")
+  {
+    auto path = Paths::webClientPath("desktop");
+    QFileInfo check_file(path);
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceExternalWebclient").toBool() ||
+       !(check_file.exists() && check_file.isFile())) {
+      // use built-in fallback
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 QString SettingsComponent::getWebClientUrl(bool desktop)
 {
@@ -726,6 +751,13 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
   if (url == "bundled")
   {
     auto path = Paths::webClientPath("desktop");
+    QFileInfo check_file(path);
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceExternalWebclient").toBool() ||
+       !(check_file.exists() && check_file.isFile())) {
+      // use built-in fallback
+      path = Paths::webExtensionPath() + "find-webclient.html";
+    }
+
     url = "file:///" + path;
   }
 
@@ -770,6 +802,12 @@ bool SettingsComponent::ignoreSSLErrors()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+bool SettingsComponent::autodetectCertBundle()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "autodetectCertBundle").toBool();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::setCommandLineValues(const QStringList& values)
 {
   qDebug() << values;
@@ -784,6 +822,8 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
       setValue(SETTINGS_SECTION_MAIN, "layout", "desktop");
     else if (value == "tv")
       setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
+    else if (value == "force-external-webclient")
+      setValue(SETTINGS_SECTION_MAIN, "forceExternalWebclient", true);
   }
 }
 

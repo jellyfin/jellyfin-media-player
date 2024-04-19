@@ -97,6 +97,8 @@ Platform Utils::CurrentPlatform()
   return PLATFORM_LINUX;
 #elif defined(Q_OS_WIN32)
   return PLATFORM_WINDOWS;
+#elif defined(Q_OS_FREEBSD)
+  return PLATFORM_FREEBSD;
 #else
   return PLATFORM_UNKNOWN;
 #endif

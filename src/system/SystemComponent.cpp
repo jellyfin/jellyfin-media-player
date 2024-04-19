@@ -330,9 +330,28 @@ QString SystemComponent::getNativeShellScript()
   QJsonObject clientData;
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
-  clientData.insert("mode", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString()));
-  clientData.insert("allow_transcode_to_hevc", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "allow_transcode_to_hevc").toBool()));
-  clientData.insert("force_transcode_hdr", QJsonValue::fromVariant(SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "force_transcode_hdr").toBool()));
+  QString defaultMode = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString();
+
+  QFile flatpakOsFile {"/run/host/os-release"};
+  if (flatpakOsFile.exists()) {
+    qDebug() << "Found flatpak os-release file";
+    flatpakOsFile.open(QIODevice::ReadOnly);
+    QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
+    if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
+      qDebug() << "Detected SteamOS";
+      defaultMode = "tv";
+    }
+  }
+  clientData.insert("mode", QJsonValue::fromVariant(defaultMode));
+
+  QVariantList settingsDescriptionsList = SettingsComponent::Get().settingDescriptions();
+  QVariantMap settingsDescriptions = QVariantMap();
+  for (auto setting : settingsDescriptionsList) {
+    QVariantMap settingMap = setting.toMap();
+    settingsDescriptions.insert(settingMap["key"].toString(), settingMap["settings"]);
+  }
+  clientData.insert("settingsDescriptions", QJsonValue::fromVariant(settingsDescriptions));
+  clientData.insert("settings", QJsonValue::fromVariant(SettingsComponent::Get().allValues()));
   nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
   return nativeshellString;
 }

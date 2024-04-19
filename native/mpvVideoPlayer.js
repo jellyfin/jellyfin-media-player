@@ -104,7 +104,7 @@
             /**
              * @type {float}
              */
-            this._playRate = 1;
+            this._playRate;
             /**
              * @type {boolean}
              */
@@ -172,8 +172,7 @@
                     const volume = this.getSavedVolume() * 100;
                     this.setVolume(volume, false);
 
-                    this.setPlaybackRate(1);
-                    this.setMute(false, false);
+                    this.setPlaybackRate(this.getPlaybackRate());
 
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
@@ -607,7 +606,7 @@
      * @private
      */
     static getSupportedFeatures() {
-        return ['PlaybackRate'];
+        return ['PlaybackRate', 'SetAspectRatio'];
     }
 
     supports(feature) {
@@ -693,11 +692,21 @@
     }
 
     setPlaybackRate(value) {
-        this._playRate = value;
-        window.api.player.setPlaybackRate(value * 1000);
+        let playSpeed = +value; //this comes as a string from player force int for now
+        this._playRate = playSpeed;
+        window.api.player.setPlaybackRate(playSpeed * 1000);
     }
 
     getPlaybackRate() {
+        if(!this._playRate) //On startup grab default
+        {
+            let playRate = window.jmpInfo.settings.video.default_playback_speed;
+
+            if(!playRate) //fallback if default missing
+                playRate = 1;
+
+            this._playRate = playRate;
+        }
         return this._playRate;
     }
 
@@ -733,12 +742,15 @@
     }
 
     setVolume(val, save = true) {
-        this._volume = val;
-        if (save) {
-            this.saveVolume((val || 100) / 100);
-            this.events.trigger(this, 'volumechange');
+        val = Number(val);
+        if (!isNaN(val)) {
+            this._volume = val;
+            if (save) {
+                this.saveVolume(val / 100);
+                this.events.trigger(this, 'volumechange');
+            }
+            window.api.player.setVolume(val);
         }
-        window.api.player.setVolume(val);
     }
 
     getVolume() {
@@ -763,20 +775,6 @@
 
     isMuted() {
         return this._muted;
-    }
-
-    setAspectRatio() {
-    }
-
-    getAspectRatio() {
-        return this._currentAspectRatio || 'auto';
-    }
-
-    getSupportedAspectRatios() {
-        return [{
-            name: this.globalize.translate('Auto'),
-            id: 'auto'
-        }];
     }
 
     togglePictureInPicture() {
@@ -842,6 +840,37 @@
         return Promise.resolve({
             categories: categories
         });
+    }
+
+    getSupportedAspectRatios() {
+        const options = window.jmpInfo.settingsDescriptions.video.find(x => x.key == 'aspect').options;
+        const current = window.jmpInfo.settings.video.aspect;
+
+        const getOptionName = (option) => {
+            const canTranslate = {
+                'normal': 'Auto',
+                'zoom': 'AspectRatioCover',
+                'stretch': 'AspectRatioFill',
+            }
+            const name = option.replace('video.aspect.', '');
+            return canTranslate[name]
+                ? this.globalize.translate(canTranslate[name])
+                : name;
+        }
+
+        return options.map(x => ({
+            id: x.value,
+            name: getOptionName(x.title),
+            selected: x.value == current
+        }));
+    }
+
+    getAspectRatio() {
+        return window.jmpInfo.settings.video.aspect;
+    }
+
+    setAspectRatio(value) {
+        window.jmpInfo.settings.video.aspect = value;
     }
     }
 /* eslint-enable indent */

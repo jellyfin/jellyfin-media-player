@@ -11,14 +11,31 @@ Downloads:
  - [Flathub (Linux)](https://flathub.org/apps/details/com.github.iwalton3.jellyfin-media-player)
 
 Related Documents:
- - Corresponding web client: [Repo](https://github.com/iwalton3/jellyfin-web-jmp/) [Release](https://github.com/iwalton3/jellyfin-web-jmp/releases/)
- - API Docs in [client-api.md](https://github.com/iwalton3/jellyfin-media-player/blob/master/client-api.md)
+ - Web client: https://repo.jellyfin.org/releases/server/portable/versions/stable/web/
+     - Note: If you do not provide the web client, the application will use a fallback UI where the user must select a server which has a web client.
+ - Web client integration documentation: [for-web-developers.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/for-web-developers.md)
+ - API Docs in [client-api.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/client-api.md)
  - Tip: For help building, look at the GitHub Actions file!
 
 ## Building at a glance (Linux)
 
+To download the latest stable release, get the lattest version tag from the [latest releases page](https://github.com/jellyfin/jellyfin-media-player/releases/latest) and append the following to your pull command during the build phase for JMP "--branch $VERSIONTAG --single-branch"
+
+Example:
 ```bash
-sudo apt install  autoconf automake build-essential cmake curl g++ git libasound2-dev libcec-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libgl1-mesa-dev libgnutls28-dev libharfbuzz-dev libpulse-dev libqt5x11extras5-dev libsdl2-dev libtool libuchardet-dev libva-dev libvdpau-dev libx11-dev libxrandr-dev mesa-common-dev meson python3 qml6-module-qtqml-workerscript qml6-module-qtquick-controls qml6-module-qtquick-templates qml6-module-qtquick-window qml6-module-qtwebchannel qml6-module-qtwebengine qml6-module-qtwebengine-controlsdelegates qml6-module-qtwebview qml-module-qtquick-controls qml-module-qtwebchannel qml-module-qtwebengine qt6-5compat-dev qt6-base-private-dev qt6-webengine-private-dev qtbase5-private-dev qtquickcontrols2-5-dev qtwebengine5-dev unzip wget yasm zlib1g-dev
+git clone https://github.com/jellyfin/jellyfin-media-player.git --branch v1.9.1 --single-branch
+```
+
+
+### Ubuntu based systems
+
+Install dependancies:
+```bash
+sudo apt install build-essential autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake wget python g++ qtwebengine5-dev qtquickcontrols2-5-dev libqt5x11extras5-dev libcec-dev qml-module-qtquick-controls qml-module-qtwebengine qml-module-qtwebchannel qtbase5-private-dev curl unzip
+```
+
+Build commands for Ubuntu:
+```bash
 mkdir ~/jmp; cd ~/jmp
 git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
@@ -38,6 +55,38 @@ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
 make -j`nproc`
 sudo make install
 rm -rf ~/jmp/
+```
+
+### Fedora based systems
+
+Install dependancies:
+```bash
+sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget python g++  qt-devel libcec-devel qt5-qtbase-devel curl unzip qt5-qtwebchannel-devel qt5-qtwebengine-devel qt5-qtx11extras-devel mpv.x86_64 qwt-qt5-devel.x86_64 qt5-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt5-qtbase-private-devel mpv-libs.x86_64
+```
+
+Build commands for Fedora:
+
+Note, the only real differences here is that libraries are in diffrent directories on Fedora systems.
+```bash
+mkdir ~/jmp; cd ~/jmp
+git clone https://github.com/mpv-player/mpv-build.git
+cd mpv-build/
+echo -Dlibmpv=true > mpv_options
+echo -Dpipewire=disabled >> mpv_options # hopefully temporary
+./rebuild -j4
+sudo ./install
+sudo mkdir /usr/local/lib/x86_64-linux-gnu
+sudo ln -s /usr/local/lib64/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1
+sudo ln -s /usr/local/lib64/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so
+sudo ldconfig
+cd ~/jmp/
+git clone https://github.com/jellyfin/jellyfin-media-player.git
+cd jellyfin-media-player/
+./download_webclient.sh 
+cd build/
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
+make -j4
+sudo make install
 ```
 
 ## Building for Windows
@@ -61,7 +110,7 @@ Please install:
 You need to run these commands in git bash.
 
 ```bash
-git clone https://github.com/iwalton3/jellyfin-media-player
+git clone https://github.com/jellyfin/jellyfin-media-player
 cd jellyfin-media-player
 ./download_webclient.sh
 cd build

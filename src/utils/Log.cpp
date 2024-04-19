@@ -35,7 +35,7 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
 
   if (logToTerminal) {
     std::cerr << qPrintable(message) << std::endl;
-  } 
+  }
 
   if (logFileIsOpen) {
     logFile.write(message.toUtf8() + '\n');
@@ -70,6 +70,7 @@ void Log::CensorAuthTokens(QString& msg)
   elidePattern(msg, "api_key=", 32);
   elidePattern(msg, "ApiKey=", 32);
   elidePattern(msg, "AccessToken=", 32);
+  elidePattern(msg, "AccessToken\":\"", 32);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

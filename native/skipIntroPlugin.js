@@ -7,10 +7,9 @@ class skipIntroPlugin {
         this.id = 'skipIntroPlugin';
 
         (async() => {
-            const api = await window.apiPromise;
-            const enabled = await new Promise(resolve => {
-                api.settings.value('plugins', 'skipintro', resolve);
-            });
+            await window.initCompleted;
+            const enabled = window.jmpInfo.settings.plugins.skipintro;
+
             console.log("Skip Intro Plugin enabled: " + enabled);
             if (!enabled) return;
 
@@ -85,6 +84,13 @@ class skipIntroPlugin {
                 });
             }
 
+            function handleClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                skipIntro();
+                document.querySelector('.skipIntro .btnSkipIntro').removeEventListener('click', handleClick, { useCapture: true });
+            }
+
             async function injectSkipIntroHtml() {
                 const playerContainer = await waitForElement('.upNextContainer', 5000);
                 // inject only if it doesn't exist
@@ -92,11 +98,7 @@ class skipIntroPlugin {
                     playerContainer.insertAdjacentHTML('afterend', skipIntroHtml);
                 }
 
-                document.querySelector('.skipIntro .btnSkipIntro').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    skipIntro();
-                }, { useCapture: true });
+                document.querySelector('.skipIntro .btnSkipIntro').addEventListener('click', handleClick, { useCapture: true });
 
                 if (window.PointerEvent) {
                     document.querySelector('.skipIntro .btnSkipIntro').addEventListener('pointerdown', (e) => {

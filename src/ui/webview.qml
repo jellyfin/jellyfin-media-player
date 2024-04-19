@@ -144,6 +144,9 @@ KonvergoWindow
     objectName: "web"
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
+    settings.localContentCanAccessFileUrls: true
+    settings.allowRunningInsecureContent: components.settings.isUsingExternalWebClient()
+    settings.playbackRequiresUserGesture: false
     profile.httpUserAgent: components.system.getUserAgent()
     url: mainWindow.webUrl
     focus: true

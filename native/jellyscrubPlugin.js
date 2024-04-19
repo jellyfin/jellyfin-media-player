@@ -5,10 +5,9 @@ class jellyscrubPlugin {
         this.id = 'jellyscrubPlugin';
 
         (async() => {
-            const api = await window.apiPromise;
-            const enabled = await new Promise(resolve => {
-                api.settings.value('plugins', 'jellyscrub', resolve);
-            });
+            await window.initCompleted;
+            const enabled = window.jmpInfo.settings.plugins.jellyscrub;
+
             console.log("JellyScrub Plugin enabled: " + enabled);
             if (!enabled) return;
 

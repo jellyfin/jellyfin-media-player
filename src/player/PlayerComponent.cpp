@@ -1243,7 +1243,7 @@ void PlayerComponent::updateVideoSettings()
 
   QString hardwareDecodingMode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "hardwareDecoding").toString();
   QString hwdecMode = "no";
-  QString hwdecVTFormat = "nv12";
+  QString hwdecVTFormat = "no";
   if (hardwareDecodingMode == "enabled")
     hwdecMode = "auto";
   else if (hardwareDecodingMode == "osx_compat")

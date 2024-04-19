@@ -151,9 +151,11 @@ class mpvVideoPlayer {
             this.osdObserver = new MutationObserver(function(mutations) {
                 if (target.classList.contains('videoOsdBottom-hidden')) {
                     console.log('OSD hidden');
+                    document.body.style.cursor = 'none';
                     window.api.player.setVideoRectangle(0, 0, 0, 0);
                 } else {
                     console.log('OSD shown');
+                    document.body.style.cursor = 'default';
                     window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
                 }
             });
@@ -267,6 +269,158 @@ class mpvVideoPlayer {
          * @private
          */
         this.onEnded = () => {
+    this.onEndedInternal();
+};
+
+/**
+ * @private
+ */
+this.onTimeUpdate = (time) => {
+    if (time && !this._timeUpdated) {
+        this._timeUpdated = true;
+    }
+
+    this._currentTime = time;
+    this.events.trigger(this, 'timeupdate');
+};
+
+/**
+ * @private
+ */
+this.onNavigatedToOsd = () => {
+    const dlg = this._videoDialog;
+    if (dlg) {
+        dlg.style.zIndex = 'unset';
+    }
+
+    document.body.parentElement.classList.remove('transparentDocument');
+
+    // no direct way to know when OSD is hidden
+    if (this.osdObserver) {
+        this.osdObserver.disconnect();
+        this.osdObserver = null;
+    }
+
+    const target = document.querySelector('.videoOsdBottom');
+    this.osdObserver = new MutationObserver(function(mutations) {
+        if (target.classList.contains('videoOsdBottom-hidden')) {
+            console.log('OSD hidden');
+            window.api.player.setVideoRectangle(0, 0, 0, 0);
+        } else {
+            console.log('OSD shown');
+            window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
+        }
+    });
+
+    this.osdObserver.observe(target, { attributes: true });
+};
+
+/**
+ * @private
+ */
+this.onPlaying = () => {
+    if (!this._started) {
+        this._started = true;
+
+        this.loading.hide();
+
+        const volume = this.getSavedVolume() * 100;
+        this.setVolume(volume, false);
+
+        this.setPlaybackRate(this.getPlaybackRate());
+
+        if (this._currentPlayOptions.fullscreen) {
+            this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
+        } else {
+            this._videoDialog.dlg.style.zIndex = 'unset';
+        }
+
+        window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
+    }
+
+    if (this._paused) {
+        this._paused = false;
+        this.events.trigger(this, 'unpause');
+    }
+
+    this.events.trigger(this, 'playing');
+};
+
+/**
+ * @private
+ */
+this.onPause = () => {
+    this._paused = true;
+    // For Syncplay ready notification
+    this.events.trigger(this, 'pause');
+};
+
+this.onWaiting = () => {
+    this.events.trigger(this, 'waiting');
+};
+
+/**
+ * @private
+ * @param e {Event} The event received from the `<video>` element
+ */
+this.onError = async (error) => {
+    this.removeMediaDialog();
+    console.error(`media error: ${error}`);
+
+    const errorData = {
+        type: 'mediadecodeerror'
+    };
+
+    try {
+        await confirm({
+            title: "Playback Failed",
+            text: `Playback failed with error "${error}". Retry with transcode? (Note this may hang the player.)`,
+            cancelText: "Cancel",
+            confirmText: "Retry"
+        });
+    } catch (ex) {
+        // User declined retry
+        errorData.streamInfo = {
+            // Prevent jellyfin-web retrying with transcode
+            // which crashes the player
+            mediaSource: {
+                SupportsTranscoding: false
+            }
+        };
+    }
+
+    this.events.trigger(this, 'error', [errorData]);
+};
+
+this.onDuration = (duration) => {
+    this._duration = duration;
+};
+    }
+
+currentSrc() {
+    return this._currentSrc;
+}
+
+    async play(options) {
+    this._started = false;
+    this._timeUpdated = false;
+    this._currentTime = null;
+
+    this.resetSubtitleOffset();
+    this.loading.show();
+    window.api.power.setScreensaverEnabled(false);
+    const elem = await this.createMediaElement(options);
+    return await this.setCurrentSrc(elem, options);
+}
+
+getSavedVolume() {
+    return this.appSettings.get('volume') || 1;
+}
+
+/**
+ * @private
+ */
+this.onEnded = () => {
     this.onEndedInternal();
 };
 

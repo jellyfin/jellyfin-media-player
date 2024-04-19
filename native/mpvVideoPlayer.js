@@ -150,9 +150,11 @@
                 this.osdObserver = new MutationObserver(function(mutations) {
                     if (target.classList.contains('videoOsdBottom-hidden')) {
                         console.log('OSD hidden');
+                        document.body.style.cursor = 'none';
                         window.api.player.setVideoRectangle(0, 0, 0, 0);
                     } else {
                         console.log('OSD shown');
+                        document.body.style.cursor = 'default';
                         window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
                     }
                 });

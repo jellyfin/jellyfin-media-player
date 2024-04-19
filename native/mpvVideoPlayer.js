@@ -153,7 +153,7 @@
                         window.api.player.setVideoRectangle(0, 0, 0, 0);
                     } else {
                         console.log('OSD shown');
-                        window.api.player.setVideoRectangle(0, 68, 0, -100);
+                        window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
                     }
                 });
 
@@ -180,7 +180,7 @@
                         this._videoDialog.dlg.style.zIndex = 'unset';
                     }
 
-                    window.api.player.setVideoRectangle(0, 68, 0, -100);
+                    window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
                 }
 
                 if (this._paused) {

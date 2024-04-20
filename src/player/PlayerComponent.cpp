@@ -525,6 +525,10 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
           m_playbackCanceled = true;
           break;
         }
+        case MPV_END_FILE_REASON_EOF:
+        case MPV_END_FILE_REASON_QUIT:
+        case MPV_END_FILE_REASON_REDIRECT:
+          break;
       }
 
       if (!m_streamSwitchImminent)

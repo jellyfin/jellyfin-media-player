@@ -4,7 +4,6 @@
 #include <QMap>
 #include <QObject>
 #include <QFileSystemWatcher>
-#include <QRegExp>
 #include <QVariantMap>
 #include <QMutex>
 #include <utils/CachedRegexMatcher.h>

@@ -5,6 +5,7 @@ async function tryConnect(server) {
         if (!server.startsWith("http")) {
             server = "http://" + server;
         }
+        server = server.replace(/\/+$/, "");
 
         const url = new URL("/System/Info/Public", server);
         const response = await fetch(url);

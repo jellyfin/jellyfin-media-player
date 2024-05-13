@@ -30,8 +30,9 @@ function download_compat {
 }
 
 function get_webclient_version {
-    curl https://repo.jellyfin.org/releases/server/portable/versions/stable/web/ \
-     | tr '<>/' '\t' | grep '[0-9]\+\.[0-9]\+\.[0-9]\+' | cut -f 4 | sort -V | tail -n 1
+    curl https://repo.jellyfin.org/files/server/portable/latest-stable/any/ |
+    tr '<>/' '\t' | grep '[0-9]\+\.[0-9]\+\.[0-9]\+' | cut -f 3 | sort -V |
+    sed 's/[^0-9]*\([0-9]\+\.[0-9]\+\.[0-9]\+\)[^0-9]*/\1/g' | tail -n 1
 }
 
 if [[ "$1" == "--gen-fingerprint" ]]
@@ -60,13 +61,14 @@ if [[ "$update_web_client" == "yes" ]]
 then
     echo "Downloading web client..."
     wc_version=$(get_webclient_version)
-    download_compat dist.tar.gz "https://repo.jellyfin.org/releases/server/portable/versions/stable/web/${wc_version}/jellyfin-web_${wc_version}_portable.tar.gz" "wc"
+    download_compat dist.tar.gz "https://repo.jellyfin.org/files/server/portable/latest-stable/any/jellyfin_${wc_version}.tar.gz" "wc"
     if [[ "$DOWNLOAD_ONLY" != "1" ]]
     then
         rm -r build/dist 2> /dev/null
         rm -r dist 2> /dev/null
         tar -xvf dist.tar.gz > /dev/null && rm dist.tar.gz
-        mv "jellyfin-web_${wc_version}" build/dist
+        mv "jellyfin/jellyfin-web" build/dist
+        rm -r jellyfin
     fi
     echo "$wc_version" > .last_wc_version
 fi

@@ -85,11 +85,9 @@ jobs:
         7z x mpv.7z
         mkdir mpv
         mv include mpv
+        gendef libmpv-2.dll
         mv libmpv-2.dll mpv/mpv.dll
-        echo "LIBRARY MPV" > mpv.def.fixed
-        echo "EXPORTS" >> mpv.def.fixed
-        cat mpv.def >> mpv.def.fixed
-        mv mpv.def.fixed mpv.def
+        mv libmpv-2.def mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash
@@ -131,11 +129,9 @@ jobs:
         7z x mpv.7z
         mkdir mpv
         mv include mpv
+        gendef libmpv-2.dll
         mv libmpv-2.dll mpv/mpv.dll
-        echo "LIBRARY MPV" > mpv.def.fixed
-        echo "EXPORTS" >> mpv.def.fixed
-        cat mpv.def >> mpv.def.fixed
-        mv mpv.def.fixed mpv.def
+        mv libmpv-2.def mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
       shell: bash

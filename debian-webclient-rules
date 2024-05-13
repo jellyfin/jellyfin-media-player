@@ -7,7 +7,7 @@ override_dh_auto_configure:
 	DOWNLOAD_ONLY=1 ./download_webclient.sh
 	tar -xzf dist.tar.gz
 	mkdir obj-x86_64-linux-gnu
-	mv jellyfin-web_* obj-x86_64-linux-gnu/dist
+	mv jellyfin/jellyfin-web obj-x86_64-linux-gnu/dist
 	dh_auto_configure $@
 
 override_dh_auto_clean:

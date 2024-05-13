@@ -210,17 +210,21 @@ bool PlayerComponent::componentInitialize()
 
   updateAudioDeviceList();
   setAudioConfiguration();
-  updateSubtitleSettings();
-  updateVideoSettings();
-
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_VIDEO), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::updateVideoSettings);
-
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_SUBTITLES), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::updateSubtitleSettings);
+  setVideoConfiguration();
+  setSubtitleConfiguration();
+  setOtherConfiguration();
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::setAudioConfiguration);
+          this, &PlayerComponent::updateAudioConfiguration);
+
+  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_VIDEO), &SettingsSection::valuesUpdated,
+          this, &PlayerComponent::updateVideoConfiguration);
+
+  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_SUBTITLES), &SettingsSection::valuesUpdated,
+          this, &PlayerComponent::updateSubtitleConfiguration);
+
+  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER), &SettingsSection::valuesUpdated,
+          this, &PlayerComponent::updateConfiguration);
 
   initializeCodecSupport();
   Codecs::initCodecs();
@@ -306,7 +310,7 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   m_mediaFrameRate = metadata["frameRate"].toFloat(); // returns 0 on failure
   m_serverMediaInfo = metadata["media"].toMap();
 
-  updateVideoSettings();
+  updateVideoConfiguration();
 
   QUrl qurl = url;
   QString host = qurl.host();
@@ -397,7 +401,7 @@ bool PlayerComponent::switchDisplayFrameRate()
   }
 
   // Make sure settings dependent on the display refresh rate are updated properly.
-  updateVideoSettings();
+  updateVideoConfiguration();
   return true;
 }
 
@@ -413,7 +417,7 @@ void PlayerComponent::onRestoreDisplay()
 void PlayerComponent::onRefreshRateChange()
 {
   // Make sure settings dependent on the display refresh rate are updated properly.
-  updateVideoSettings();
+  updateVideoConfiguration();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1059,6 +1063,13 @@ void PlayerComponent::updateAudioDevice()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::updateAudioConfiguration()
+{
+  setAudioConfiguration();
+  setOtherConfiguration();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setAudioConfiguration()
 {
   QString deviceType = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "devicetype").toString();
@@ -1142,10 +1153,29 @@ void PlayerComponent::setAudioConfiguration()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::updateSubtitleSettings()
+void PlayerComponent::updateSubtitleConfiguration()
 {
+  setSubtitleConfiguration();
+  setOtherConfiguration();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setSubtitleConfiguration()
+{
+  bool assScaleBorderAndShadow = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "ass_scale_border_and_shadow").toBool();
+  mpv::qt::set_property(m_mpv, "sub-ass-style-overrides", assScaleBorderAndShadow ? "ScaledBorderAndShadow=yes" : "ScaledBorderAndShadow=no");
+
+  QString assStyleOverride = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "ass_style_override").toString();
+  if (!assStyleOverride.isEmpty())
+  {
+    mpv::qt::set_property(m_mpv, "sub-ass-override", assStyleOverride);
+  }
+
   QVariant size = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "size");
-  mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
+  if (size != -1)
+  {
+    mpv::qt::set_property(m_mpv, "sub-scale", size.toInt() / 32.0);
+  }
 
   QString font = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "font").toString();
   if (!font.isEmpty())
@@ -1163,6 +1193,12 @@ void PlayerComponent::updateSubtitleSettings()
   if (!borderColor.isEmpty())
   {
     mpv::qt::set_property(m_mpv, "sub-border-color", borderColor);
+  }
+
+  QVariant borderSize = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "border_size");
+  if (borderSize != -1)
+  {
+    mpv::qt::set_property(m_mpv, "sub-border-size", borderSize.toInt());
   }
 
   QString backgroundColor = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "background_color").toString();
@@ -1231,7 +1267,14 @@ void PlayerComponent::updateVideoAspectSettings()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::updateVideoSettings()
+void PlayerComponent::updateVideoConfiguration()
+{
+  setVideoConfiguration();
+  setOtherConfiguration();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setVideoConfiguration()
 {
   if (!m_mpv)
     return;
@@ -1270,6 +1313,37 @@ void PlayerComponent::updateVideoSettings()
   mpv::qt::set_property(m_mpv, "demuxer-max-bytes", cache.toInt() * 1024 * 1024);
 
   updateVideoAspectSettings();
+  setOtherConfiguration();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setOtherConfiguration()
+{
+  QString otherConfiguration = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "other_conf").toString();
+  qDebug() << "Parsing other configuration: "+otherConfiguration;
+  QStringList configurationList = otherConfiguration.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
+
+  for(const QString& configuration : configurationList)
+  {
+    int splitIndex = configuration.indexOf("=");
+    int configurationLength = configuration.length();
+    if (splitIndex > 0 && splitIndex < configurationLength - 1)
+    {
+      QString configurationKey = configuration.left(splitIndex).remove(QRegExp("^([\"]+)")).remove(QRegExp("([\"]+)$")); 
+      QString configurationValue = configuration.right(configurationLength - splitIndex - 1).remove(QRegExp("^([\"]+)")).remove(QRegExp("([\"]+)$"));
+      mpv::qt::set_property(m_mpv, configurationKey, configurationValue);
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::updateConfiguration()
+{
+  setAudioConfiguration();
+  setVideoConfiguration();
+  setSubtitleConfiguration();
+  setOtherConfiguration();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

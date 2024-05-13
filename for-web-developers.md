@@ -196,18 +196,25 @@ Current Settings:
      - `aspect: string enum`: Allows control of aspect ratio. The default is `normal`.
          - Options: `normal`, `zoom`, `force_4_3`, `force_16_9`, `force_16_9_if_4_3`, `stretch`, `noscaling`, `custom`
  - Subtitle Section (`subtitles`):
-     - `placement: string enum`: Controls where subtitles are displayed on the screen. Default: `center,bottom`
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L352-L359)
-     - `color: string enum`: Controls colors of subtitles. Default: `#EEEEEE`
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L421-L427)
-     - `border_color: string enum`: Controls font border colors of subtitles. Default: `#000000`
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L434-L440)
-     - `background_color: string enum`: Controls backgroud colors of subtitles. Default: `#CCCCCC`
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L447-L453)
-     - `background_transparency: string enum`: Controls backgroud transparency (in hex) of subtitles. Default: `00`
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L460-L464)
-     - `size: int`: Controls subtitle size. Default is `32`.
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L376-L382)
+     - `ass_scale_border_and_shadow`: Controls whether or not ASS subtitles scale their border and shadow with the video resolution. Default `true` 
+     - `ass_style_override: string enum`: Controls whether user style override should be applied to ASS subtitles. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L412-L419)
+     - `placement: string enum`: Controls where subtitles are displayed on the screen. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L424-L432)
+     - `color: string enum`: Controls colors of subtitles. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L437-L446)
+     - `border_color: string enum`: Controls font border colors of subtitles. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L451-L460)
+     - `border_size: int`: Controls subtitle border size. Default is `-1`.
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L465-L473)
+     - `background_color: string enum`: Controls backgroud colors of subtitles. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L478-L487)
+     - `background_transparency: string enum`: Controls backgroud transparency (in hex) of subtitles. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L492-L499)
+     - `size: int`: Controls subtitle size. Default is `-1`.
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L504-L511)
+     - `font: string enum`: Specify font to use for subtitles that do not themselves specify a particular font. Default: ``
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L515-L525)
 
 The global `window.jmpInfo` object contains settings for the application in the form of `window.jmpInfo.settings.[section][key] = value`.
 Settings descriptions are stored in the form `window.jmpInfo.settingsDescriptions.[section] = [{ key, options }]`

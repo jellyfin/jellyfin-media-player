@@ -17,6 +17,7 @@
   },
   {
     "section": "main",
+    "order": 1,
     "values": [
       {
         "value": "webMode",
@@ -38,6 +39,8 @@
       },
       {
         "value": "fullscreen",
+        "display_name": "Full Screen",
+        "help": "Forces the application into fullscreen mode.\nNote: Regular HTML5 fullscreen does still work.",
         "default": false,
         "platforms_excluded": "oe"
       },
@@ -49,6 +52,8 @@
       },
       {
         "value": "alwaysOnTop",
+        "display_name": "Always on Top",
+        "help": "Keeps Jellyfin Media Player on top of other windows.",
         "default": false
       },
       {
@@ -78,7 +83,8 @@
       },
       {
         "value": "useOpenGL",
-        // Warning: the default must be the same as the one in preinitQt().
+        "display_name": "Use OpenGL",
+        "help": "Controls display method.",
         "default": false,
         "platforms": [ "windows" ]
       },
@@ -92,7 +98,6 @@
         "default": [
           {
             "value": true,
-            // MMAL works just fine
             "platforms": [ "oe" ]
           },
           {
@@ -103,6 +108,8 @@
       },
       {
         "value": "forceFSScreen",
+        "display_name": "Force Full Screen Display",
+        "help": "Forces fullscreen to use a specific display.",
         "platforms_excluded": [ "oe" ],
         "default": ""
       },
@@ -118,10 +125,14 @@
       },
       {
         "value": "checkForUpdates",
+        "display_name": "Check For Updates",
+        "help": "Allows user to disable update check plugin script.",
         "default": true
       },
       {
         "value": "enableInputRepeat",
+        "display_name": "Enable Input Repeat",
+        "help": "Allows disabling repeating of control inputs.",
         "default": true
       },
       {
@@ -131,11 +142,15 @@
       },
       {
         "value": "autodetectCertBundle",
+        "display_name": "Auto-Detect Certificate Bundle",
+        "help": "Allows use of system certificates for TLS.",
         "default": false,
         "platforms": [ "linux" ]
       },
       {
         "value": "forceExternalWebclient",
+        "display_name": "Force External Web Client",
+        "help": "Allows the user to connect to external webclients even if the bundled one is available.\nThis has not landed in a released version yet.",
         "default": false
       },
       {
@@ -145,11 +160,13 @@
       },
       {
         "value": "enableWindowsMediaIntegration",
+        "display_name": "Enable Windows Media Integration",
         "default": true,
         "platforms": [ "windows" ]
       },
       {
         "value": "enableWindowsTaskbarIntegration",
+        "display_name": "Enable Windows Taskbar Integration",
         "default": true,
         "platforms": [ "windows" ]
       }
@@ -157,27 +174,35 @@
   },
   {
     "section": "plugins",
+    "order": 5,
     "values": [
       {
         "value": "skipintro",
+        "display_name": "Skip Intro",
+        "help": "Enables a built-in skip intro plugin based off of ConfusedPolarBear's Intro-Skipper plugin (https://github.com/ConfusedPolarBear/intro-skipper).",
         "default": false
       }
     ]
   },
   {
     "section": "audio",
+    "order": 2,
     "values": [
       {
         "value": "devicetype",
+        "display_name": "Device Type",
+        "help": "Sets the device type. Can be \"Basic\", \"S/PDIF\", or \"HDMI\".\n\n- Basic: disables passthrough.\n- S/PDIF: transcodes surround sound to specific formats.\n- HDMI: supports additional passthrough options.",
         "default": "basic",
         "possible_values": [
-          [ "basic", "audio.basic" ],
-          [ "spdif", "audio.spdif" ],
-          [ "hdmi", "audio.hdmi" ]
+          [ "basic", "Basic" ],
+          [ "spdif", "S/PDIF" ],
+          [ "hdmi", "HDMI" ]
         ]
       },
       {
         "value": "channels",
+        "display_name": "Channels",
+        "help": "Sets how many audio channels are allowed. The default is \"Stereo\" except on MacOS where it is \"Auto\".\n\n- Auto: automatically set.\n- Stereo: 2 channel stereo.\n- 5.1 Surround Sound: up to 5.1 surround sound.\n- 7.1 Surround Sound: up to 7.1 surround sound.",
         "default": [
           {
             "value": "auto",
@@ -188,45 +213,61 @@
           }
         ],
         "possible_values": [
-          [ "auto", "audio.auto" ],
-          [ "2.0", "audio.stereo" ],
-          [ "5.1,2.0", "audio.51" ],
-          [ "7.1,5.1,2.0", "audio.71" ]
+          [ "auto", "Auto" ],
+          [ "2.0", "Stereo" ],
+          [ "5.1,2.0", "5.1 Surround Sound" ],
+          [ "7.1,5.1,2.0", "7.1 Surround Sound" ]
         ]
       },
       {
         "value": "device",
+        "display_name": "Device",
+        "help": "Allows forcing media output to a specific device. The default is \"Auto\".",
         "default": "auto"
       },
       {
         "value": "normalize",
+        "display_name": "Normalize",
+        "help": "Enable audio volume normalization.",
         "default": true
       },
       {
         "value": "exclusive",
+        "display_name": "Exclusive",
+        "help": "Takes exclusive control of audio device. The default is disabled.",
         "default": false,
         "platforms": [ "osx", "windows" ]
       },
       {
         "value": "passthrough.ac3",
+        "display_name": "AC3 Passthrough",
+        "help": "Enables AC3 passthrough. Requires \"S/PDIF\", or \"HDMI\" device type. The default is disabled.",
         "default": false
       },
       {
         "value": "passthrough.dts",
+        "display_name": "DTS Passthrough",
+        "help": "Enables DTS passthrough. Requires \"S/PDIF\", or \"HDMI\" device type. The default is disabled.",
         "default": false
       },
       {
         "value": "passthrough.eac3",
+        "display_name": "E-AC3 Passthrough",
+        "help": "Enables E-AC3 passthrough. Requires \"HDMI\" device type. The default is disabled.",
         "default": false,
         "platforms_excluded": [ "osx", "oe_rpi" ]
       },
       {
         "value": "passthrough.dts-hd",
+        "display_name": "DTS-HD Passthrough",
+        "help": "Enables DTS-HD passthrough. Requires \"HDMI\" device type. The default is disabled.",
         "default": false,
         "platforms_excluded": [ "osx", "oe_rpi" ]
       },
       {
         "value": "passthrough.truehd",
+        "display_name": "TrueHD Passthrough",
+        "help": "Enables TrueHD passthrough. Requires \"HDMI\" device type. The default is disabled.",
         "default": false,
         "platforms_excluded": [ "osx", "oe_rpi" ]
       }
@@ -234,6 +275,7 @@
   },
   {
     "section": "video",
+    "order": 3,
     "values": [
       {
         "value": "debug.force_vo",
@@ -242,6 +284,8 @@
       },
       {
         "value": "refreshrate.auto_switch",
+        "display_name": "Display Refresh Rate Sync",
+        "help": "Sets the display refresh rate to the media refresh rate. The default is disabled.",
         "default": false
       },
       {
@@ -256,64 +300,81 @@
       },
       {
         "value": "hardwareDecoding",
+        "display_name": "Hardware Decoding",
+        "help": "Sets the hardware decoding method. The default is \"copy\"\n\n- Enabled: full hardware acceleration. Removes MPV shader pipelines. Can cause issues more often.\n- Copy: uses hardware decoding but copies the video through MPV's shader pipelines.\n- Disabled: completely disable hardware decoding. Use this if video is glitchy.",
         "default": "copy",
         "possible_values": [
-          [ "enabled", "video.decode.enabled", { "platforms_excluded": "osx" } ],
-          [ "enabled", "video.decode.enabled.modern", { "platforms": "osx" } ],
-          [ "osx_compat", "video.decode.enabled.old", { "platforms": "osx" } ],
-          [ "copy", "video.decode.copy" ],
-          [ "disabled", "video.decode.disabled" ]
+          [ "enabled", "Enabled", { "platforms_excluded": "osx" } ],
+          [ "enabled", "Enabled (Modern)", { "platforms": "osx" } ],
+          [ "osx_compat", "Enabled (Old)", { "platforms": "osx" } ],
+          [ "copy", "Copy" ],
+          [ "disabled", "Disabled" ]
         ],
         "platforms_excluded": "oe_rpi"
       },
       {
         "value": "deinterlace",
+        "display_name": "Deinterlace",
+        "help": "Enables deinterlacing. The default is disabled.",
         "default": false,
         "platforms_excluded": "oe_rpi"
       },
       {
-        "value": "allow_transcode_to_hevc",
-        "default": false
-      },
-      {
-        "value": "force_transcode_hdr",
-        "default": false
-      },
-      {
         "value": "prefer_transcode_to_h265",
+        "display_name": "Prefer Transcode to H.265",
         "default": false
       },
       {
-        "value": "force_transcode_hi10p",
+        "value": "allow_transcode_to_hevc",
+        "display_name": "Allow Transcode to HEVC",
+        "help": "If set, it allows transcoding to \"HEVC\" in the video profile. The default is false.\n\nThis is mostly added as a workaround for Dolby Vision content direct playing when it shouldn't.",
         "default": false
       },
       {
         "value": "force_transcode_hevc",
-        "default": false
-      },
-      {
-        "value": "force_transcode_av1",
+        "display_name": "Force Transcode HEVC",
         "default": false
       },
       {
         "value": "force_transcode_4k",
+        "display_name": "Force Transcode 4K",
         "default": false
       },
       {
-        "value": "always_force_transcode",
+        "value": "force_transcode_av1",
+        "display_name": "Force Transcode AV1",
+        "default": false
+      },
+      {
+        "value": "force_transcode_hdr",
+        "display_name": "Force Transcode HDR",
+        "help": "If set, HDR media support is dropped from the video profile. The default is false.",
+        "default": false
+      },
+      {
+        "value": "force_transcode_hi10p",
+        "display_name": "Force Transcode Hi10P",
         "default": false
       },
       {
         "value": "force_transcode_dovi",
+        "display_name": "Force Transcode Dolby Vision",
         "default": true
       },
       {
+        "value": "always_force_transcode",
+        "display_name": "Always Force Transcode",
+        "default": false
+      },
+      {
         "value": "sync_mode",
+        "display_name": "AV Sync Mode",
+        "help": "How the player synchronizes audio and video.\n\nIf you use this option, you usually want to set it to display-resample to enable a timing mode that tries to not skip or repeat frames when for example playing 24fps video on a 24Hz screen.\n\n- Audio: time video frames to audio. This is the most robust mode, because the player doesn't have to assume anything about how the display behaves. The disadvantage is that it can lead to occasional frame drops or repeats. If audio is disabled, this uses the system clock. This is the default mode.\n\n- Resample: resample audio to match the video. This mode will also try to adjust audio speed to compensate for other drift. (This means it will play the audio at a different speed every once in a while to reduce the A/V difference.)\n\n- Audio Drop: drop or repeat audio data to compensate desyncing video. This mode will cause severe audio artifacts if the real monitor refresh rate is too different from the reported or forced rate. Since mpv 0.33.0, this acts on entire audio frames, instead of single samples.",
         "default": "audio",
         "possible_values": [
-          [ "audio", "video.sync.audio" ],
-          [ "display-resample", "video.sync.resample" ],
-          [ "display-adrop", "video.sync.adrop" ]
+          [ "audio", "Audio" ],
+          [ "display-resample", "Resample" ],
+          [ "display-adrop", "Audio Drop" ]
         ]
       },
       {
@@ -358,30 +419,34 @@
       },
       {
         "value": "cache",
+        "display_name": "Cache Size",
+        "help": "Controls cache size in MB for video streaming. The default is 75 MB",
         "default": 75,
         "possible_values": [
-          [ 10, "video.cache.tiny" ],
-          [ 75, "video.cache.default" ],
-          [ 150, "video.cache.large", { "platforms_excluded": "oe_rpi" } ],
-          [ 500, "video.cache.vlarge", { "platforms_excluded": "oe_rpi" } ]
+          [ 10, "Tiny (10 MB)" ],
+          [ 75, "Default (75 MB)" ],
+          [ 150, "Large (150 MB)", { "platforms_excluded": "oe_rpi" } ],
+          [ 500, "Very Large (500 MB)", { "platforms_excluded": "oe_rpi" } ]
         ]
       },
       {
         "value": "aspect",
+        "display_name": "Aspect Ratio",
         "default": "normal",
         "possible_values": [
-          [ "normal", "video.aspect.normal" ],
-          [ "zoom", "video.aspect.zoom" ],
-          [ "force_4_3", "video.aspect.force43" ],
-          [ "force_16_9", "video.aspect.force169" ],
-          [ "force_16_9_if_4_3", "video.aspect.force169if43" ],
-          [ "stretch", "video.aspect.stretch" ],
-          [ "noscaling", "video.aspect.noscale" ],
-          [ "custom", "video.aspect.custom" ]
+          [ "custom", "Default" ],
+          [ "normal", "Normal" ],
+          [ "zoom", "Zoom" ],
+          [ "force_4_3", "Force 4:3" ],
+          [ "force_16_9", "Force 16:9" ],
+          [ "force_16_9_if_4_3", "Force 16:9 if 4:3" ],
+          [ "stretch", "Stretch" ],
+          [ "noscaling", "No Scale" ]
         ]
       },
       {
         "value": "default_playback_speed",
+        "display_name": "Default Playback Speed",
         "default": 1.0,
         "possible_values": [
           [ 0.5, "0.5x" ],
@@ -397,91 +462,140 @@
   },
   {
     "section": "subtitles",
+    "order": 4,
     "values": [
       {
-        "value": "placement",
-        "default": "center,bottom",
+        "value": "ass_scale_border_and_shadow",
+        "display_name": "ASS Scale Border and Shadow",
+        "help": "For ASS format subtitles, ensures that the text borders and shadows scale proportionally with the resolution.",
+        "default": true
+      },
+      {
+        "value": "ass_style_override",
+        "display_name": "ASS Style Override",
+        "help": "Control whether user style overrides should be applied. Note that all of these overrides try to be somewhat smart about figuring out whether or not a subtitle is considered a \"sign\".\n\nNo:	Render subtitles as specified by the subtitle scripts, without overrides.\nYes:	Apply all the --sub-ass-* style override options. Changing the default for any of these options can lead to incorrect subtitle rendering (default).\nForce:	Like yes, but also force all --sub-* options. Can break rendering easily.\nScale:	Like yes, but also apply --sub-scale.\nStrip:	Radically strip all ASS tags and styles from the subtitle. This is equivalent to the old --no-ass / --no-sub-ass options.\n\nThis also controls some bitmap subtitle overrides, as well as HTML tags in formats like SRT, despite the name of the option.",
+        "default": "",
         "possible_values": [
-          [ "left,bottom", "subtitles.leftBottom" ],
-          [ "right,bottom", "subtitles.rightBottom" ],
-          [ "center,bottom", "subtitles.centerBottom" ],
-          [ "left,top", "subtitles.leftTop" ],
-          [ "right,top", "subtitles.rightTop" ],
-          [ "center,top", "subtitles.centerTop" ]
+          [ "", "Default" ],
+          [ "yes", "Yes" ],
+          [ "no", "No" ],
+          [ "force", "Force" ],
+          [ "scale", "Scale" ],
+          [ "strip", "Strip" ]
+        ]
+      },
+      {
+        "value": "placement",
+        "display_name": "Placement",
+        "default": "",
+        "possible_values": [
+          [ "", "Default" ],
+          [ "left,bottom", "Left, Bottom" ],
+          [ "right,bottom", "Right, Bottom" ],
+          [ "center,bottom", "Center, Bottom" ],
+          [ "left,top", "Left, Top" ],
+          [ "right,top", "Right, Top" ],
+          [ "center,top", "Center, Top" ]
         ]
       },
       {
         "value": "color",
-        "default": "#EEEEEE",
+        "display_name": "Color",
+        "default": "",
         "possible_values": [
-          [ "#000000", "subtitles.black" ],
-          [ "#FFFFFF", "subtitles.white" ],
-          [ "#EEEEEE", "subtitles.lightGrey" ],
-          [ "#CCCCCC", "subtitles.blendedLightGrey" ],
-          [ "#FBF93E", "subtitles.yellow" ],
-          [ "#FFFFCC", "subtitles.lightYellow" ],
-          [ "#EEEDB8", "subtitles.blendedLightYellow" ]
+          [ "", "Default" ],
+          [ "#000000", "Black" ],
+          [ "#FFFFFF", "White" ],
+          [ "#EEEEEE", "Light Grey" ],
+          [ "#CCCCCC", "Blended Light Grey" ],
+          [ "#FBF93E", "Yellow" ],
+          [ "#FFFFCC", "Light Yellow" ],
+          [ "#EEEDB8", "Blended Light Yellow" ]
         ]
       },
       {
         "value": "border_color",
-        "default": "#000000",
+        "display_name": "Border Color",
+        "default": "",
         "possible_values": [
-          [ "#000000", "subtitles.black" ],
-          [ "#FFFFFF", "subtitles.white" ],
-          [ "#EEEEEE", "subtitles.lightGrey" ],
-          [ "#CCCCCC", "subtitles.blendedLightGrey" ],
-          [ "#FBF93E", "subtitles.yellow" ],
-          [ "#FFFFCC", "subtitles.lightYellow" ],
-          [ "#EEEDB8", "subtitles.blendedLightYellow" ]
+          [ "", "Default" ],
+          [ "#000000", "Black" ],
+          [ "#FFFFFF", "White" ],
+          [ "#EEEEEE", "Light Grey" ],
+          [ "#CCCCCC", "Blended Light Grey" ],
+          [ "#FBF93E", "Yellow" ],
+          [ "#FFFFCC", "Light Yellow" ],
+          [ "#EEEDB8", "Blended Light Yellow" ]
+        ]
+      },
+      {
+        "value": "border_size",
+        "display_name": "Border Size",
+        "default": -1,
+        "possible_values": [
+          [ -1, "Default" ],
+          [ 0, "None" ],
+          [ 1, "Tiny" ],
+          [ 2, "Small" ],
+          [ 3, "Normal" ],
+          [ 4, "Large" ],
+          [ 5, "Huge" ]
         ]
       },
       {
         "value": "background_color",
-        "default": "#CCCCCC",
+        "display_name": "Background Color",
+        "default": "",
         "possible_values": [
-          [ "#000000", "subtitles.black" ],
-          [ "#FFFFFF", "subtitles.white" ],
-          [ "#EEEEEE", "subtitles.lightGrey" ],
-          [ "#CCCCCC", "subtitles.blendedLightGrey" ],
-          [ "#FBF93E", "subtitles.yellow" ],
-          [ "#FFFFCC", "subtitles.lightYellow" ],
-          [ "#EEEDB8", "subtitles.blendedLightYellow" ]
+          [ "", "Default" ],
+          [ "#000000", "Black" ],
+          [ "#FFFFFF", "White" ],
+          [ "#EEEEEE", "Light Grey" ],
+          [ "#CCCCCC", "Blended Light Grey" ],
+          [ "#FBF93E", "Yellow" ],
+          [ "#FFFFCC", "Light Yellow" ],
+          [ "#EEEDB8", "Blended Light Yellow" ]
         ]
       },
       {
         "value": "background_transparency",
-        "default": "00",
+        "display_name": "Background Transparency",
+        "default": "",
         "possible_values": [
-          [ "FF", "subtitles.0%" ],
-          [ "C0", "subtitles.25%" ],
-          [ "80", "subtitles.50%" ],
-          [ "40", "subtitles.75%" ],
-          [ "00", "subtitles.100%" ]
+          [ "", "Default" ],
+          [ "FF", "0%" ],
+          [ "C0", "25%" ],
+          [ "80", "50%" ],
+          [ "40", "75%" ],
+          [ "00", "100%" ]
         ]
       },
       {
         "value": "size",
-        "default": 32,
+        "display_name": "Size",
+        "default": -1,
         "possible_values": [
-          [ 18, "subtitles.tiny" ],
-          [ 24, "subtitles.small" ],
-          [ 32, "subtitles.normal" ],
-          [ 42, "subtitles.large" ],
-          [ 60, "subtitles.huge" ]
+          [ -1, "Default" ],
+          [ 18, "Tiny" ],
+          [ 24, "Small" ],
+          [ 32, "Normal" ],
+          [ 42, "Large" ],
+          [ 60, "Huge" ]
         ]
       },
       {
         "value": "font",
+        "display_name": "Font",
         "default": "sans-serif",
         "possible_values": [
-          [ "serif", "serif" ],
-          [ "sans-serif", "sans-serif" ],
-          [ "script", "script" ],
-          [ "monospace", "monospace" ],
-          [ "display", "display" ],
-          [ "cursive", "cursive" ],
-          [ "fantasy", "fantasy" ]
+          [ "", "Default" ],
+          [ "serif", "Serif" ],
+          [ "sans-serif", "Sans-Serif" ],
+          [ "script", "Script" ],
+          [ "monospace", "Monospace" ],
+          [ "display", "Display" ],
+          [ "cursive", "Cursive" ],
+          [ "fantasy", "Fantasy" ]
         ]
       }
     ]
@@ -569,6 +683,19 @@
           "default": false,
           "platforms": [ "oe" ]
         }
+    ]
+  },    
+  {
+    "section": "other",
+    "order": 6,
+    "values": [
+      { 
+        "value": "other_conf",
+        "display_name": "Manual MPV Configuration",
+        "help": "Configuration must be supplied in the same format as mpv.conf, with each configuration on a new line. i.e. \"sub-border-size=5\". Removing all set values of a configuration, from both here and the settings above, will only restore it to default once Jellyfin Media Player has restarted.",
+        "input_type": "textarea",
+        "default": ""
+      }
     ]
   }
 ]

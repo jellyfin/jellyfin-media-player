@@ -24,7 +24,6 @@ const plugins = [
     'mpvAudioPlayer',
     'jmpInputPlugin',
     'jmpUpdatePlugin',
-    'jellyscrubPlugin',
     'skipIntroPlugin'
 ];
 

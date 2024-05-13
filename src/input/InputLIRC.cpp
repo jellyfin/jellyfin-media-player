@@ -89,7 +89,7 @@ void InputLIRC::read(int handle)
 
   while ((input = socket->readLine()) != "")
   {
-    QStringList cmdList = input.split(' ', QString::KeepEmptyParts);
+    QStringList cmdList = input.split(' ', Qt::KeepEmptyParts);
     if (cmdList.size() == 4)
     {
       // grab the input data

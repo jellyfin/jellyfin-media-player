@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 # use a toolchain file if any for Embedded
 if (EXISTS "${CMAKE_SOURCE_DIR}/toolchain.cmake")
@@ -42,6 +42,9 @@ set_policy(CMP0020 NEW)
 set_policy(CMP0017 NEW)
 set_policy(CMP0058 NEW)
 set_policy(CMP0026 OLD)
+set_policy(CMP0071 NEW)
+set_policy(CMP0072 NEW)
+set_policy(CMP0148 OLD)
 
 include(utils)
 include(CompilerFlags)

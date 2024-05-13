@@ -7,7 +7,7 @@ jellyfin-media-player (1.9.1-1) unstable; urgency=medium
   * Fix missing port in translation. (#288)
   * Censor token from new stored creds block.
 
- -- Ian Walton <ian@iwalton.com>  Sun, 23 Apr 2023 13:12:09 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 23 Apr 2023 13:12:09 -0400
 
 jellyfin-media-player (1.9.0-1) unstable; urgency=medium
 
@@ -23,7 +23,7 @@ jellyfin-media-player (1.9.0-1) unstable; urgency=medium
   * Add delay to prevent broken update dialog. (#373)
   * Prevent Dolby Vision content playing without server transcoding.
 
- -- Ian Walton <ian@iwalton.com>  Sun, 12 Mar 2023 16:05:13 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 12 Mar 2023 16:05:13 -0400
 
 jellyfin-media-player (1.8.1-1) unstable; urgency=medium
 
@@ -35,7 +35,7 @@ jellyfin-media-player (1.8.1-1) unstable; urgency=medium
   * Allow screensaver when video is paused (#276)
   * Fix debian package for bookworm.
 
- -- Ian Walton <ian@iwalton.com>  Sun, 13 Feb 2023 05:36:50 -0500
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 13 Feb 2023 05:36:50 -0500
 
 jellyfin-media-player (1.7.1-1) unstable; urgency=medium
 
@@ -43,7 +43,7 @@ jellyfin-media-player (1.7.1-1) unstable; urgency=medium
   * Stop forcing fullscreen on Windows when visibility changes. (#94)
   * Update jellyfin-web client to 10.8.1.
 
- -- Ian Walton <ian@iwalton.com>  Sun, 26 Jun 2022 13:40:05 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 26 Jun 2022 13:40:05 -0400
 
 jellyfin-media-player (1.7.0-1) unstable; urgency=medium
 
@@ -57,13 +57,13 @@ jellyfin-media-player (1.7.0-1) unstable; urgency=medium
   * Add build for Ubuntu 22.04 (#256)
   * Enable windows dark mode support. (#247)
 
- -- Ian Walton <ian@iwalton.com>  Sat, 11 Jun 2022 09:45:44 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sat, 11 Jun 2022 09:45:44 -0400
 
 jellyfin-media-player (1.7.0-pre4) unstable; urgency=medium
 
   * Update web client to 10.8.0 Beta 1.
 
- -- Ian Walton <ian@iwalton.com>  Mon, 28 Mar 2022 21:21:58 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Mon, 28 Mar 2022 21:21:58 -0400
 
 jellyfin-media-player (1.7.0-pre3) unstable; urgency=medium
 
@@ -74,20 +74,20 @@ jellyfin-media-player (1.7.0-pre3) unstable; urgency=medium
   * Allow retry with transcode instead of usng a hard failure. (#127)
   * Add exit app function (not used yet) (#198)
 
- -- Ian Walton <ian@iwalton.com>  Sun, 16 Jan 2022 13:20:56 -0500
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 16 Jan 2022 13:20:56 -0500
 
 jellyfin-media-player (1.7.0-pre2) unstable; urgency=medium
 
   * Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.
   * Upgrade to MPV version 20211219 fd63bf3.
 
- -- Ian Walton <ian@iwalton.com>  Wed, 22 Dec 2021 17:34:43 -0500
+ -- Izzie Walton <izzie@iwalton.com>  Wed, 22 Dec 2021 17:34:43 -0500
 
 jellyfin-media-player (1.7.0-pre1) unstable; urgency=medium
 
   * This is a prerelease build to test for jellyfin-web 10.8.0.
 
- -- Ian Walton <ian@iwalton.com>  Sat, 18 Dec 2021 08:15:55 -0500
+ -- Izzie Walton <izzie@iwalton.com>  Sat, 18 Dec 2021 08:15:55 -0500
 
 jellyfin-media-player (1.6.1-1) unstable; urgency=medium
 
@@ -95,9 +95,9 @@ jellyfin-media-player (1.6.1-1) unstable; urgency=medium
   * Add dependency to libqt5xml5. (#103)
   * Fix hang after playback error. (#88)
   * Fix alt+tab switching on GNOME. (#84)
-  * Fix media key pause/play on Windows. (#83) 
+  * Fix media key pause/play on Windows. (#83)
 
- -- Ian Walton <ian@iwalton.com>  Sun, 01 Aug 2021 13:54:03 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 01 Aug 2021 13:54:03 -0400
 
 jellyfin-media-player (1.6.0-1) unstable; urgency=medium
 
@@ -110,9 +110,9 @@ jellyfin-media-player (1.6.0-1) unstable; urgency=medium
   * Use smaller jellyfin icon on macOS to match other icons.
   * Change default hwdec from enabled to copy.
   * Allow smaller window size.
-  * Add more error handling to AutoSet feature. 
+  * Add more error handling to AutoSet feature.
 
- -- Ian Walton <ian@iwalton.com>  Tue, 04 May 2021 20:51:33 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Tue, 04 May 2021 20:51:33 -0400
 
 jellyfin-media-player (1.5.0-1) unstable; urgency=medium
 
@@ -123,7 +123,7 @@ jellyfin-media-player (1.5.0-1) unstable; urgency=medium
   * Add Windows taskbar integration. (#61)
   * Fix volume OSD not showing on mute toggle. (#63)
 
- -- Ian Walton <ian@iwalton.com>  Sat, 24 Apr 2021 20:42:29 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sat, 24 Apr 2021 20:42:29 -0400
 
 jellyfin-media-player (1.4.1-1) unstable; urgency=medium
 
@@ -132,7 +132,7 @@ jellyfin-media-player (1.4.1-1) unstable; urgency=medium
   * Add config-only option to ignore SSL certificates. (#48)
   * Fix excessive width of options drop-downs in some cases.
 
- -- Ian Walton <ian@iwalton.com>  Mon, 19 Apr 2021 22:28:20 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Mon, 19 Apr 2021 22:28:20 -0400
 
 jellyfin-media-player (1.4.0-1) unstable; urgency=medium
 
@@ -145,7 +145,7 @@ jellyfin-media-player (1.4.0-1) unstable; urgency=medium
   * Allow file download option in web client again.
   * Fix more warnings in the codebase. (#32)
 
- -- Ian Walton <ian@iwalton.com>  Sun, 18 Apr 2021 14:47:24 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Sun, 18 Apr 2021 14:47:24 -0400
 
 jellyfin-media-player (1.3.1-1) unstable; urgency=medium
 
@@ -158,7 +158,7 @@ jellyfin-media-player (1.3.1-1) unstable; urgency=medium
   * Set white font color on modal and add class for css themes.
   * Upgrade jellyfin-web to 10.7.2.
 
- -- Ian Walton <ian@iwalton.com>  Tue, 13 Apr 2021 20:00:12 -0400
+ -- Izzie Walton <izzie@iwalton.com>  Tue, 13 Apr 2021 20:00:12 -0400
 
 jellyfin-media-player (1.3.0-1) unstable; urgency=medium
 

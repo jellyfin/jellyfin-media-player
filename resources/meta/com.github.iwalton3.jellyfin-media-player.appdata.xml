@@ -3,7 +3,7 @@
   <id>com.github.iwalton3.jellyfin-media-player</id>
   <name>Jellyfin Media Player</name>
   <summary>Desktop client for Jellyfin media server</summary>
-  <developer_name>Ian Walton</developer_name>
+  <developer_name>Izzie Walton</developer_name>
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://github.com/iwalton3/jellyfin-media-player</url>
@@ -39,6 +39,14 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.10.0" date="2024-05-13">
+        <p>Changes:</p>
+        <ul>
+          <li>Update web client to 10.9.1.</li>
+          <li>Switch to native Jellyfin Trickplay support.</li>
+          <li>Update runtimes.</li>
+        </ul>
+      </release>
       <release version="1.9.1" date="2023-04-23">
         <p>Changes:</p>
         <ul>

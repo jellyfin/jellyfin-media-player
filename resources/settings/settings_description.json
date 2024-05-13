@@ -181,12 +181,6 @@
         "display_name": "Skip Intro",
         "help": "Enables a built-in skip intro plugin based off of ConfusedPolarBear's Intro-Skipper plugin (https://github.com/ConfusedPolarBear/intro-skipper).",
         "default": false
-      },
-      {
-        "value": "jellyscrub",
-        "display_name": "Jellyscrub",
-        "help": "Enables a built-in thumbnail scrubber plugin based off of nicksny's Jellyscrub (https://github.com/nicknsy/jellyscrub).",
-        "default": false
       }
     ]
   },

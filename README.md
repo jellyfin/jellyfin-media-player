@@ -41,7 +41,7 @@ git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
 echo -Dlibmpv=true > mpv_options
 echo -Dpipewire=disabled >> mpv_options # hopefully temporary
-./rebuild -j4
+./rebuild -j`nproc`
 sudo ./install
 sudo ln -s /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1
 sudo ln -sf /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/libmpv.so.2
@@ -52,7 +52,7 @@ cd jellyfin-media-player
 ./download_webclient.sh
 cd build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
-make -j4
+make -j`nproc`
 sudo make install
 rm -rf ~/jmp/
 ```
@@ -73,7 +73,7 @@ git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build/
 echo -Dlibmpv=true > mpv_options
 echo -Dpipewire=disabled >> mpv_options # hopefully temporary
-./rebuild -j4
+./rebuild -j`nproc`
 sudo ./install
 sudo mkdir /usr/local/lib/x86_64-linux-gnu
 sudo ln -s /usr/local/lib64/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1
@@ -82,10 +82,10 @@ sudo ldconfig
 cd ~/jmp/
 git clone https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player/
-./download_webclient.sh 
+./download_webclient.sh
 cd build/
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
-make -j4
+make -j`nproc`
 sudo make install
 ```
 
@@ -185,7 +185,7 @@ This file can also be printed at runtime when using the ``--licenses`` option.
 
 ## Unofficial Plugin Support
 
-You can enable experimental support for [Jellyscrub](https://github.com/nicknsy/jellyscrub) and [Skip Intro](https://github.com/ConfusedPolarBear/intro-skipper) in client settings. These are included for convenience only and is not an endorsement or long-term commitment to ensure functionality. See `src/native` for details on what the plugins modify code-wise.
+You can enable experimental support for [Skip Intro](https://github.com/ConfusedPolarBear/intro-skipper) in client settings. These are included for convenience only and is not an endorsement or long-term commitment to ensure functionality. See `src/native` for details on what the plugins modify code-wise.
 
 ## Known Issues
 

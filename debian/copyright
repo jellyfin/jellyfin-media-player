@@ -3,7 +3,7 @@ Upstream-Name: jellyfin
 Source: https://github.com/jellyfin/jellyfin-media-player
 
 Files: *
-Copyright: 2018 Ian Walton
+Copyright: 2018 Izzie Walton
 License: GPL-2.0
 
 Files: debian/*

@@ -1,5 +1,4 @@
 include_directories(
-  ${CMAKE_SOURCE_DIR}/external/SPMediaKeyTap
   ${CMAKE_SOURCE_DIR}/external/HIDRemote
   ${CMAKE_SOURCE_DIR}/external/plistparser
   ${CMAKE_SOURCE_DIR}/external/letsmove

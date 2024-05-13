@@ -3,7 +3,7 @@
   <id>com.github.iwalton3.jellyfin-media-player</id>
   <name>Jellyfin Media Player</name>
   <summary>Desktop client for Jellyfin media server</summary>
-  <developer_name>Ian Walton</developer_name>
+  <developer_name>Izzie Walton</developer_name>
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://github.com/iwalton3/jellyfin-media-player</url>

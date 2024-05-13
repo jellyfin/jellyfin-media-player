@@ -31,7 +31,7 @@ git clone https://github.com/jellyfin/jellyfin-media-player.git --branch v1.9.1 
 
 Install dependancies:
 ```bash
-sudo apt install build-essential autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake wget python g++ qtwebengine5-dev qtquickcontrols2-5-dev libqt5x11extras5-dev libcec-dev qml-module-qtquick-controls qml-module-qtwebengine qml-module-qtwebchannel qtbase5-private-dev curl unzip
+sudo apt install build-essential autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake wget meson nasm ninja-build python3 g++ qtwebengine5-dev qtquickcontrols2-5-dev libqt5x11extras5-dev libcec-dev qml-module-qtquick-controls qml-module-qtwebengine qml-module-qtwebchannel qtbase5-private-dev curl unzip
 ```
 
 Build commands for Ubuntu:
@@ -39,8 +39,9 @@ Build commands for Ubuntu:
 mkdir ~/jmp; cd ~/jmp
 git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
+./use-mpv-release
+./update
 echo -Dlibmpv=true > mpv_options
-echo -Dpipewire=disabled >> mpv_options # hopefully temporary
 ./rebuild -j`nproc`
 sudo ./install
 sudo ln -s /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1
@@ -51,9 +52,9 @@ git clone https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player
 ./download_webclient.sh
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
-make -j`nproc`
-sudo make install
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ -G Ninja ..
+ninja
+sudo ninja install
 rm -rf ~/jmp/
 ```
 

@@ -150,7 +150,7 @@
       {
         "value": "forceExternalWebclient",
         "display_name": "Force External Web Client",
-        "help": "Allows the user to connect to external webclients even if the bundled one is available.\nThis has not landed in a released version yet.",
+        "help": "Allows the user to connect to external webclients even if the bundled one is available.",
         "default": false
       },
       {
@@ -684,12 +684,12 @@
           "platforms": [ "oe" ]
         }
     ]
-  },    
+  },
   {
     "section": "other",
     "order": 6,
     "values": [
-      { 
+      {
         "value": "other_conf",
         "display_name": "Manual MPV Configuration",
         "help": "Configuration must be supplied in the same format as mpv.conf, with each configuration on a new line. i.e. \"sub-border-size=5\". Removing all set values of a configuration, from both here and the settings above, will only restore it to default once Jellyfin Media Player has restarted.",

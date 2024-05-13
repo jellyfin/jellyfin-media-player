@@ -87,7 +87,7 @@ Note: The callback does NOT mean the video actually finished loading. You need t
     metadata: {
         // Only used for system UI integration, eg. taskbar/windows media.
         // Optional. Comes from Jellyfin metadata item.
-        // Known used items are documented below. 
+        // Known used items are documented below.
         Id: 'media uuid',
         MediaType: 'video',
         ImageTags: {
@@ -158,7 +158,6 @@ Current Settings:
      - `userWebClient: string`: Hidden option. Set it back to an empty string to allow the user to select a different webclient path.
  - Plugins Section (`plugins`):
      - `skipintro: boolean`: Enables or disabled the plugin. You likely won't use this.
-     - `jellyscrub: boolean`: Enables or disabled the plugin. You likely won't use this.
  - Audio Section (`audio`):
      - `devicetype: string enum`: Sets the device type. Can be `basic`, `spdif`, or `hdmi`.
          - `basic` disables passthrough
@@ -178,7 +177,7 @@ Current Settings:
      - `passthrough.dts: boolean`: Enable dts passthrough. Requires `spdif` or `hdmi` device type. Default: `false`
      - `passthrough.eac3: boolean`: Enable ac3 passthrough. Requires `hdmi` device type. Default: `false`
      - `passthrough.dts-hd": boolean`: Enable ac3 passthrough. Requires `hdmi` device type. Default: `false`
-     - `passthrough.truehd: boolean`: Enable ac3 passthrough. Requires `hdmi` device type. Default: `false`  
+     - `passthrough.truehd: boolean`: Enable ac3 passthrough. Requires `hdmi` device type. Default: `false`
  - Video Section (`video`):
      - `refreshrate.auto_switch: boolean`: Sets the display refresh rate to the media refresh rate. Default: `false`
          - This is only enabled while the player is fullscreen.

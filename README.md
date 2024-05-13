@@ -82,7 +82,7 @@ sudo ldconfig
 cd ~/jmp/
 git clone https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player/
-./download_webclient.sh 
+./download_webclient.sh
 cd build/
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
 make -j`nproc`
@@ -185,7 +185,7 @@ This file can also be printed at runtime when using the ``--licenses`` option.
 
 ## Unofficial Plugin Support
 
-You can enable experimental support for [Jellyscrub](https://github.com/nicknsy/jellyscrub) and [Skip Intro](https://github.com/ConfusedPolarBear/intro-skipper) in client settings. These are included for convenience only and is not an endorsement or long-term commitment to ensure functionality. See `src/native` for details on what the plugins modify code-wise.
+You can enable experimental support for [Skip Intro](https://github.com/ConfusedPolarBear/intro-skipper) in client settings. These are included for convenience only and is not an endorsement or long-term commitment to ensure functionality. See `src/native` for details on what the plugins modify code-wise.
 
 ## Known Issues
 

@@ -161,10 +161,6 @@
       {
         "value": "skipintro",
         "default": false
-      },
-      {
-        "value": "jellyscrub",
-        "default": false
       }
     ]
   },

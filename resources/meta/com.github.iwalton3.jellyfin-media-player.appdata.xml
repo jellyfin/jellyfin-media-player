@@ -3,7 +3,9 @@
   <id>com.github.iwalton3.jellyfin-media-player</id>
   <name>Jellyfin Media Player</name>
   <summary>Desktop client for Jellyfin media server</summary>
-  <developer_name>Izzie Walton</developer_name>
+  <developer id="com.github.iwalton3">
+    <name>Izzie Walton</name>
+  </developer>
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://github.com/iwalton3/jellyfin-media-player</url>
@@ -13,6 +15,7 @@
   <provides>
     <binary>jellyfinmediaplayer</binary>
   </provides>
+  <launchable type="desktop-id">com.github.iwalton3.jellyfin-media-player.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">
@@ -40,183 +43,215 @@
   </categories>
   <releases>
       <release version="1.10.0" date="2024-05-13">
-        <p>Changes:</p>
-        <ul>
-          <li>Update web client to 10.9.1.</li>
-          <li>Switch to native Jellyfin Trickplay support.</li>
-          <li>Update runtimes.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Update web client to 10.9.1.</li>
+            <li>Switch to native Jellyfin Trickplay support.</li>
+            <li>Update runtimes.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.9.1" date="2023-04-23">
-        <p>Changes:</p>
-        <ul>
-          <li>Update web client to 10.8.10 to patch stored XSS issue.</li>
-          <li>Skip searching for SSL bundles on Linux. (#301)</li>
-          <li>Disallow flac from video transcoding. (#423)</li>
-          <li>Allow disabling dovi transcode rule.</li>
-          <li>Fix missing port in translation. (#288)</li>
-          <li>Censor token from new stored creds block.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Update web client to 10.8.10 to patch stored XSS issue.</li>
+            <li>Skip searching for SSL bundles on Linux. (#301)</li>
+            <li>Disallow flac from video transcoding. (#423)</li>
+            <li>Allow disabling dovi transcode rule.</li>
+            <li>Fix missing port in translation. (#288)</li>
+            <li>Censor token from new stored creds block.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.9.0" date="2023-03-12">
-        <p>Changes:</p>
-        <ul>
-          <li>Add aspect ratio controls to player. (#388)</li>
-          <li>Don't reset mute between videos. (#349)</li>
-          <li>Auto-detect and switch SteamOS to TV mode. (#237)</li>
-          <li>Allow forcing transcodes for HEVC, Hi10p, 4K, HDR, and/or AV1.</li>
-          <li>Allow requesting the server to transcode to HEVC.</li>
-          <li>Improve usability of client API to make integrations with other clients easier.</li>
-          <li>Allow running JMP without an embedded webclient.</li>
-          <li>JMP now uses the official webclient build from repo.jellyfin.org.</li>
-          <li>Fix time breakage from skipIntroPlugin. (#387)</li>
-          <li>Add delay to prevent broken update dialog. (#373)</li>
-          <li>Prevent Dolby Vision content playing without server transcoding.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Add aspect ratio controls to player. (#388)</li>
+            <li>Don't reset mute between videos. (#349)</li>
+            <li>Auto-detect and switch SteamOS to TV mode. (#237)</li>
+            <li>Allow forcing transcodes for HEVC, Hi10p, 4K, HDR, and/or AV1.</li>
+            <li>Allow requesting the server to transcode to HEVC.</li>
+            <li>Improve usability of client API to make integrations with other clients easier.</li>
+            <li>Allow running JMP without an embedded webclient.</li>
+            <li>JMP now uses the official webclient build from repo.jellyfin.org.</li>
+            <li>Fix time breakage from skipIntroPlugin. (#387)</li>
+            <li>Add delay to prevent broken update dialog. (#373)</li>
+            <li>Prevent Dolby Vision content playing without server transcoding.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.8.1" date="2023-02-13">
-        <p>Changes:</p>
-        <ul>
-          <li>Update web client to 10.8.9.</li>
-          <li>Add support for Jellyscrub and Skip Intro. (Must be enabled manually, requires third-party plugins.)</li>
-          <li>Update to MPV version v0.35.1.</li>
-          <li>Add input map for DualShock 4 connected via USB (#359)</li>
-          <li>Add support for DVBSUB subtitles (#279)</li>
-          <li>Allow screensaver when video is paused (#276)</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Update web client to 10.8.9.</li>
+            <li>Add support for Jellyscrub and Skip Intro. (Must be enabled manually, requires third-party plugins.)</li>
+            <li>Update to MPV version v0.35.1.</li>
+            <li>Add input map for DualShock 4 connected via USB (#359)</li>
+            <li>Add support for DVBSUB subtitles (#279)</li>
+            <li>Allow screensaver when video is paused (#276)</li>
+          </ul>
+        </description>
       </release>
       <release version="1.7.1" date="2022-06-26">
-        <p>Changes:</p>
-        <ul>
-          <li>Fix audio and subtitle selection for 10.8.0. (#271)</li>
-          <li>Stop forcing fullscreen on Windows when visibility changes. (#94)</li>
-          <li>Update jellyfin-web client to 10.8.1.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Fix audio and subtitle selection for 10.8.0. (#271)</li>
+            <li>Stop forcing fullscreen on Windows when visibility changes. (#94)</li>
+            <li>Update jellyfin-web client to 10.8.1.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.7.0" date="2022-06-11">
-        <p>Changes:</p>
-        <ul>
-          <li>Update web client to 10.8.0.</li>
-          <li>Add --platform option. (#159)</li>
-          <li>Added Xbox input mapping. (#197)</li>
-          <li>Disable youtube-dl attempts on media errors.</li>
-          <li>Allow retry with transcode instead of usng a hard failure. (#127)</li>
-          <li>Add exit app function (#198)</li>
-          <li>Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.</li>
-          <li>Add build for Ubuntu 22.04 (#256)</li>
-          <li>Enable windows dark mode support. (#247)</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Update web client to 10.8.0.</li>
+            <li>Add --platform option. (#159)</li>
+            <li>Added Xbox input mapping. (#197)</li>
+            <li>Disable youtube-dl attempts on media errors.</li>
+            <li>Allow retry with transcode instead of usng a hard failure. (#127)</li>
+            <li>Add exit app function (#198)</li>
+            <li>Set the MaxStaticBitrate to avoid server hard-coded 8 mbps limit.</li>
+            <li>Add build for Ubuntu 22.04 (#256)</li>
+            <li>Enable windows dark mode support. (#247)</li>
+          </ul>
+        </description>
       </release>
       <release version="1.6.1" date="2021-08-01">
-        <p>Changes:</p>
-        <ul>
-          <li>Update jellyfin-web to 10.7.6.</li>
-          <li>Add dependency to libqt5xml5. (#103)</li>
-          <li>Fix hang after playback error. (#88)</li>
-          <li>Fix alt+tab switching on GNOME. (#84)</li>
-          <li>Fix media key pause/play on Windows. (#83)</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Update jellyfin-web to 10.7.6.</li>
+            <li>Add dependency to libqt5xml5. (#103)</li>
+            <li>Fix hang after playback error. (#88)</li>
+            <li>Fix alt+tab switching on GNOME. (#84)</li>
+            <li>Fix media key pause/play on Windows. (#83)</li>
+          </ul>
+        </description>
       </release>
       <release version="1.6.0" date="2021-05-04">
-        <p>Changes:</p>
-        <ul>
-          <li>Always set volume on playback. (#78)</li>
-          <li>Allow user to theme application icon on Linux. (#75)</li>
-          <li>Fix ignoreSSLErrors option on Linux. (#74)</li>
-          <li>Add Global Windows Media Key/OSD integration. (#73)</li>
-          <li>Enable drag-drop file uploads into web client. (#56)</li>
-          <li>Add option to create a Windows Desktop Shortcut.</li>
-          <li>Use smaller jellyfin icon on macOS to match other icons.</li>
-          <li>Change default hwdec from enabled to copy.</li>
-          <li>Allow smaller window size.</li>
-          <li>Add more error handling to AutoSet feature.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Always set volume on playback. (#78)</li>
+            <li>Allow user to theme application icon on Linux. (#75)</li>
+            <li>Fix ignoreSSLErrors option on Linux. (#74)</li>
+            <li>Add Global Windows Media Key/OSD integration. (#73)</li>
+            <li>Enable drag-drop file uploads into web client. (#56)</li>
+            <li>Add option to create a Windows Desktop Shortcut.</li>
+            <li>Use smaller jellyfin icon on macOS to match other icons.</li>
+            <li>Change default hwdec from enabled to copy.</li>
+            <li>Allow smaller window size.</li>
+            <li>Add more error handling to AutoSet feature.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.5.0" date="2021-04-24">
-        <p>Changes:</p>
-        <ul>
-          <li>Remember intended subtitle and audio selection between episodes.</li>
-          <li>Allow disabling the server's custom CSS.</li>
-          <li>Allow using custom CSS locally on the client. (Per user)</li>
-          <li>Fix scroll bar styling on TV mode.</li>
-          <li>Add Windows taskbar integration. (#61)</li>
-          <li>Fix volume OSD not showing on mute toggle. (#63)</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Remember intended subtitle and audio selection between episodes.</li>
+            <li>Allow disabling the server's custom CSS.</li>
+            <li>Allow using custom CSS locally on the client. (Per user)</li>
+            <li>Fix scroll bar styling on TV mode.</li>
+            <li>Add Windows taskbar integration. (#61)</li>
+            <li>Fix volume OSD not showing on mute toggle. (#63)</li>
+          </ul>
+        </description>
       </release>
       <release version="1.4.1" date="2021-04-19">
-        <p>Changes:</p>
-        <ul>
-          <li>Add update notifier.</li>
-          <li>Add option to disable input repeat. (#49)</li>
-          <li>Add config-only option to ignore SSL certificates. (#48)</li>
-          <li>Fix excessive width of options drop-downs in some cases.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Add update notifier.</li>
+            <li>Add option to disable input repeat. (#49)</li>
+            <li>Add config-only option to ignore SSL certificates. (#48)</li>
+            <li>Fix excessive width of options drop-downs in some cases.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.4.0" date="2021-04-18">
-        <p>Changes:</p>
-        <ul>
-          <li>Backport fix for images not loading.</li>
-          <li>Enable mouse back/forward buttons. (#42)</li>
-          <li>Fix subtitle offset support. (#35)</li>
-          <li>Add back support for TV mode, and also use configuration/command line flags.</li>
-          <li>Add support for some media keys, remotes, and controllers through inputmanager.</li>
-          <li>Enable hardware video decoding by default.</li>
-          <li>Allow file download option in web client again.</li>
-          <li>Fix more warnings in the codebase. (#32)</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Backport fix for images not loading.</li>
+            <li>Enable mouse back/forward buttons. (#42)</li>
+            <li>Fix subtitle offset support. (#35)</li>
+            <li>Add back support for TV mode, and also use configuration/command line flags.</li>
+            <li>Add support for some media keys, remotes, and controllers through inputmanager.</li>
+            <li>Enable hardware video decoding by default.</li>
+            <li>Allow file download option in web client again.</li>
+            <li>Fix more warnings in the codebase. (#32)</li>
+          </ul>
+        </description>
       </release>
       <release version="1.3.1" date="2021-04-13">
-        <p>Changes:</p>
-        <ul>
-          <li>Add builds for win32, debian, and ubuntu.</li>
-          <li>Fix music performance issue where there were excessive API calls (#22)</li>
-          <li>Fix fullscreen button in web player.</li>
-          <li>Add maximized window state preserving (#26)</li>
-          <li>Fix QT warnings (#24)</li>
-          <li>Fix wayland and wayland hwdec support (#20, #23)</li>
-          <li>Set white font color on modal and add class for css themes.</li>
-          <li>Upgrade jellyfin-web to 10.7.2.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Add builds for win32, debian, and ubuntu.</li>
+            <li>Fix music performance issue where there were excessive API calls (#22)</li>
+            <li>Fix fullscreen button in web player.</li>
+            <li>Add maximized window state preserving (#26)</li>
+            <li>Fix QT warnings (#24)</li>
+            <li>Fix wayland and wayland hwdec support (#20, #23)</li>
+            <li>Set white font color on modal and add class for css themes.</li>
+            <li>Upgrade jellyfin-web to 10.7.2.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.3.0" date="2021-04-11">
-        <p>Changes:</p>
-        <ul>
-          <li>Add settings menu for built-in player settings.</li>
-          <li>Add hardware acceleration in the web view. (disable with --disable-gpu)</li>
-          <li>Make subtitle position and scale settings work with SSA and bitmap subtitles.</li>
-          <li>Switch to NativeShell interface for jellyfin-web extensions.</li>
-          <li>Fix video download option to open links in browser.</li>
-          <li>Fix up next dialog hiding the player UI.</li>
-          <li>Add support for remote devtools.</li>
-          <li>Properly advertise player name, version, and computer name.</li>
-          <li>Fix F11 key for fullscreen.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Add settings menu for built-in player settings.</li>
+            <li>Add hardware acceleration in the web view. (disable with --disable-gpu)</li>
+            <li>Make subtitle position and scale settings work with SSA and bitmap subtitles.</li>
+            <li>Switch to NativeShell interface for jellyfin-web extensions.</li>
+            <li>Fix video download option to open links in browser.</li>
+            <li>Fix up next dialog hiding the player UI.</li>
+            <li>Add support for remote devtools.</li>
+            <li>Properly advertise player name, version, and computer name.</li>
+            <li>Fix F11 key for fullscreen.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.2.1" date="2021-04-06">
-        <p>Changes:</p>
-        <ul>
-          <li>Fix external subtitle support.</li>
-          <li>Fix skipping to previous song twice setting random volume.</li>
-          <li>Make easier to compile on Linux.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Fix external subtitle support.</li>
+            <li>Fix skipping to previous song twice setting random volume.</li>
+            <li>Make easier to compile on Linux.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.2.0" date="2021-04-05">
-        <p>Changes:</p>
-        <ul>
-          <li>Add native music playback.</li>
-          <li>Fix undefined onErrorInternal.</li>
-          <li>Remove breakpad.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Add native music playback.</li>
+            <li>Fix undefined onErrorInternal.</li>
+            <li>Remove breakpad.</li>
+          </ul>
+        </description>
       </release>
       <release version="1.1.0" date="2021-04-05">
-        <p>Changes:</p>
-        <ul>
-          <li>Added support for setting playback rate.</li>
-          <li>Added SyncPlay support. (Note there are still some glitches.)</li>
-          <li>Fixed issue where exiting video would go back a page.</li>
-          <li>Fixed issue where video reloads every time you seek.</li>
-          <li>Fixed some play/pause event issues.</li>
-        </ul>
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Added support for setting playback rate.</li>
+            <li>Added SyncPlay support. (Note there are still some glitches.)</li>
+            <li>Fixed issue where exiting video would go back a page.</li>
+            <li>Fixed issue where video reloads every time you seek.</li>
+            <li>Fixed some play/pause event issues.</li>
+          </ul>
+        </description>
       </release>
   </releases>
   <content_rating type="oars-1.0"/>

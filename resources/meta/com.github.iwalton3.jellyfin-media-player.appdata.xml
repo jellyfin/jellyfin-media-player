@@ -48,7 +48,25 @@
           <ul>
             <li>Update web client to 10.9.1.</li>
             <li>Switch to native Jellyfin Trickplay support.</li>
-            <li>Update runtimes.</li>
+            <li>Update mpv version to latest git version.</li>
+            <li>Misc fixes and cleanup. (#603)</li>
+            <li>Fix trailing slash when adding server causes connection faliure. (#601)</li>
+            <li>Fix compatibility with mpv 0.38.0. (#597)</li>
+            <li>Fix appstream metadata (#592)</li>
+            <li>Show what's playing in MacOS's "now playing" (#580)</li>
+            <li>Add Apple silicon build. (#571)</li>
+            <li>Add tooltips and settings for MPV config. (#561)</li>
+            <li>Fix mpv deprecations. (#549)</li>
+            <li>Add support for FreeBSD. (#547)</li>
+            <li>Fix icon for Wayland. (#515)</li>
+            <li>Improve customization for subtitles. (#508)</li>
+            <li>Ensure that volume is always a Number. (#493)</li>
+            <li>Fix window restoring on opening with Hyprland. (#481)</li>
+            <li>Fix window switching monitor when exiting fullscreen. (#478)</li>
+            <li>Fix skipintro plugin client freeze. (#456)</li>
+            <li>Set max audio channels for transcode profile based on JMP settings. (#445)</li>
+            <li>Add Default Playback Speed settings. (#435)</li>
+            <li>Remember playback speed. (#434)</li>
           </ul>
         </description>
       </release>

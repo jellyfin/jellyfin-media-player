@@ -86,7 +86,7 @@ jobs:
         mkdir mpv
         mv include mpv
         gendef libmpv-2.dll
-        mv libmpv-2.dll mpv/mpv.dll
+        mv libmpv-2.dll mpv/libmpv-2.dll
         mv libmpv-2.def mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
@@ -130,7 +130,7 @@ jobs:
         mkdir mpv
         mv include mpv
         gendef libmpv-2.dll
-        mv libmpv-2.dll mpv/mpv.dll
+        mv libmpv-2.dll mpv/libmpv-2.dll
         mv libmpv-2.def mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/

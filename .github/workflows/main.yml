@@ -18,7 +18,7 @@ jobs:
     - name: Release build
       run: |
         ./download_webclient.sh
-        sed -i '' 's/<body>/<body style="overscroll-behavior: none;">/' ./build/dist/index.html
+        sed -i '' 's|await loadScript('\''qrc:///qtwebchannel/qwebchannel.js'\'');|document.body.style.overscrollBehavior = "none";&|g' native/nativeshell.js
         cd build
         cmake -GNinja -DQTROOT=/usr/local/opt/qt@5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
         ninja install
@@ -46,7 +46,7 @@ jobs:
     - name: Release build
       run: |
         ./download_webclient.sh
-        sed -i '' 's/<body>/<body style="overscroll-behavior: none;">/' ./build/dist/index.html
+        sed -i '' 's|await loadScript('\''qrc:///qtwebchannel/qwebchannel.js'\'');|document.body.style.overscrollBehavior = "none";&|g' native/nativeshell.js
         cd build
         cmake -GNinja -DQTROOT=/opt/homebrew/opt/qt@5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
         ninja install

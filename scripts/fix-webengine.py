@@ -22,7 +22,7 @@ def main(argv=tuple(sys.argv[1:])):
   result = subprocess.check_output(['otool', '-L', str(bin_to_fix.resolve())],stderr=subprocess.STDOUT).decode('utf-8')
   for dependency in result.splitlines():
     dependency = dependency.strip().lstrip()
-    if dependency.startswith('/opt/homebrew'):
+    if dependency.startswith('/opt/homebrew') or dependency.startswith('/usr/local'):
       # cut off trailing compatibility string
       dependency_str = dependency.split(' (compatibility')[0].strip()
       dependency_framework_str = dependency_str.split('/lib')[1].strip()

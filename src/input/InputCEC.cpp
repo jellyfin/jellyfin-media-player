@@ -161,7 +161,7 @@ bool InputCECWorker::openAdapter()
     m_adapterPort = devices[0].strComName;
     if (m_adapter->Open(m_adapterPort.toStdString().c_str()))
     {
-      qInfo() << "Device " << devices[0].strComName << "was successfully openned";
+      qInfo() << "Device " << devices[0].strComName << "was successfully opened";
       ret = true;
     }
     else
@@ -414,7 +414,7 @@ void InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libc
 
   if (reopen)
   {
-    qDebug() << "libCEC : Reopenning adapter";
+    qDebug() << "libCEC : Reopening adapter";
     auto cec = static_cast<InputCECWorker*>(cbParam);
     if (cec)
       cec->closeAdapter();

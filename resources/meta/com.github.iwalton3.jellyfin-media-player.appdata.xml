@@ -42,6 +42,17 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.10.1" date="2024-05-17">
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Upgrade jellyfin-web to 10.9.2.</li>
+            <li>Fix overscroll and inability to launch on MacOS (#628)</li>
+            <li>Update skip intro plugin.</li>
+            <li>Fix setBackdropTransparency.</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.10.0" date="2024-05-13">
         <description>
           <p>Changes:</p>

@@ -1,3 +1,12 @@
+jellyfin-media-player (1.10.1-1) unstable; urgency=medium
+
+  * Upgrade jellyfin-web to 10.9.2.
+  * Fix overscroll and inability to launch on MacOS (#628)
+  * Update skip intro plugin.
+  * Fix setBackdropTransparency.
+
+ -- Izzie Walton <izzie@iwalton.com>  Fri, 17 May 2024 18:20:16 -0400
+
 jellyfin-media-player (1.10.0-1) unstable; urgency=medium
 
   * Update web client to 10.9.1.

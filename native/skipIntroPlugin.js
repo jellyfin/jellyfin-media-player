@@ -1,4 +1,7 @@
 let tvIntro;
+let currentSegment;
+let currentPlayer;
+let skipIntroConfig;
 
 class skipIntroPlugin {
     constructor({ events, playbackManager, ServerConnections }) {
@@ -14,6 +17,7 @@ class skipIntroPlugin {
             if (!enabled) return;
 
             // Based on https://github.com/jellyfin/jellyfin-web/compare/release-10.8.z...ConfusedPolarBear:jellyfin-web:intros
+            // Updated from https://github.com/jumoog/intro-skipper/blob/master/ConfusedPolarBear.Plugin.IntroSkipper/Configuration/inject.js
             // Adapted for use in JMP
             const stylesheet = `
             <style>
@@ -23,7 +27,7 @@ class skipIntroPlugin {
                     background-color:rgba(47,93,98,0) !important;
                 }
             }
-            
+
             .skipIntro {
                 padding: 0 1px;
                 position: absolute;
@@ -39,13 +43,13 @@ class skipIntroPlugin {
                 -moz-transition: ease-out 0.4s;
                 transition: ease-out 0.4s;
             }
-            
+
             @media (max-width: 1080px) {
                 .skipIntro {
                     right: 10%;
                 }
             }
-            
+
             .skipIntro:hover {
                 box-shadow: inset 400px 0 0 0 #f9f9f9;
                 -webkit-transition: ease-in 1s;
@@ -61,7 +65,7 @@ class skipIntroPlugin {
             const skipIntroHtml = `
             <div class="skipIntro hide">
                 <button is="paper-icon-button-light" class="btnSkipIntro paper-icon-button-light">
-                    Skip Intro
+                    <span id="btnSkipSegmentText"></span>
                     <span class="material-icons skip_next"></span>
                 </button>
             </div>
@@ -87,8 +91,30 @@ class skipIntroPlugin {
             function handleClick(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                skipIntro();
+                doSkip();
                 document.querySelector('.skipIntro .btnSkipIntro').removeEventListener('click', handleClick, { useCapture: true });
+            }
+
+            function secureFetch(url) {
+                const apiClient = ServerConnections
+                    ? ServerConnections.currentApiClient()
+                    : window.ApiClient;
+                const address = apiClient.serverAddress();
+
+                const reqInit = {
+                    headers: {
+                        "Authorization": `MediaBrowser Token=${apiClient.accessToken()}`
+                    }
+                };
+
+                return fetch(`${address}${url}`, reqInit).then(r => {
+                    if (!r.ok) {
+                        tvIntro = null;
+                        return;
+                    }
+
+                    return r.json();
+                });
             }
 
             async function injectSkipIntroHtml() {
@@ -96,41 +122,69 @@ class skipIntroPlugin {
                 // inject only if it doesn't exist
                 if (!document.querySelector('.skipIntro .btnSkipIntro')) {
                     playerContainer.insertAdjacentHTML('afterend', skipIntroHtml);
+
+                    skipIntroConfig = await secureFetch("/Intros/UserInterfaceConfiguration");
+                    if (!skipIntroConfig.SkipButtonVisible) {
+                        console.info("[intro skipper] Skip button is disabled by the server.");
+                        return;
+                    }
                 }
 
-                document.querySelector('.skipIntro .btnSkipIntro').addEventListener('click', handleClick, { useCapture: true });
+                const button = document.querySelector('.skipIntro .btnSkipIntro');
+                button.addEventListener('click', handleClick, { useCapture: true });
 
                 if (window.PointerEvent) {
-                    document.querySelector('.skipIntro .btnSkipIntro').addEventListener('pointerdown', (e) => {
+                    button.addEventListener('pointerdown', (e) => {
                         e.preventDefault();
                         e.stopPropagation();
                     }, { useCapture: true });
                 }
             }
 
-            
+
             function onPlayback(e, player, state) {
                 if (state.NowPlayingItem) {
                     getIntroTimestamps(state.NowPlayingItem);
 
                     const onTimeUpdate = async () => {
                         // Check if an introduction sequence was detected for this item.
-                        if (!tvIntro?.Valid) {
+                        if (!tvIntro) {
                             return;
                         }
-
-                        const seconds = playbackManager.currentTime(player) / 1000;
 
                         await injectSkipIntroHtml(); // I have trust issues
                         const skipIntro = document.querySelector(".skipIntro");
-    
-                        // If the skip prompt should be shown, show it.
-                        if (seconds >= tvIntro.ShowSkipPromptAt && seconds < tvIntro.HideSkipPromptAt) {
-                            skipIntro.classList.remove("hide");
+                        if (!skipIntro) {
                             return;
                         }
 
-                        skipIntro.classList.add("hide");
+                        const segment = getCurrentSegment(playbackManager.currentTime(player) / 1000);
+                        currentSegment = segment;
+                        currentPlayer = player;
+                        switch (segment["SegmentType"]) {
+                            case "None":
+                                if (skipIntro.style.opacity === '0') return;
+
+                                skipIntro.style.opacity = '0';
+                                skipIntro.addEventListener("transitionend", () => {
+                                    skipIntro.classList.add("hide");
+                                }, { once: true });
+                                return;
+                            case "Introduction":
+                                skipIntro.querySelector("#btnSkipSegmentText").textContent = skipIntroConfig.SkipButtonIntroText;
+                                break;
+                            case "Credits":
+                                skipIntro.querySelector("#btnSkipSegmentText").textContent = skipIntroConfig.SkipButtonEndCreditsText;
+                                break;
+                        }
+                        if (!skipIntro.classList.contains("hide")) return;
+
+                        skipIntro.classList.remove("hide");
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                skipIntro.style.opacity = '1';
+                            });
+                        });
                     };
 
                     events.on(player, 'timeupdate', onTimeUpdate);
@@ -143,36 +197,37 @@ class skipIntroPlugin {
                 }
             };
             events.on(playbackManager, 'playbackstart', onPlayback);
-            
 
             function getIntroTimestamps(item) {
-                const apiClient = ServerConnections
-                    ? ServerConnections.currentApiClient()
-                    : window.ApiClient;
-                const address = apiClient.serverAddress();
-
-                const url = `${address}/Episode/${item.Id}/IntroTimestamps`;
-                const reqInit = {
-                    headers: {
-                        "Authorization": `MediaBrowser Token=${apiClient.accessToken()}`
-                    }
-                };
-
-                fetch(url, reqInit).then(r => {
-                    if (!r.ok) {
-                        tvIntro = null;
-                        return;
-                    }
-
-                    return r.json();
-                }).then(intro => {
+                secureFetch(`/Episode/${item.Id}/IntroSkipperSegments`).then(intro => {
                     tvIntro = intro;
                 }).catch(err => { tvIntro = null; });
             }
 
-            function skipIntro() {
-                playbackManager.seekMs(tvIntro.IntroEnd * 1000);
+            function osdVisible() {
+                const osd = document.querySelector("div.videoOsdBottom");
+                return osd ? !osd.classList.contains("hide") : false;
             }
+
+            function getCurrentSegment(position) {
+                for (let key in tvIntro) {
+                    const segment = tvIntro[key];
+                    if ((position >= segment.ShowSkipPromptAt && position < segment.HideSkipPromptAt) || (osdVisible() && position >= segment.IntroStart && position < segment.IntroEnd)) {
+                        segment["SegmentType"] = key;
+                        return segment;
+                    }
+                }
+                return { "SegmentType": "None" };
+            }
+
+            function doSkip(e) {
+                if (currentSegment["SegmentType"] === "None") {
+                    console.warn("[intro skipper] doSkip() called without an active segment");
+                    return;
+                }
+                currentPlayer.currentTime(currentSegment["IntroEnd"] * 1000);
+            }
+
         })();
     }
 }

@@ -11,8 +11,7 @@ Downloads:
  - [Flathub (Linux)](https://flathub.org/apps/details/com.github.iwalton3.jellyfin-media-player)
 
 Related Documents:
- - Web client: https://repo.jellyfin.org/releases/server/portable/versions/stable/web/
-     - Note: If you do not provide the web client, the application will use a fallback UI where the user must select a server which has a web client.
+ - Web client: Application uses server-provided web client.
  - Web client integration documentation: [for-web-developers.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/for-web-developers.md)
  - API Docs in [client-api.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/client-api.md)
  - Tip: For help building, look at the GitHub Actions file!
@@ -50,7 +49,7 @@ sudo ldconfig
 cd ~/jmp/
 git clone https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player
-./download_webclient.sh
+mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ -G Ninja ..
 ninja
@@ -83,7 +82,7 @@ sudo ldconfig
 cd ~/jmp/
 git clone https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player/
-./download_webclient.sh
+mkdir build
 cd build/
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
 make -j`nproc`
@@ -113,7 +112,7 @@ You need to run these commands in git bash.
 ```bash
 git clone https://github.com/jellyfin/jellyfin-media-player
 cd jellyfin-media-player
-./download_webclient.sh
+mkdir build
 cd build
 ```
 
@@ -135,7 +134,7 @@ Then run the following commands (replace <QT_DIR> with your QT installation loca
 
 ```bash
 brew install mpv ninja
-./download_webclient.sh
+mkdir build
 cd build
 cmake -GNinja -DQTROOT=<QT_DIR> -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
 ninja install

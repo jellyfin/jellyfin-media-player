@@ -148,12 +148,6 @@
         "platforms": [ "linux" ]
       },
       {
-        "value": "forceExternalWebclient",
-        "display_name": "Force External Web Client",
-        "help": "Allows the user to connect to external webclients even if the bundled one is available.",
-        "default": false
-      },
-      {
         "value": "userWebClient",
         "default": "",
         "hidden": true

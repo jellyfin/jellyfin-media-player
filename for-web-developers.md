@@ -153,8 +153,6 @@ Current Settings:
      - `checkForUpdates: boolean`: Allows user to disable update check plugin script.
          - This has no effect if you don't use the update script.
      - `enableInputRepeat: boolean`: Allows disabling repeating of control inputs.
-     - `forceExternalWebclient: boolean`: Allows the user to connect to external webclients even if the bundled one is available.
-         - This has not landed in a released version yet.
      - `userWebClient: string`: Hidden option. Set it back to an empty string to allow the user to select a different webclient path.
  - Plugins Section (`plugins`):
      - `skipintro: boolean`: Enables or disabled the plugin. You likely won't use this.
@@ -196,7 +194,7 @@ Current Settings:
      - `aspect: string enum`: Allows control of aspect ratio. The default is `normal`.
          - Options: `normal`, `zoom`, `force_4_3`, `force_16_9`, `force_16_9_if_4_3`, `stretch`, `noscaling`, `custom`
  - Subtitle Section (`subtitles`):
-     - `ass_scale_border_and_shadow`: Controls whether or not ASS subtitles scale their border and shadow with the video resolution. Default `true` 
+     - `ass_scale_border_and_shadow`: Controls whether or not ASS subtitles scale their border and shadow with the video resolution. Default `true`
      - `ass_style_override: string enum`: Controls whether user style override should be applied to ASS subtitles. Default: ``
          - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L412-L419)
      - `placement: string enum`: Controls where subtitles are displayed on the screen. Default: ``

@@ -61,7 +61,6 @@ public:
   Q_INVOKABLE QVariantList settingDescriptions();
   Q_INVOKABLE QString getWebClientUrl(bool desktop);
   Q_INVOKABLE QString getExtensionPath();
-  Q_INVOKABLE bool isUsingExternalWebClient();
   Q_INVOKABLE QString getClientName();
   Q_INVOKABLE bool ignoreSSLErrors();
   Q_INVOKABLE bool autodetectCertBundle();

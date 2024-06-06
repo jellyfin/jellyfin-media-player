@@ -42,6 +42,14 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.11.0" date="2024-06-06">
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Client now uses jellyfin-web provided by server.</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.10.1" date="2024-05-17">
         <description>
           <p>Changes:</p>

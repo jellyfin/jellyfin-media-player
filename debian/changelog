@@ -1,3 +1,9 @@
+jellyfin-media-player (1.11.0-1) unstable; urgency=medium
+
+  * Client now uses jellyfin-web provided by server.
+
+ -- Izzie Walton <izzie@iwalton.com>  Thu, 06 Jun 2024 15:39:02 -0400
+
 jellyfin-media-player (1.10.1-1) unstable; urgency=medium
 
   * Upgrade jellyfin-web to 10.9.2.

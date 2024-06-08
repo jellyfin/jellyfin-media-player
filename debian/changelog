@@ -1,3 +1,9 @@
+jellyfin-media-player (1.11.1-1) unstable; urgency=medium
+
+  * Fix client not connecting to servers with baseurl set.
+
+ -- Izzie Walton <izzie@iwalton.com>  Fri, 07 Jun 2024 10:28:56 -0400
+
 jellyfin-media-player (1.11.0-1) unstable; urgency=medium
 
   * Client now uses jellyfin-web provided by server.

@@ -25,6 +25,7 @@ debian/.debhelper/
 debian/jellyfin-media-player/
 debian/files
 debian/jellyfin-media-player.substvars
+debian/debhelper-build-stamp
 dist.zip
 obj-x86_64-linux-gnu/
 deployment/dist

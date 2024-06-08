@@ -6,18 +6,25 @@ set -o xtrace
 # move to source directory
 pushd ${SOURCE_DIR}
 
+# Convert to format like deb12 or ubu2204 like Jellyfin packages
+IMGSNIP="${IMG:0:3}"
+RELVER="$( grep 'VERSION_ID' /etc/os-release | awk -F'"' '{ print $2 }' | tr -d '.' )"
+DEBVER="${IMGSNIP}${RELVER}"
+
+cp -a debian/changelog /changelog.orig
+sed -i "1 s/-1)/+${DEBVER})/" debian/changelog
+
 # install deps
 echo y | mk-build-deps -i
+rm jellyfin-media-player-build-deps_*
 
 # build deb
 dpkg-buildpackage -us -uc --pre-clean --post-clean
 
+mv /changelog.orig debian/changelog
+
 mkdir -p ${ARTIFACT_DIR}
-for source_file in ../jellyfin*.{deb,dsc,tar.gz,buildinfo,changes}
-do
-    file=$(basename "$source_file")
-    mv "$source_file" "${ARTIFACT_DIR}/${file%.*}-${TAG}.${file##*.}"
-done
+mv ../jellyfin*.{deb,dsc,tar.gz,buildinfo,changes} ${ARTIFACT_DIR}/
 
 if [[ ${IS_DOCKER} == YES ]]; then
     chown -Rc $(stat -c %u:%g ${ARTIFACT_DIR}) ${ARTIFACT_DIR}

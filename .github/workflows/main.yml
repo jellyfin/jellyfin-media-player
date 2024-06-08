@@ -158,15 +158,66 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v4
+    - name: Install dependencies
+      sudo apt-get update
+      sudo apt-get install --yes gnupg debsigs devscripts
     - name: Docker Build
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
-        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
+        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} -e IMG=ubuntu builddeb
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-${{ matrix.tag }}
         path: ${{ github.workspace }}/deployment/dist/*
+    - name: Import repository signing GPG key
+      run: |
+        echo -n "${{ secrets.DEBIAN_SIGNING_KEY }}" | base64 --decode | gpg --batch --yes --import
+    - name: Sign Debian package and source files
+      run: |
+        for file in deployment/dist/*.deb; do
+            debsigs --sign=origin --default-key=${{ secrets.DEBIAN_SIGNING_KEY_ID }} ${file}
+        done
+        debsign -k ${{ secrets.DEBIAN_SIGNING_KEY_ID }} deployment/dist/*.changes
+    - name: Remove repository signing GPG key
+      run: |
+        gpg --batch --yes --delete-secret-keys ${{ secrets.DEBIAN_SIGNING_KEY_ID }}
+    - name: Upload artifacts to repository server
+      uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
+      with:
+        host: "${{ secrets.REPO_HOST }}"
+        username: "${{ secrets.REPO_USER }}"
+        key: "${{ secrets.REPO_KEY }}"
+        source: deployment/dist/*
+        strip_components: 2
+        target: "/srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}"
+    - name: Import artifactsinto reprepro
+      uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+      with:
+        host: "${{ secrets.REPO_HOST }}"
+        username: "${{ secrets.REPO_USER }}"
+        key: "${{ secrets.REPO_KEY }}"
+        debug: false
+        script_stop: false
+        script: |
+          set -o xtrace
+          COMPONENT="main"
+          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}/*.deb || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}/*.dsc || exit 1
+    - name: Move artifacts into repository
+      uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+      with:
+        host: "${{ secrets.REPO_HOST }}"
+        username: "${{ secrets.REPO_USER }}"
+        key: "${{ secrets.REPO_KEY }}"
+        debug: false
+        script_stop: false
+        script: |
+          export BASEDIR="/srv/repository/main/client/jellyfin-media-player/ubuntu"
+          sudo mkdir -p ${BASEDIR}/stable/${{ github.ref_name }} || exit 1
+          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}/* || exit 1
+          sudo rm ${BASEDIR}/latest || true
+          sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1
 
   build-debian:
     strategy:
@@ -175,12 +226,63 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v4
+    - name: Install dependencies
+      sudo apt-get update
+      sudo apt-get install --yes gnupg debsigs devscripts
     - name: Docker Build
       run: |
-        docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} deployment
-        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} builddeb
+        docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=debian deployment
+        docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} -e IMG=debian builddeb
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: debian-${{ matrix.tag }}
         path: ${{ github.workspace }}/deployment/dist/*
+    - name: Import repository signing GPG key
+      run: |
+        echo -n "${{ secrets.DEBIAN_SIGNING_KEY }}" | base64 --decode | gpg --batch --yes --import
+    - name: Sign Debian package and source files
+      run: |
+        for file in deployment/dist/*.deb; do
+            debsigs --sign=origin --default-key=${{ secrets.DEBIAN_SIGNING_KEY_ID }} ${file}
+        done
+        debsign -k ${{ secrets.DEBIAN_SIGNING_KEY_ID }} deployment/dist/*.changes
+    - name: Remove repository signing GPG key
+      run: |
+        gpg --batch --yes --delete-secret-keys ${{ secrets.DEBIAN_SIGNING_KEY_ID }}
+    - name: Upload artifacts to repository server
+      uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
+      with:
+        host: "${{ secrets.REPO_HOST }}"
+        username: "${{ secrets.REPO_USER }}"
+        key: "${{ secrets.REPO_KEY }}"
+        source: deployment/dist/*
+        strip_components: 2
+        target: "/srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}"
+    - name: Import artifactsinto reprepro
+      uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+      with:
+        host: "${{ secrets.REPO_HOST }}"
+        username: "${{ secrets.REPO_USER }}"
+        key: "${{ secrets.REPO_KEY }}"
+        debug: false
+        script_stop: false
+        script: |
+          set -o xtrace
+          COMPONENT="main"
+          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}/*.deb || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}/*.dsc || exit 1
+    - name: Move artifacts into repository
+      uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+      with:
+        host: "${{ secrets.REPO_HOST }}"
+        username: "${{ secrets.REPO_USER }}"
+        key: "${{ secrets.REPO_KEY }}"
+        debug: false
+        script_stop: false
+        script: |
+          export BASEDIR="/srv/repository/main/client/jellyfin-media-player/debian"
+          sudo mkdir -p ${BASEDIR}/stable/${{ github.ref_name }} || exit 1
+          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}/* || exit 1
+          sudo rm ${BASEDIR}/latest || true
+          sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1

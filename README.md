@@ -8,6 +8,7 @@ Jellyfin Desktop. Supports audio passthrough. Based on [Plex Media Player](https
 
 Downloads:
  - [Windows, Mac, and Linux Releases](https://github.com/jellyfin/jellyfin-media-player/releases)
+   - Note for Mac users: builds for Intel require macOS 12+ and Apple Silicon builds requires macOS 14+
  - [Flathub (Linux)](https://flathub.org/apps/details/com.github.iwalton3.jellyfin-media-player)
 
 Related Documents:

@@ -166,6 +166,7 @@ jobs:
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=ubuntu deployment
         docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} -e IMG=ubuntu builddeb
+        sudo chown --recursive $USER $(pwd)/deployment/dist
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -235,6 +236,7 @@ jobs:
       run: |
         docker build -f deployment/Dockerfile.debian -t builddeb --build-arg TAG=${{ matrix.tag }} --build-arg IMG=debian deployment
         docker run -v $(pwd)/deployment/dist:/dist -v $(pwd):/jellyfin -e TAG=${{ matrix.tag }} -e IMG=debian builddeb
+        sudo chown --recursive $USER $(pwd)/deployment/dist
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:

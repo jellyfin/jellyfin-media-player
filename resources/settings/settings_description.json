@@ -144,7 +144,7 @@
         "value": "autodetectCertBundle",
         "display_name": "Auto-Detect Certificate Bundle",
         "help": "Allows use of system certificates for TLS.",
-        "default": false,
+        "default": true,
         "platforms": [ "linux" ]
       },
       {

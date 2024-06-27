@@ -180,6 +180,7 @@ class skipIntroPlugin {
                         if (!skipIntro.classList.contains("hide")) return;
 
                         skipIntro.classList.remove("hide");
+                        skipIntro.style.display = 'block';
                         requestAnimationFrame(() => {
                             requestAnimationFrame(() => {
                                 skipIntro.style.opacity = '1';

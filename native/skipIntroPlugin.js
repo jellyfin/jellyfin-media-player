@@ -193,6 +193,14 @@ class skipIntroPlugin {
                     const onPlaybackStop = () => {
                         events.off(player, 'timeupdate', onTimeUpdate);
                         events.off(player, 'playbackstop', onPlaybackStop);
+
+                        // Reset skipIntro styles on playbackstop
+                        const skipIntro = document.querySelector(".skipIntro");
+                        if (skipIntro) {
+                            skipIntro.style.display = 'none';
+                            skipIntro.style.opacity = '0';
+                            skipIntro.classList.add("hide");
+                        }
                     };
                     events.on(player, 'playbackstop', onPlaybackStop);
                 }

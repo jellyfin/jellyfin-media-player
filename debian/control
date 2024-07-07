@@ -44,13 +44,9 @@ Vcs-Browser: https://github.org/jellyfin/jellyfin-media-player
 
 Package: jellyfin-media-player
 Architecture: any
-Depends: libmpv1 | libmpv2,
-         libqt5webengine5,
-         libcec4 | libcec6,
+Depends: ${shlibs:Depends},
          qml-module-qtwebengine,
          qml-module-qtwebchannel,
-         qml-module-qtquick-controls,
-         libqt5x11extras5,
-         libqt5xml5
+         qml-module-qtquick-controls
 Description: Jellyfin is the Free Software Media System.
  This package provides the Jellyfin desktop media player.

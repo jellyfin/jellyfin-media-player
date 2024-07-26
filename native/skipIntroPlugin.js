@@ -36,7 +36,7 @@ class skipIntroPlugin {
                 background-color:rgba(25, 25, 25, 0.66);
                 border: 1px solid;
                 border-radius: 0px;
-                display: inline-block;
+                display: inline-block !important;
                 cursor: pointer;
                 box-shadow: inset 0 0 0 0 #f9f9f9;
                 -webkit-transition: ease-out 0.4s;
@@ -163,9 +163,8 @@ class skipIntroPlugin {
                         currentPlayer = player;
                         switch (segment["SegmentType"]) {
                             case "None":
-                                if (skipIntro.style.opacity === '0') return;
+                                if (skipIntro.classList.contains("hide")) return;
 
-                                skipIntro.style.opacity = '0';
                                 skipIntro.addEventListener("transitionend", () => {
                                     skipIntro.classList.add("hide");
                                 }, { once: true });
@@ -180,11 +179,6 @@ class skipIntroPlugin {
                         if (!skipIntro.classList.contains("hide")) return;
 
                         skipIntro.classList.remove("hide");
-                        requestAnimationFrame(() => {
-                            requestAnimationFrame(() => {
-                                skipIntro.style.opacity = '1';
-                            });
-                        });
                     };
 
                     events.on(player, 'timeupdate', onTimeUpdate);

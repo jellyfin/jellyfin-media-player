@@ -9,7 +9,7 @@ class skipIntroPlugin {
         this.type = 'input';
         this.id = 'skipIntroPlugin';
 
-        (async() => {
+        (async () => {
             await window.initCompleted;
             const enabled = window.jmpInfo.settings.plugins.skipintro;
 
@@ -36,7 +36,7 @@ class skipIntroPlugin {
                 background-color:rgba(25, 25, 25, 0.66);
                 border: 1px solid;
                 border-radius: 0px;
-                display: inline-block;
+                display: inline-block !important;
                 cursor: pointer;
                 box-shadow: inset 0 0 0 0 #f9f9f9;
                 -webkit-transition: ease-out 0.4s;

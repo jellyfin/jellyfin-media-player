@@ -42,6 +42,15 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.11.2" date="2024-09-21">
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Fixed skip button display inconsistency.</li>
+            <li>Fixed client not connecting to hostingby.design shared server.</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.11.1" date="2024-06-07">
         <description>
           <p>Changes:</p>

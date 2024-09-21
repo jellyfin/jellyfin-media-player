@@ -1,3 +1,10 @@
+jellyfin-media-player (1.11.2-1) unstable; urgency=medium
+
+  * Fixed skip button display inconsistency.
+  * Fixed client not connecting to hostingby.design shared server.
+
+ -- Izzie Walton <izzie@iwalton.com>  Fri, 21 Sep 2024 17:40:56 -0400
+
 jellyfin-media-player (1.11.1-1) unstable; urgency=medium
 
   * Fix client not connecting to servers with baseurl set.

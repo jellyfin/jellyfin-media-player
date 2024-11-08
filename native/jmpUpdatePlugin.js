@@ -12,7 +12,7 @@ class jmpUpdatePlugin {
                     // Windows (and possibly macOS) don't ship with SSL in QT......
                     // So we get to do a full request to GitHub here :(
                     const checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
-                    url = (await fetch(checkUrl)).url;
+                    url = (await fetch(checkUrl, { cache: 'no-cache' })).url;
                 }
 
                 const urlSegments = url.split("/");

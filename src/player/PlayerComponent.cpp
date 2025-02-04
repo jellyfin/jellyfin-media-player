@@ -1320,7 +1320,7 @@ void PlayerComponent::setOtherConfiguration()
 {
   QString otherConfiguration = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "other_conf").toString();
   qDebug() << "Parsing other configuration: "+otherConfiguration;
-  QStringList configurationList = otherConfiguration.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
+  QStringList configurationList = otherConfiguration.split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);
 
   for(const QString& configuration : configurationList)
   {
@@ -1328,8 +1328,8 @@ void PlayerComponent::setOtherConfiguration()
     int configurationLength = configuration.length();
     if (splitIndex > 0 && splitIndex < configurationLength - 1)
     {
-      QString configurationKey = configuration.left(splitIndex).remove(QRegExp("^([\"]+)")).remove(QRegExp("([\"]+)$")); 
-      QString configurationValue = configuration.right(configurationLength - splitIndex - 1).remove(QRegExp("^([\"]+)")).remove(QRegExp("([\"]+)$"));
+      QString configurationKey = configuration.left(splitIndex).remove(QRegularExpression ("^([\"]+)")).remove(QRegularExpression ("([\"]+)$")); 
+      QString configurationValue = configuration.right(configurationLength - splitIndex - 1).remove(QRegularExpression ("^([\"]+)")).remove(QRegularExpression ("([\"]+)$"));
       mpv::qt::set_property(m_mpv, configurationKey, configurationValue);
     }
   }

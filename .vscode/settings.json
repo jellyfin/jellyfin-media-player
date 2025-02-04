@@ -68,6 +68,8 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "qguiapplication": "cpp",
+        "qicon": "cpp"
     }
 }

@@ -167,7 +167,7 @@ target_link_libraries(${MAIN_TARGET}
   shared
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
-  ${QT5_LIBRARIES}
+  ${QT6_LIBRARIES}
   ${OS_LIBS}
   ${EXTRA_LIBS}
   ${X11_LIBRARIES}

@@ -33,7 +33,9 @@
 
 // For QVariant. Mysteriously makes Qt happy.
 Q_DECLARE_METATYPE(CodecDriver);
-
+#if defined(Q_OS_WIN)
+#include <windows.h>
+#endif
 #ifdef HAVE_CODEC_MANIFEST
 #define WITH_CODECS 1
 #include "CodecManifest.h"
@@ -406,7 +408,7 @@ void Codecs::preinitCodecs()
   // This must be run before any threads are started etc. (for safety).
   setEnv("FFMPEG_EXTERNAL_LIBS", escapedPath);
 
-  QTemporaryDir d(QDir::tempPath() + "/pmp-eae-XXXXXX");
+  QTemporaryDir d(QDir::tempPath() + "/PMP-eae-XXXXXX");
   d.setAutoRemove(false);
   g_eaeWatchFolder = d.path();
 

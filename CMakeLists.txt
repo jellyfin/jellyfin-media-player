@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10.0 FATAL_ERROR)
 
 # use a toolchain file if any for Embedded
 if (EXISTS "${CMAKE_SOURCE_DIR}/toolchain.cmake")
@@ -19,13 +19,13 @@ endif()
 
 if(OPENELEC)
   add_definitions(-DKONVERGO_OPENELEC=1)
-  Message(STATUS "Making an OpenELEC build")
+  message(STATUS "Making an OpenELEC build")
 endif(OPENELEC)
 
 if(BUILD_TARGET STREQUAL "RPI")
   add_definitions(-DTARGET_RPI=1)
   set(RPI_LIBS bcm_host)
-  Message(STATUS "Build for Raspberry PI target")
+  message(STATUS "Build for Raspberry PI target")
 endif(BUILD_TARGET STREQUAL "RPI")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -67,7 +67,7 @@ elseif(UNIX AND (NOT APPLE))
 endif(APPLE)
 
 if (Qt5_POSITION_INDEPENDENT_CODE)
-  SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif(Qt5_POSITION_INDEPENDENT_CODE)
 
 add_subdirectory(external)

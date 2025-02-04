@@ -50,7 +50,7 @@ static void preinitQt()
 
   // Warning: this must be the same as the default value as declared in
   // the settings_description.json file, or confusion will result.
-  if (useOpengl.type() != QMetaType::Bool)
+  if (useOpengl.typeId() != QMetaType::Bool)
     useOpengl = false;
 
   if (useOpengl.toBool())
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
 
-    KonvergoWindow::RegisterClass();
+    KonvergoWindow::Register();
     Globals::SetContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see

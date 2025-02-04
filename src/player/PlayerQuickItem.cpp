@@ -47,7 +47,7 @@ static void* get_proc_address(void* ctx, const char* name)
   // we need our own falback as well.
   if (!res)
   {
-    HMODULE handle = (HMODULE)QOpenGLContext::openGLModuleHandle();
+    HMODULE handle = (HMODULE)QNativeInterface ::QWGLContext::openGLModuleHandle();
     if (handle)
       res = (void *)GetProcAddress(handle, name);
   }

@@ -6,8 +6,10 @@
 #include <QGuiApplication>
 #include <QOpenGLContext>
 #include <QRunnable>
+#include <QSGRendererInterface>
+#include <QQuickOpenGLUtils>
 
-#include <QtGui/QOpenGLFramebufferObject>
+#include <QOpenGLFramebufferObject>
 
 #include <QtQuick/QQuickWindow>
 #include <QOpenGLFunctions>
@@ -24,7 +26,7 @@
 #endif
 
 #ifdef USE_X11EXTRAS
-#include <QX11Info>
+#include <QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
 #endif
 
@@ -113,7 +115,8 @@ mpv_opengl_init_params opengl_params = {
 #ifdef USE_X11EXTRAS
   if (platformName.contains("xcb")) {
     params[2].type = MPV_RENDER_PARAM_X11_DISPLAY;
-    params[2].data = QX11Info::display();
+    QNativeInterface::QX11Application *x11AppInfo = qApp->nativeInterface<QNativeInterface::QX11Application>();
+    params[2].data = x11AppInfo->display();
   } else if (platformName.contains("wayland")) {
     QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
     params[2].type = MPV_RENDER_PARAM_WL_DISPLAY;
@@ -142,7 +145,11 @@ PlayerRenderer::~PlayerRenderer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerRenderer::render()
 {
-  QOpenGLContext *context = QOpenGLContext::currentContext();
+  if (m_videoRectangle.x() == -1) return;
+
+  QOpenGLContext *context = QOpenGLContext::currentContext(); // same as (QOpenGLContext*) (m_window->rendererInterface()->getResource(m_window, QSGRendererInterface::OpenGLContextResource));
+  if (!context)
+    return;
 
   GLint fbo = 0;
   context->functions()->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
@@ -153,16 +160,23 @@ void PlayerRenderer::render()
   bool screenFlip = flip;
   QSize fboSize = m_size;
   QOpenGLFramebufferObject *blitFbo = 0;
+  QQuickOpenGLUtils::resetOpenGLState();
 
-  m_window->resetOpenGLState();
+  m_window->beginExternalCommands();
 
   QRect fullWindow(0, 0, m_size.width(), m_size.height());
-  if (m_videoRectangle.width() > 0 && m_videoRectangle.height() > 0 && m_videoRectangle != fullWindow && QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() && QOpenGLFramebufferObject::hasOpenGLFramebufferObjects())
+  int relHeight = m_videoRectangle.height() <= 0 ? m_size.height() - m_videoRectangle.y() + m_videoRectangle.height() : m_videoRectangle.height();
+  int relWidth = m_videoRectangle.width() <= 0 ? m_size.width() - m_videoRectangle.x() + m_videoRectangle.width() : m_videoRectangle.width();
+
+  QRect videoRect(m_videoRectangle.x(), m_videoRectangle.y(), relWidth, relHeight);
+  // technically this fbo copy only needs to happen if videoRect != fullWindow
+  // but doing that breaks playback for some reason...
+  if (videoRect.width() > 0 && videoRect.height() > 0 && QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() && QOpenGLFramebufferObject::hasOpenGLFramebufferObjects())
   {
-    if (!m_fbo || !m_fbo->isValid() || m_fbo->size() != m_videoRectangle.size())
+    if (!m_fbo || !m_fbo->isValid() || m_fbo->size() != videoRect.size())
     {
       delete m_fbo;
-      m_fbo = new QOpenGLFramebufferObject(m_videoRectangle.size());
+      m_fbo = new QOpenGLFramebufferObject(videoRect.size());
     }
     if (m_fbo && m_fbo->isValid())
     {
@@ -170,10 +184,6 @@ void PlayerRenderer::render()
       fboSize = m_fbo->size();
       fbo = m_fbo->handle();
       flip = false;
-
-      // Need to clear the background manually, since nothing else knows it has to be done.
-      context->functions()->glClearColor(0, 0, 0, 0);
-      context->functions()->glClear(GL_COLOR_BUFFER_BIT);
     }
   }
 
@@ -195,17 +205,18 @@ void PlayerRenderer::render()
     {MPV_RENDER_PARAM_INVALID}
   };
   mpv_render_context_render(m_mpvGL, params);
-
-  m_window->resetOpenGLState();
+  QQuickOpenGLUtils::resetOpenGLState();
 
   if (blitFbo)
   {
-    QRect dstRect = m_videoRectangle;
+    QRect dstRect = videoRect;
     if (screenFlip)
       dstRect = QRect(dstRect.x(), m_size.height() - dstRect.y(), dstRect.width(), dstRect.top() - dstRect.bottom());
 
     QOpenGLFramebufferObject::blitFramebuffer(0, dstRect, blitFbo, QRect(QPoint(0, 0), blitFbo->size()));
   }
+
+  m_window->endExternalCommands();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,13 +302,10 @@ void PlayerQuickItem::onSynchronize()
       emit onFatalError(tr("Could not initialize OpenGL."));
       return;
     }
-    connect(window(), &QQuickWindow::beforeRendering, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
+    connect(window(), &QQuickWindow::afterRendering, m_renderer, &PlayerRenderer::render, Qt::DirectConnection);
     connect(window(), &QQuickWindow::frameSwapped, m_renderer, &PlayerRenderer::swap, Qt::DirectConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::videoPlaybackActive, m_renderer, &PlayerRenderer::onVideoPlaybackActive, Qt::QueuedConnection);
     connect(&PlayerComponent::Get(), &PlayerComponent::onVideoRecangleChanged, window(), &QQuickWindow::update, Qt::QueuedConnection);
-    window()->setPersistentOpenGLContext(true);
-    window()->setPersistentSceneGraph(true);
-    window()->setClearBeforeRendering(false);
     m_debugInfo = "";
     QOpenGLContext* glctx = QOpenGLContext::currentContext();
     if (glctx && glctx->isValid())

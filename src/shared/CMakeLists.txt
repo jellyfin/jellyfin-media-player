@@ -8,7 +8,15 @@ add_library(shared STATIC
   ${CMAKE_BINARY_DIR}/src/core/Version.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h
 )
-
+target_link_libraries(shared
+  Qt6::Core
+  Qt6::Core5Compat
+  Qt6::Network
+  Qt6::Qml
+  Qt6::WebChannel
+  Qt6::Gui
+  Qt6::GuiPrivate
+)
 std_target_properties(shared)
 
 clang_tidy(shared)

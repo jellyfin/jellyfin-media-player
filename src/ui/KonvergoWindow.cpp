@@ -22,7 +22,7 @@
 #include "EventFilter.h"
 
 #ifdef USE_X11EXTRAS
-#include <QX11Info>
+#include <QGuiApplication>
 #include <X11/Xlib.h>
 #endif
 
@@ -75,9 +75,11 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 
 #ifdef USE_X11EXTRAS
   // On Gnome show a darker title bar
-  if (QX11Info::isPlatformX11())
+  if (QGuiApplication::platformName() == "xcb")
   {
-    Display* dpy = QX11Info::display();
+    QNativeInterface::QX11Application *x11AppInfo = qApp->nativeInterface<QNativeInterface::QX11Application>();
+    Display* dpy = x11AppInfo->display();
+    
     if (dpy)
     {
       WId win = winId();
@@ -117,7 +119,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
 
-  connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::closingWindow);
+  connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
 
 #ifdef Q_OS_MAC
   m_osxPresentationOptions = 0;
@@ -143,6 +145,7 @@ void KonvergoWindow::closingWindow()
   if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
     saveGeometry();
 
+  qDebug() << "Quitting application...";
   qApp->quit();
 }
 

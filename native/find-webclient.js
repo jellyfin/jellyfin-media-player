@@ -7,9 +7,9 @@ async function tryConnect(server) {
         }
         serverBaseURL = server.replace(/\/+$/, "");
         const url = serverBaseURL + "/System/Info/Public";
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: 'no-cache' });
         if (response.ok && (await response.json()).Id) {
-            const htmlResponse = await fetch(server);
+            const htmlResponse = await fetch(server, { cache: 'no-cache' });
             if (!htmlResponse.ok) {
                 throw new Error("Status not ok");
             }

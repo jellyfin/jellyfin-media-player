@@ -19,7 +19,7 @@ Related Documents:
 
 ## Building at a glance (Linux)
 
-To download the latest stable release, get the lattest version tag from the [latest releases page](https://github.com/jellyfin/jellyfin-media-player/releases/latest) and append the following to your pull command during the build phase for JMP "--branch $VERSIONTAG --single-branch"
+To download the latest stable release, get the latest version tag from the [latest releases page](https://github.com/jellyfin/jellyfin-media-player/releases/latest) and append the following to your pull command during the build phase for JMP "--branch $VERSIONTAG --single-branch"
 
 Example:
 ```bash

@@ -78,6 +78,9 @@ document.getElementById('connect-fail-button').addEventListener('click', () => {
 // load the server if we have one
 (async() => {
     const savedServer = window.jmpInfo.settings.main.userWebClient;
+    if (savedServer) {
+        document.getElementById('address').value = savedServer;
+    }
 
     if (!savedServer || !(await tryConnect(savedServer))) {
         document.getElementById('splash').style.display = 'none';

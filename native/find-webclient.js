@@ -1,13 +1,19 @@
 async function tryConnect(server) {
     document.getElementById('connect-button').disabled = true;
 
+    AbortSignal.timeout ??= function timeout(ms) {
+        const ctrl = new AbortController()
+        setTimeout(() => ctrl.abort(), ms)
+        return ctrl.signal
+    }
+
     try {
         if (!server.startsWith("http")) {
             server = "http://" + server;
         }
         serverBaseURL = server.replace(/\/+$/, "");
         const url = serverBaseURL + "/System/Info/Public";
-        const response = await fetch(url, { cache: 'no-cache' });
+        const response = await fetch(url, { cache: 'no-cache', signal: AbortSignal.timeout(5000) });
         if (response.ok && (await response.json()).Id) {
             const htmlResponse = await fetch(server, { cache: 'no-cache' });
             if (!htmlResponse.ok) {

@@ -53,6 +53,7 @@
             <li>Update branding</li>
             <li>Fix caching issues to prevent broken web client when the server web version updates</li>
             <li>Auto fill last used server into server box if server connection fails on startup</li>
+            <li>Fix SSL certificate verification issues on Linux</li>
           </ul>
         </description>
       </release>

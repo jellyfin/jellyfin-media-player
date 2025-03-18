@@ -1,7 +1,7 @@
 async function tryConnect(server) {
     document.getElementById('connect-button').disabled = true;
 
-    AbortSignal.timeout ??= function timeout(ms) {
+    AbortSignal.timeout = function timeout(ms) {
         const ctrl = new AbortController()
         setTimeout(() => ctrl.abort(), ms)
         return ctrl.signal

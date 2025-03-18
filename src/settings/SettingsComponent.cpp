@@ -232,6 +232,7 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 {
   bool migrateJmpSettings4 = false;
   bool migrateJmpSettings5 = false;
+  bool migrateJmpSettings6 = false;
   QJsonObject json = loadJson(path);
 
   int version = json["version"].toInt(0);
@@ -243,6 +244,10 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
   else if (version == 5 && m_settingsVersion == 6)
   {
     migrateJmpSettings5 = true;
+  }
+  else if (version == 6 && m_settingsVersion == 7)
+  {
+    migrateJmpSettings6 = true;
   }
   else if (version != m_settingsVersion)
   {
@@ -294,6 +299,10 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
   } else if (migrateJmpSettings5) {
     if (getSection(SETTINGS_SECTION_VIDEO)->value("hardwareDecoding") == "enabled") {
       getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "copy");
+    }
+  } else if (migrateJmpSettings6) {
+    if (getSection(SETTINGS_SECTION_MAIN)->value("autodetectCertBundle") == "false") {
+      getSection(SETTINGS_SECTION_MAIN)->setValue("autodetectCertBundle", "true");
     }
   }
 }

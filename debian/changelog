@@ -1,3 +1,15 @@
+jellyfin-media-player (1.12.0-1) unstable; urgency=medium
+
+  * Prevent issue where wayland has black screen due to broken gpu accel (#165, #610)
+  * Prevent SRT text being squished and unreadable (#643)
+  * Handle server connection timeout. (#747)
+  * Remove obsolete skip intro support.
+  * Update branding
+  * Fix caching issues to prevent broken web client when the server web version updates
+  * Auto fill last used server into server box if server connection fails on startup
+
+ -- Izzie Walton <izzie@iwalton.com>  Tue, 18 Mar 2025 10:50:29 -0400
+
 jellyfin-media-player (1.11.1-1) unstable; urgency=medium
 
   * Fix client not connecting to servers with baseurl set.

@@ -42,6 +42,20 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="1.12.0" date="2025-03-18">
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Prevent issue where wayland has black screen due to broken gpu accel (#165, #610)</li>
+            <li>Prevent SRT text being squished and unreadable (#643)</li>
+            <li>Handle server connection timeout. (#747)</li>
+            <li>Remove obsolete skip intro support.</li>
+            <li>Update branding</li>
+            <li>Fix caching issues to prevent broken web client when the server web version updates</li>
+            <li>Auto fill last used server into server box if server connection fails on startup</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.11.1" date="2024-06-07">
         <description>
           <p>Changes:</p>

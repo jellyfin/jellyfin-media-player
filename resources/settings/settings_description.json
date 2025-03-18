@@ -167,18 +167,6 @@
     ]
   },
   {
-    "section": "plugins",
-    "order": 5,
-    "values": [
-      {
-        "value": "skipintro",
-        "display_name": "Skip Intro",
-        "help": "Enables a built-in skip intro plugin based off of jumoog's Intro-Skipper plugin (https://github.com/jumoog/intro-skipper).",
-        "default": false
-      }
-    ]
-  },
-  {
     "section": "audio",
     "order": 2,
     "values": [

@@ -154,8 +154,6 @@ Current Settings:
          - This has no effect if you don't use the update script.
      - `enableInputRepeat: boolean`: Allows disabling repeating of control inputs.
      - `userWebClient: string`: Hidden option. Set it back to an empty string to allow the user to select a different webclient path.
- - Plugins Section (`plugins`):
-     - `skipintro: boolean`: Enables or disabled the plugin. You likely won't use this.
  - Audio Section (`audio`):
      - `devicetype: string enum`: Sets the device type. Can be `basic`, `spdif`, or `hdmi`.
          - `basic` disables passthrough

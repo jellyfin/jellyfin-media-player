@@ -23,8 +23,7 @@ const plugins = [
     'mpvVideoPlayer',
     'mpvAudioPlayer',
     'jmpInputPlugin',
-    'jmpUpdatePlugin',
-    'skipIntroPlugin'
+    'jmpUpdatePlugin'
 ];
 
 function loadScript(src) {
@@ -354,7 +353,7 @@ async function showSettingsModal() {
             font-size: 18px;
             vertical-align: sub;
         }
-      
+
         .tooltip .tooltip-text {
             visibility: hidden;
             width: max-content;
@@ -371,7 +370,7 @@ async function showSettingsModal() {
             border: solid 1px grey;
             font-size: 12px;
         }
-      
+
         .tooltip:hover .tooltip-text {
             visibility: visible;
         }`;
@@ -431,11 +430,7 @@ async function showSettingsModal() {
             legendHeader.textContent = section;
             legendHeader.style.textTransform = "capitalize";
             legend.appendChild(legendHeader);
-            if (section == "plugins") {
-                const legendSubHeader = document.createElement("h4");
-                legendSubHeader.textContent = "Plugins are UNOFFICIAL and require a restart to take effect.";
-                legend.appendChild(legendSubHeader);
-            } else if (section == "other") {                
+            if (section == "other") {
                 const legendSubHeader = document.createElement("h4");
                 legendSubHeader.textContent = "Use this section to input custom MPV configuration. These will override the above settings.";
                 legend.appendChild(legendSubHeader);
@@ -458,7 +453,7 @@ async function showSettingsModal() {
                     helpElement.appendChild(helpIcon);
                     const tooltipElement = document.createElement("span");
                     tooltipElement.className = "tooltip-text";
-                    tooltipElement.innerText = setting.help;    
+                    tooltipElement.innerText = setting.help;
                     helpElement.appendChild(tooltipElement);
                 }
 

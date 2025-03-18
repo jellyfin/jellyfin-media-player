@@ -154,7 +154,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        tag: [mantic, noble, jammy]
+        tag: [oracular, noble, jammy]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v4

@@ -56,7 +56,7 @@ jobs:
         python3 ./scripts/fix-webengine.py ./build/output/Jellyfin\ Media\ Player.app
         codesign --force --deep -s - ./build/output/Jellyfin\ Media\ Player.app/
         brew install create-dmg
-        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
+        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app" || create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -192,7 +192,7 @@ jobs:
         key: "${{ secrets.REPO_KEY }}"
         source: deployment/dist/*
         strip_components: 2
-        target: "/srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}"
+        target: "/srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}"
     - name: Import artifactsinto reprepro
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -204,8 +204,8 @@ jobs:
         script: |
           set -o xtrace
           COMPONENT="main"
-          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}/*.deb || exit 1
-          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}/*.dsc || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}/*.deb || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}/*.dsc || exit 1
     - name: Move artifacts into repository
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -217,7 +217,7 @@ jobs:
         script: |
           export BASEDIR="/srv/repository/main/client/jellyfin-media-player/ubuntu"
           sudo mkdir -p ${BASEDIR}/stable/${{ github.ref_name }} || exit 1
-          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/ubuntu/{{ matrix.tag }}/* || exit 1
+          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}/* || exit 1
           sudo rm ${BASEDIR}/latest || true
           sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1
 
@@ -262,7 +262,7 @@ jobs:
         key: "${{ secrets.REPO_KEY }}"
         source: deployment/dist/*
         strip_components: 2
-        target: "/srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}"
+        target: "/srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}"
     - name: Import artifactsinto reprepro
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -274,8 +274,8 @@ jobs:
         script: |
           set -o xtrace
           COMPONENT="main"
-          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}/*.deb || exit 1
-          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}/*.dsc || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}/*.deb || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}/*.dsc || exit 1
     - name: Move artifacts into repository
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -287,6 +287,6 @@ jobs:
         script: |
           export BASEDIR="/srv/repository/main/client/jellyfin-media-player/debian"
           sudo mkdir -p ${BASEDIR}/stable/${{ github.ref_name }} || exit 1
-          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/debian/{{ matrix.tag }}/* || exit 1
+          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}/* || exit 1
           sudo rm ${BASEDIR}/latest || true
           sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1

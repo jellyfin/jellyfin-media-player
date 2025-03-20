@@ -74,7 +74,7 @@ jobs:
         name: macos-arm64
         path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
 
-  build-win64:
+  build-win64-legacy:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4

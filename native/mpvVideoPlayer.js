@@ -14,6 +14,7 @@
             this.globalize = globalize;
             this.appHost = appHost;
             this.appSettings = appSettings;
+            this.osdObserver = null;
 
             this.setTransparency = dashboard.default.setBackdropTransparency.bind(dashboard);
 
@@ -138,6 +139,29 @@
                 if (dlg) {
                     dlg.style.zIndex = 'unset';
                 }
+
+                document.body.parentElement.classList.remove('transparentDocument');
+
+                // no direct way to know when OSD is hidden
+                if (this.osdObserver) {
+                    this.osdObserver.disconnect();
+                    this.osdObserver = null;
+                }
+
+                const target = document.querySelector('.videoOsdBottom');
+                this.osdObserver = new MutationObserver(function(mutations) {
+                    if (target.classList.contains('videoOsdBottom-hidden')) {
+                        console.log('OSD hidden');
+                        document.body.style.cursor = 'none';
+                        window.api.player.setVideoRectangle(0, 0, 0, 0);
+                    } else {
+                        console.log('OSD shown');
+                        document.body.style.cursor = 'default';
+                        window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
+                    }
+                });
+
+                this.osdObserver.observe(target, { attributes: true });
             };
 
             /**
@@ -157,12 +181,11 @@
                     if (this._currentPlayOptions.fullscreen) {
                         this.appRouter.showVideoOsd().then(this.onNavigatedToOsd);
                     } else {
-                        this.setTransparency('backdrop');
                         this._videoDialog.dlg.style.zIndex = 'unset';
                     }
 
                     // Need to override default style.
-                    this._videoDialog.style.setProperty('background', 'transparent', 'important');
+                    window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
                 }
 
                 if (this._paused) {
@@ -468,7 +491,12 @@
             window.api.player.stop();
             window.api.power.setScreensaverEnabled(true);
 
-            this.setTransparency('none');
+            window.api.player.setVideoRectangle(-1, 0, 0, 0);
+
+            if (this.osdObserver) {
+                this.osdObserver.disconnect();
+                this.osdObserver = null;
+            }
 
             document.body.classList.remove('hide-scroll');
 
@@ -537,6 +565,7 @@
                     player.updateDuration.connect(this.onDuration);
                     player.error.connect(this.onError);
                     player.paused.connect(this.onPause);
+                    player.paused.connect(this.onPause);
                 }
 
                 if (options.fullscreen) {
@@ -583,6 +612,7 @@
      * @private
      */
     static getSupportedFeatures() {
+        return ['PlaybackRate', 'SetAspectRatio'];
         return ['PlaybackRate', 'SetAspectRatio'];
     }
 
@@ -651,6 +681,7 @@
     pause() {
         window.api.player.pause();
         window.api.power.setScreensaverEnabled(true);
+        window.api.power.setScreensaverEnabled(true);
     }
 
     // This is a retry after error
@@ -661,6 +692,7 @@
 
     unpause() {
         window.api.player.play();
+        window.api.power.setScreensaverEnabled(false);
         window.api.power.setScreensaverEnabled(false);
     }
 
@@ -675,6 +707,15 @@
     }
 
     getPlaybackRate() {
+        if(!this._playRate) //On startup grab default
+        {
+            let playRate = window.jmpInfo.settings.video.default_playback_speed;
+
+            if(!playRate) //fallback if default missing
+                playRate = 1;
+
+            this._playRate = playRate;
+        }
         if(!this._playRate) //On startup grab default
         {
             let playRate = window.jmpInfo.settings.video.default_playback_speed;
@@ -719,6 +760,15 @@
     }
 
     setVolume(val, save = true) {
+        val = Number(val);
+        if (!isNaN(val)) {
+            this._volume = val;
+            if (save) {
+                this.saveVolume(val / 100);
+                this.events.trigger(this, 'volumechange');
+            }
+            window.api.player.setVolume(val);
+        }
         val = Number(val);
         if (!isNaN(val)) {
             this._volume = val;
@@ -849,7 +899,39 @@
     setAspectRatio(value) {
         window.jmpInfo.settings.video.aspect = value;
     }
+
+    getSupportedAspectRatios() {
+        const options = window.jmpInfo.settingsDescriptions.video.find(x => x.key == 'aspect').options;
+        const current = window.jmpInfo.settings.video.aspect;
+
+        const getOptionName = (option) => {
+            const canTranslate = {
+                'normal': 'Auto',
+                'zoom': 'AspectRatioCover',
+                'stretch': 'AspectRatioFill',
+            }
+            const name = option.replace('video.aspect.', '');
+            return canTranslate[name]
+                ? this.globalize.translate(canTranslate[name])
+                : name;
+        }
+
+        return options.map(x => ({
+            id: x.value,
+            name: getOptionName(x.title),
+            selected: x.value == current
+        }));
+    }
+
+    getAspectRatio() {
+        return window.jmpInfo.settings.video.aspect;
+    }
+
+    setAspectRatio(value) {
+        window.jmpInfo.settings.video.aspect = value;
+    }
     }
 /* eslint-enable indent */
 
 window._mpvVideoPlayer = mpvVideoPlayer;
+

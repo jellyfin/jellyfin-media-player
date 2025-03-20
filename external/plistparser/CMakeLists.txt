@@ -7,3 +7,8 @@ add_library(plistparser STATIC
   plistserializer.h
 )
 std_target_properties(plistparser)
+target_link_libraries(plistparser
+  Qt6::Core
+  Qt6::Core5Compat
+  Qt6::Xml
+)

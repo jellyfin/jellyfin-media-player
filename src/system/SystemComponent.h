@@ -20,6 +20,7 @@ public:
   Q_PROPERTY(bool isMacos READ platformIsMac CONSTANT)
   Q_PROPERTY(bool isWindows READ platformIsWindows CONSTANT)
   Q_PROPERTY(bool isLinux READ platformIsLinux CONSTANT)
+  Q_PROPERTY(bool isFreeBSD READ platformIsFreeBSD CONSTANT)
   Q_PROPERTY(qreal scale MEMBER m_scale CONSTANT)
 
   bool componentExport() override { return true; }
@@ -65,7 +66,8 @@ public:
     platformTypeOsx,
     platformTypeWindows,
     platformTypeLinux,
-    platformTypeOpenELEC
+    platformTypeOpenELEC,
+    platformTypeFreeBSD
   };
 
   // possible values for target types
@@ -108,6 +110,7 @@ private:
   bool platformIsWindows() const { return m_platformType == platformTypeWindows; }
   bool platformIsMac() const { return m_platformType == platformTypeOsx; }
   bool platformIsLinux() const { return m_platformType == platformTypeLinux; }
+  bool platformIsFreeBSD() const { return m_platformType == platformTypeFreeBSD; }
 
   QTimer* m_mouseOutTimer;
   PlatformType m_platformType;

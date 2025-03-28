@@ -83,7 +83,7 @@ void ShowLicenseInfo()
 QStringList g_qtFlags = {
   "--disable-web-security",
   "--enable-gpu-rasterization",
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_FreeBSD)
   "--disable-gpu"
 #endif
 };

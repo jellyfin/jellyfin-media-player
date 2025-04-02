@@ -305,6 +305,10 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
       getSection(SETTINGS_SECTION_MAIN)->setValue("autodetectCertBundle", "true");
     }
   }
+
+#ifdef DISABLE_UPDATE_CHECK
+    getSection(SETTINGS_SECTION_MAIN)->setValueHidden("checkForUpdates", "true");
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -360,6 +360,7 @@ QString SystemComponent::getNativeShellScript()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::checkForUpdates()
 {
+#ifndef DISABLE_UPDATE_CHECK
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "checkForUpdates").toBool()) {
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -374,6 +375,7 @@ void SystemComponent::checkForUpdates()
     emit updateInfoEmitted("SSL_UNAVAILABLE");
 #endif
   }
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

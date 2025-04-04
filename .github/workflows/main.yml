@@ -92,7 +92,7 @@ jobs:
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-v3-20240304-git-9ac791c.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20240304-git-9ac791c.7z/download > mpv.7z
         7z x mpv.7z
         mkdir mpv
         mv include mpv
@@ -136,7 +136,7 @@ jobs:
         curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip > ninja.zip
         unzip ninja.zip
         mv ninja.exe build/
-        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-20240304-git-9ac791c.7z/download > mpv.7z
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-v3-20240304-git-9ac791c.7z/download > mpv.7z
         7z x mpv.7z
         mkdir mpv
         mv include mpv
@@ -208,6 +208,7 @@ jobs:
 
   build-ubuntu:
     strategy:
+      fail-fast: false
       matrix:
         tag: [oracular, noble, jammy]
     runs-on: "ubuntu-latest"
@@ -230,6 +231,7 @@ jobs:
 
   build-debian:
     strategy:
+      fail-fast: false
       matrix:
         tag: [bookworm, trixie]
     runs-on: "ubuntu-latest"

@@ -17,20 +17,22 @@ function(copy_resources target)
   
   get_property(RESOURCE_LIST GLOBAL PROPERTY _${target}_RESOURCE_LIST)
 
-  # we read the LOCATION from the target instead of using a generator
-  # here since add_custom_command doesn't support generator expresessions
-  # in the output field, and this is still cleaner than hardcoding the path
-  # of the output binary.
-  #  
-  get_property(TARGET_LOC TARGET ${target} PROPERTY LOCATION)
-  get_filename_component(TARGET_DIR ${TARGET_LOC} DIRECTORY)
-  if(APPLE)
-    set(TARGET_LOC ${TARGET_DIR}/..)
-  else()
-    set(TARGET_LOC ${TARGET_DIR})
-  endif()
-  
   if(RESOURCE_LIST)
+    set_policy(CMP0026 OLD)
+
+    # we read the LOCATION from the target instead of using a generator
+    # here since add_custom_command doesn't support generator expresessions
+    # in the output field, and this is still cleaner than hardcoding the path
+    # of the output binary.
+    #
+    get_property(TARGET_LOC TARGET ${target} PROPERTY LOCATION)
+    get_filename_component(TARGET_DIR ${TARGET_LOC} DIRECTORY)
+    if(APPLE)
+      set(TARGET_LOC ${TARGET_DIR}/..)
+    else()
+      set(TARGET_LOC ${TARGET_DIR})
+    endif()
+
     foreach(RF ${RESOURCE_LIST})
       string(REPLACE "|" ";" PARTS "${RF}")
       list(GET PARTS 0 SOURCE_FILE)

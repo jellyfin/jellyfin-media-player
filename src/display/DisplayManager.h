@@ -9,6 +9,7 @@
 #ifndef _DISPLAYMANAGER_H_
 #define _DISPLAYMANAGER_H_
 
+#include <QObject>
 #include <QMap>
 #include <QPoint>
 #include <QString>

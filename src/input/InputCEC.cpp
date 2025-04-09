@@ -61,10 +61,7 @@ InputCEC::InputCEC(QObject *parent) : InputBase(parent)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 bool InputCEC::initInput()
 {
-  bool retVal;
-  QMetaObject::invokeMethod(m_cecWorker, "init", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, retVal));
-
-  return retVal;
+  return QMetaObject::invokeMethod(m_cecWorker, "init", Qt::QueuedConnection);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(QString webUrl READ webUrl NOTIFY webUrlChanged)
 
 public:
-  static void RegisterClass();
+  static void Register();
 
   explicit KonvergoWindow(QWindow* parent = nullptr);
   ~KonvergoWindow() override;

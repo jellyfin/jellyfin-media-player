@@ -1,11 +1,6 @@
 #ifndef TASKBARCOMPONENTWIN_H
 #define TASKBARCOMPONENTWIN_H
 
-#include <QWinTaskbarButton>
-#include <QWinTaskbarProgress>
-#include <QWinThumbnailToolBar>
-#include <QWinThumbnailToolButton>
-
 #include <wrl.h>
 #include <Windows.Media.h>
 
@@ -36,12 +31,6 @@ private:
 
   HRESULT buttonPressed(ABI::Windows::Media::ISystemMediaTransportControls* sender,
     ABI::Windows::Media::ISystemMediaTransportControlsButtonPressedEventArgs* args);
-
-  QWinTaskbarButton* m_button;
-  QWinThumbnailToolBar* m_toolbar;
-  QWinThumbnailToolButton* m_pause;
-  QWinThumbnailToolButton* m_prev;
-  QWinThumbnailToolButton* m_next;
 
   bool m_initialized;
   EventRegistrationToken m_buttonPressedToken;

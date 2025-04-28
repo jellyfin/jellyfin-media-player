@@ -1,10 +1,12 @@
 #include "DiscordComponent.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
+#include "player/PlayerComponent.h"
 
 #include <csignal>
 #include <iostream>
 #include <thread>
+#include <QDebug>
 
 DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {
   qDebug() << "[DiscordSettings] Init";
@@ -18,67 +20,28 @@ void DiscordComponent::valuesUpdated(const QVariantMap& values) {
 
 }
 
-bool DiscordComponent::componentInitialize()
-{
+bool DiscordComponent::componentInitialize(){
 
   m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
   QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
   m_callbackTimer->setInterval(1000);
   m_callbackTimer->start();
 
-  const uint64_t APPLICATION_ID = 1351551325803909203;
-
   // Create our Discord Client
-  auto client = std::make_shared<discordpp::Client>();
+  m_client = std::make_shared<discordpp::Client>();
 
-  // Set up logging callback
-  client->AddLogCallback(
-  [](auto message, auto severity)
-  { std::cout << "[" << EnumToString(severity) << "] " << message << std::endl; },
-  discordpp::LoggingSeverity::Info);
+  connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
 
-  // Set up status callback to monitor client connection
-  client->SetStatusChangedCallback(
-  [client](discordpp::Client::Status status, discordpp::Client::Error error, int32_t errorDetail)
-  {
-    std::cout << "🔄 Status changed: " << discordpp::Client::StatusToString(status) << std::endl;
+  setupLoggingCallback();
+  setupClientConnectionCallback();
+  authorize();
 
-    if (status == discordpp::Client::Status::Ready)
-    {
-      std::cout << "✅ Client is ready! You can now call SDK functions.\n";
+  return true;
+}
 
-      // Access initial relationships data
-      std::cout << "👥 Friends Count: " << client->GetRelationships().size() << std::endl;
-
-      // Configure rich presence details
-      discordpp::Activity activity;
-      activity.SetType(discordpp::ActivityTypes::Playing);
-      activity.SetState("In Competitive Match");
-      activity.SetDetails("Rank: Diamond II");
-
-      // Update rich presence
-      client->UpdateRichPresence(activity,
-                                 [](discordpp::ClientResult result)
-                                 {
-                                   if (result.Successful())
-                                   {
-                                     std::cout << "🎮 Rich Presence updated successfully!\n";
-                                   }
-                                   else
-                                   {
-                                     std::cerr << "❌ Rich Presence update failed";
-                                   }
-                                 });
-    }
-    else if (error != discordpp::Client::Error::None)
-    {
-      std::cerr << "❌ Connection Error: " << discordpp::Client::ErrorToString(error)
-                << " - Details: " << errorDetail << std::endl;
-    }
-  });
-
+void DiscordComponent::authorize(){
   // Generate OAuth2 code verifier for authentication
-  auto codeVerifier = client->CreateAuthorizationCodeVerifier();
+  auto codeVerifier = m_client->CreateAuthorizationCodeVerifier();
 
   // Set up authentication arguments
   discordpp::AuthorizationArgs args{};
@@ -87,41 +50,102 @@ bool DiscordComponent::componentInitialize()
   args.SetCodeChallenge(codeVerifier.Challenge());
 
   // Begin authentication process
-  client->Authorize(
+  m_client->Authorize(
   args,
-  [client, codeVerifier](auto result, auto code, auto redirectUri)
-  {
-    if (!result.Successful())
-    {
+  [this, codeVerifier](auto result, auto code, auto redirectUri){
+    if (!result.Successful()){
       std::cerr << "❌ Authentication Error: " << result.Error() << std::endl;
       return;
     }
-    else
-    {
-      std::cout << "✅ Authorization successful! Getting access token...\n";
+    else{
+      qDebug() << "✅ Authorization successful! Getting access token...\n";
 
       // Exchange auth code for access token
-      client->GetToken(
+      m_client->GetToken(
       APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri,
-      [client](discordpp::ClientResult result, std::string accessToken, std::string refreshToken,
-               discordpp::AuthorizationTokenType tokenType, int32_t expiresIn, std::string scope)
-      {
-        std::cout << "🔓 Access token received! Establishing connection...\n";
+      [this](discordpp::ClientResult result, std::string accessToken, std::string refreshToken,
+               discordpp::AuthorizationTokenType tokenType, int32_t expiresIn, std::string scope){
+        qDebug() << "🔓 Access token received! Establishing connection...\n";
         // Next Step: Update the token and connect
-        client->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken,
-                            [client](discordpp::ClientResult result)
-                            {
-                              if (result.Successful())
-                              {
-                                std::cout << "🔑 Token updated, connecting to Discord...\n";
-                                client->Connect();
+        m_client->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken,
+                            [this](discordpp::ClientResult result){
+                              if (result.Successful()){
+                                qDebug() << "🔑 Token updated, connecting to Discord...\n";
+                                m_client->Connect();
                               }
                             });
       });
     }
   });
+}
 
-  return true;
+void DiscordComponent::updateActivity(State state){
+  // Configure rich presence details
+  switch (state){
+  case State::PLAYING:
+    makeWatchingActivity();
+    break;
+  
+  default:
+    break;
+  }
+}
+
+void DiscordComponent::updateRichPresence(){
+  // Update rich presence
+  m_client->UpdateRichPresence(m_activity,
+    [](discordpp::ClientResult result){
+      if (result.Successful()){
+        qDebug() << "🎮 Rich Presence updated successfully!\n";
+      }
+      else{
+        qWarning() << "❌ Rich Presence update failed";
+      }
+    });
+}
+
+void DiscordComponent::makeWatchingActivity(){
+  m_activity.SetType(discordpp::ActivityTypes::Playing);
+  m_activity.SetName("Lord of the Rings");
+  m_activity.SetDetails("Time...");
+  discordpp::ActivityTimestamps timestamps;
+  timestamps.SetStart(time(nullptr));
+  timestamps.SetEnd(time(nullptr) + 3600);
+  m_activity.SetTimestamps(timestamps);
+  updateRichPresence();
+}
+
+void DiscordComponent::setupClientConnectionCallback(){
+  // Set up status callback to monitor client connection
+  m_client->SetStatusChangedCallback(
+    [this](discordpp::Client::Status status, discordpp::Client::Error error, int32_t errorDetail){
+      qDebug() << "🔄 Status changed: " << QString::fromStdString(discordpp::Client::StatusToString(status));
+  
+      if (status == discordpp::Client::Status::Ready){
+        m_isConnected = true;
+        m_activity = discordpp::Activity{};
+      }
+      else if (error != discordpp::Client::Error::None){
+        qDebug() << "❌ Connection Error: " << QString::fromStdString(discordpp::Client::ErrorToString(error))
+                  << " - Details: " << errorDetail;
+        m_isConnected = false;
+      }
+    });
+}
+
+void DiscordComponent::setupLoggingCallback(){
+  // Set up logging callback
+  m_client->AddLogCallback(
+    [](auto message, auto severity)
+    { std::cout << "[" << EnumToString(severity) << "] " << message << std::endl; },
+    discordpp::LoggingSeverity::Info);
+}
+
+void DiscordComponent::onPlaying() {
+  qDebug() << "OnPlaying triggered";
+  if(m_isConnected){
+    updateActivity(State::PLAYING);
+  }
 }
 
 void DiscordComponent::runCallbacks() {

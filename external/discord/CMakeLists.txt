@@ -27,3 +27,21 @@ add_library(discord STATIC
 
 # Link the Social SDK library
 target_link_libraries(discord ${DISCORD_LIB_PATH})
+
+# Set the runtime search path (RPATH) for Linux and macOS
+if(UNIX)
+# Use RPATH when building
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    # Set the RPATH to use the lib directory relative to the executable
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+    if(APPLE)
+        set(CMAKE_INSTALL_RPATH "@executable_path")
+    endif()
+endif()
+
+# Copy Social SDK shared library to output directory, so it's available at runtime.
+add_custom_command(TARGET discord POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${DISCORD_SHARED_LIB}"
+    $<TARGET_FILE_DIR:discord>
+)

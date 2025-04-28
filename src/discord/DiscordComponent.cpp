@@ -13,7 +13,7 @@ DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {
 }
 
 void DiscordComponent::valuesUpdated(const QVariantMap& values) {
-  QString state = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toString();
+  bool state = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toBool();
   qDebug() << "[DiscordSettings] State: " << state;
 
 }

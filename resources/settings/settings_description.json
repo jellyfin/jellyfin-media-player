@@ -684,6 +684,11 @@
     "order": 6,
     "values": [
       {
+        "value": "Discord_Integration",
+        "display_name" : "Discord Rich Presence",
+        "default": false
+      },     
+      {
         "value": "other_conf",
         "display_name": "Manual MPV Configuration",
         "help": "Configuration must be supplied in the same format as mpv.conf, with each configuration on a new line. i.e. \"sub-border-size=5\". Removing all set values of a configuration, from both here and the settings above, will only restore it to default once Jellyfin Media Player has restarted.",

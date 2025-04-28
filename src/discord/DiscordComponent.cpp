@@ -1,10 +1,22 @@
 #include "DiscordComponent.h"
+#include "settings/SettingsComponent.h"
+#include "settings/SettingsSection.h"
 
 #include <csignal>
 #include <iostream>
 #include <thread>
 
-DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {}
+DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {
+  qDebug() << "[DiscordSettings] Init";
+  SettingsSection* discordSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER);
+  connect(discordSection, &SettingsSection::valuesUpdated, this, &DiscordComponent::valuesUpdated);
+}
+
+void DiscordComponent::valuesUpdated(const QVariantMap& values) {
+  QString state = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toString();
+  qDebug() << "[DiscordSettings] State: " << state;
+
+}
 
 bool DiscordComponent::componentInitialize()
 {

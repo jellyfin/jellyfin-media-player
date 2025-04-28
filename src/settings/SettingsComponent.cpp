@@ -16,6 +16,7 @@
 #include <QSettings>
 #include "input/InputComponent.h"
 #include "system/SystemComponent.h"
+#include "discord/DiscordComponent.h"
 #include "Version.h"
 
 #define OLDEST_PREVIOUS_VERSION_KEY "oldestPreviousVersion"
@@ -704,12 +705,17 @@ bool SettingsComponent::componentInitialize()
   // then run the signal the first time to make sure that we set the proper visibility
   // on the items from the start.
   //
-  auto  ctrl = new AudioSettingsController(this);
+  auto ctrl = new AudioSettingsController(this);
   QVariantMap val;
   val.insert("devicetype", value(SETTINGS_SECTION_AUDIO, "devicetype"));
   ctrl->valuesUpdated(val);
   connect(ctrl, &AudioSettingsController::settingsUpdated, this, &SettingsComponent::groupUpdate);
 
+  auto dc = &DiscordComponent::Get();
+  QVariantMap dcval; 
+  dcval.insert("Discord_Integration", value(SETTINGS_SECTION_OTHER, "Discord_Integration"));
+  dc->valuesUpdated(dcval);
+  connect(dc, &DiscordComponent::settingsUpdated, this,  &SettingsComponent::groupUpdate);
   return true;
 }
 

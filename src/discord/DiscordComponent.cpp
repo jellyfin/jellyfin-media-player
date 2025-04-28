@@ -8,6 +8,12 @@ DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {}
 
 bool DiscordComponent::componentInitialize()
 {
+
+  m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
+  QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
+  m_callbackTimer->setInterval(1000);
+  m_callbackTimer->start();
+
   const uint64_t APPLICATION_ID = 1351551325803909203;
 
   // Create our Discord Client
@@ -104,6 +110,10 @@ bool DiscordComponent::componentInitialize()
   });
 
   return true;
+}
+
+void DiscordComponent::runCallbacks() {
+  discordpp::RunCallbacks();
 }
 
 const char* DiscordComponent::componentName() { return "DiscordComponent"; }

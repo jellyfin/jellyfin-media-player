@@ -4,6 +4,7 @@
 #include "ComponentManager.h"
 #include "discordpp.h"
 #include <atomic>
+#include <QTimer>
 
 class DiscordComponent : public ComponentBase
 {
@@ -19,6 +20,11 @@ public:
   virtual bool componentExport() override;
 
   discordpp::Client m_client;
+
+  std::unique_ptr<QTimer> m_callbackTimer;
+
+private slots:
+  void runCallbacks();
 };
 
 #endif

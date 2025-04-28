@@ -27,3 +27,4 @@ add_library(discord STATIC
 
 # Link the Social SDK library
 target_link_libraries(discord ${DISCORD_LIB_PATH})
+set_target_properties(discord PROPERTIES LINKER_LANGUAGE C)

@@ -210,7 +210,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: [oracular, noble, jammy]
+        tag: [plucky, oracular, noble, jammy]
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v4

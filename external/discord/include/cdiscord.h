@@ -295,6 +295,7 @@ typedef enum Discord_AuthenticationExternalAuthType {
     Discord_AuthenticationExternalAuthType_EpicOnlineServicesAccessToken = 1,
     Discord_AuthenticationExternalAuthType_EpicOnlineServicesIdToken = 2,
     Discord_AuthenticationExternalAuthType_SteamSessionTicket = 3,
+    Discord_AuthenticationExternalAuthType_UnityServicesIdToken = 4,
     Discord_AuthenticationExternalAuthType_forceint = 0x7FFFFFFF
 } Discord_AuthenticationExternalAuthType;
 
@@ -402,13 +403,13 @@ typedef void (*Discord_Client_VoiceParticipantChangedCallback)(uint64_t lobbyId,
                                                                bool added,
                                                                void* userData);
 typedef void (*Discord_Client_UserAudioReceivedCallback)(uint64_t userId,
-                                                         int16_t const* data,
+                                                         int16_t* data,
                                                          uint64_t samplesPerChannel,
                                                          int32_t sampleRate,
                                                          uint64_t channels,
                                                          bool* outShouldMute,
                                                          void* userData);
-typedef void (*Discord_Client_UserAudioCapturedCallback)(int16_t const* data,
+typedef void (*Discord_Client_UserAudioCapturedCallback)(int16_t* data,
                                                          uint64_t samplesPerChannel,
                                                          int32_t sampleRate,
                                                          uint64_t channels,
@@ -529,6 +530,10 @@ void DISCORD_API Discord_ActivityInvite_SetPartyId(Discord_ActivityInvite* self,
                                                    Discord_String value);
 void DISCORD_API Discord_ActivityInvite_PartyId(Discord_ActivityInvite* self,
                                                 Discord_String* returnValue);
+void DISCORD_API Discord_ActivityInvite_SetSessionId(Discord_ActivityInvite* self,
+                                                     Discord_String value);
+void DISCORD_API Discord_ActivityInvite_SessionId(Discord_ActivityInvite* self,
+                                                  Discord_String* returnValue);
 void DISCORD_API Discord_ActivityInvite_SetIsValid(Discord_ActivityInvite* self, bool value);
 bool DISCORD_API Discord_ActivityInvite_IsValid(Discord_ActivityInvite* self);
 struct Discord_ActivityAssets {
@@ -780,6 +785,7 @@ bool DISCORD_API Discord_Call_GetLocalMute(Discord_Call* self, uint64_t userId);
 void DISCORD_API Discord_Call_GetParticipants(Discord_Call* self, Discord_UInt64Span* returnValue);
 float DISCORD_API Discord_Call_GetParticipantVolume(Discord_Call* self, uint64_t userId);
 bool DISCORD_API Discord_Call_GetPTTActive(Discord_Call* self);
+uint32_t DISCORD_API Discord_Call_GetPTTReleaseDelay(Discord_Call* self);
 bool DISCORD_API Discord_Call_GetSelfDeaf(Discord_Call* self);
 bool DISCORD_API Discord_Call_GetSelfMute(Discord_Call* self);
 Discord_Call_Status DISCORD_API Discord_Call_GetStatus(Discord_Call* self);
@@ -1041,6 +1047,7 @@ void DISCORD_API Discord_Client_InitWithBases(Discord_Client* self,
 void DISCORD_API Discord_Client_Drop(Discord_Client* self);
 void DISCORD_API Discord_Client_ErrorToString(Discord_Client_Error type,
                                               Discord_String* returnValue);
+uint64_t DISCORD_API Discord_Client_GetApplicationId(Discord_Client* self);
 void DISCORD_API Discord_Client_GetDefaultAudioDeviceId(Discord_String* returnValue);
 void DISCORD_API Discord_Client_GetDefaultCommunicationScopes(Discord_String* returnValue);
 void DISCORD_API Discord_Client_GetDefaultPresenceScopes(Discord_String* returnValue);
@@ -1315,6 +1322,7 @@ void DISCORD_API Discord_Client_AddVoiceLogCallback(Discord_Client* self,
 void DISCORD_API Discord_Client_Connect(Discord_Client* self);
 void DISCORD_API Discord_Client_Disconnect(Discord_Client* self);
 Discord_Client_Status DISCORD_API Discord_Client_GetStatus(Discord_Client* self);
+void DISCORD_API Discord_Client_SetApplicationId(Discord_Client* self, uint64_t applicationId);
 bool DISCORD_API Discord_Client_SetLogDir(Discord_Client* self,
                                           Discord_String path,
                                           Discord_LoggingSeverity minSeverity);

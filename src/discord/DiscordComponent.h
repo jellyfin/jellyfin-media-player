@@ -5,6 +5,7 @@
 #include "discordpp.h"
 #include <atomic>
 #include <QTimer>
+#include <QObject>
 
 class DiscordComponent : public ComponentBase
 {
@@ -24,13 +25,18 @@ public:
   void setupClientConnectionCallback();
   void setupLoggingCallback();
   void onPlaying();
+  void onMetaData(const QVariantMap& meta, QUrl baseUrl);
+
   discordpp::Activity m_activity;
   std::shared_ptr<discordpp::Client> m_client;
-  
+
   private:
-  static constexpr uint64_t APPLICATION_ID = 1351551325803909203;
+  static constexpr uint64_t APPLICATION_ID = 1353419508324368404;
   std::unique_ptr<QTimer> m_callbackTimer;
   bool m_isConnected = false;
+  QVariantMap metadata;
+  QUrl m_baseUrl;
+  uint64_t m_position;
   
   enum State { PAUSED, PLAYING, MENU };
   void updateActivity(State state);

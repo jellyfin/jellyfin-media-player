@@ -31,6 +31,7 @@ bool DiscordComponent::componentInitialize(){
   m_client = std::make_shared<discordpp::Client>();
 
   connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
+  connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
 
   setupLoggingCallback();
   setupClientConnectionCallback();
@@ -99,19 +100,30 @@ void DiscordComponent::updateRichPresence(){
         qDebug() << "🎮 Rich Presence updated successfully!\n";
       }
       else{
-        qWarning() << "❌ Rich Presence update failed";
+        qWarning() << "❌ Rich Presence update failed " << result.ToString().c_str();
       }
     });
 }
 
 void DiscordComponent::makeWatchingActivity(){
+  discordpp::ActivityAssets image;
+  QString state;
+  QString details;
+  QString thumbnailUrl;
+  qDebug() << metadata;
+  if (metadata["Type"].toString() == "Movie") {
+      state = metadata["Name"].toString();
+      details = "Watching a movie";
+      thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
+      qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
+      //image.SetLargeImage(thumbnailUrl.toStdString().c_str());
+      image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
+  }
+
+  m_activity.SetAssets(image);
   m_activity.SetType(discordpp::ActivityTypes::Playing);
-  m_activity.SetName("Lord of the Rings");
-  m_activity.SetDetails("Time...");
-  discordpp::ActivityTimestamps timestamps;
-  timestamps.SetStart(time(nullptr));
-  timestamps.SetEnd(time(nullptr) + 3600);
-  m_activity.SetTimestamps(timestamps);
+  m_activity.SetDetails(details.toStdString().c_str());
+  m_activity.SetState(state.toStdString().c_str());
   updateRichPresence();
 }
 
@@ -146,6 +158,12 @@ void DiscordComponent::onPlaying() {
   if(m_isConnected){
     updateActivity(State::PLAYING);
   }
+}
+
+void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
+  metadata = meta;
+  m_position = 0;
+  m_baseUrl = baseUrl;
 }
 
 void DiscordComponent::runCallbacks() {

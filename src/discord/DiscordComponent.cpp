@@ -107,23 +107,52 @@ void DiscordComponent::updateRichPresence(){
 
 void DiscordComponent::makeWatchingActivity(){
   discordpp::ActivityAssets image;
+  discordpp::ActivityTimestamps timestamp;
   QString state;
   QString details;
   QString thumbnailUrl;
-  qDebug() << metadata;
+  qDebug() << "METADATA " << metadata;
   if (metadata["Type"].toString() == "Movie") {
-      state = metadata["Name"].toString();
-      details = "Watching a movie";
-      thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
-      qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
-      //image.SetLargeImage(thumbnailUrl.toStdString().c_str());
-      image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
+    state = metadata["Name"].toString();
+    details = "Watching a movie";
+    thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
+    qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
+    // image.SetLargeImage(thumbnailUrl.toStdString().c_str());
+    // image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
+    image.SetLargeImage("movie");
+  }
+  if (metadata["Type"].toString() == "Episode") {
+    state = metadata["Name"].toString();
+    details = QString("%1 : %2").arg(metadata["SeriesName"].toString(), metadata["SeasonName"].toString());
+    thumbnailUrl = QString("%1/Items/%2/Images/Backdrop").arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
+    image.SetLargeImage("show");
+  }
+  if (metadata["Type"].toString() == "Audio" || metadata["Type"].toString() == "AudioBook"){
+    QStringList artistNames;
+    if (metadata.contains("Artists")) {
+      QVariantList artistsList = metadata["Artists"].toList();
+      for (const QVariant& artist : artistsList) {
+        artistNames << artist.toString();
+      }
+      artistNames.removeDuplicates();
+      
+      state = artistNames.join(", ");
+    }else{
+      state = "Unknown Artist";
+    }
+    details = metadata["Name"].toString();
+    qDebug() << "DETAILS " << details;
+    qDebug() << "STATE " << state;
+    thumbnailUrl = QString("%1/Items/%2/Images/Backdrop").arg(m_baseUrl.toString(), metadata["Id"].toString());
+    image.SetLargeImage("music");
   }
 
+  image.SetSmallImage("jellyfin");
   m_activity.SetAssets(image);
   m_activity.SetType(discordpp::ActivityTypes::Playing);
   m_activity.SetDetails(details.toStdString().c_str());
   m_activity.SetState(state.toStdString().c_str());
+  m_activity.Timestamps()->Drop();
   updateRichPresence();
 }
 

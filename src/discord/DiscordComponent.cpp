@@ -144,7 +144,11 @@ void DiscordComponent::makeWatchingActivity(){
     qDebug() << "DETAILS " << details;
     qDebug() << "STATE " << state;
     thumbnailUrl = QString("%1/Items/%2/Images/Backdrop").arg(m_baseUrl.toString(), metadata["Id"].toString());
-    image.SetLargeImage("music");
+    if (metadata["Type"].toString() == "Audio"){
+      image.SetLargeImage("music");
+    }else if(metadata["Type"].toString() == "AudioBook"){
+      image.SetLargeImage("audiobook");
+    }
   }
 
   image.SetSmallImage("jellyfin");
@@ -152,7 +156,6 @@ void DiscordComponent::makeWatchingActivity(){
   m_activity.SetType(discordpp::ActivityTypes::Playing);
   m_activity.SetDetails(details.toStdString().c_str());
   m_activity.SetState(state.toStdString().c_str());
-  m_activity.Timestamps()->Drop();
   updateRichPresence();
 }
 

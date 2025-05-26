@@ -26,6 +26,7 @@ public:
   void setupLoggingCallback();
   void onPlaying();
   void onMetaData(const QVariantMap& meta, QUrl baseUrl);
+  void onPositionUpdate(quint64 position);
 
   discordpp::Activity m_activity;
   std::shared_ptr<discordpp::Client> m_client;
@@ -36,12 +37,16 @@ public:
   bool m_isConnected = false;
   QVariantMap metadata;
   QUrl m_baseUrl;
-  uint64_t m_position;
+  quint64 m_position;
+  qint64 m_duration;
   
   enum State { PAUSED, PLAYING, MENU };
   void updateActivity(State state);
   void makeWatchingActivity();
+  void makeMenuActivity();
   void updateRichPresence();
+  void onUpdateDuration(qint64 duration);
+  void onStop();
 
 private slots:
   void runCallbacks();

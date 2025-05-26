@@ -7,6 +7,7 @@
 #include <iostream>
 #include <thread>
 #include <QDebug>
+#include <QTimer>
 
 DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {
   qDebug() << "[DiscordSettings] Init";
@@ -32,6 +33,9 @@ bool DiscordComponent::componentInitialize(){
 
   connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
   connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
+  connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &DiscordComponent::onUpdateDuration);
+  connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &DiscordComponent::onPositionUpdate);
+  connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
 
   setupLoggingCallback();
   setupClientConnectionCallback();
@@ -86,7 +90,8 @@ void DiscordComponent::updateActivity(State state){
   case State::PLAYING:
     makeWatchingActivity();
     break;
-  
+  case State::MENU:
+    makeMenuActivity();
   default:
     break;
   }
@@ -97,7 +102,7 @@ void DiscordComponent::updateRichPresence(){
   m_client->UpdateRichPresence(m_activity,
     [](discordpp::ClientResult result){
       if (result.Successful()){
-        qDebug() << "🎮 Rich Presence updated successfully!\n";
+        // qDebug() << "🎮 Rich Presence updated successfully!\n";
       }
       else{
         qWarning() << "❌ Rich Presence update failed " << result.ToString().c_str();
@@ -111,12 +116,12 @@ void DiscordComponent::makeWatchingActivity(){
   QString state;
   QString details;
   QString thumbnailUrl;
-  qDebug() << "METADATA " << metadata;
+  // qDebug() << "METADATA " << metadata;
   if (metadata["Type"].toString() == "Movie") {
     state = metadata["Name"].toString();
     details = "Watching a movie";
     thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
-    qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
+    // qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     // image.SetLargeImage(thumbnailUrl.toStdString().c_str());
     // image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
     image.SetLargeImage("movie");
@@ -141,8 +146,6 @@ void DiscordComponent::makeWatchingActivity(){
       state = "Unknown Artist";
     }
     details = metadata["Name"].toString();
-    qDebug() << "DETAILS " << details;
-    qDebug() << "STATE " << state;
     thumbnailUrl = QString("%1/Items/%2/Images/Backdrop").arg(m_baseUrl.toString(), metadata["Id"].toString());
     if (metadata["Type"].toString() == "Audio"){
       image.SetLargeImage("music");
@@ -151,9 +154,37 @@ void DiscordComponent::makeWatchingActivity(){
     }
   }
 
+  qint64 currentEpochMs = QDateTime::currentMSecsSinceEpoch();
+  qint64 startTimeSeconds = (currentEpochMs - m_position); // When playback actually started
+  qint64 endTimeSeconds = 0;
+  
+  if (m_duration > 0) {
+    endTimeSeconds = (currentEpochMs + (m_duration - m_position)); // When playback will finish
+  }
+  
+  timestamp.SetStart(startTimeSeconds);
+  
+  if (endTimeSeconds > 0) {
+    timestamp.SetEnd(endTimeSeconds);
+  }
   image.SetSmallImage("jellyfin");
   m_activity.SetAssets(image);
   m_activity.SetType(discordpp::ActivityTypes::Playing);
+  m_activity.SetDetails(details.toStdString().c_str());
+  m_activity.SetState(state.toStdString().c_str());
+  m_activity.SetTimestamps(timestamp);
+  updateRichPresence();
+}
+
+void DiscordComponent::makeMenuActivity(){
+  discordpp::ActivityAssets image;
+  discordpp::ActivityTimestamps timestamp;
+  QString details = "In Menu";
+  QString state = "Browsing";
+  image.SetLargeImage("jellyfin");
+  timestamp.SetEnd(QDateTime::currentMSecsSinceEpoch());
+  m_activity.SetTimestamps(timestamp);
+  m_activity.SetAssets(image);
   m_activity.SetDetails(details.toStdString().c_str());
   m_activity.SetState(state.toStdString().c_str());
   updateRichPresence();
@@ -168,6 +199,7 @@ void DiscordComponent::setupClientConnectionCallback(){
       if (status == discordpp::Client::Status::Ready){
         m_isConnected = true;
         m_activity = discordpp::Activity{};
+        updateActivity(State::MENU);
       }
       else if (error != discordpp::Client::Error::None){
         qDebug() << "❌ Connection Error: " << QString::fromStdString(discordpp::Client::ErrorToString(error))
@@ -190,6 +222,20 @@ void DiscordComponent::onPlaying() {
   if(m_isConnected){
     updateActivity(State::PLAYING);
   }
+}
+
+void DiscordComponent::onStop() {
+  updateActivity(State::MENU);
+}
+
+void DiscordComponent::onUpdateDuration(qint64 duration){
+  m_duration = duration;
+  // updateActivity(State::PLAYING);
+}
+
+void DiscordComponent::onPositionUpdate(quint64 position){
+  m_position = position;
+  // updateActivity(State::PLAYING);
 }
 
 void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {

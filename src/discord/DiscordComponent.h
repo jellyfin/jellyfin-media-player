@@ -3,6 +3,7 @@
 
 #include "ComponentManager.h"
 #include "discordpp.h"
+#include "imgur.h"
 #include <atomic>
 #include <QTimer>
 #include <QObject>

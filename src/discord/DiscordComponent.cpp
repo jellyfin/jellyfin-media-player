@@ -116,7 +116,9 @@ void DiscordComponent::makeWatchingActivity(){
   QString state;
   QString details;
   QString thumbnailUrl;
-  // qDebug() << "METADATA " << metadata;
+  Imgur uploader;
+  std::string imgur_link;
+  qDebug() << "METADATA " << metadata;
   if (metadata["Type"].toString() == "Movie") {
     state = metadata["Name"].toString();
     details = "Watching a movie";
@@ -124,13 +126,22 @@ void DiscordComponent::makeWatchingActivity(){
     // qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     // image.SetLargeImage(thumbnailUrl.toStdString().c_str());
     // image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
-    image.SetLargeImage("movie");
+    if(uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+      image.SetLargeImage(imgur_link);
+    }else{
+      image.SetLargeImage("movie");
+    }
   }
   if (metadata["Type"].toString() == "Episode") {
     state = metadata["Name"].toString();
     details = QString("%1 : %2").arg(metadata["SeriesName"].toString(), metadata["SeasonName"].toString());
-    thumbnailUrl = QString("%1/Items/%2/Images/Backdrop").arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
-    image.SetLargeImage("show");
+    thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
+    qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
+    if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+      image.SetLargeImage(imgur_link);
+    }else{
+      image.SetLargeImage("show");
+    }
   }
   if (metadata["Type"].toString() == "Audio" || metadata["Type"].toString() == "AudioBook"){
     QStringList artistNames;
@@ -146,14 +157,25 @@ void DiscordComponent::makeWatchingActivity(){
       state = "Unknown Artist";
     }
     details = metadata["Name"].toString();
-    thumbnailUrl = QString("%1/Items/%2/Images/Backdrop").arg(m_baseUrl.toString(), metadata["Id"].toString());
+    qDebug() << "DETAILS " << details;
+    qDebug() << "STATE " << state;
+    thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
+    qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     if (metadata["Type"].toString() == "Audio"){
-      image.SetLargeImage("music");
+      if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+        image.SetLargeImage(imgur_link);
+      }else{
+        image.SetLargeImage("music");
+      }
     }else if(metadata["Type"].toString() == "AudioBook"){
-      image.SetLargeImage("audiobook");
+      if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+        image.SetLargeImage(imgur_link);
+      }else{
+        image.SetLargeImage("audiobook");
+      }
     }
   }
-
+  qDebug() << "IMGUR LINK: " << imgur_link.c_str();
   qint64 currentEpochMs = QDateTime::currentMSecsSinceEpoch();
   qint64 startTimeSeconds = (currentEpochMs - m_position); // When playback actually started
   qint64 endTimeSeconds = 0;
@@ -251,3 +273,5 @@ void DiscordComponent::runCallbacks() {
 const char* DiscordComponent::componentName() { return "DiscordComponent"; }
 
 bool DiscordComponent::componentExport() { return true; }
+
+    std::string client_id = "70c050548a48f8e";

@@ -30,4 +30,9 @@ target_link_libraries(discord ${DISCORD_LIB_PATH})
 
 std_target_properties(discord)
 
-install(FILES "${DISCORD_SHARED_LIB}" DESTINATION lib)
+if (WIN32)
+    install(FILES "${DISCORD_SHARED_LIB}" DESTINATION .)
+elseif(UNIX)
+    install(FILES "${DISCORD_SHARED_LIB}" DESTINATION lib)
+endif()
+

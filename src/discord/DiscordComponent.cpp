@@ -89,7 +89,7 @@ bool DiscordComponent::componentInitialize()
   // Begin authentication process
   client->Authorize(
   args,
-  [client, codeVerifier](auto result, auto code, auto redirectUri)
+  [client, codeVerifier, APPLICATION_ID](auto result, auto code, auto redirectUri)
   {
     if (!result.Successful())
     {

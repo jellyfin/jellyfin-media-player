@@ -5,13 +5,17 @@
 #include <QFileInfo>
 #include <QIcon>
 #include <QtQml>
-#include <QtWebEngine/qtwebengineglobal.h>
+#include <Qt>
+#include <QtWebEngineQuick>
+#include <qtwebenginecoreglobal.h>
 #include <QErrorMessage>
+#include <QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
+#include <QDebug>
 #include "Paths.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
@@ -46,7 +50,7 @@ static void preinitQt()
 
   // Warning: this must be the same as the default value as declared in
   // the settings_description.json file, or confusion will result.
-  if (useOpengl.type() != QMetaType::Bool)
+  if (useOpengl.typeId() != QMetaType::Bool)
     useOpengl = false;
 
   if (useOpengl.toBool())
@@ -76,7 +80,7 @@ void ShowLicenseInfo()
   QFile licenses(":/misc/licenses.txt");
   licenses.open(QIODevice::ReadOnly | QIODevice::Text);
   QByteArray contents = licenses.readAll();
-  printf("%.*s\n", contents.size(), contents.data());
+  printf("%.*s\n", static_cast<int>(contents.size()), contents.data());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +134,8 @@ int main(int argc, char *argv[])
 
     preinitQt();
     detectOpenGLEarly();
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -157,9 +163,15 @@ int main(int argc, char *argv[])
 
     auto scale = parser.value("scale-factor");
     if (scale.isEmpty() || scale == "auto")
+    {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
       QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    }
     else if (scale != "none")
+    {
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
+    }
 
     auto platform = parser.value("platform");
     if (!(platform.isEmpty() || platform == "default"))
@@ -167,6 +179,7 @@ int main(int argc, char *argv[])
       qputenv("QT_QPA_PLATFORM", platform.toUtf8());
     }
 
+    QtWebEngineQuick::initialize();
     QApplication app(newArgc, newArgv);
     app.setApplicationName("Jellyfin Media Player");
 
@@ -211,12 +224,10 @@ int main(int argc, char *argv[])
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
-    QtWebEngine::initialize();
-
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
 
-    KonvergoWindow::RegisterClass();
+    KonvergoWindow::Register();
     Globals::SetContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see

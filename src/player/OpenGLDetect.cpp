@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QOpenGLContext>
 #include <QDebug>
+#include <QDebug>
 
 #include <mpv/client.h>
 
@@ -50,7 +51,7 @@ static QString probeHwdecInterop()
   mpv::qt::set_property(mpv, "border", false);
   if (mpv_initialize(mpv) < 0)
     return "";
-  return mpv::qt::get_property(mpv, "hwdec-interop").toString();
+  return mpv::qt::get_property(mpv, "gpu-hwdec-interop").toString();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

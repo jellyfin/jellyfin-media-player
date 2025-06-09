@@ -52,6 +52,7 @@ public:
   void onUpdateDuration(qint64 duration);
   void onStop();
   void onPause();
+  bool downloadAndUpload(const std::string& imageUrl, std::string& response);
 
 private slots:
   void runCallbacks();

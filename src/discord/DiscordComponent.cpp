@@ -1,27 +1,32 @@
 #include "DiscordComponent.h"
+#include "DatabaseComponent.h"
+#include "player/PlayerComponent.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
-#include "player/PlayerComponent.h"
 
+#include <QCryptographicHash>
+#include <QDebug>
+#include <QTimer>
 #include <csignal>
 #include <iostream>
 #include <thread>
-#include <QDebug>
-#include <QTimer>
 
-DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {
+DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent)
+{
   qDebug() << "[DiscordSettings] Init";
   SettingsSection* discordSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER);
   connect(discordSection, &SettingsSection::valuesUpdated, this, &DiscordComponent::valuesUpdated);
 }
 
-void DiscordComponent::valuesUpdated(const QVariantMap& values) {
-  bool state = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toBool();
+void DiscordComponent::valuesUpdated(const QVariantMap& values)
+{
+  bool state =
+  SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toBool();
   qDebug() << "[DiscordSettings] State: " << state;
-
 }
 
-bool DiscordComponent::componentInitialize(){
+bool DiscordComponent::componentInitialize()
+{
 
   m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
   QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
@@ -41,9 +46,12 @@ bool DiscordComponent::componentInitialize(){
   memset(&m_discordPresence, 0, sizeof(m_discordPresence));
 
   connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
-  connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
-  connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &DiscordComponent::onUpdateDuration);
-  connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &DiscordComponent::onPositionUpdate);
+  connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this,
+          &DiscordComponent::onMetaData);
+  connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this,
+          &DiscordComponent::onUpdateDuration);
+  connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this,
+          &DiscordComponent::onPositionUpdate);
   connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
   connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
 
@@ -52,94 +60,125 @@ bool DiscordComponent::componentInitialize(){
   return true;
 }
 
-void DiscordComponent::updateActivity(State state){
-  
+void DiscordComponent::updateActivity(State state)
+{
+
   m_currentState = state;
 
-  switch (state){
-  case State::PLAYING:
-    makeWatchingActivity(state);
-    break;
-  case State::MENU:
-    makeMenuActivity();
-    break;
-  case State::PAUSED:
-    makeWatchingActivity(state);
-    break;
-  default:
-    break;
+  switch (state)
+  {
+    case State::PLAYING:
+      makeWatchingActivity(state);
+      break;
+    case State::MENU:
+      makeMenuActivity();
+      break;
+    case State::PAUSED:
+      makeWatchingActivity(state);
+      break;
+    default:
+      break;
   }
 }
 
-void DiscordComponent::updateRichPresence(){
+void DiscordComponent::updateRichPresence()
+{
   // Update rich presence
   Discord_UpdatePresence(&m_discordPresence);
 }
 
-void DiscordComponent::makeWatchingActivity(State watchingState){
+void DiscordComponent::makeWatchingActivity(State watchingState)
+{
   memset(&m_discordPresence, 0, sizeof(m_discordPresence));
   QString state;
   QString details;
   QString thumbnailUrl;
-  Imgur uploader;
   std::string imgur_link;
   qDebug() << "METADATA " << metadata;
-  if (metadata["Type"].toString() == "Movie") {
+  if (metadata["Type"].toString() == "Movie")
+  {
     m_discordPresence.activityType = DiscordActivityType::WATCHING;
     state = QString("%1").arg(metadata["Name"].toString());
     qDebug() << "STATE: " << state;
     details = QString("%1").arg("Watching a movie");
-    thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
+    thumbnailUrl =
+    QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
     // qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     // image.SetLargeImage(thumbnailUrl.toStdString().c_str());
     // image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
-    if(uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+    if (downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link))
+    {
+      // if(uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+      qDebug() << "IMGUR LINK: " << imgur_link.c_str();
       m_discordPresence.largeImageKey = imgur_link.c_str();
-    }else{
+    }
+    else
+    {
       m_discordPresence.largeImageKey = "movie";
     }
   }
-  if (metadata["Type"].toString() == "Episode") {
+  if (metadata["Type"].toString() == "Episode")
+  {
     m_discordPresence.activityType = DiscordActivityType::WATCHING;
     state = QString("%1").arg(metadata["Name"].toString());
-    details = QString("%1 : %2").arg(metadata["SeriesName"].toString(), metadata["SeasonName"].toString());
-    thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
+    details =
+    QString("%1 : %2").arg(metadata["SeriesName"].toString(), metadata["SeasonName"].toString());
+    thumbnailUrl = QString("%1/Items/%2/Images/Primary")
+                   .arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
     qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
-    if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+    if (downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link))
+    {
       m_discordPresence.largeImageKey = imgur_link.c_str();
-    }else{
+    }
+    else
+    {
       m_discordPresence.largeImageKey = "show";
     }
   }
-  if (metadata["Type"].toString() == "Audio" || metadata["Type"].toString() == "AudioBook"){
+  if (metadata["Type"].toString() == "Audio" || metadata["Type"].toString() == "AudioBook")
+  {
     QStringList artistNames;
     m_discordPresence.activityType = DiscordActivityType::LISTENING;
-    if (metadata.contains("Artists")) {
+    if (metadata.contains("Artists"))
+    {
       QVariantList artistsList = metadata["Artists"].toList();
-      for (const QVariant& artist : artistsList) {
+      for (const QVariant& artist : artistsList)
+      {
         artistNames << artist.toString();
       }
       artistNames.removeDuplicates();
-      
+
       state = artistNames.join(", ");
-    }else{
+    }
+    else
+    {
       state = "Unknown Artist";
     }
     details = metadata["Name"].toString();
     qDebug() << "DETAILS " << details;
     qDebug() << "STATE " << state;
-    thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
+    thumbnailUrl =
+    QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
     qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
-    if (metadata["Type"].toString() == "Audio"){
-      if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+    if (metadata["Type"].toString() == "Audio")
+    {
+      if (downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link))
+      {
         m_discordPresence.largeImageKey = imgur_link.c_str();
-      }else{
+      }
+      else
+      {
         m_discordPresence.largeImageKey = "music";
       }
-    }else if(metadata["Type"].toString() == "AudioBook"){
-      if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
+    }
+    else if (metadata["Type"].toString() == "AudioBook")
+    {
+      if (downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link))
+      {
         m_discordPresence.largeImageKey = imgur_link.c_str();
-      }else{
+      }
+      else
+      {
         m_discordPresence.largeImageKey = "audiobook";
       }
     }
@@ -148,24 +187,27 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
   qint64 currentEpochMs = QDateTime::currentMSecsSinceEpoch();
   qint64 startTimeSeconds = (currentEpochMs - m_position); // When playback actually started
   qint64 endTimeSeconds = 0;
-  
-  if (m_duration > 0) {
+
+  if (m_duration > 0)
+  {
     endTimeSeconds = (currentEpochMs + (m_duration - m_position)); // When playback will finish
   }
-  
+
   m_discordPresence.startTimestamp = startTimeSeconds;
 
-  if (endTimeSeconds > 0) {
+  if (endTimeSeconds > 0)
+  {
     m_discordPresence.endTimestamp = endTimeSeconds;
   }
-  
+
   m_discordPresence.smallImageKey = "jellyfin";
   m_discordPresence.details = details.toStdString().c_str();
   m_discordPresence.state = state.toStdString().c_str();
   updateRichPresence();
 }
 
-void DiscordComponent::makeMenuActivity(){
+void DiscordComponent::makeMenuActivity()
+{
   memset(&m_discordPresence, 0, sizeof(m_discordPresence));
   QString details = "In Menu";
   QString state = "Browsing";
@@ -179,61 +221,63 @@ void DiscordComponent::makeMenuActivity(){
   updateRichPresence();
 }
 
-void DiscordComponent::onPlaying() {
-  if(m_isConnected){
+void DiscordComponent::onPlaying()
+{
+  if (m_isConnected)
+  {
     updateActivity(State::PLAYING);
   }
 }
 
-void DiscordComponent::onStop() {
-  updateActivity(State::MENU);
-}
+void DiscordComponent::onStop() { updateActivity(State::MENU); }
 
-void DiscordComponent::onPause() {
-  updateActivity(State::PAUSED);
-}
+void DiscordComponent::onPause() { updateActivity(State::PAUSED); }
 
-void DiscordComponent::onUpdateDuration(qint64 duration){
+void DiscordComponent::onUpdateDuration(qint64 duration)
+{
   m_duration = duration;
   // updateActivity(State::PLAYING);
 }
 
-void DiscordComponent::onPositionUpdate(quint64 position){
+void DiscordComponent::onPositionUpdate(quint64 position)
+{
   m_position = position;
   // updateActivity(State::PLAYING);
 }
 
-void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
+void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl)
+{
   metadata = meta;
   m_position = 0;
   m_baseUrl = baseUrl;
 }
 
-void DiscordComponent::handleDiscordReady(const DiscordUser* connectedUser){
+void DiscordComponent::handleDiscordReady(const DiscordUser* connectedUser)
+{
   qDebug() << "Discord: connected to user";
 }
 
-void DiscordComponent::handleDiscordDisconnected(int errcode, const char* message){
+void DiscordComponent::handleDiscordDisconnected(int errcode, const char* message)
+{
   qDebug() << "Discord: disconnected";
 }
 
-void DiscordComponent::handleDiscordError(int errcode, const char* message){
+void DiscordComponent::handleDiscordError(int errcode, const char* message)
+{
   qDebug() << "Discord: error";
 }
 
-void DiscordComponent::handleDiscordJoin(const char* secret){
-  qDebug() << "Discord: join";
-}
+void DiscordComponent::handleDiscordJoin(const char* secret) { qDebug() << "Discord: join"; }
 
-void DiscordComponent::handleDiscordSpectate(const char* secret){
+void DiscordComponent::handleDiscordSpectate(const char* secret)
+{
   qDebug() << "Discord: spectate";
 }
 
-void DiscordComponent::handleDiscordJoinRequest(const DiscordUser* request){
-  qDebug() << "Join";
-}
+void DiscordComponent::handleDiscordJoinRequest(const DiscordUser* request) { qDebug() << "Join"; }
 
-void DiscordComponent::runCallbacks() {
+void DiscordComponent::runCallbacks()
+{
   Discord_RunCallbacks();
 
   // if(m_currentState == State::PAUSED){
@@ -244,3 +288,46 @@ void DiscordComponent::runCallbacks() {
 const char* DiscordComponent::componentName() { return "DiscordComponent"; }
 
 bool DiscordComponent::componentExport() { return true; }
+
+bool DiscordComponent::downloadAndUpload(const std::string& imageUrl, std::string& response)
+{
+  Imgur uploader;
+  std::vector<char> imageData = uploader.downloadImage(imageUrl);
+
+  // Hashing the imageData
+  QByteArray byteArray(imageData.data(), static_cast<int>(imageData.size()));
+  QByteArray hash = QCryptographicHash::hash(byteArray, QCryptographicHash::Sha256);
+  QString hashHex = hash.toHex();
+
+  if (imageData.empty())
+  {
+    return false;
+  }
+
+  // Check if the URL for this hash already exists in the database
+  QString resultURL = DatabaseComponent::Get().getUrlForHash(hashHex);
+  if (!resultURL.isEmpty())
+  {
+    qDebug() << "Found URL for hash" << hashHex << ": " << resultURL;
+    response = resultURL.toStdString();
+    std::vector<char> downloadData = uploader.downloadImage(resultURL.toStdString()); 
+    // if(downloadData == imageData)
+    // {
+    //   qDebug() << "Image data matches, using cached URL.";
+    //   return true; // No need to upload again
+    // }
+    // else 
+    // {
+    //   qDebug() << downloadData;
+    //   qDebug() << imageData;
+    // }
+  }
+  else
+  {
+    std::string imgur_link;
+    uploader.uploadRaw(imageData, imgur_link);
+    DatabaseComponent::Get().storeUrl(hashHex, QString::fromStdString(imgur_link));
+    response = imgur_link;
+  }
+  return true;
+}

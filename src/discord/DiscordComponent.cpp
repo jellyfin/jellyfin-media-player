@@ -28,8 +28,17 @@ bool DiscordComponent::componentInitialize(){
   m_callbackTimer->setInterval(1000);
   m_callbackTimer->start();
 
-  // Create our Discord Client
-  m_client = std::make_shared<discordpp::Client>();
+  DiscordEventHandlers handlers;
+  memset(&handlers, 0, sizeof(handlers));
+  handlers.ready = handleDiscordReady;
+  handlers.disconnected = handleDiscordDisconnected;
+  handlers.errored = handleDiscordError;
+  handlers.joinGame = handleDiscordJoin;
+  handlers.spectateGame = handleDiscordSpectate;
+  handlers.joinRequest = handleDiscordJoinRequest;
+  Discord_Initialize(this->APPLICATION_ID, &handlers, 1, NULL);
+
+  memset(&m_discordPresence, 0, sizeof(m_discordPresence));
 
   connect(&PlayerComponent::Get(), &PlayerComponent::playing, this, &DiscordComponent::onPlaying);
   connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this, &DiscordComponent::onMetaData);
@@ -38,51 +47,9 @@ bool DiscordComponent::componentInitialize(){
   connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
   connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
 
-  setupLoggingCallback();
-  setupClientConnectionCallback();
-  authorize();
+  makeMenuActivity();
 
   return true;
-}
-
-void DiscordComponent::authorize(){
-  // Generate OAuth2 code verifier for authentication
-  auto codeVerifier = m_client->CreateAuthorizationCodeVerifier();
-
-  // Set up authentication arguments
-  discordpp::AuthorizationArgs args{};
-  args.SetClientId(APPLICATION_ID);
-  args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
-  args.SetCodeChallenge(codeVerifier.Challenge());
-
-  // Begin authentication process
-  m_client->Authorize(
-  args,
-  [this, codeVerifier](auto result, auto code, auto redirectUri){
-    if (!result.Successful()){
-      std::cerr << "❌ Authentication Error: " << result.Error() << std::endl;
-      return;
-    }
-    else{
-      qDebug() << "✅ Authorization successful! Getting access token...\n";
-
-      // Exchange auth code for access token
-      m_client->GetToken(
-      APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri,
-      [this](discordpp::ClientResult result, std::string accessToken, std::string refreshToken,
-               discordpp::AuthorizationTokenType tokenType, int32_t expiresIn, std::string scope){
-        qDebug() << "🔓 Access token received! Establishing connection...\n";
-        // Next Step: Update the token and connect
-        m_client->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken,
-                            [this](discordpp::ClientResult result){
-                              if (result.Successful()){
-                                qDebug() << "🔑 Token updated, connecting to Discord...\n";
-                                m_client->Connect();
-                              }
-                            });
-      });
-    }
-  });
 }
 
 void DiscordComponent::updateActivity(State state){
@@ -106,20 +73,11 @@ void DiscordComponent::updateActivity(State state){
 
 void DiscordComponent::updateRichPresence(){
   // Update rich presence
-  m_client->UpdateRichPresence(m_activity,
-    [](discordpp::ClientResult result){
-      if (result.Successful()){
-        // qDebug() << "🎮 Rich Presence updated successfully!\n";
-      }
-      else{
-        qWarning() << "❌ Rich Presence update failed " << result.ToString().c_str();
-      }
-    });
+  Discord_UpdatePresence(&m_discordPresence);
 }
 
 void DiscordComponent::makeWatchingActivity(State watchingState){
-  discordpp::ActivityAssets image;
-  discordpp::ActivityTimestamps timestamp;
+  memset(&m_discordPresence, 0, sizeof(m_discordPresence));
   QString state;
   QString details;
   QString thumbnailUrl;
@@ -134,9 +92,9 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
     // image.SetLargeImage(thumbnailUrl.toStdString().c_str());
     // image.SetLargeImage("https://10.0.0.4:8920/Items/95237878fc8fa852c3f9de9b5cfdd5d0/Images/Primary");
     if(uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
-      image.SetLargeImage(imgur_link);
+      m_discordPresence.largeImageKey = imgur_link.c_str();
     }else{
-      image.SetLargeImage("movie");
+      m_discordPresence.largeImageKey = "movie";
     }
   }
   if (metadata["Type"].toString() == "Episode") {
@@ -145,9 +103,9 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
     thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
     qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
-      image.SetLargeImage(imgur_link);
+      m_discordPresence.largeImageKey = imgur_link.c_str();
     }else{
-      image.SetLargeImage("show");
+      m_discordPresence.largeImageKey = "show";
     }
   }
   if (metadata["Type"].toString() == "Audio" || metadata["Type"].toString() == "AudioBook"){
@@ -170,73 +128,52 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
     qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     if (metadata["Type"].toString() == "Audio"){
       if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
-        image.SetLargeImage(imgur_link);
+        m_discordPresence.largeImageKey = imgur_link.c_str();
       }else{
-        image.SetLargeImage("music");
+        m_discordPresence.largeImageKey = "music";
       }
     }else if(metadata["Type"].toString() == "AudioBook"){
       if (uploader.downloadAndUpload(thumbnailUrl.toStdString().c_str(), imgur_link)){
-        image.SetLargeImage(imgur_link);
+        m_discordPresence.largeImageKey = imgur_link.c_str();
       }else{
-        image.SetLargeImage("audiobook");
+        m_discordPresence.largeImageKey = "audiobook";
       }
     }
   }
   qDebug() << "IMGUR LINK: " << imgur_link.c_str();
   qint64 currentEpochMs = QDateTime::currentMSecsSinceEpoch();
   qint64 startTimeSeconds = (currentEpochMs - m_position); // When playback actually started
+  qint64 endTimeSeconds = 0;
   
-  timestamp.SetStart(startTimeSeconds);
-  timestamp.SetEnd(startTimeSeconds);
+  if (m_duration > 0) {
+    endTimeSeconds = (currentEpochMs + (m_duration - m_position)); // When playback will finish
+  }
   
-  image.SetSmallImage("jellyfin");
-  m_activity.SetAssets(image);
-  m_activity.SetType(discordpp::ActivityTypes::Playing);
-  m_activity.SetDetails(details.toStdString().c_str());
-  m_activity.SetState(state.toStdString().c_str());
-  m_activity.SetTimestamps(timestamp);
+  m_discordPresence.startTimestamp = startTimeSeconds;
+
+  if (endTimeSeconds > 0) {
+    m_discordPresence.endTimestamp = endTimeSeconds;
+  }
+  
+  m_discordPresence.smallImageKey = "jellyfin";
+  m_discordPresence.activityType = DiscordActivityType::WATCHING;
+  m_discordPresence.details = details.toStdString().c_str();
+  m_discordPresence.state = state.toStdString().c_str();
   updateRichPresence();
 }
 
 void DiscordComponent::makeMenuActivity(){
-  discordpp::ActivityAssets image;
-  discordpp::ActivityTimestamps timestamp;
+  memset(&m_discordPresence, 0, sizeof(m_discordPresence));
   QString details = "In Menu";
   QString state = "Browsing";
-  image.SetLargeImage("jellyfin");
-  timestamp.SetEnd(QDateTime::currentMSecsSinceEpoch());
-  m_activity.SetTimestamps(timestamp);
-  m_activity.SetAssets(image);
-  m_activity.SetDetails(details.toStdString().c_str());
-  m_activity.SetState(state.toStdString().c_str());
+  m_discordPresence.activityType = DiscordActivityType::WATCHING;
+  m_discordPresence.smallImageKey = "jellyfin";
+  m_discordPresence.largeImageKey = "jellyfin";
+  m_discordPresence.startTimestamp = QDateTime::currentMSecsSinceEpoch();
+  m_discordPresence.endTimestamp = QDateTime::currentMSecsSinceEpoch();
+  m_discordPresence.details = details.toStdString().c_str();
+  m_discordPresence.state = state.toStdString().c_str();
   updateRichPresence();
-}
-
-void DiscordComponent::setupClientConnectionCallback(){
-  // Set up status callback to monitor client connection
-  m_client->SetStatusChangedCallback(
-    [this](discordpp::Client::Status status, discordpp::Client::Error error, int32_t errorDetail){
-      qDebug() << "🔄 Status changed: " << QString::fromStdString(discordpp::Client::StatusToString(status));
-  
-      if (status == discordpp::Client::Status::Ready){
-        m_isConnected = true;
-        m_activity = discordpp::Activity{};
-        updateActivity(State::MENU);
-      }
-      else if (error != discordpp::Client::Error::None){
-        qDebug() << "❌ Connection Error: " << QString::fromStdString(discordpp::Client::ErrorToString(error))
-                  << " - Details: " << errorDetail;
-        m_isConnected = false;
-      }
-    });
-}
-
-void DiscordComponent::setupLoggingCallback(){
-  // Set up logging callback
-  m_client->AddLogCallback(
-    [](auto message, auto severity)
-    { std::cout << "[" << EnumToString(severity) << "] " << message << std::endl; },
-    discordpp::LoggingSeverity::Info);
 }
 
 void DiscordComponent::onPlaying() {
@@ -269,8 +206,32 @@ void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
   m_baseUrl = baseUrl;
 }
 
+void DiscordComponent::handleDiscordReady(const DiscordUser* connectedUser){
+  qDebug() << "Discord: connected to user";
+}
+
+void DiscordComponent::handleDiscordDisconnected(int errcode, const char* message){
+  qDebug() << "Discord: disconnected";
+}
+
+void DiscordComponent::handleDiscordError(int errcode, const char* message){
+  qDebug() << "Discord: error";
+}
+
+void DiscordComponent::handleDiscordJoin(const char* secret){
+  qDebug() << "Discord: join";
+}
+
+void DiscordComponent::handleDiscordSpectate(const char* secret){
+  qDebug() << "Discord: spectate";
+}
+
+void DiscordComponent::handleDiscordJoinRequest(const DiscordUser* request){
+  qDebug() << "Join";
+}
+
 void DiscordComponent::runCallbacks() {
-  discordpp::RunCallbacks();
+  Discord_RunCallbacks();
 
   // if(m_currentState == State::PAUSED){
   //   makeWatchingActivity(m_currentState);

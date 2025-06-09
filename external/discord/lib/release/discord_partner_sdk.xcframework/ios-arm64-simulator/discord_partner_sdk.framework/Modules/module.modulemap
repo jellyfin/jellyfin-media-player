@@ -1,5 +1,0 @@
-framework module discord_partner_sdk {
-  umbrella header "discord_partner_sdk.h"
-  export *
-  module * { export * }
-}

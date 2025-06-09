@@ -42,9 +42,10 @@ public:
   QUrl m_baseUrl;
   quint64 m_position;
   qint64 m_duration;
+  std::string m_imgurLink;
   
   enum State { PAUSED, PLAYING, MENU };
-  State m_currentState = State::MENU;
+  State m_currentState;
   void updateActivity(State state);
   void makeWatchingActivity(State state);
   void makeMenuActivity();
@@ -52,6 +53,8 @@ public:
   void onUpdateDuration(qint64 duration);
   void onStop();
   void onPause();
+  void onMpvEvents();
+  void onFinished();
 
 private slots:
   void runCallbacks();

@@ -36,6 +36,7 @@ bool DiscordComponent::componentInitialize(){
   connect(&PlayerComponent::Get(), &PlayerComponent::updateDuration, this, &DiscordComponent::onUpdateDuration);
   connect(&PlayerComponent::Get(), &PlayerComponent::positionUpdate, this, &DiscordComponent::onPositionUpdate);
   connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
+  connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
 
   setupLoggingCallback();
   setupClientConnectionCallback();
@@ -85,13 +86,19 @@ void DiscordComponent::authorize(){
 }
 
 void DiscordComponent::updateActivity(State state){
-  // Configure rich presence details
+  
+  m_currentState = state;
+
   switch (state){
   case State::PLAYING:
-    makeWatchingActivity();
+    makeWatchingActivity(state);
     break;
   case State::MENU:
     makeMenuActivity();
+    break;
+  case State::PAUSED:
+    makeWatchingActivity(state);
+    break;
   default:
     break;
   }
@@ -110,7 +117,7 @@ void DiscordComponent::updateRichPresence(){
     });
 }
 
-void DiscordComponent::makeWatchingActivity(){
+void DiscordComponent::makeWatchingActivity(State watchingState){
   discordpp::ActivityAssets image;
   discordpp::ActivityTimestamps timestamp;
   QString state;
@@ -178,17 +185,10 @@ void DiscordComponent::makeWatchingActivity(){
   qDebug() << "IMGUR LINK: " << imgur_link.c_str();
   qint64 currentEpochMs = QDateTime::currentMSecsSinceEpoch();
   qint64 startTimeSeconds = (currentEpochMs - m_position); // When playback actually started
-  qint64 endTimeSeconds = 0;
-  
-  if (m_duration > 0) {
-    endTimeSeconds = (currentEpochMs + (m_duration - m_position)); // When playback will finish
-  }
   
   timestamp.SetStart(startTimeSeconds);
+  timestamp.SetEnd(startTimeSeconds);
   
-  if (endTimeSeconds > 0) {
-    timestamp.SetEnd(endTimeSeconds);
-  }
   image.SetSmallImage("jellyfin");
   m_activity.SetAssets(image);
   m_activity.SetType(discordpp::ActivityTypes::Playing);
@@ -240,7 +240,6 @@ void DiscordComponent::setupLoggingCallback(){
 }
 
 void DiscordComponent::onPlaying() {
-  qDebug() << "OnPlaying triggered";
   if(m_isConnected){
     updateActivity(State::PLAYING);
   }
@@ -248,6 +247,10 @@ void DiscordComponent::onPlaying() {
 
 void DiscordComponent::onStop() {
   updateActivity(State::MENU);
+}
+
+void DiscordComponent::onPause() {
+  updateActivity(State::PAUSED);
 }
 
 void DiscordComponent::onUpdateDuration(qint64 duration){
@@ -268,10 +271,12 @@ void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl) {
 
 void DiscordComponent::runCallbacks() {
   discordpp::RunCallbacks();
+
+  // if(m_currentState == State::PAUSED){
+  //   makeWatchingActivity(m_currentState);
+  // }
 }
 
 const char* DiscordComponent::componentName() { return "DiscordComponent"; }
 
 bool DiscordComponent::componentExport() { return true; }
-
-    std::string client_id = "70c050548a48f8e";

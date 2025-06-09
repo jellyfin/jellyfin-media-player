@@ -38,6 +38,7 @@ public:
   const char* APPLICATION_ID = "1353419508324368404";
   std::unique_ptr<QTimer> m_callbackTimer;
   bool m_isConnected = true;
+  bool m_richPresenceEnabled = false;
   QVariantMap metadata;
   QUrl m_baseUrl;
   quint64 m_position;

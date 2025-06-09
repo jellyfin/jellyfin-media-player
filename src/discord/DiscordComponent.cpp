@@ -11,27 +11,31 @@
 #include <iostream>
 #include <thread>
 
-DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent)
-{
-  qDebug() << "[DiscordSettings] Init";
-  SettingsSection* discordSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER);
-  connect(discordSection, &SettingsSection::valuesUpdated, this, &DiscordComponent::valuesUpdated);
-}
+DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent){}
 
 void DiscordComponent::valuesUpdated(const QVariantMap& values)
 {
-  bool state =
+  bool m_richPresenceEnabled =
   SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toBool();
-  qDebug() << "[DiscordSettings] State: " << state;
+  qDebug() << "[DiscordSettings] State: " << m_richPresenceEnabled;
+
+  if(m_richPresenceEnabled) 
+  {
+    qDebug() << "[DiscordSettings] Starting Discord Rich Presence";
+    m_callbackTimer->start();
+  }
+  else 
+  {
+    qDebug() << "[DiscordSettings] Discord Rich Presence is disabled";
+    m_callbackTimer->stop();
+  }
 }
 
 bool DiscordComponent::componentInitialize()
 {
-
   m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
   QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
   m_callbackTimer->setInterval(1000);
-  m_callbackTimer->start();
 
   DiscordEventHandlers handlers;
   memset(&handlers, 0, sizeof(handlers));
@@ -56,6 +60,9 @@ bool DiscordComponent::componentInitialize()
   connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
 
   makeMenuActivity();
+
+  SettingsSection* discordSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER);
+  // connect(discordSection, &SettingsSection::valuesUpdated, this, &DiscordComponent::valuesUpdated);
 
   return true;
 }

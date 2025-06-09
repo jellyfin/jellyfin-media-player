@@ -85,8 +85,10 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
   std::string imgur_link;
   qDebug() << "METADATA " << metadata;
   if (metadata["Type"].toString() == "Movie") {
-    state = metadata["Name"].toString();
-    details = "Watching a movie";
+    m_discordPresence.activityType = DiscordActivityType::WATCHING;
+    state = QString("%1").arg(metadata["Name"].toString());
+    qDebug() << "STATE: " << state;
+    details = QString("%1").arg("Watching a movie");
     thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
     // qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
     // image.SetLargeImage(thumbnailUrl.toStdString().c_str());
@@ -98,7 +100,8 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
     }
   }
   if (metadata["Type"].toString() == "Episode") {
-    state = metadata["Name"].toString();
+    m_discordPresence.activityType = DiscordActivityType::WATCHING;
+    state = QString("%1").arg(metadata["Name"].toString());
     details = QString("%1 : %2").arg(metadata["SeriesName"].toString(), metadata["SeasonName"].toString());
     thumbnailUrl = QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["ParentBackdropItemId"].toString());
     qDebug() << "THUMBNAIL URL: " << thumbnailUrl;
@@ -110,6 +113,7 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
   }
   if (metadata["Type"].toString() == "Audio" || metadata["Type"].toString() == "AudioBook"){
     QStringList artistNames;
+    m_discordPresence.activityType = DiscordActivityType::LISTENING;
     if (metadata.contains("Artists")) {
       QVariantList artistsList = metadata["Artists"].toList();
       for (const QVariant& artist : artistsList) {
@@ -156,7 +160,6 @@ void DiscordComponent::makeWatchingActivity(State watchingState){
   }
   
   m_discordPresence.smallImageKey = "jellyfin";
-  m_discordPresence.activityType = DiscordActivityType::WATCHING;
   m_discordPresence.details = details.toStdString().c_str();
   m_discordPresence.state = state.toStdString().c_str();
   updateRichPresence();

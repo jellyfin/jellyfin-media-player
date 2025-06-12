@@ -21,10 +21,6 @@ public:
 
   bool storeUrl(const QString& hash, const QString& url);
   QString getUrlForHash(const QString& hash);
-
-private:
-  const QString DATABASE_NAME = "imgur_link_mapping";
-  QString getDatabasePath();
 };
 
 #endif

@@ -7,6 +7,18 @@
 
 #include "DatabaseComponent.h"
 
+namespace
+{
+  QString getDataBaseName() { return "imgur_link_mapping"; }
+
+  QString getDatabasePath()
+  {
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(path); // Ensure the directory exists
+    return path + "/" + ::getDataBaseName() + ".sqlite";
+  }
+} // namespace
+
 DatabaseComponent::DatabaseComponent(QObject* parent) : ComponentBase(parent)
 {
   qDebug() << "[DatabaseComponent] Init";
@@ -15,7 +27,7 @@ DatabaseComponent::DatabaseComponent(QObject* parent) : ComponentBase(parent)
 bool DatabaseComponent::componentInitialize()
 {
   qDebug() << "[DatabaseComponent] Initializing database";
-  QString dbPath = getDatabasePath();
+  QString dbPath = ::getDatabasePath();
   bool dbExists = QFile::exists(dbPath);
 
   QSqlDatabase m_db = QSqlDatabase::addDatabase("QSQLITE"); // Driver for SQLite
@@ -36,7 +48,7 @@ bool DatabaseComponent::componentInitialize()
                                   " hash TEXT PRIMARY KEY,"
                                   " value TEXT NOT NULL"
                                   ");")
-                          .arg(DATABASE_NAME);
+                          .arg(::getDataBaseName());
 
     if (!query.exec(createTable))
     {
@@ -58,7 +70,7 @@ bool DatabaseComponent::storeUrl(const QString& hash, const QString& url)
   QString sql = QString("INSERT INTO %1(hash, value)"
                         "VALUES (:hash, :url)"
                         "ON CONFLICT(hash) DO UPDATE SET value = excluded.value;")
-                .arg(DATABASE_NAME);
+                .arg(::getDataBaseName());
 
   query.prepare(sql);
   query.bindValue(":hash", hash);
@@ -77,7 +89,7 @@ bool DatabaseComponent::storeUrl(const QString& hash, const QString& url)
 QString DatabaseComponent::getUrlForHash(const QString& hash)
 {
   QSqlQuery query;
-  QString sql = QString("SELECT value FROM %1 WHERE hash = :hash").arg(DATABASE_NAME);
+  QString sql = QString("SELECT value FROM %1 WHERE hash = :hash").arg(::getDataBaseName());
   query.prepare(sql);
   query.bindValue(":hash", hash);
 
@@ -95,13 +107,6 @@ QString DatabaseComponent::getUrlForHash(const QString& hash)
   }
 
   return {}; // Not found
-}
-
-QString DatabaseComponent::getDatabasePath()
-{
-  QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-  QDir().mkpath(path); // Ensure the directory exists
-  return path + "/" + DATABASE_NAME + ".sqlite";
 }
 
 const char* DatabaseComponent::componentName() { return "DatabaseComponent"; }

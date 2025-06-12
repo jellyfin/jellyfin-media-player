@@ -27,15 +27,15 @@ void DiscordComponent::valuesUpdated(const QVariantMap& values)
 
   if (m_richPresenceEnabled)
   {
-    qDebug() << "[DiscordSettings] Starting Discord Rich Presence";
     m_tryConnectTimer->start();
+    qDebug() << "[DiscordSettings] Starting Discord Rich Presence";
   }
   else
   {
-    qDebug() << "[DiscordSettings] Discord Rich Presence is disabled";
     m_tryConnectTimer->stop();
     setIsDisconnected();
     Discord_Shutdown();
+    qDebug() << "[DiscordSettings] Discord Rich Presence is disabled";
   }
 }
 
@@ -99,7 +99,6 @@ void DiscordComponent::setIsDisconnected()
 
 void DiscordComponent::updateActivity(State state)
 {
-
   m_currentState = state;
 
   switch (state)
@@ -126,6 +125,7 @@ void DiscordComponent::updateRichPresence()
 
 void DiscordComponent::makeWatchingActivity(State watchingState)
 {
+  // Warum
   memset(&m_discordPresence, 0, sizeof(m_discordPresence));
   QString state;
   QString details;

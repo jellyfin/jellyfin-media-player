@@ -29,11 +29,8 @@ public:
   void onMetaData(const QVariantMap& meta, QUrl baseUrl);
   void onPositionUpdate(quint64 position);
 
-  DiscordRichPresence m_discordPresence;
-
 public slots:
   void valuesUpdated(const QVariantMap& values);
-  void tryConnect();
 
 signals:
   void settingsUpdated(const QString& section, const QVariant& description);
@@ -43,10 +40,8 @@ private:
   std::unique_ptr<QTimer> m_callbackTimer;
   std::unique_ptr<QTimer> m_tryConnectTimer;
 
+  DiscordRichPresence m_discordPresence;
   DiscordEventHandlers m_handlers;
-
-  void setIsConnected();
-  void setIsDisconnected();
 
   bool m_isConnected = false;
   bool m_richPresenceEnabled = false;
@@ -62,6 +57,11 @@ private:
     MENU
   };
   State m_currentState = State::MENU;
+
+private:
+  void setIsConnected();
+  void setIsDisconnected();
+
   void updateActivity(State state);
   void makeWatchingActivity(State state);
   void makeMenuActivity();
@@ -73,6 +73,7 @@ private:
 
 private slots:
   void runCallbacks();
+  void tryConnect();
 };
 
 #endif

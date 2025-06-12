@@ -11,41 +11,48 @@
 #include <iostream>
 #include <thread>
 
-DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent){}
+DiscordComponent::DiscordComponent(QObject* parent) : ComponentBase(parent) {}
 
 void DiscordComponent::valuesUpdated(const QVariantMap& values)
 {
-  bool m_richPresenceEnabled =
+  m_richPresenceEnabled =
   SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "Discord_Integration").toBool();
   qDebug() << "[DiscordSettings] State: " << m_richPresenceEnabled;
 
-  if(m_richPresenceEnabled) 
+  if (m_tryConnectTimer.get() == nullptr)
+  {
+    qDebug() << "[DiscordSettings] ConnectTimer not avaliable";
+    return;
+  }
+
+  if (m_richPresenceEnabled)
   {
     qDebug() << "[DiscordSettings] Starting Discord Rich Presence";
-    m_callbackTimer->start();
+    m_tryConnectTimer->start();
   }
-  else 
+  else
   {
     qDebug() << "[DiscordSettings] Discord Rich Presence is disabled";
-    m_callbackTimer->stop();
+    m_tryConnectTimer->stop();
+    setIsDisconnected();
+    Discord_Shutdown();
   }
 }
 
 bool DiscordComponent::componentInitialize()
 {
+  // callback Timer needs to be running the entire time, otherwise we wont receive any feedback from
+  // discord (including connecting and disconnecting)
   m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
-  QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
   m_callbackTimer->setInterval(1000);
+  QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
+  m_callbackTimer->start();
 
-  DiscordEventHandlers handlers;
-  memset(&handlers, 0, sizeof(handlers));
-  handlers.ready = handleDiscordReady;
-  handlers.disconnected = handleDiscordDisconnected;
-  handlers.errored = handleDiscordError;
-  handlers.joinGame = handleDiscordJoin;
-  handlers.spectateGame = handleDiscordSpectate;
-  handlers.joinRequest = handleDiscordJoinRequest;
-  Discord_Initialize(this->APPLICATION_ID, &handlers, 1, NULL);
+  // set the handle functions to react to connect, disconnect and error
+  memset(&m_handlers, 0, sizeof(m_handlers));
+  m_handlers.ready = handleDiscordReady;
+  m_handlers.disconnected = handleDiscordDisconnected;
+  m_handlers.errored = handleDiscordError;
 
   memset(&m_discordPresence, 0, sizeof(m_discordPresence));
 
@@ -61,10 +68,33 @@ bool DiscordComponent::componentInitialize()
 
   makeMenuActivity();
 
+  // Background Timer trying to periodically reconnect to discord
+  m_tryConnectTimer = std::make_unique<QTimer>(new QTimer(this));
+  QObject::connect(m_tryConnectTimer.get(), &QTimer::timeout, this, &DiscordComponent::tryConnect);
+  m_tryConnectTimer->setInterval(10000);
+
+  if (m_richPresenceEnabled)
+  {
+    m_tryConnectTimer->start();
+  }
+
   SettingsSection* discordSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER);
-  // connect(discordSection, &SettingsSection::valuesUpdated, this, &DiscordComponent::valuesUpdated);
+  connect(discordSection, &SettingsSection::valuesUpdated, this, &DiscordComponent::valuesUpdated);
 
   return true;
+}
+
+void DiscordComponent::setIsConnected()
+{
+  m_isConnected = true;
+  m_tryConnectTimer->stop();
+}
+
+void DiscordComponent::setIsDisconnected()
+{
+  m_isConnected = false;
+  if (m_richPresenceEnabled)
+    m_tryConnectTimer->start();
 }
 
 void DiscordComponent::updateActivity(State state)
@@ -262,26 +292,25 @@ void DiscordComponent::onMetaData(const QVariantMap& meta, QUrl baseUrl)
 void DiscordComponent::handleDiscordReady(const DiscordUser* connectedUser)
 {
   qDebug() << "Discord: connected to user";
+  DiscordComponent::Get().setIsConnected();
 }
 
 void DiscordComponent::handleDiscordDisconnected(int errcode, const char* message)
 {
   qDebug() << "Discord: disconnected";
+  DiscordComponent::Get().setIsDisconnected();
 }
 
 void DiscordComponent::handleDiscordError(int errcode, const char* message)
 {
-  qDebug() << "Discord: error";
+  qDebug() << "Discord Error [" << errcode << "] occured: " << message;
 }
 
-void DiscordComponent::handleDiscordJoin(const char* secret) { qDebug() << "Discord: join"; }
-
-void DiscordComponent::handleDiscordSpectate(const char* secret)
+void DiscordComponent::tryConnect()
 {
-  qDebug() << "Discord: spectate";
+  qDebug() << "[DiscordComponent] trying to Connect to Discord! ";
+  Discord_Initialize(this->APPLICATION_ID, &m_handlers, 1, NULL);
 }
-
-void DiscordComponent::handleDiscordJoinRequest(const DiscordUser* request) { qDebug() << "Join"; }
 
 void DiscordComponent::runCallbacks()
 {
@@ -317,13 +346,13 @@ bool DiscordComponent::downloadAndUpload(const std::string& imageUrl, std::strin
   {
     qDebug() << "Found URL for hash" << hashHex << ": " << resultURL;
     response = resultURL.toStdString();
-    std::vector<char> downloadData = uploader.downloadImage(resultURL.toStdString()); 
+    std::vector<char> downloadData = uploader.downloadImage(resultURL.toStdString());
     // if(downloadData == imageData)
     // {
     //   qDebug() << "Image data matches, using cached URL.";
     //   return true; // No need to upload again
     // }
-    // else 
+    // else
     // {
     //   qDebug() << downloadData;
     //   qDebug() << imageData;

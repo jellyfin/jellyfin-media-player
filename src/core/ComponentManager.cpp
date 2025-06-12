@@ -5,8 +5,8 @@
 
 #include "ComponentManager.h"
 
-#include "discord/DiscordComponent.h"
 #include "discord/DatabaseComponent.h"
+#include "discord/DiscordComponent.h"
 #include "display/DisplayComponent.h"
 #include "input/InputComponent.h"
 #include "player/PlayerComponent.h"
@@ -58,8 +58,8 @@ void ComponentManager::initialize()
   registerComponent(&PlayerComponent::Get());
   registerComponent(&PowerComponent::Get());
   registerComponent(&TaskbarComponent::Get());
-  registerComponent(&DiscordComponent::Get());
   registerComponent(&DatabaseComponent::Get());
+  registerComponent(&DiscordComponent::Get());
 
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());

@@ -20,7 +20,7 @@ bool DatabaseComponent::componentInitialize()
 
   QSqlDatabase m_db = QSqlDatabase::addDatabase("QSQLITE"); // Driver for SQLite
   m_db.setDatabaseName(dbPath);
-  
+
   if (!m_db.open())
   {
     qCritical() << "[DatabaseComponent] Failed to open database:" << m_db.lastError().text();
@@ -30,14 +30,13 @@ bool DatabaseComponent::componentInitialize()
   if (!dbExists)
   {
     qDebug() << "[DatabaseComponent] Database created for the first time at:" << dbPath;
-    
+
     QSqlQuery query;
-    QString createTable = QString(
-      "CREATE TABLE IF NOT EXISTS %1 ("
-      " hash TEXT PRIMARY KEY,"
-      " value TEXT NOT NULL"
-      ");"
-    ).arg(DATABASE_NAME);
+    QString createTable = QString("CREATE TABLE IF NOT EXISTS %1 ("
+                                  " hash TEXT PRIMARY KEY,"
+                                  " value TEXT NOT NULL"
+                                  ");")
+                          .arg(DATABASE_NAME);
 
     if (!query.exec(createTable))
     {
@@ -56,13 +55,12 @@ bool DatabaseComponent::componentInitialize()
 bool DatabaseComponent::storeUrl(const QString& hash, const QString& url)
 {
   QSqlQuery query;
-  QString sql = QString(
-        "INSERT INTO %1(hash, value)"
-        "VALUES (:hash, :url)"
-        "ON CONFLICT(hash) DO UPDATE SET value = excluded.value;"
-    ).arg(DATABASE_NAME);
-  
-    query.prepare(sql);
+  QString sql = QString("INSERT INTO %1(hash, value)"
+                        "VALUES (:hash, :url)"
+                        "ON CONFLICT(hash) DO UPDATE SET value = excluded.value;")
+                .arg(DATABASE_NAME);
+
+  query.prepare(sql);
   query.bindValue(":hash", hash);
   query.bindValue(":url", url);
 

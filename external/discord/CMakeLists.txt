@@ -31,6 +31,6 @@ target_link_libraries(discord ${DISCORD_LIB_PATH})
 if (WIN32)
     install(FILES "${DISCORD_SHARED_LIB}" DESTINATION .)
 elseif(UNIX)
-    install(FILES "${DISCORD_SHARED_LIB}" DESTINATION lib)
+    install(FILES "${DISCORD_SHARED_LIB}" DESTINATION /lib)
 endif()
 

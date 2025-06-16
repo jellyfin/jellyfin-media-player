@@ -65,8 +65,6 @@ bool DiscordComponent::componentInitialize()
           &DiscordComponent::onPositionUpdate);
   connect(&PlayerComponent::Get(), &PlayerComponent::stopped, this, &DiscordComponent::onStop);
   connect(&PlayerComponent::Get(), &PlayerComponent::paused, this, &DiscordComponent::onPause);
-  connect(&PlayerComponent::Get(), &PlayerComponent::onMpvEvents, this,
-          &DiscordComponent::onMpvEvents);
 
   // Background Timer trying to periodically reconnect to discord
   m_tryConnectTimer = std::make_unique<QTimer>(new QTimer(this));

@@ -69,7 +69,6 @@ private:
   void onStop();
   void onPause();
   bool downloadAndUpload(const std::string& imageUrl, std::string& response);
-  void onMpvEvents();
   void onFinished();
 
 private slots:

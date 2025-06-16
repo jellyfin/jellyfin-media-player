@@ -15,14 +15,13 @@ target_include_directories(imgur PUBLIC
     ${CURL_INCLUDE_DIR}
 )
 
-target_link_libraries(imgur PUBLIC
-    ${CURL_LIBRARY_STATIC}
-    ws2_32
-    wldap32
-    crypt32
-    normaliz
-)
-
 if(WIN32)
+    target_link_libraries(imgur PUBLIC
+        ${CURL_LIBRARY_STATIC}
+        ws2_32
+        wldap32
+        crypt32
+        normaliz
+    )
     install(FILES "${CURL_LIBRARY_SHARED}" DESTINATION .)
 endif()

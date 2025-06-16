@@ -4,9 +4,9 @@
 #include "ComponentManager.h"
 #include "discord_rpc.h"
 #include "imgur.h"
-#include <atomic>
-#include <QTimer>
 #include <QObject>
+#include <QTimer>
+#include <atomic>
 
 class DiscordComponent : public ComponentBase
 {
@@ -20,44 +20,61 @@ public:
   virtual bool componentInitialize() override;
   virtual const char* componentName() override;
   virtual bool componentExport() override;
-  Q_SLOT void valuesUpdated(const QVariantMap& values);
-  Q_SIGNAL void settingsUpdated(const QString& section, const QVariant& description);
+
   static void handleDiscordReady(const DiscordUser* connectedUser);
   static void handleDiscordDisconnected(int errcode, const char* message);
   static void handleDiscordError(int errcode, const char* message);
-  static void handleDiscordJoin(const char* secret);
-  static void handleDiscordSpectate(const char* secret);
-  static void handleDiscordJoinRequest(const DiscordUser* request);
+
   void onPlaying();
   void onMetaData(const QVariantMap& meta, QUrl baseUrl);
   void onPositionUpdate(quint64 position);
 
-  DiscordRichPresence m_discordPresence;
+public slots:
+  void valuesUpdated(const QVariantMap& values);
 
-  private:
+signals:
+  void settingsUpdated(const QString& section, const QVariant& description);
+
+private:
   const char* APPLICATION_ID = "1353419508324368404";
   std::unique_ptr<QTimer> m_callbackTimer;
-  bool m_isConnected = true;
+  std::unique_ptr<QTimer> m_tryConnectTimer;
+
+  DiscordRichPresence m_discordPresence;
+  DiscordEventHandlers m_handlers;
+
+  bool m_richPresenceEnabled = false;
   QVariantMap metadata;
   QUrl m_baseUrl;
   quint64 m_position;
   qint64 m_duration;
   std::string m_imgurLink;
-  
-  enum State { PAUSED, PLAYING, MENU };
+
+  enum State
+  {
+    PAUSED,
+    PLAYING,
+    MENU
+  };
   State m_currentState;
+
+private:
+  void setIsConnected();
+  void setIsDisconnected();
+
   void updateActivity(State state);
   void makeWatchingActivity(State state);
-  void makeMenuActivity();
   void updateRichPresence();
   void onUpdateDuration(qint64 duration);
   void onStop();
   void onPause();
+  bool downloadAndUpload(const std::string& imageUrl, std::string& response);
   void onMpvEvents();
   void onFinished();
 
 private slots:
   void runCallbacks();
+  void tryConnect();
 };
 
 #endif

@@ -111,5 +111,8 @@ bool Imgur::downloadAndUpload(const std::string& imageUrl, std::string& response
     if (imageData.empty()) {
         return false;
     }
+
     return uploadRaw(imageData, response);
+
+    // Storing hash of the imageData and imageURL
 }

@@ -9,8 +9,8 @@ if(WIN32)
     set(DISCORD_LIB_PATH "${DISCORD_SDK_LIB_DIR}/discord_partner_sdk.lib")
     set(DISCORD_SHARED_LIB "${DISCORD_SDK_BIN_DIR}/discord_partner_sdk.dll")
 elseif(APPLE)
-    set(DISCORD_LIB_PATH "${DISCORD_SDK_LIB_DIR}/libdiscord_partner_sdk.dylib")
-    set(DISCORD_SHARED_LIB "${DISCORD_SDK_LIB_DIR}/libdiscord_partner_sdk.dylib")
+    set(DISCORD_LIB_PATH "${DISCORD_SDK_LIB_DIR}/libdiscord-rpc.dylib")
+    set(DISCORD_SHARED_LIB "${DISCORD_SDK_LIB_DIR}/libdiscord-rpc.dylib")
     
 else() # Linux
     set(DISCORD_LIB_PATH "${DISCORD_SDK_LIB_DIR}/libdiscord-rpc.so")
@@ -27,8 +27,6 @@ add_library(discord STATIC
 
 # Link the Social SDK library
 target_link_libraries(discord ${DISCORD_LIB_PATH})
-
-std_target_properties(discord)
 
 if (WIN32)
     install(FILES "${DISCORD_SHARED_LIB}" DESTINATION .)

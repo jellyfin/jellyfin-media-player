@@ -222,7 +222,7 @@ ENDMACRO()
 
 #############################################################
 function(std_target_properties target)
-  set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+  set_target_properties(${target} PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON)
 endfunction()
 
 #############################################################

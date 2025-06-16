@@ -7,8 +7,6 @@ endif()
 
 project(JellyfinMediaPlayer CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
-
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 

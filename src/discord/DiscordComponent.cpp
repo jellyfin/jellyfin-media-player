@@ -231,7 +231,7 @@ void DiscordComponent::handleDiscordDisconnected(int errcode, const char* messag
 }
 
 void DiscordComponent::handleDiscordError(int errcode, const char* message){
-  qDebug() << "Discord: error";
+  qDebug() << "Discord ERROR: " << message;
 }
 
 void DiscordComponent::handleDiscordJoin(const char* secret){

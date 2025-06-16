@@ -131,7 +131,7 @@ void DiscordComponent::makeWatchingActivity(State watchingState)
   {
     m_discordPresence.activityType = DiscordActivityType::WATCHING;
     details = QString(metadata["Name"].toString());
-    state = QString("Watching a movie");
+    state = QString("Watching");
     thumbnailUrl =
     QString("%1/Items/%2/Images/Primary").arg(m_baseUrl.toString(), metadata["Id"].toString());
     if (downloadAndUpload(thumbnailUrl.toStdString().c_str(), m_imgurLink))

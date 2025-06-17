@@ -184,7 +184,7 @@ void DiscordComponent::makeWatchingActivity(State watchingState)
     m_discordRichPresence.endTimestamp = endTimeSeconds;
   }
 
-  m_discordRichPresence.largeImageKey = "jellyfin";
+  m_discordRichPresence.largeImageKey = "jellyfin2";
   std::string tmp_details = details.toStdString();
   std::string tmp_state = state.toStdString();
   m_discordRichPresence.details = tmp_details.c_str();

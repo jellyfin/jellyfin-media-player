@@ -35,7 +35,7 @@ signals:
   void settingsUpdated(const QString& section, const QVariant& description);
 
 private:
-  const char* APPLICATION_ID = "1353419508324368404";
+  const char* APPLICATION_ID = "743296148592263240";
   std::unique_ptr<QTimer> m_callbackTimer;
   std::unique_ptr<QTimer> m_tryConnectTimer;
 

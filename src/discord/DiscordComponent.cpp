@@ -42,12 +42,11 @@ void DiscordComponent::valuesUpdated(const QVariantMap& values)
 
 bool DiscordComponent::componentInitialize()
 {
-  // callback Timer needs to be running the entire time, otherwise we wont receive any feedback from
-  // discord (including connecting and disconnecting)
+  // callback Timer needs to be running the while we are interacting with disocrd, otherwise we wont
+  // receive any feedback from discord (including connecting and disconnecting)
   m_callbackTimer = std::make_unique<QTimer>(new QTimer(this));
   m_callbackTimer->setInterval(1000);
   QObject::connect(m_callbackTimer.get(), SIGNAL(timeout()), this, SLOT(runCallbacks()));
-  m_callbackTimer->start();
 
   // set the handle functions to react to connect, disconnect and error
   memset(&m_handlers, 0, sizeof(m_handlers));
@@ -74,6 +73,7 @@ bool DiscordComponent::componentInitialize()
 
   if (m_richPresenceEnabled)
   {
+    m_callbackTimer->start();
     m_tryConnectTimer->start();
   }
 

@@ -3,7 +3,6 @@
 
 #include "ComponentManager.h"
 #include "discord_rpc.h"
-#include "imgur.h"
 #include <QObject>
 #include <QTimer>
 #include <atomic>
@@ -40,15 +39,13 @@ private:
   std::unique_ptr<QTimer> m_callbackTimer;
   std::unique_ptr<QTimer> m_tryConnectTimer;
 
-  DiscordRichPresence m_discordPresence;
+  DiscordRichPresence m_discordRichPresence;
   DiscordEventHandlers m_handlers;
 
   bool m_richPresenceEnabled = false;
   QVariantMap metadata;
-  QUrl m_baseUrl;
   quint64 m_position;
   qint64 m_duration;
-  std::string m_imgurLink;
 
   enum State
   {
@@ -68,7 +65,6 @@ private:
   void onUpdateDuration(qint64 duration);
   void onStop();
   void onPause();
-  bool downloadAndUpload(const std::string& imageUrl, std::string& response);
   void onFinished();
 
 private slots:

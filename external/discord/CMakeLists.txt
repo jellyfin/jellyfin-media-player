@@ -22,17 +22,20 @@ endif()
 
 include_directories(include)
 
-add_library(discord STATIC
+add_library(discord INTERFACE
     include/discord_register.h
     include/discord_rpc.h
-    discord_impl.cpp
 )
 
-target_link_libraries(discord ${DISCORD_LIB_PATH})
+target_link_libraries(discord INTERFACE ${DISCORD_LIB_PATH})
 
 if (WIN32)
     install(FILES "${DISCORD_SHARED_LIB}" DESTINATION .)
 elseif(UNIX)
-    install(FILES "${DISCORD_SHARED_LIB}" DESTINATION /lib)
+    if(APPLE)
+        install(FILES "${DISCORD_SHARED_LIB}" DESTINATION "Jellyfin Media Player.app/Contents/Frameworks")
+    else()
+        install(FILES "${DISCORD_SHARED_LIB}" DESTINATION /lib)
+    endif()
 endif()
 

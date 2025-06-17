@@ -3,7 +3,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/plistparser
   ${CMAKE_SOURCE_DIR}/external/letsmove
   ${CMAKE_SOURCE_DIR}/external/discord/include
-  ${CMAKE_SOURCE_DIR}/external/imgur
   ${CMAKE_SOURCE_DIR}/src/player
   core
   shared
@@ -169,7 +168,6 @@ endif()
 target_link_libraries(${MAIN_TARGET}
   shared
   discord
-  imgur
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
   ${QT5_LIBRARIES}

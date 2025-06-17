@@ -2,6 +2,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/external/HIDRemote
   ${CMAKE_SOURCE_DIR}/external/plistparser
   ${CMAKE_SOURCE_DIR}/external/letsmove
+  ${CMAKE_SOURCE_DIR}/external/discord/include
   ${CMAKE_SOURCE_DIR}/src/player
   core
   shared
@@ -13,6 +14,7 @@ add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
 
 add_subdirectory(shared)
 add_subdirectory(core)
+add_subdirectory(discord)
 add_subdirectory(display)
 add_subdirectory(player)
 add_subdirectory(utils)
@@ -165,6 +167,7 @@ endif()
 
 target_link_libraries(${MAIN_TARGET}
   shared
+  discord
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
   ${QT5_LIBRARIES}

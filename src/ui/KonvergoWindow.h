@@ -101,6 +101,7 @@ Q_SIGNALS:
 protected:
   void focusOutEvent(QFocusEvent* ev) override;
   void resizeEvent(QResizeEvent* event) override;
+  void keyPressEvent(QKeyEvent *ev) override;
 
 private slots:
   void closingWindow();

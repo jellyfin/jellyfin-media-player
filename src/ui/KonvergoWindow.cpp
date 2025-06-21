@@ -6,6 +6,7 @@
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QKeyEvent>
 #include <QDebug>
 
 #include "core/Version.h"
@@ -510,6 +511,18 @@ void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
 #endif
 
   QQuickWindow::focusOutEvent(ev);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::keyPressEvent(QKeyEvent *ev)
+{
+  if (ev->key() == Qt::Key_Escape && isFullScreen())
+  {
+    setFullScreen(false);
+    return;
+  }
+
+  QQuickWindow::keyPressEvent(ev);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,7 @@
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
 #include "utils/Log.h"
+#include "system/DeepLinkHandler.h"
 
 #ifdef Q_OS_MAC
 #include "PFMoveApplication.h"
@@ -102,6 +103,10 @@ int main(int argc, char *argv[])
                        {"terminal",                "Log to terminal"},
                        {"disable-gpu",             "Disable QtWebEngine gpu accel"},
                        {"force-external-webclient","Use webclient provided by server"}});
+
+    auto deepLinkOption = QCommandLineOption("deeplink", "Process a deeplink URL (jellyfin://... or jmp://...)");
+    deepLinkOption.setValueName("url");
+    parser.addOption(deepLinkOption);
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
                                                           "the scale (DPI) of the desktop interface.");
@@ -187,7 +192,28 @@ int main(int argc, char *argv[])
 #endif
 
     UniqueApplication* uniqueApp = new UniqueApplication();
-    if (!uniqueApp->ensureUnique())
+    
+    // Check for deeplink URL in arguments (either --deeplink or positional arguments)
+    QString deepLinkUrl;
+    if (parser.isSet("deeplink"))
+    {
+      deepLinkUrl = parser.value("deeplink");
+    }
+    else
+    {
+      // Check positional arguments for deeplink URLs (for protocol handler invocation)
+      QStringList positionalArgs = parser.positionalArguments();
+      for (const QString& arg : positionalArgs)
+      {
+        if (arg.startsWith("jellyfin://") || arg.startsWith("jmp://"))
+        {
+          deepLinkUrl = arg;
+          break;
+        }
+      }
+    }
+    
+    if (!uniqueApp->ensureUnique(deepLinkUrl))
       return EXIT_SUCCESS;
 
 #ifdef Q_OS_UNIX
@@ -210,6 +236,34 @@ int main(int argc, char *argv[])
     ComponentManager::Get().initialize();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
+
+    // Process deeplink URL if provided (for first instance or if passed via --deeplink)
+    QString initialDeepLink;
+    if (parser.isSet("deeplink"))
+    {
+      initialDeepLink = parser.value("deeplink");
+    }
+    else
+    {
+      // Check positional arguments for deeplink URLs
+      QStringList positionalArgs = parser.positionalArguments();
+      for (const QString& arg : positionalArgs)
+      {
+        if (arg.startsWith("jellyfin://") || arg.startsWith("jmp://"))
+        {
+          initialDeepLink = arg;
+          break;
+        }
+      }
+    }
+    
+    if (!initialDeepLink.isEmpty())
+    {
+      if (!DeepLinkHandler::processDeepLinkUrl(initialDeepLink))
+      {
+        qWarning() << "Failed to process deeplink URL:" << initialDeepLink;
+      }
+    }
 
     QtWebEngine::initialize();
 
@@ -237,6 +291,9 @@ int main(int argc, char *argv[])
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));
 
       QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, &KonvergoWindow::otherAppFocus);
+      QObject::connect(uniqueApp, &UniqueApplication::deeplinkReceived, [](const QString& url) {
+        DeepLinkHandler::processDeepLinkUrl(url);
+      });
     });
     engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
 

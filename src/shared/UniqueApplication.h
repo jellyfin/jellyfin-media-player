@@ -29,15 +29,24 @@ public:
     connect(m_server, &LocalJsonServer::messageReceived, [=](const QVariant& message)
     {
       QVariantMap map = message.toMap();
-      if (map.contains("command") && map.value("command").toString() == "appStart")
-        emit otherApplicationStarted();
+      if (map.contains("command"))
+      {
+        QString command = map.value("command").toString();
+        if (command == "appStart")
+          emit otherApplicationStarted();
+        else if (command == "deeplink")
+        {
+          QString url = map.value("url").toString();
+          emit deeplinkReceived(url);
+        }
+      }
     });
 
     if (!m_server->listen())
       throw FatalException("Failed to listen to uniqueApp socket: " + m_server->errorString());
   }
 
-  bool ensureUnique()
+  bool ensureUnique(const QString& deepLinkUrl = QString())
   {
     auto socket = new LocalJsonClient(m_socketName, this);
     socket->connectToServer();
@@ -54,7 +63,16 @@ public:
     }
 
     QVariantMap m;
-    m.insert("command", "appStart");
+    if (!deepLinkUrl.isEmpty())
+    {
+      m.insert("command", "deeplink");
+      m.insert("url", deepLinkUrl);
+    }
+    else
+    {
+      m.insert("command", "appStart");
+    }
+    
     socket->sendMessage(m);
     socket->waitForBytesWritten(2000);
 
@@ -65,6 +83,7 @@ public:
   }
 
   Q_SIGNAL void otherApplicationStarted();
+  Q_SIGNAL void deeplinkReceived(const QString& url);
 
 private:
   LocalJsonServer* m_server;

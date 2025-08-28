@@ -1,0 +1,21 @@
+[HKEY_CLASSES_ROOT\jellyfin]
+@="URL:Jellyfin Media Player Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\jellyfin\shell]
+
+[HKEY_CLASSES_ROOT\jellyfin\shell\open]
+
+[HKEY_CLASSES_ROOT\jellyfin\shell\open\command]
+@="\"C:\\Program Files\\Jellyfin Media Player\\JellyfinMediaPlayer.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\jmp]
+@="URL:Jellyfin Media Player Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\jmp\shell]
+
+[HKEY_CLASSES_ROOT\jmp\shell\open]
+
+[HKEY_CLASSES_ROOT\jmp\shell\open\command]
+@="\"C:\\Program Files\\Jellyfin Media Player\\JellyfinMediaPlayer.exe\" \"%1\""

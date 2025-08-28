@@ -47,6 +47,10 @@ bool DeepLinkHandler::processDeepLink(const QString& url)
   {
     handleNavigateAction(params);
   }
+  else if (action == "sso")
+  {
+    handleSsoAction(params);
+  }
   else
   {
     qWarning() << "Unknown deeplink action:" << action;
@@ -209,4 +213,21 @@ void DeepLinkHandler::handleNavigateAction(const QVariantMap& params)
 
   qInfo() << "Handling navigate action - Path:" << path;
   emit navigateRequested(path);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void DeepLinkHandler::handleSsoAction(const QVariantMap& params)
+{
+  QVariantMap parameters = params.value("parameters").toMap();
+  QString server = parameters.value("server").toString();
+  QString returnUrl = parameters.value("return_url").toString();
+
+  if (server.isEmpty())
+  {
+    qWarning() << "SSO action requires server parameter";
+    return;
+  }
+
+  qInfo() << "Handling SSO action - Server:" << server << "Return URL:" << returnUrl;
+  emit ssoRequested(server, returnUrl);
 }

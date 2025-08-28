@@ -30,6 +30,7 @@ Q_SIGNALS:
   void playRequested(const QString& server, const QString& itemId, const QVariantMap& parameters);
   void connectRequested(const QString& server, const QString& token);
   void navigateRequested(const QString& path);
+  void ssoRequested(const QString& server, const QString& returnUrl);
 
 private:
   bool validateUrl(const QUrl& url) const;
@@ -37,6 +38,7 @@ private:
   void handlePlayAction(const QVariantMap& params);
   void handleConnectAction(const QVariantMap& params);
   void handleNavigateAction(const QVariantMap& params);
+  void handleSsoAction(const QVariantMap& params);
 };
 
 #endif // DEEPLINKHANDLER_H

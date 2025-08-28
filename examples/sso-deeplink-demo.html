@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jellyfin SSO Deeplink Integration Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        button, .deeplink-button {
+            background: linear-gradient(135deg, #3949ab 0%, #303f9f 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button:hover, .deeplink-button:hover {
+            transform: translateY(-1px);
+        }
+        input {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px;
+            width: 300px;
+        }
+        .example {
+            background: #333;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .success {
+            background: #4caf50;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f44336;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #2196f3;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Jellyfin SSO Deeplink Integration</h1>
+        <p>This page demonstrates how to integrate SSO authentication with Jellyfin Media Player using deeplinks.</p>
+        
+        <div class="info">
+            <strong>Requirements:</strong> Jellyfin Media Player with deeplink support and the SSO integration script loaded.
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Interactive SSO Deeplink Generator</h2>
+        <div>
+            <label>
+                Server URL:
+                <input type="url" id="serverUrl" placeholder="https://your-jellyfin-server.com" value="https://demo.jellyfin.org">
+            </label>
+        </div>
+        <div>
+            <label>
+                Return URL (optional):
+                <input type="url" id="returnUrl" placeholder="https://your-jellyfin-server.com/web/index.html">
+            </label>
+        </div>
+        <div>
+            <button onclick="generateAndShowDeeplink()">Generate SSO Deeplink</button>
+            <button onclick="testSsoDeeplink()">Test SSO Authentication</button>
+        </div>
+        
+        <div id="generatedUrl" class="example" style="display:none;"></div>
+        <div id="status"></div>
+    </div>
+
+    <div class="container">
+        <h2>Direct SSO Links</h2>
+        <p>Click these links to test SSO authentication with different servers:</p>
+        
+        <div>
+            <a href="jellyfin://sso?server=https://demo.jellyfin.org" class="deeplink-button">
+                🔓 Demo Server SSO
+            </a>
+            <a href="jellyfin://sso?server=https://your-server.com&return_url=https://your-server.com/web" class="deeplink-button">
+                🔓 Custom Server SSO
+            </a>
+        </div>
+        
+        <p><em>Note: These links will only work if Jellyfin Media Player is installed and deeplink protocol handlers are registered.</em></p>
+    </div>
+
+    <div class="container">
+        <h2>Integration Examples</h2>
+        
+        <h3>HTML Links</h3>
+        <div class="example">
+&lt;!-- Basic SSO link --&gt;
+&lt;a href="jellyfin://sso?server=https://my-server.com"&gt;
+    Login with SSO
+&lt;/a&gt;
+
+&lt;!-- SSO with return URL --&gt;
+&lt;a href="jellyfin://sso?server=https://my-server.com&return_url=https://my-server.com/web/dashboard"&gt;
+    Login and go to Dashboard
+&lt;/a&gt;
+        </div>
+
+        <h3>JavaScript Integration</h3>
+        <div class="example">
+// Generate SSO deeplink dynamically
+function launchSso(serverUrl, returnUrl) {
+    const baseUrl = `jellyfin://sso?server=${encodeURIComponent(serverUrl)}`;
+    const fullUrl = returnUrl ? 
+        `${baseUrl}&return_url=${encodeURIComponent(returnUrl)}` : 
+        baseUrl;
+    
+    // Method 1: Open in same window (for protocol handlers)
+    window.location.href = fullUrl;
+    
+    // Method 2: Try to open in new window (fallback)
+    // window.open(fullUrl);
+}
+
+// Usage
+launchSso('https://my-server.com', 'https://my-server.com/web/dashboard');
+        </div>
+
+        <h3>System Command Examples</h3>
+        <div class="example">
+# Linux
+xdg-open 'jellyfin://sso?server=https://my-server.com'
+
+# Windows
+start jellyfin://sso?server=https://my-server.com
+
+# macOS
+open 'jellyfin://sso?server=https://my-server.com'
+
+# Command line (direct)
+jellyfinmediaplayer --deeplink "jellyfin://sso?server=https://my-server.com"
+        </div>
+    </div>
+
+    <script>
+        function generateSsoDeeplink(serverUrl, returnUrl) {
+            const baseUrl = `jellyfin://sso?server=${encodeURIComponent(serverUrl)}`;
+            if (returnUrl && returnUrl.trim()) {
+                return `${baseUrl}&return_url=${encodeURIComponent(returnUrl)}`;
+            }
+            return baseUrl;
+        }
+
+        function generateAndShowDeeplink() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            const returnUrl = document.getElementById('returnUrl').value;
+            
+            if (!serverUrl) {
+                showStatus('Please enter a server URL', 'error');
+                return;
+            }
+            
+            try {
+                new URL(serverUrl); // Validate URL
+                const deeplink = generateSsoDeeplink(serverUrl, returnUrl);
+                
+                const urlDiv = document.getElementById('generatedUrl');
+                urlDiv.textContent = deeplink;
+                urlDiv.style.display = 'block';
+                
+                showStatus('Deeplink generated successfully! Click to copy:', 'success');
+                
+                // Make the URL clickable to copy
+                urlDiv.style.cursor = 'pointer';
+                urlDiv.title = 'Click to copy';
+                urlDiv.onclick = () => {
+                    navigator.clipboard.writeText(deeplink).then(() => {
+                        showStatus('Deeplink copied to clipboard!', 'success');
+                    }).catch(() => {
+                        showStatus('Could not copy to clipboard', 'error');
+                    });
+                };
+                
+            } catch (e) {
+                showStatus('Invalid server URL', 'error');
+            }
+        }
+
+        function testSsoDeeplink() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            const returnUrl = document.getElementById('returnUrl').value;
+            
+            if (!serverUrl) {
+                showStatus('Please enter a server URL', 'error');
+                return;
+            }
+            
+            try {
+                new URL(serverUrl); // Validate URL
+                const deeplink = generateSsoDeeplink(serverUrl, returnUrl);
+                
+                showStatus('Launching SSO authentication...', 'info');
+                
+                // Try to launch the deeplink
+                window.location.href = deeplink;
+                
+                // Show fallback message after a short delay
+                setTimeout(() => {
+                    showStatus('If SSO did not launch, please ensure Jellyfin Media Player is installed and deeplink handlers are registered.', 'info');
+                }, 2000);
+                
+            } catch (e) {
+                showStatus('Invalid server URL', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+            
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    statusDiv.textContent = '';
+                    statusDiv.className = '';
+                }, 5000);
+            }
+        }
+
+        // Initialize with current domain if it looks like a Jellyfin server
+        window.addEventListener('load', () => {
+            const currentDomain = window.location.origin;
+            if (currentDomain.includes('jellyfin') || window.location.pathname.includes('jellyfin')) {
+                document.getElementById('serverUrl').value = currentDomain;
+                document.getElementById('returnUrl').value = currentDomain + '/web/index.html';
+            }
+        });
+    </script>
+</body>
+</html>

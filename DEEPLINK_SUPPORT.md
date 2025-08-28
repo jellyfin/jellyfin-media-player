@@ -76,6 +76,61 @@ jellyfin://navigate?path=/tv
 jellyfin://navigate?path=/music
 ```
 
+### 4. SSO Action
+
+Initiates Single Sign-On (SSO) authentication flow for the specified server.
+
+**Format:** `jellyfin://sso?server=<server_url>&return_url=<optional_return_url>`
+
+**Parameters:**
+- `server` (required): The Jellyfin server URL that supports SSO
+- `return_url` (optional): URL to return to after successful authentication
+
+**Examples:**
+```
+jellyfin://sso?server=https://my-server.com
+jellyfin://sso?server=https://demo.jellyfin.org&return_url=https://demo.jellyfin.org/web/index.html
+jmp://sso?server=https://my-jellyfin.example.com
+```
+
+**SSO Integration:**
+The SSO action works with the Jellyfin SSO plugin and can be integrated with external authentication systems. When triggered:
+
+1. Jellyfin Media Player opens an authentication overlay
+2. The SSO authentication flow is handled via iframe or external browser
+3. Upon successful authentication, the player returns to the main interface
+4. Authentication tokens are securely stored for future use
+
+## SSO Integration
+
+Jellyfin Media Player supports integration with SSO (Single Sign-On) systems through deeplinks. This functionality works with the Jellyfin SSO plugin to provide seamless authentication.
+
+### SSO Deeplink Integration Script
+
+A comprehensive SSO integration script is provided at `resources/sso-deeplink-integration.js` that enhances the standard Jellyfin SSO plugin with deeplink capabilities:
+
+**Key Features:**
+- **Deeplink Detection**: Automatically detects if the player supports deeplinks
+- **Dual Authentication Modes**: Falls back from deeplink to iframe overlay if needed
+- **Enhanced UI**: Provides visual feedback and better user experience
+- **Security**: Validates authentication status and handles errors gracefully
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+
+**Usage:**
+1. Include the script in your Jellyfin web interface
+2. Configure the `SSO_AUTH_URL` variable to match your SSO endpoint
+3. The script automatically detects Jellyfin Media Player and enhances the SSO flow
+4. External applications can trigger SSO via deeplinks
+
+**External SSO Trigger:**
+```javascript
+// Generate SSO deeplink
+const ssoUrl = generateSsoDeeplink('https://my-server.com', 'https://success-page.com');
+
+// Trigger SSO via system
+window.open(ssoUrl);
+```
+
 ## Security Features
 
 The deeplink implementation includes several security measures:
@@ -140,6 +195,9 @@ jellyfinmediaplayer --deeplink "jellyfin://play?server=https://demo.jellyfin.org
 
 # As a positional argument (for protocol handlers)
 jellyfinmediaplayer "jellyfin://connect?server=https://my-server.com"
+
+# SSO authentication
+jellyfinmediaplayer --deeplink "jellyfin://sso?server=https://my-server.com"
 ```
 
 ## Single Instance Behavior

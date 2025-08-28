@@ -10,6 +10,7 @@
 #include "player/PlayerComponent.h"
 #include "display/DisplayComponent.h"
 #include "system/SystemComponent.h"
+#include "system/DeepLinkHandler.h"
 #include "settings/SettingsComponent.h"
 #include "taskbar/TaskbarComponent.h"
 
@@ -54,6 +55,7 @@ void ComponentManager::initialize()
   registerComponent(&SettingsComponent::Get());
   registerComponent(&InputComponent::Get());
   registerComponent(&SystemComponent::Get());
+  registerComponent(&DeepLinkHandler::Get());
   registerComponent(&DisplayComponent::Get());
   registerComponent(&PlayerComponent::Get());
   registerComponent(&PowerComponent::Get());

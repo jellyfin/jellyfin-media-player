@@ -24,10 +24,6 @@
 #include <unistd.h>
 #endif
 
-#if !defined(Q_OS_WIN)
-#include <unistd.h>
-#endif
-
 #ifdef TARGET_RPI
 #include <bcm_host.h>
 #include <interface/vmcs_host/vcgencmd.h>

@@ -223,33 +223,33 @@
       {
         "value": "passthrough.ac3",
         "display_name": "AC3 Passthrough",
-        "help": "Enables AC3 passthrough. Requires \"S/PDIF\", or \"HDMI\" device type. The default is disabled.",
+        "help": "Enables AC3 passthrough. Requires \"S/PDIF\", or \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false
       },
       {
         "value": "passthrough.dts",
         "display_name": "DTS Passthrough",
-        "help": "Enables DTS passthrough. Requires \"S/PDIF\", or \"HDMI\" device type. The default is disabled.",
+        "help": "Enables DTS passthrough. Requires \"S/PDIF\", or \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false
       },
       {
         "value": "passthrough.eac3",
         "display_name": "E-AC3 Passthrough",
-        "help": "Enables E-AC3 passthrough. Requires \"HDMI\" device type. The default is disabled.",
+        "help": "Enables E-AC3 passthrough. Requires \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false,
         "platforms_excluded": [ "osx", "oe_rpi" ]
       },
       {
         "value": "passthrough.dts-hd",
         "display_name": "DTS-HD Passthrough",
-        "help": "Enables DTS-HD passthrough. Requires \"HDMI\" device type. The default is disabled.",
+        "help": "Enables DTS-HD passthrough. Requires \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false,
         "platforms_excluded": [ "osx", "oe_rpi" ]
       },
       {
         "value": "passthrough.truehd",
         "display_name": "TrueHD Passthrough",
-        "help": "Enables TrueHD passthrough. Requires \"HDMI\" device type. The default is disabled.",
+        "help": "Enables TrueHD passthrough. Requires \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false,
         "platforms_excluded": [ "osx", "oe_rpi" ]
       }

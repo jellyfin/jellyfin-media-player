@@ -17,54 +17,20 @@ class UniqueApplication : public QObject
 {
   Q_OBJECT
 public:
-  explicit UniqueApplication(QObject* parent = nullptr, const QString& socketname = SOCKET_NAME) : QObject(parent)
-  {
-    m_socketName = socketname;
-  }
+  explicit UniqueApplication(QObject* parent = nullptr, const QString& socketname = SOCKET_NAME);
 
-  void listen()
-  {
-    m_server = new LocalJsonServer(m_socketName, this);
+  void listen();
+  bool ensureUnique();
+  
+  // Send deeplink URL to running instance
+  bool sendDeepLink(const QString& url);
 
-    connect(m_server, &LocalJsonServer::messageReceived, [=](const QVariant& message)
-    {
-      QVariantMap map = message.toMap();
-      if (map.contains("command") && map.value("command").toString() == "appStart")
-        emit otherApplicationStarted();
-    });
+Q_SIGNALS:
+  void otherApplicationStarted();
+  void deepLinkReceived(const QString& url);
 
-    if (!m_server->listen())
-      throw FatalException("Failed to listen to uniqueApp socket: " + m_server->errorString());
-  }
-
-  bool ensureUnique()
-  {
-    auto socket = new LocalJsonClient(m_socketName, this);
-    socket->connectToServer();
-
-    // we will just assume that the app isn't running if we get a error here
-    if (!socket->waitForConnected(1000))
-    {
-      if (socket->error() != QLocalSocket::SocketTimeoutError)
-      {
-        // since we are unique we will start to listen and claim this socket.
-        listen();
-        return true;
-      }
-    }
-
-    QVariantMap m;
-    m.insert("command", "appStart");
-    socket->sendMessage(m);
-    socket->waitForBytesWritten(2000);
-
-    socket->close();
-    socket->deleteLater();
-
-    return false;
-  }
-
-  Q_SIGNAL void otherApplicationStarted();
+private Q_SLOTS:
+  void handleMessage(const QVariant& message);
 
 private:
   LocalJsonServer* m_server;

@@ -4,7 +4,8 @@ add_library(shared STATIC
   Paths.cpp Paths.h
   LocalJsonClient.cpp LocalJsonClient.h
   LocalJsonServer.cpp LocalJsonServer.h
-  UniqueApplication.h
+  UniqueApplication.cpp UniqueApplication.h
+  DeepLinkHandler.cpp DeepLinkHandler.h
   ${CMAKE_BINARY_DIR}/src/core/Version.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h
 )

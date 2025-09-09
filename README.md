@@ -4,6 +4,14 @@ Desktop client using jellyfin-web with embedded MPV player. Supports Windows, Ma
 and Linux. Media plays within the same window using the jellyfin-web interface unlike
 Jellyfin Desktop. Supports audio passthrough.
 
+## Features
+
+- **Cross-platform support** - Windows, macOS, and Linux
+- **Integrated web interface** - Uses server-provided Jellyfin web client
+- **Hardware acceleration** - MPV-based video playback with GPU acceleration
+- **Audio passthrough** - Direct audio output for high-quality sound
+- **OIDC Authentication** - Custom URL scheme deeplinks for seamless SSO login (`jellyfinmp://`)
+
 ![Screenshot of Jellyfin Media Player](https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-player-win.png)
 
 Downloads:
@@ -15,6 +23,7 @@ Related Documents:
  - Web client: Application uses server-provided web client.
  - Web client integration documentation: [for-web-developers.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/for-web-developers.md)
  - API Docs in [client-api.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/client-api.md)
+ - **Deeplink Support:** [docs/auth/desktop-deeplinks.md](https://github.com/jellyfin/jellyfin-media-player/blob/master/docs/auth/desktop-deeplinks.md)
  - Tip: For help building, look at the GitHub Actions file!
 
 ## Building at a glance (Linux)

@@ -8,6 +8,7 @@ Terminal=false
 Type=Application
 StartupWMClass=com.github.iwalton3.jellyfin-media-player
 Categories=AudioVideo;Video;Player;TV;
+MimeType=x-scheme-handler/jellyfinmp;
 
 Actions=DesktopF;DesktopW;TVF;TVW
 

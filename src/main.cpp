@@ -9,6 +9,7 @@
 #include <QErrorMessage>
 #include <QCommandLineOption>
 #include <QDebug>
+#include <QTimer>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
@@ -24,6 +25,7 @@
 #include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
+#include "shared/DeepLinkHandler.h"
 #include "utils/Log.h"
 
 #ifdef Q_OS_MAC
@@ -77,6 +79,20 @@ void ShowLicenseInfo()
   licenses.open(QIODevice::ReadOnly | QIODevice::Text);
   QByteArray contents = licenses.readAll();
   printf("%.*s\n", contents.size(), contents.data());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString extractDeepLinkFromArgs(const QStringList& arguments)
+{
+  // Look for any argument that starts with "jellyfinmp://"
+  for (const QString& arg : arguments)
+  {
+    if (arg.startsWith("jellyfinmp://"))
+    {
+      return arg;
+    }
+  }
+  return QString();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -187,8 +203,20 @@ int main(int argc, char *argv[])
 #endif
 
     UniqueApplication* uniqueApp = new UniqueApplication();
+    
+    // Check for deeplink URL in command line arguments
+    QString deepLinkUrl = extractDeepLinkFromArgs(arguments);
+    
     if (!uniqueApp->ensureUnique())
+    {
+      // Another instance is running, send deeplink if we have one
+      if (!deepLinkUrl.isEmpty())
+      {
+        qDebug() << "Sending deeplink to running instance:" << deepLinkUrl;
+        uniqueApp->sendDeepLink(deepLinkUrl);
+      }
       return EXIT_SUCCESS;
+    }
 
 #ifdef Q_OS_UNIX
     // install signals handlers for proper app closing.
@@ -235,6 +263,33 @@ int main(int argc, char *argv[])
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));
+
+      // Setup deeplink handling
+      DeepLinkHandler* deepLinkHandler = new DeepLinkHandler(&app);
+      
+      // Connect unique application to deeplink handler
+      QObject::connect(uniqueApp, &UniqueApplication::deepLinkReceived, 
+                      [deepLinkHandler](const QString& url) {
+        auto result = deepLinkHandler->handleDeepLink(url);
+        if (result.type != DeepLinkHandler::AuthCallbackResult::InvalidUrl)
+        {
+          // TODO: Forward to auth component
+          qDebug() << "DeepLink processed:" << result.type << result.state;
+        }
+      });
+      
+      // Process initial deeplink if provided on startup
+      if (!deepLinkUrl.isEmpty())
+      {
+        QTimer::singleShot(1000, [deepLinkHandler, deepLinkUrl]() {
+          auto result = deepLinkHandler->handleDeepLink(deepLinkUrl);
+          if (result.type != DeepLinkHandler::AuthCallbackResult::InvalidUrl)
+          {
+            // TODO: Forward to auth component  
+            qDebug() << "Initial DeepLink processed:" << result.type << result.state;
+          }
+        });
+      }
 
       QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, &KonvergoWindow::otherAppFocus);
     });

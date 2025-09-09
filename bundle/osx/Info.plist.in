@@ -40,5 +40,16 @@
 	<string>10.9</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Jellyfin Media Player Auth Callback</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>jellyfinmp</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

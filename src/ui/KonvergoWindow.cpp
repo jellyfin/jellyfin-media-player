@@ -492,6 +492,8 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", fs);
 
     SystemComponent::Get().setCursorVisibility(false);
+
+    emit fullScreenSwitched();
   }
 
   InputComponent::Get().cancelAutoRepeat();

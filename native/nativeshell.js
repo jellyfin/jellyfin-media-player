@@ -573,3 +573,30 @@ async function showSettingsModal() {
     });
     closeContainer.appendChild(close);
 }
+
+// Monitor fullscreen state changes and notify MPRIS and web client
+let lastFullscreenState = window.jmpInfo.settings.main.fullscreen;
+
+window.jmpInfo.settingsUpdate.push(function(section) {
+    if (section === 'main') {
+        const currentFullscreenState = window.jmpInfo.settings.main.fullscreen;
+        if (currentFullscreenState !== lastFullscreenState) {
+            console.log('Fullscreen state changed to:', currentFullscreenState);
+            lastFullscreenState = currentFullscreenState;
+
+            // Notify MPRIS
+            if (window.api && window.api.mpris) {
+                window.api.mpris.notifyFullscreenChange(currentFullscreenState);
+                console.log('MPRIS notified');
+            }
+
+            // Notify web client UI (trigger fullscreenchange event)
+            if (window.Events && window.playbackManager && window.playbackManager._currentPlayer) {
+                console.log('Triggering fullscreenchange event on player');
+                window.Events.trigger(window.playbackManager._currentPlayer, 'fullscreenchange');
+            } else {
+                console.log('Cannot trigger fullscreenchange - Events:', !!window.Events, 'playbackManager:', !!window.playbackManager, 'currentPlayer:', !!window.playbackManager?._currentPlayer);
+            }
+        }
+    }
+});

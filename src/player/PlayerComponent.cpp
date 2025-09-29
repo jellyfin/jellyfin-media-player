@@ -301,6 +301,10 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QString& audioStream, const QString& subtitleStream)
 {
+  qDebug() << "PlayerComponent::queueMedia called";
+  qDebug() << "  metadata keys:" << metadata.keys();
+  qDebug() << "  options keys:" << options.keys();
+
   InputComponent::Get().cancelAutoRepeat();
 
   m_mediaFrameRate = metadata["frameRate"].toFloat(); // returns 0 on failure
@@ -733,6 +737,20 @@ void PlayerComponent::play()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::notifyShuffleModeChanged(bool shuffleEnabled)
+{
+  qDebug() << "PlayerComponent: Shuffle mode changed to:" << shuffleEnabled;
+  Q_EMIT shuffleModeChanged(shuffleEnabled);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::notifyRepeatModeChanged(const QString& repeatMode)
+{
+  qDebug() << "PlayerComponent: Repeat mode changed to:" << repeatMode;
+  Q_EMIT repeatModeChanged(repeatMode);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::stop()
 {
   QStringList args("stop");
@@ -951,7 +969,9 @@ void PlayerComponent::setSubtitleDelay(qint64 milliseconds)
 /////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setPlaybackRate(int rate)
 {
-  mpv::qt::set_property(m_mpv, "speed", rate / 1000.0);
+  double speed = rate / 1000.0;
+  mpv::qt::set_property(m_mpv, "speed", speed);
+  emit playbackRateChanged(speed);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1674,5 +1694,29 @@ QString PlayerComponent::videoInformation() const
 
   info.flush();
   return infoStr;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setWebPlaylist(const QVariantList& playlist, const QString& currentItemId)
+{
+  m_webPlaylist = playlist;
+  m_currentWebPlaylistItemId = currentItemId;
+
+  qDebug() << "PlayerComponent: Web playlist updated with" << playlist.size() << "items, current:" << currentItemId;
+
+  // Emit signal for MPRIS component
+  emit webPlaylistChanged(playlist, currentItemId);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QVariantList PlayerComponent::getWebPlaylist() const
+{
+  return m_webPlaylist;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString PlayerComponent::getCurrentWebPlaylistItemId() const
+{
+  return m_currentWebPlaylistItemId;
 }
 

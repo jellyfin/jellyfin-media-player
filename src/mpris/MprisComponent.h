@@ -102,13 +102,14 @@ Q_SIGNALS:
 
 private:
   void updatePlaybackStatus(const QString& status);
-  void updateMetadata(const QVariantMap& jellyfinMeta);
+  void updateMetadata(const QVariantMap& jellyfinMeta, const QUrl& baseUrl = QUrl());
   void emitPropertyChange(const QString& interface, const QString& property, const QVariant& value);
   void connectPlayerSignals();
   void disconnectPlayerSignals();
   QString generateTrackId() const;
   QString handleAlbumArt(const QString& artUrl);
   void cleanupAlbumArt();
+  QString extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl);
 
   bool m_enabled;
   PlayerComponent* m_player;

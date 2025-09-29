@@ -16,6 +16,7 @@
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QTimer>
+#include <QUrlQuery>
 
 #define MPRIS_SERVICE_NAME "org.mpris.MediaPlayer2.jellyfinmediaplayer"
 #define MPRIS_OBJECT_PATH "/org/mpris/MediaPlayer2"
@@ -370,7 +371,7 @@ void MprisComponent::onPlayerDurationChanged(qint64 duration)
 
 void MprisComponent::onPlayerMetaData(const QVariantMap& metadata, const QUrl& baseUrl)
 {
-  updateMetadata(metadata);
+  updateMetadata(metadata, baseUrl);
 }
 
 void MprisComponent::onPlayerVolumeChanged()
@@ -392,7 +393,7 @@ void MprisComponent::updatePlaybackStatus(const QString& status)
   }
 }
 
-void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta)
+void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl& baseUrl)
 {
   QVariantMap mprisMeta;
 
@@ -465,22 +466,8 @@ void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta)
     }
   }
 
-  // Handle album art
-  QString artUrl;
-  if (jellyfinMeta.contains("PrimaryImageTag"))
-  {
-    // TODO: Construct proper Jellyfin image URL
-    // This would need server URL and item ID
-  }
-  else if (jellyfinMeta.contains("ImageUrl"))
-  {
-    artUrl = jellyfinMeta["ImageUrl"].toString();
-  }
-  else if (jellyfinMeta.contains("ArtUrl"))
-  {
-    artUrl = jellyfinMeta["ArtUrl"].toString();
-  }
-
+  // Handle artwork (album art, movie poster, series poster)
+  QString artUrl = extractArtworkUrl(jellyfinMeta, baseUrl);
   if (!artUrl.isEmpty())
   {
     QString localArtUrl = handleAlbumArt(artUrl);
@@ -609,4 +596,163 @@ void MprisComponent::cleanupAlbumArt()
     QFile::remove(m_currentArtPath);
     m_currentArtPath.clear();
   }
+}
+
+QString MprisComponent::extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl)
+{
+  if (baseUrl.isEmpty())
+    return QString();
+
+  QString mediaType = metadata.value("MediaType").toString();
+  QString itemType = metadata.value("Type").toString();
+
+  QUrl artUrl = baseUrl;
+  QUrlQuery query;
+
+  // Handle different media types with priority fallback chains
+  if (mediaType == "Audio" || itemType == "Audio")
+  {
+    // MUSIC: Priority order - Album art, then track art
+    // 1. Try album art first (most common for music)
+    if (metadata.contains("AlbumId") && metadata.contains("AlbumPrimaryImageTag"))
+    {
+      QString albumId = metadata["AlbumId"].toString();
+      QString imageTag = metadata["AlbumPrimaryImageTag"].toString();
+
+      if (!albumId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(albumId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");  // Optimize size for desktop notifications
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 2. Fallback to track's own primary image
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+  else if (itemType == "Episode")
+  {
+    // TV EPISODES: Priority order - Series poster, Season poster, Episode thumbnail
+    // 1. Try series poster (most recognizable)
+    if (metadata.contains("SeriesId") && metadata.contains("SeriesPrimaryImageTag"))
+    {
+      QString seriesId = metadata["SeriesId"].toString();
+      QString imageTag = metadata["SeriesPrimaryImageTag"].toString();
+
+      if (!seriesId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(seriesId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 2. Try season poster
+    if (metadata.contains("SeasonId") && metadata.contains("SeasonPrimaryImageTag"))
+    {
+      QString seasonId = metadata["SeasonId"].toString();
+      QString imageTag = metadata["SeasonPrimaryImageTag"].toString();
+
+      if (!seasonId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(seasonId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 3. Fallback to episode thumbnail
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+  else if (itemType == "Movie")
+  {
+    // MOVIES: Primary poster, fallback to backdrop
+    // 1. Movie poster (Primary image)
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 2. Fallback to backdrop image
+    if (imageTags.contains("Backdrop") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Backdrop"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Backdrop/0").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+  else
+  {
+    // GENERIC FALLBACK: Any media type - try primary image
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+
+  return QString(); // No suitable image found
 }

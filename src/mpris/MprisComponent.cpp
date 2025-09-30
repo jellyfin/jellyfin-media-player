@@ -32,6 +32,8 @@ MprisComponent::MprisComponent(QObject* parent)
   , m_positionTimer(nullptr)
   , m_canGoNext(false)
   , m_canGoPrevious(false)
+  , m_seekPending(false)
+  , m_expectedPosition(0)
   , m_albumArtDir("/tmp/jellyfin-mpris")
 {
   // Create album art directory
@@ -60,12 +62,14 @@ bool MprisComponent::componentInitialize()
   }
 
   // Register the service name
+  qDebug() << "Attempting to register MPRIS service:" << MPRIS_SERVICE_NAME;
   if (!QDBusConnection::sessionBus().registerService(MPRIS_SERVICE_NAME))
   {
     qWarning() << "Failed to register MPRIS service:"
                << QDBusConnection::sessionBus().lastError().message();
     return true; // Not fatal, continue without MPRIS
   }
+  qDebug() << "MPRIS service registered successfully";
 
   // Create adaptors
   m_rootAdaptor = std::make_unique<MprisRootAdaptor>(this);
@@ -176,7 +180,9 @@ bool MprisComponent::canPause() const
 
 bool MprisComponent::canSeek() const
 {
-  return m_duration > 0 && m_playbackStatus != "Stopped";
+  bool result = m_duration > 0;
+  qDebug() << "MPRIS: canSeek() called - duration:" << m_duration << "result:" << result;
+  return result;
 }
 
 // MPRIS Root interface methods
@@ -252,6 +258,10 @@ void MprisComponent::Seek(qint64 offset)
   if (newPos > m_duration)
     newPos = m_duration;
 
+  // Track the expected position for Seeked signal
+  m_seekPending = true;
+  m_expectedPosition = newPos;
+
   m_player->seekTo(newPos / 1000);
 }
 
@@ -267,6 +277,10 @@ void MprisComponent::SetPosition(const QDBusObjectPath& trackId, qint64 position
   // position is in microseconds, seekTo expects milliseconds
   if (position >= 0 && position <= m_duration)
   {
+    // Track the expected position for Seeked signal
+    m_seekPending = true;
+    m_expectedPosition = position;
+
     m_player->seekTo(position / 1000);
   }
 }
@@ -352,6 +366,12 @@ void MprisComponent::onPlayerPositionUpdate(quint64 position)
   // position is in milliseconds, MPRIS uses microseconds
   m_position = position * 1000;
 
+  // Check if this position update is from a pending seek
+  if (m_seekPending && m_playerAdaptor) {
+    m_seekPending = false;
+    Q_EMIT m_playerAdaptor->Seeked(m_position);
+  }
+
   // MPRIS spec says don't emit position changes via PropertiesChanged
   // Clients should use Seeked signal or poll the property
 }
@@ -359,13 +379,25 @@ void MprisComponent::onPlayerPositionUpdate(quint64 position)
 void MprisComponent::onPlayerDurationChanged(qint64 duration)
 {
   // duration is in milliseconds, MPRIS uses microseconds
+  bool hadDuration = m_duration > 0;
   m_duration = duration * 1000;
 
-  if (m_metadata.contains("mpris:length"))
-  {
-    m_metadata["mpris:length"] = QVariant::fromValue(m_duration);
+  // Always add/update length in metadata
+  m_metadata["mpris:length"] = QVariant::fromValue(m_duration);
+
+  // If we didn't have duration before but do now, emit all metadata
+  if (!hadDuration && m_duration > 0) {
+    qDebug() << "MPRIS: Duration available, emitting delayed metadata";
     emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
+    updateNavigationCapabilities();
+    // Emit control capabilities when metadata becomes available
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanControl", canControl());
   }
+
+  // Update CanSeek when duration becomes available
+  bool seekable = canSeek();
+  qDebug() << "MPRIS: Emitting CanSeek property change:" << seekable << "duration:" << m_duration;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanSeek", seekable);
 }
 
 void MprisComponent::onPlayerMetaData(const QVariantMap& metadata, const QUrl& baseUrl)
@@ -391,7 +423,14 @@ void MprisComponent::updatePlaybackStatus(const QString& status)
 
     // Update navigation capabilities when playback status changes
     updateNavigationCapabilities();
-    emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanSeek", canSeek());
+    bool seekable = canSeek();
+    qDebug() << "MPRIS: Emitting CanSeek on status change:" << seekable << "status:" << status << "duration:" << m_duration;
+
+    // Emit multiple properties in single message
+    QVariantMap properties;
+    properties["CanSeek"] = seekable;
+    properties["CanControl"] = canControl();
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
   }
 }
 
@@ -479,11 +518,29 @@ void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl&
     }
   }
 
-  m_metadata = mprisMeta;
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
+  // Always include duration
+  mprisMeta["mpris:length"] = QVariant::fromValue(m_duration);
 
-  // Update navigation capabilities based on web playlist
-  updateNavigationCapabilities();
+  m_metadata = mprisMeta;
+
+  // Only emit metadata if we have a duration (to avoid CanSeek: false)
+  if (m_duration > 0) {
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
+
+    // Update navigation capabilities based on web playlist
+    updateNavigationCapabilities();
+    // Update CanSeek in case duration is now available
+    bool seekable = canSeek();
+    qDebug() << "MPRIS: Emitting CanSeek on metadata update:" << seekable << "duration:" << m_duration;
+
+    // Emit multiple properties in single message
+    QVariantMap properties;
+    properties["CanSeek"] = seekable;
+    properties["CanControl"] = canControl();
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  } else {
+    qDebug() << "MPRIS: Delaying metadata emission until duration is available";
+  }
 }
 
 void MprisComponent::emitPropertyChange(const QString& interface,
@@ -500,6 +557,19 @@ void MprisComponent::emitPropertyChange(const QString& interface,
   );
 
   signal << interface << changedProps << QStringList();
+  QDBusConnection::sessionBus().send(signal);
+}
+
+void MprisComponent::emitMultiplePropertyChanges(const QString& interface,
+                                                 const QVariantMap& properties)
+{
+  QDBusMessage signal = QDBusMessage::createSignal(
+    MPRIS_OBJECT_PATH,
+    "org.freedesktop.DBus.Properties",
+    "PropertiesChanged"
+  );
+
+  signal << interface << properties << QStringList();
   QDBusConnection::sessionBus().send(signal);
 }
 
@@ -759,11 +829,11 @@ void MprisComponent::updateNavigationCapabilities()
 {
   // Follow the same pattern as Windows taskbar - always enable when playing
   // The web client handles the actual availability logic
-  bool hasMedia = !m_metadata.isEmpty() && m_playbackStatus != "Stopped";
+  bool hasMedia = m_playbackStatus == "Playing" || m_playbackStatus == "Paused";
   m_canGoNext = hasMedia;
   m_canGoPrevious = hasMedia;
 
-  qDebug() << "MPRIS: Navigation capabilities updated - canGoNext:" << m_canGoNext << "canGoPrevious:" << m_canGoPrevious << "hasMedia:" << hasMedia;
+  qDebug() << "MPRIS: Navigation capabilities updated - canGoNext:" << m_canGoNext << "canGoPrevious:" << m_canGoPrevious << "hasMedia:" << hasMedia << "status:" << m_playbackStatus;
 
   emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoNext", canGoNext());
   emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoPrevious", canGoPrevious());

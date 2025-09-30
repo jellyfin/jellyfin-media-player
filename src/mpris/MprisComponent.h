@@ -104,6 +104,7 @@ private:
   void updatePlaybackStatus(const QString& status);
   void updateMetadata(const QVariantMap& jellyfinMeta, const QUrl& baseUrl = QUrl());
   void emitPropertyChange(const QString& interface, const QString& property, const QVariant& value);
+  void emitMultiplePropertyChanges(const QString& interface, const QVariantMap& properties);
   void connectPlayerSignals();
   void disconnectPlayerSignals();
   QString generateTrackId() const;
@@ -126,6 +127,10 @@ private:
   QTimer* m_positionTimer;
   bool m_canGoNext;
   bool m_canGoPrevious;
+
+  // Track seek operations for Seeked signal
+  bool m_seekPending;
+  qint64 m_expectedPosition;
 
   QString m_currentArtPath;
   QString m_albumArtDir;

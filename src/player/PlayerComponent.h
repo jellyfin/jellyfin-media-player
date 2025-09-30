@@ -122,6 +122,11 @@ public:
   Q_INVOKABLE qint64 getPosition();
   Q_INVOKABLE qint64 getDuration();
 
+  // Web playlist access for MPRIS
+  Q_INVOKABLE QVariantList getWebPlaylist() const;
+  Q_INVOKABLE QString getCurrentWebPlaylistItemId() const;
+  Q_INVOKABLE void setWebPlaylist(const QVariantList& playlist, const QString& currentItemId);
+
   QRect videoRectangle() { return m_videoRectangle; }
 
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
@@ -193,7 +198,9 @@ Q_SIGNALS:
   void onMpvEvents();
 
   void onMetaData(const QVariantMap &meta, QUrl baseUrl);
-  
+
+  // Web client playlist sync for MPRIS
+  void webPlaylistChanged(const QVariantList& playlist, const QString& currentItemId);
 private:
   // this is the function actually implemented in the backends. the variantmap contains
   // a few known keys:
@@ -250,6 +257,14 @@ private:
   QString m_currentSubtitleStream;
   QString m_currentAudioStream;
   QRect m_videoRectangle;
+
+  // Web playlist data for MPRIS
+  QVariantList m_webPlaylist;
+  QString m_currentWebPlaylistItemId;
+
+  // Playlist detection from queueMedia calls
+  QTimer* m_playlistTimer;
+  QVariantList m_queuedItems;
 };
 
 #endif // PLAYERCOMPONENT_H

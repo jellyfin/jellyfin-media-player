@@ -305,6 +305,10 @@ bool PlayerComponent::load(const QString& url, const QVariantMap& options, const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QString& audioStream, const QString& subtitleStream)
 {
+  qDebug() << "PlayerComponent::queueMedia called";
+  qDebug() << "  metadata keys:" << metadata.keys();
+  qDebug() << "  options keys:" << options.keys();
+
   InputComponent::Get().cancelAutoRepeat();
 
   m_mediaFrameRate = metadata["frameRate"].toFloat(); // returns 0 on failure
@@ -1678,5 +1682,29 @@ QString PlayerComponent::videoInformation() const
 
   info.flush();
   return infoStr;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setWebPlaylist(const QVariantList& playlist, const QString& currentItemId)
+{
+  m_webPlaylist = playlist;
+  m_currentWebPlaylistItemId = currentItemId;
+
+  qDebug() << "PlayerComponent: Web playlist updated with" << playlist.size() << "items, current:" << currentItemId;
+
+  // Emit signal for MPRIS component
+  emit webPlaylistChanged(playlist, currentItemId);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QVariantList PlayerComponent::getWebPlaylist() const
+{
+  return m_webPlaylist;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString PlayerComponent::getCurrentWebPlaylistItemId() const
+{
+  return m_currentWebPlaylistItemId;
 }
 

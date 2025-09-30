@@ -2,6 +2,7 @@
 #include "MprisRootAdaptor.h"
 #include "MprisPlayerAdaptor.h"
 #include "player/PlayerComponent.h"
+#include "input/InputComponent.h"
 
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -194,16 +195,14 @@ void MprisComponent::Quit()
 // MPRIS Player interface methods
 void MprisComponent::Next()
 {
-  // PlayerComponent doesn't have built-in next/previous
-  // This would need to be implemented via web UI integration
-  // For now, we report as unsupported
+  qDebug() << "MPRIS: Next track requested";
+  InputComponent::Get().sendAction("next");
 }
 
 void MprisComponent::Previous()
 {
-  // PlayerComponent doesn't have built-in next/previous
-  // This would need to be implemented via web UI integration
-  // For now, we report as unsupported
+  qDebug() << "MPRIS: Previous track requested";
+  InputComponent::Get().sendAction("previous");
 }
 
 void MprisComponent::Pause()
@@ -389,6 +388,9 @@ void MprisComponent::updatePlaybackStatus(const QString& status)
     // Update can* properties
     emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanPlay", canPlay());
     emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanPause", canPause());
+
+    // Update navigation capabilities when playback status changes
+    updateNavigationCapabilities();
     emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanSeek", canSeek());
   }
 }
@@ -480,12 +482,8 @@ void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl&
   m_metadata = mprisMeta;
   emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
 
-  // Update navigation capabilities based on queue status
-  // PlayerComponent doesn't expose queue navigation, so we report as unavailable
-  m_canGoNext = false;
-  m_canGoPrevious = false;
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoNext", canGoNext());
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoPrevious", canGoPrevious());
+  // Update navigation capabilities based on web playlist
+  updateNavigationCapabilities();
 }
 
 void MprisComponent::emitPropertyChange(const QString& interface,
@@ -755,4 +753,18 @@ QString MprisComponent::extractArtworkUrl(const QVariantMap& metadata, const QUr
   }
 
   return QString(); // No suitable image found
+}
+
+void MprisComponent::updateNavigationCapabilities()
+{
+  // Follow the same pattern as Windows taskbar - always enable when playing
+  // The web client handles the actual availability logic
+  bool hasMedia = !m_metadata.isEmpty() && m_playbackStatus != "Stopped";
+  m_canGoNext = hasMedia;
+  m_canGoPrevious = hasMedia;
+
+  qDebug() << "MPRIS: Navigation capabilities updated - canGoNext:" << m_canGoNext << "canGoPrevious:" << m_canGoPrevious << "hasMedia:" << hasMedia;
+
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoNext", canGoNext());
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoPrevious", canGoPrevious());
 }

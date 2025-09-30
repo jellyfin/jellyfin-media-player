@@ -110,6 +110,7 @@ private:
   QString handleAlbumArt(const QString& artUrl);
   void cleanupAlbumArt();
   QString extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl);
+  void updateNavigationCapabilities();
 
   bool m_enabled;
   PlayerComponent* m_player;

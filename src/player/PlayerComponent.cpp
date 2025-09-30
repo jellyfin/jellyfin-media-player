@@ -741,6 +741,20 @@ void PlayerComponent::play()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::notifyShuffleModeChanged(bool shuffleEnabled)
+{
+  qDebug() << "PlayerComponent: Shuffle mode changed to:" << shuffleEnabled;
+  Q_EMIT shuffleModeChanged(shuffleEnabled);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::notifyRepeatModeChanged(const QString& repeatMode)
+{
+  qDebug() << "PlayerComponent: Repeat mode changed to:" << repeatMode;
+  Q_EMIT repeatModeChanged(repeatMode);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::stop()
 {
   QStringList args("stop");

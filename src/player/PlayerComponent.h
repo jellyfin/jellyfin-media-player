@@ -60,7 +60,13 @@ public:
 
   Q_INVOKABLE virtual void pause();
   Q_INVOKABLE virtual void play();
-  
+
+  // Called from web client when shuffle mode changes
+  Q_INVOKABLE void notifyShuffleModeChanged(bool shuffleEnabled);
+
+  // Called from web client when repeat mode changes
+  Q_INVOKABLE void notifyRepeatModeChanged(const QString& repeatMode);
+
   // 0-100 volume 0=mute and 100=normal
   // Ignored if no audio output active (e.g. when no file is playing).
   Q_INVOKABLE virtual void setVolume(int volume);
@@ -188,6 +194,10 @@ Q_SIGNALS:
   void windowVisible(bool visible);
   // emitted as soon as the duration of the current file is known
   void updateDuration(qint64 milliseconds);
+  // Shuffle mode changed (for MPRIS integration)
+  void shuffleModeChanged(bool shuffleEnabled);
+  // Repeat mode changed (for MPRIS integration)
+  void repeatModeChanged(const QString& repeatMode);
 
   // current position in ms should be triggered 2 times a second
   // when position updates

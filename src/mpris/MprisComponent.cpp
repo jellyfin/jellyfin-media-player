@@ -32,6 +32,8 @@ MprisComponent::MprisComponent(QObject* parent)
   , m_positionTimer(nullptr)
   , m_canGoNext(false)
   , m_canGoPrevious(false)
+  , m_shuffle(false)
+  , m_loopStatus("None")
   , m_seekPending(false)
   , m_expectedPosition(0)
   , m_albumArtDir("/tmp/jellyfin-mpris")
@@ -129,6 +131,10 @@ void MprisComponent::connectPlayerSignals()
           this, &MprisComponent::onPlayerDurationChanged);
   connect(m_player, &PlayerComponent::onMetaData,
           this, &MprisComponent::onPlayerMetaData);
+  connect(m_player, &PlayerComponent::shuffleModeChanged,
+          this, &MprisComponent::onShuffleModeChanged);
+  connect(m_player, &PlayerComponent::repeatModeChanged,
+          this, &MprisComponent::onRepeatModeChanged);
 }
 
 void MprisComponent::disconnectPlayerSignals()
@@ -156,6 +162,18 @@ double MprisComponent::volume() const
 qint64 MprisComponent::position() const
 {
   return m_position;
+}
+
+QString MprisComponent::loopStatus() const
+{
+  // Only expose repeat for music content
+  return (m_currentMediaType == "Audio") ? m_loopStatus : "None";
+}
+
+bool MprisComponent::shuffle() const
+{
+  // Only expose shuffle for music content
+  return (m_currentMediaType == "Audio") ? m_shuffle : false;
 }
 
 bool MprisComponent::canGoNext() const
@@ -304,7 +322,29 @@ void MprisComponent::setVolume(double volume)
 
 void MprisComponent::setLoopStatus(const QString& value)
 {
-  // Not supported
+  // Only support for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  // Valid MPRIS values: "None", "Track", "Playlist"
+  if (value == "None" || value == "Track" || value == "Playlist")
+  {
+    // Map MPRIS values to Jellyfin web client actions
+    QString action;
+    if (value == "None")
+      action = "repeatnone";
+    else if (value == "Track")
+      action = "repeatone";
+    else if (value == "Playlist")
+      action = "repeatall";
+
+    // Send action to web client
+    InputComponent::Get().sendAction(action);
+
+    m_loopStatus = value;
+    qDebug() << "MPRIS: Loop status changed to:" << value << "via action:" << action;
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus());
+  }
 }
 
 void MprisComponent::setRate(double value)
@@ -314,7 +354,43 @@ void MprisComponent::setRate(double value)
 
 void MprisComponent::setShuffle(bool value)
 {
-  // Not supported yet
+  // Only support for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  // Send appropriate action to web client
+  QString action = value ? "shuffle" : "sorted";
+  InputComponent::Get().sendAction(action);
+
+  m_shuffle = value;
+  qDebug() << "MPRIS: Shuffle changed to:" << value << "via action:" << action;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Shuffle", shuffle());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void MprisComponent::notifyShuffleChange(bool enabled)
+{
+  qDebug() << "MPRIS: Received shuffle change notification from web client:" << enabled;
+  m_shuffle = enabled;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Shuffle", shuffle());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void MprisComponent::notifyRepeatChange(const QString& mode)
+{
+  qDebug() << "MPRIS: Received repeat change notification from web client:" << mode;
+
+  // Convert Jellyfin repeat mode to MPRIS LoopStatus
+  QString loopStatus;
+  if (mode == "RepeatAll")
+    loopStatus = "Playlist";
+  else if (mode == "RepeatOne")
+    loopStatus = "Track";
+  else
+    loopStatus = "None";
+
+  m_loopStatus = loopStatus;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus);
 }
 
 // PlayerComponent signal handlers
@@ -410,6 +486,41 @@ void MprisComponent::onPlayerVolumeChanged()
   emitPropertyChange("org.mpris.MediaPlayer2.Player", "Volume", volume());
 }
 
+void MprisComponent::onShuffleModeChanged(bool shuffleEnabled)
+{
+  // Only update for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  m_shuffle = shuffleEnabled;
+  qDebug() << "MPRIS: Shuffle mode changed from web client to:" << shuffleEnabled;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Shuffle", shuffle());
+}
+
+void MprisComponent::onRepeatModeChanged(const QString& repeatMode)
+{
+  // Only update for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  // Map Jellyfin repeat modes to MPRIS LoopStatus values
+  QString mprisLoopStatus;
+  if (repeatMode == "RepeatNone")
+    mprisLoopStatus = "None";
+  else if (repeatMode == "RepeatOne")
+    mprisLoopStatus = "Track";
+  else if (repeatMode == "RepeatAll")
+    mprisLoopStatus = "Playlist";
+  else {
+    qWarning() << "MPRIS: Unknown repeat mode from web client:" << repeatMode;
+    return;
+  }
+
+  m_loopStatus = mprisLoopStatus;
+  qDebug() << "MPRIS: Repeat mode changed from web client:" << repeatMode << "-> MPRIS:" << mprisLoopStatus;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus());
+}
+
 void MprisComponent::updatePlaybackStatus(const QString& status)
 {
   if (m_playbackStatus != status)
@@ -445,6 +556,9 @@ void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl&
   // Map Jellyfin metadata to MPRIS format
   QString mediaType = jellyfinMeta.value("MediaType").toString();
   QString itemType = jellyfinMeta.value("Type").toString();
+
+  // Track current media type for shuffle/repeat availability
+  m_currentMediaType = mediaType;
 
   // Common fields
   if (jellyfinMeta.contains("Name"))
@@ -537,6 +651,13 @@ void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl&
     QVariantMap properties;
     properties["CanSeek"] = seekable;
     properties["CanControl"] = canControl();
+
+    // Include shuffle/repeat for music content
+    if (m_currentMediaType == "Audio") {
+      properties["Shuffle"] = shuffle();
+      properties["LoopStatus"] = loopStatus();
+    }
+
     emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
   } else {
     qDebug() << "MPRIS: Delaying metadata emission until duration is available";

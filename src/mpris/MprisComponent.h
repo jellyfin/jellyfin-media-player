@@ -28,7 +28,7 @@ public:
 
   // Component interface
   const char* componentName() override { return "mpris"; }
-  bool componentExport() override { return false; }
+  bool componentExport() override { return true; }
   bool componentInitialize() override;
   void componentPostInitialize() override;
 
@@ -45,9 +45,9 @@ public:
 
   // MPRIS Player interface properties
   QString playbackStatus() const;
-  QString loopStatus() const { return "None"; }
+  QString loopStatus() const;
   double rate() const { return 1.0; }
-  bool shuffle() const { return false; }
+  bool shuffle() const;
   QVariantMap metadata() const { return m_metadata; }
   double volume() const;
   qint64 position() const;
@@ -82,6 +82,10 @@ public Q_SLOTS:
   void setRate(double value);
   void setShuffle(bool value);
 
+  // Invokable methods for JS to notify mode changes
+  Q_INVOKABLE void notifyShuffleChange(bool enabled);
+  Q_INVOKABLE void notifyRepeatChange(const QString& mode);
+
 private Q_SLOTS:
   // PlayerComponent signal handlers
   void onPlayerPlaying();
@@ -93,6 +97,8 @@ private Q_SLOTS:
   void onPlayerDurationChanged(qint64 duration);
   void onPlayerMetaData(const QVariantMap& metadata, const QUrl& baseUrl);
   void onPlayerVolumeChanged();
+  void onShuffleModeChanged(bool shuffleEnabled);
+  void onRepeatModeChanged(const QString& repeatMode);
 
 Q_SIGNALS:
   // For D-Bus property change notifications
@@ -123,10 +129,15 @@ private:
   qint64 m_position; // in microseconds
   qint64 m_duration; // in microseconds
   QString m_currentTrackId;
+  QString m_currentMediaType; // "Audio", "Video", etc.
 
   QTimer* m_positionTimer;
   bool m_canGoNext;
   bool m_canGoPrevious;
+
+  // Music-specific controls
+  bool m_shuffle;
+  QString m_loopStatus; // "None", "Track", "Playlist"
 
   // Track seek operations for Seeked signal
   bool m_seekPending;

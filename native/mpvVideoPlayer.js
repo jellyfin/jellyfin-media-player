@@ -594,6 +594,21 @@
         return this._supportedFeatures.includes(feature);
     }
 
+    isFullscreen() {
+        // Check native window fullscreen state
+        if (window.jmpInfo && window.jmpInfo.settings && window.jmpInfo.settings.main) {
+            return window.jmpInfo.settings.main.fullscreen === true;
+        }
+        return false;
+    }
+
+    toggleFullscreen() {
+        // Toggle native window fullscreen directly via host command
+        if (window.api && window.api.input) {
+            window.api.input.executeActions(['host:fullscreen']);
+        }
+    }
+
     // Save this for when playback stops, because querying the time at that point might return 0
     currentTime(val) {
         if (val != null) {

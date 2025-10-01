@@ -29,7 +29,7 @@ bool MprisRootAdaptor::fullscreen() const
 
 void MprisRootAdaptor::setFullscreen(bool value)
 {
-  // Not implemented
+  m_component->setFullscreen(value);
 }
 
 bool MprisRootAdaptor::hasTrackList() const

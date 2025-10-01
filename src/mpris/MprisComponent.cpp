@@ -3,6 +3,8 @@
 #include "MprisPlayerAdaptor.h"
 #include "player/PlayerComponent.h"
 #include "input/InputComponent.h"
+#include "core/Globals.h"
+#include "ui/KonvergoWindow.h"
 
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -206,14 +208,41 @@ bool MprisComponent::canSeek() const
 // MPRIS Root interface methods
 void MprisComponent::Raise()
 {
-  // TODO: Implement window raising when we have access to the main window
-  // For now, this is a no-op as KonvergoWindow doesn't expose a singleton
+  KonvergoWindow* window = Globals::MainWindow();
+  if (window)
+  {
+    window->raise();
+    window->requestActivate();
+  }
 }
 
 void MprisComponent::Quit()
 {
   // We don't allow quit via MPRIS for now
   // qApp->quit();
+}
+
+bool MprisComponent::fullscreen() const
+{
+  KonvergoWindow* window = Globals::MainWindow();
+  if (window)
+    return window->isFullScreen();
+  return false;
+}
+
+void MprisComponent::setFullscreen(bool value)
+{
+  KonvergoWindow* window = Globals::MainWindow();
+  if (window)
+  {
+    bool currentState = window->isFullScreen();
+    if (currentState != value)
+    {
+      window->setFullScreen(value);
+      qDebug() << "MPRIS: Fullscreen changed to:" << value;
+      emitPropertyChange("org.mpris.MediaPlayer2", "Fullscreen", value);
+    }
+  }
 }
 
 // MPRIS Player interface methods
@@ -391,6 +420,13 @@ void MprisComponent::notifyRepeatChange(const QString& mode)
 
   m_loopStatus = loopStatus;
   emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void MprisComponent::notifyFullscreenChange(bool isFullscreen)
+{
+  qDebug() << "MPRIS: Received fullscreen change notification from web client:" << isFullscreen;
+  emitPropertyChange("org.mpris.MediaPlayer2", "Fullscreen", isFullscreen);
 }
 
 // PlayerComponent signal handlers

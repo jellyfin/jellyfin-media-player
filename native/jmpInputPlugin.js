@@ -47,7 +47,7 @@ class jmpInputPlugin {
             window.Events.on(playbackManager, 'playbackstart', (e, player) => {
                 if (listenersAttached || !player) return;
 
-                console.log('MPRIS: Attaching shuffle and repeat listeners to player');
+                console.log('MPRIS: Attaching shuffle, repeat, and fullscreen listeners to player');
                 window.Events.on(player, 'shufflequeuemodechange', () => {
                     const mode = playbackManager.getQueueShuffleMode();
                     const enabled = (mode === 'Shuffle');
@@ -60,6 +60,20 @@ class jmpInputPlugin {
                     console.log('MPRIS: Repeat mode changed to:', mode);
                     api.mpris.notifyRepeatChange(mode);
                 });
+
+                // Listen for fullscreen setting changes and trigger fullscreenchange event
+                let lastFullscreenState = window.jmpInfo.settings.main.fullscreen;
+                window.jmpInfo.settingsUpdate.push(function(section) {
+                    if (section === 'main') {
+                        const currentFullscreenState = window.jmpInfo.settings.main.fullscreen;
+                        if (currentFullscreenState !== lastFullscreenState) {
+                            lastFullscreenState = currentFullscreenState;
+                            console.log('MPRIS: Fullscreen setting changed, triggering fullscreenchange event');
+                            window.Events.trigger(player, 'fullscreenchange');
+                        }
+                    }
+                });
+
                 listenersAttached = true;
             });
 

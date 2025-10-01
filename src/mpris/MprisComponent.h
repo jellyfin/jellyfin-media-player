@@ -35,8 +35,9 @@ public:
   // MPRIS Root interface properties
   bool canQuit() const { return false; }
   bool canRaise() const { return true; }
-  bool canSetFullscreen() const { return false; }
-  bool fullscreen() const { return false; }
+  bool canSetFullscreen() const { return true; }
+  bool fullscreen() const;
+  void setFullscreen(bool value);
   bool hasTrackList() const { return false; }
   QString identity() const { return "Jellyfin Media Player"; }
   QString desktopEntry() const { return "jellyfinmediaplayer"; }
@@ -85,6 +86,7 @@ public Q_SLOTS:
   // Invokable methods for JS to notify mode changes
   Q_INVOKABLE void notifyShuffleChange(bool enabled);
   Q_INVOKABLE void notifyRepeatChange(const QString& mode);
+  Q_INVOKABLE void notifyFullscreenChange(bool isFullscreen);
 
 private Q_SLOTS:
   // PlayerComponent signal handlers

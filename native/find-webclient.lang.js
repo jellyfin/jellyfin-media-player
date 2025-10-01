@@ -146,7 +146,7 @@ const languages = [
   {
     "lang": "en-gb",
     "HeaderConnectToServer": "Connect to Server",
-    "LabelServerHost": "Host",
+    "LabelServerHost": "Server Address",
     "LabelServerHostHelp": "192.168.1.100:8096 or https://myserver.com",
     "Connect": "Connect",
     "HeaderConnectionFailure": "Connection Failure",
@@ -156,7 +156,7 @@ const languages = [
   {
     "lang": "en-us",
     "HeaderConnectToServer": "Connect to Server",
-    "LabelServerHost": "Host",
+    "LabelServerHost": "Server Address",
     "LabelServerHostHelp": "192.168.1.100:8096 or https://myserver.com",
     "Connect": "Connect",
     "HeaderConnectionFailure": "Connection Failure",
@@ -965,10 +965,12 @@ if (!languages.find(l => l.lang === language)) {
 const languageStrings = languages.find(l => l.lang === language);
 const fallbackStrings = languages.find(l => l.lang === fallbackLanguage);
 
-document.getElementById('title').innerText = languageStrings.HeaderConnectToServer || fallbackStrings.HeaderConnectToServer;
-document.getElementById('address-label').innerText = languageStrings.LabelServerHost || fallbackStrings.LabelServerHost;
-document.getElementById('helper-text').innerText = languageStrings.LabelServerHostHelp || fallbackStrings.LabelServerHostHelp;
-document.getElementById('connect-button').innerText = languageStrings.Connect || fallbackStrings.Connect;
-document.getElementById('connect-fail-title').innerText = languageStrings.HeaderConnectionFailure || fallbackStrings.HeaderConnectionFailure;
-document.getElementById('connect-fail-text').innerText = languageStrings.MessageUnableToConnectToServer || fallbackStrings.MessageUnableToConnectToServer;
-document.getElementById('connect-fail-button').innerText = languageStrings.ButtonGotIt || fallbackStrings.ButtonGotIt;
+const titleText = languageStrings.LabelServerHost || fallbackStrings.LabelServerHost || 'Server Address';
+const connectText = languageStrings.Connect || fallbackStrings.Connect;
+
+document.getElementById('title').innerText = titleText;
+document.getElementById('title').setAttribute('data-original-text', titleText);
+document.getElementById('address').placeholder = languageStrings.LabelServerHostHelp || fallbackStrings.LabelServerHostHelp;
+document.getElementById('connect-button').innerText = connectText;
+document.getElementById('connect-button').setAttribute('data-original-text', connectText);
+window.cancelButtonText = 'Cancel';

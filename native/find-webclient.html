@@ -6,25 +6,14 @@
     <link rel="stylesheet" href="find-webclient.css">
 </head>
 <body>
-    <div id="splash">
+    <div id="container">
         <img class="logo" src="logo.png">
-    </div>
-    <div id="main">
-        <img class="logo" src="logo.png">
-        <h1 id="title"></h1>
         <form id="connect-form">
-            <label for="address" id="address-label"></label>
+            <h1 id="title"></h1>
+            <div id="spinner"></div>
             <input type="text" id="address" autofocus>
-            <p id="helper-text"></p>
             <button id="connect-button" type="submit"></button>
         </form>
-    </div>
-    <div id="backdrop">
-        <div id="connect-fail">
-            <h1 id="connect-fail-title"></h1>
-            <p id="connect-fail-text"></p>
-            <button id="connect-fail-button"></button>
-        </div>
     </div>
     <script src="find-webclient.lang.js"></script>
     <script src="find-webclient.js"></script>

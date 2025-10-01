@@ -138,6 +138,20 @@ set_target_properties(${MAIN_TARGET} PROPERTIES
 copy_resources(${MAIN_TARGET})
 clang_tidy(${MAIN_TARGET})
 
+# Copy native files to build directory for development
+file(GLOB NATIVE_FILES ${CMAKE_SOURCE_DIR}/native/*)
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/src/web-client/extension/.timestamp
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/native
+    ${CMAKE_BINARY_DIR}/src/web-client/extension
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/src/web-client/extension/.timestamp
+  DEPENDS ${NATIVE_FILES}
+  COMMENT "Copying native files for development"
+)
+add_custom_target(copy_native_files DEPENDS ${CMAKE_BINARY_DIR}/src/web-client/extension/.timestamp)
+add_dependencies(${MAIN_TARGET} copy_native_files)
+
 find_library(MINIZIP_LIBRARY minizip)
 if(WIN32)
   # FindZLIB doesn't find this. (It might be possible to fix the minizip build

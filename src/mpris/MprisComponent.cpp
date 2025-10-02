@@ -1,0 +1,1084 @@
+#include "MprisComponent.h"
+#include "MprisRootAdaptor.h"
+#include "MprisPlayerAdaptor.h"
+#include "player/PlayerComponent.h"
+#include "input/InputComponent.h"
+#include "core/Globals.h"
+#include "ui/KonvergoWindow.h"
+
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusError>
+#include <QApplication>
+#include <QCryptographicHash>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QEventLoop>
+#include <QTimer>
+#include <QUrlQuery>
+
+#define MPRIS_SERVICE_NAME "org.mpris.MediaPlayer2.jellyfinmediaplayer"
+#define MPRIS_OBJECT_PATH "/org/mpris/MediaPlayer2"
+
+MprisComponent::MprisComponent(QObject* parent)
+  : ComponentBase(parent)
+  , m_enabled(false)
+  , m_player(nullptr)
+  , m_playbackStatus("Stopped")
+  , m_position(0)
+  , m_duration(0)
+  , m_positionTimer(nullptr)
+  , m_canGoNext(false)
+  , m_canGoPrevious(false)
+  , m_shuffle(false)
+  , m_loopStatus("None")
+  , m_rate(1.0)
+  , m_seekPending(false)
+  , m_expectedPosition(0)
+  , m_albumArtDir("/tmp/jellyfin-mpris")
+{
+  // Create album art directory
+  QDir dir;
+  dir.mkpath(m_albumArtDir);
+}
+
+MprisComponent::~MprisComponent()
+{
+  if (m_enabled)
+  {
+    disconnectPlayerSignals();
+    cleanupAlbumArt();
+    QDBusConnection::sessionBus().unregisterService(MPRIS_SERVICE_NAME);
+    QDBusConnection::sessionBus().unregisterObject(MPRIS_OBJECT_PATH);
+  }
+}
+
+bool MprisComponent::componentInitialize()
+{
+  // Check if D-Bus session bus is available
+  if (!QDBusConnection::sessionBus().isConnected())
+  {
+    qDebug() << "D-Bus session bus not available, MPRIS disabled";
+    return true; // Not an error, just disabled
+  }
+
+  // Register the service name
+  qDebug() << "Attempting to register MPRIS service:" << MPRIS_SERVICE_NAME;
+  if (!QDBusConnection::sessionBus().registerService(MPRIS_SERVICE_NAME))
+  {
+    qWarning() << "Failed to register MPRIS service:"
+               << QDBusConnection::sessionBus().lastError().message();
+    return true; // Not fatal, continue without MPRIS
+  }
+  qDebug() << "MPRIS service registered successfully";
+
+  // Create adaptors
+  m_rootAdaptor = std::make_unique<MprisRootAdaptor>(this);
+  m_playerAdaptor = std::make_unique<MprisPlayerAdaptor>(this);
+
+  // Register object
+  if (!QDBusConnection::sessionBus().registerObject(MPRIS_OBJECT_PATH, this))
+  {
+    qWarning() << "Failed to register MPRIS object:"
+               << QDBusConnection::sessionBus().lastError().message();
+    QDBusConnection::sessionBus().unregisterService(MPRIS_SERVICE_NAME);
+    return true;
+  }
+
+  m_enabled = true;
+  qDebug() << "MPRIS interface registered successfully";
+
+  return true;
+}
+
+void MprisComponent::componentPostInitialize()
+{
+  if (!m_enabled)
+    return;
+
+  m_player = &PlayerComponent::Get();
+  connectPlayerSignals();
+
+  // Set up position update timer (for clients that poll instead of using signals)
+  m_positionTimer = new QTimer(this);
+  m_positionTimer->setInterval(500);
+  connect(m_positionTimer, &QTimer::timeout, [this]() {
+    if (m_playbackStatus == "Playing")
+    {
+      // Position is tracked internally and updated via signals
+      // This timer is just for edge cases
+    }
+  });
+}
+
+void MprisComponent::connectPlayerSignals()
+{
+  if (!m_player)
+    return;
+
+  connect(m_player, &PlayerComponent::playing,
+          this, &MprisComponent::onPlayerPlaying);
+  connect(m_player, &PlayerComponent::paused,
+          this, &MprisComponent::onPlayerPaused);
+  connect(m_player, &PlayerComponent::stopped,
+          this, &MprisComponent::onPlayerStopped);
+  connect(m_player, &PlayerComponent::finished,
+          this, &MprisComponent::onPlayerFinished);
+  connect(m_player, &PlayerComponent::positionUpdate,
+          this, &MprisComponent::onPlayerPositionUpdate);
+  connect(m_player, &PlayerComponent::updateDuration,
+          this, &MprisComponent::onPlayerDurationChanged);
+  connect(m_player, &PlayerComponent::onMetaData,
+          this, &MprisComponent::onPlayerMetaData);
+  connect(m_player, &PlayerComponent::shuffleModeChanged,
+          this, &MprisComponent::onShuffleModeChanged);
+  connect(m_player, &PlayerComponent::repeatModeChanged,
+          this, &MprisComponent::onRepeatModeChanged);
+}
+
+void MprisComponent::disconnectPlayerSignals()
+{
+  if (!m_player)
+    return;
+
+  disconnect(m_player, nullptr, this, nullptr);
+}
+
+QString MprisComponent::playbackStatus() const
+{
+  return m_playbackStatus;
+}
+
+double MprisComponent::volume() const
+{
+  if (!m_player)
+    return 0.0;
+
+  // Convert from 0-100 to 0.0-1.0
+  return m_player->volume() / 100.0;
+}
+
+qint64 MprisComponent::position() const
+{
+  return m_position;
+}
+
+QString MprisComponent::loopStatus() const
+{
+  return m_loopStatus;
+}
+
+double MprisComponent::rate() const
+{
+  return m_rate;
+}
+
+bool MprisComponent::shuffle() const
+{
+  // Only expose shuffle for music content
+  return (m_currentMediaType == "Audio") ? m_shuffle : false;
+}
+
+bool MprisComponent::canGoNext() const
+{
+  return m_canGoNext && m_playbackStatus != "Stopped";
+}
+
+bool MprisComponent::canGoPrevious() const
+{
+  return m_canGoPrevious && m_playbackStatus != "Stopped";
+}
+
+bool MprisComponent::canPlay() const
+{
+  return m_playbackStatus != "Playing";
+}
+
+bool MprisComponent::canPause() const
+{
+  return m_playbackStatus == "Playing";
+}
+
+bool MprisComponent::canSeek() const
+{
+  bool result = m_duration > 0;
+  qDebug() << "MPRIS: canSeek() called - duration:" << m_duration << "result:" << result;
+  return result;
+}
+
+// MPRIS Root interface methods
+void MprisComponent::Raise()
+{
+  KonvergoWindow* window = Globals::MainWindow();
+  if (window)
+  {
+    window->raise();
+    window->requestActivate();
+  }
+}
+
+void MprisComponent::Quit()
+{
+  // We don't allow quit via MPRIS for now
+  // qApp->quit();
+}
+
+bool MprisComponent::fullscreen() const
+{
+  KonvergoWindow* window = Globals::MainWindow();
+  if (window)
+    return window->isFullScreen();
+  return false;
+}
+
+void MprisComponent::setFullscreen(bool value)
+{
+  KonvergoWindow* window = Globals::MainWindow();
+  if (window)
+  {
+    bool currentState = window->isFullScreen();
+    if (currentState != value)
+    {
+      window->setFullScreen(value);
+      qDebug() << "MPRIS: Fullscreen changed to:" << value;
+      emitPropertyChange("org.mpris.MediaPlayer2", "Fullscreen", value);
+    }
+  }
+}
+
+// MPRIS Player interface methods
+void MprisComponent::Next()
+{
+  qDebug() << "MPRIS: Next track requested";
+  InputComponent::Get().sendAction("next");
+}
+
+void MprisComponent::Previous()
+{
+  qDebug() << "MPRIS: Previous track requested";
+  InputComponent::Get().sendAction("previous");
+}
+
+void MprisComponent::Pause()
+{
+  if (m_player && canPause())
+  {
+    m_player->pause();
+  }
+}
+
+void MprisComponent::PlayPause()
+{
+  if (m_player)
+  {
+    if (m_playbackStatus == "Playing")
+      m_player->pause();
+    else
+      m_player->play();
+  }
+}
+
+void MprisComponent::Stop()
+{
+  if (m_player)
+  {
+    m_player->stop();
+  }
+}
+
+void MprisComponent::Play()
+{
+  if (m_player && canPlay())
+  {
+    m_player->play();
+  }
+}
+
+void MprisComponent::Seek(qint64 offset)
+{
+  if (!m_player || !canSeek())
+    return;
+
+  // offset is in microseconds, seekTo expects milliseconds
+  qint64 newPos = m_position + offset;
+  if (newPos < 0)
+    newPos = 0;
+  if (newPos > m_duration)
+    newPos = m_duration;
+
+  // Track the expected position for Seeked signal
+  m_seekPending = true;
+  m_expectedPosition = newPos;
+
+  m_player->seekTo(newPos / 1000);
+}
+
+void MprisComponent::SetPosition(const QDBusObjectPath& trackId, qint64 position)
+{
+  if (!m_player || !canSeek())
+    return;
+
+  // Verify track ID matches current track
+  if (trackId.path() != m_currentTrackId)
+    return;
+
+  // position is in microseconds, seekTo expects milliseconds
+  if (position >= 0 && position <= m_duration)
+  {
+    // Track the expected position for Seeked signal
+    m_seekPending = true;
+    m_expectedPosition = position;
+
+    m_player->seekTo(position / 1000);
+  }
+}
+
+void MprisComponent::OpenUri(const QString& uri)
+{
+  // Not implemented - would need to handle Jellyfin URLs
+}
+
+void MprisComponent::setVolume(double volume)
+{
+  if (!m_player)
+    return;
+
+  // Convert from 0.0-1.0 to 0-100
+  int vol = qBound(0, static_cast<int>(volume * 100), 100);
+  m_player->setVolume(vol);
+
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Volume", volume);
+}
+
+void MprisComponent::setLoopStatus(const QString& value)
+{
+  // Valid MPRIS values: "None", "Track", "Playlist"
+  if (value == "None" || value == "Track" || value == "Playlist")
+  {
+    // Map MPRIS values to Jellyfin web client actions
+    QString action;
+    if (value == "None")
+      action = "repeatnone";
+    else if (value == "Track")
+      action = "repeatone";
+    else if (value == "Playlist")
+      action = "repeatall";
+
+    // Send action to web client
+    InputComponent::Get().sendAction(action);
+
+    m_loopStatus = value;
+    qDebug() << "MPRIS: Loop status changed to:" << value << "via action:" << action;
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus());
+  }
+}
+
+void MprisComponent::setRate(double value)
+{
+  if (!m_player)
+    return;
+
+  // Clamp to supported range (0.25 to 2.0)
+  value = qBound(0.25, value, 2.0);
+
+  qDebug() << "MPRIS: Setting playback rate to:" << value;
+  m_rate = value;
+  m_player->setPlaybackRate(static_cast<int>(value * 1000));
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Rate", value);
+}
+
+void MprisComponent::setShuffle(bool value)
+{
+  // Only support for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  // Send appropriate action to web client
+  QString action = value ? "shuffle" : "sorted";
+  InputComponent::Get().sendAction(action);
+
+  m_shuffle = value;
+  qDebug() << "MPRIS: Shuffle changed to:" << value << "via action:" << action;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Shuffle", shuffle());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void MprisComponent::notifyShuffleChange(bool enabled)
+{
+  qDebug() << "MPRIS: Received shuffle change notification from web client:" << enabled;
+  m_shuffle = enabled;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Shuffle", shuffle());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void MprisComponent::notifyRepeatChange(const QString& mode)
+{
+  qDebug() << "MPRIS: Received repeat change notification from web client:" << mode;
+
+  // Convert Jellyfin repeat mode to MPRIS LoopStatus
+  QString loopStatus;
+  if (mode == "RepeatAll")
+    loopStatus = "Playlist";
+  else if (mode == "RepeatOne")
+    loopStatus = "Track";
+  else
+    loopStatus = "None";
+
+  m_loopStatus = loopStatus;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void MprisComponent::notifyFullscreenChange(bool isFullscreen)
+{
+  qDebug() << "MPRIS: Received fullscreen change notification from web client:" << isFullscreen;
+  emitPropertyChange("org.mpris.MediaPlayer2", "Fullscreen", isFullscreen);
+}
+
+void MprisComponent::notifyRateChange(double rate)
+{
+  qDebug() << "MPRIS: Received playback rate change notification from web client:" << rate;
+  m_rate = rate;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Rate", rate);
+}
+
+void MprisComponent::notifyQueueChange(bool canNext, bool canPrevious)
+{
+  qDebug() << "MPRIS: Queue state changed - canNext:" << canNext << "canPrevious:" << canPrevious;
+
+  bool changed = false;
+
+  if (m_canGoNext != canNext)
+  {
+    m_canGoNext = canNext;
+    changed = true;
+  }
+
+  if (m_canGoPrevious != canPrevious)
+  {
+    m_canGoPrevious = canPrevious;
+    changed = true;
+  }
+
+  if (changed)
+  {
+    QVariantMap properties;
+    properties["CanGoNext"] = m_canGoNext;
+    properties["CanGoPrevious"] = m_canGoPrevious;
+
+    // If queue is now empty and we're stopped, clear metadata
+    if (!canNext && !canPrevious && m_playbackStatus == "Stopped")
+    {
+      qDebug() << "MPRIS: Queue empty and stopped, clearing metadata";
+      m_metadata.clear();
+      m_currentTrackId.clear();
+      cleanupAlbumArt();
+      properties["Metadata"] = m_metadata;
+      properties["Position"] = (qint64)0;
+    }
+
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  }
+}
+
+// PlayerComponent signal handlers
+void MprisComponent::onPlayerPlaying()
+{
+  updatePlaybackStatus("Playing");
+  if (m_positionTimer)
+    m_positionTimer->start();
+}
+
+void MprisComponent::onPlayerPaused()
+{
+  updatePlaybackStatus("Paused");
+  if (m_positionTimer)
+    m_positionTimer->stop();
+}
+
+void MprisComponent::onPlayerStopped()
+{
+  updatePlaybackStatus("Stopped");
+  if (m_positionTimer)
+    m_positionTimer->stop();
+
+  m_position = 0;
+  m_duration = 0;
+
+  // Only clear metadata if we're truly done (no more items in queue)
+  // Keep the last track's metadata visible during transitions between tracks
+  bool hasQueuedItems = m_canGoNext || m_canGoPrevious;
+
+  if (!hasQueuedItems)
+  {
+    m_metadata.clear();
+    m_currentTrackId.clear();
+    cleanupAlbumArt();
+
+    // Reset navigation capabilities when fully stopped
+    m_canGoNext = false;
+    m_canGoPrevious = false;
+
+    QVariantMap properties;
+    properties["Metadata"] = m_metadata;
+    properties["Position"] = (qint64)m_position;
+    properties["CanGoNext"] = false;
+    properties["CanGoPrevious"] = false;
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  }
+  else
+  {
+    // Just emit position reset, keep metadata for smoother transitions
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "Position", (qint64)m_position);
+  }
+}
+
+void MprisComponent::onPlayerFinished()
+{
+  updatePlaybackStatus("Stopped");
+  if (m_positionTimer)
+    m_positionTimer->stop();
+
+  // Playback finished - clear metadata and reset state
+  qDebug() << "MPRIS: Playback finished, clearing metadata";
+  m_position = 0;
+  m_duration = 0;
+  m_metadata.clear();
+  m_currentTrackId.clear();
+  m_canGoNext = false;
+  m_canGoPrevious = false;
+
+  cleanupAlbumArt();
+
+  QVariantMap properties;
+  properties["Metadata"] = m_metadata;
+  properties["Position"] = (qint64)m_position;
+  properties["CanGoNext"] = false;
+  properties["CanGoPrevious"] = false;
+  emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+}
+
+void MprisComponent::onPlayerStateChanged(int newState, int oldState)
+{
+  // Additional state handling if needed
+}
+
+void MprisComponent::onPlayerPositionUpdate(quint64 position)
+{
+  // position is in milliseconds, MPRIS uses microseconds
+  m_position = position * 1000;
+
+  // Check if this position update is from a pending seek
+  if (m_seekPending && m_playerAdaptor) {
+    m_seekPending = false;
+    Q_EMIT m_playerAdaptor->Seeked(m_position);
+  }
+
+  // MPRIS spec says don't emit position changes via PropertiesChanged
+  // Clients should use Seeked signal or poll the property
+}
+
+void MprisComponent::onPlayerDurationChanged(qint64 duration)
+{
+  // duration is in milliseconds, MPRIS uses microseconds
+  bool hadDuration = m_duration > 0;
+  m_duration = duration * 1000;
+
+  // Always add/update length in metadata
+  m_metadata["mpris:length"] = QVariant::fromValue(m_duration);
+
+  // If we didn't have duration before but do now, emit all metadata
+  if (!hadDuration && m_duration > 0) {
+    qDebug() << "MPRIS: Duration available, emitting delayed metadata";
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
+    updateNavigationCapabilities();
+    // Emit control capabilities when metadata becomes available
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanControl", canControl());
+  }
+
+  // Update CanSeek when duration becomes available
+  bool seekable = canSeek();
+  qDebug() << "MPRIS: Emitting CanSeek property change:" << seekable << "duration:" << m_duration;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanSeek", seekable);
+}
+
+void MprisComponent::onPlayerMetaData(const QVariantMap& metadata, const QUrl& baseUrl)
+{
+  updateMetadata(metadata, baseUrl);
+}
+
+void MprisComponent::onPlayerVolumeChanged()
+{
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Volume", volume());
+}
+
+void MprisComponent::onShuffleModeChanged(bool shuffleEnabled)
+{
+  // Only update for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  m_shuffle = shuffleEnabled;
+  qDebug() << "MPRIS: Shuffle mode changed from web client to:" << shuffleEnabled;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Shuffle", shuffle());
+}
+
+void MprisComponent::onRepeatModeChanged(const QString& repeatMode)
+{
+  // Only update for music content
+  if (m_currentMediaType != "Audio")
+    return;
+
+  // Map Jellyfin repeat modes to MPRIS LoopStatus values
+  QString mprisLoopStatus;
+  if (repeatMode == "RepeatNone")
+    mprisLoopStatus = "None";
+  else if (repeatMode == "RepeatOne")
+    mprisLoopStatus = "Track";
+  else if (repeatMode == "RepeatAll")
+    mprisLoopStatus = "Playlist";
+  else {
+    qWarning() << "MPRIS: Unknown repeat mode from web client:" << repeatMode;
+    return;
+  }
+
+  m_loopStatus = mprisLoopStatus;
+  qDebug() << "MPRIS: Repeat mode changed from web client:" << repeatMode << "-> MPRIS:" << mprisLoopStatus;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "LoopStatus", loopStatus());
+}
+
+void MprisComponent::updatePlaybackStatus(const QString& status)
+{
+  if (m_playbackStatus != status)
+  {
+    m_playbackStatus = status;
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "PlaybackStatus", status);
+
+    // Update can* properties
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanPlay", canPlay());
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanPause", canPause());
+
+    // Update navigation capabilities when playback status changes
+    updateNavigationCapabilities();
+    bool seekable = canSeek();
+    qDebug() << "MPRIS: Emitting CanSeek on status change:" << seekable << "status:" << status << "duration:" << m_duration;
+
+    // Emit multiple properties in single message
+    QVariantMap properties;
+    properties["CanSeek"] = seekable;
+    properties["CanControl"] = canControl();
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  }
+}
+
+void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl& baseUrl)
+{
+  QVariantMap mprisMeta;
+
+  // Generate track ID
+  m_currentTrackId = generateTrackId();
+  mprisMeta["mpris:trackid"] = QVariant::fromValue(QDBusObjectPath(m_currentTrackId));
+
+  // Map Jellyfin metadata to MPRIS format
+  QString mediaType = jellyfinMeta.value("MediaType").toString();
+  QString itemType = jellyfinMeta.value("Type").toString();
+
+  // Track current media type for shuffle/repeat availability
+  m_currentMediaType = mediaType;
+
+  // Common fields
+  if (jellyfinMeta.contains("Name"))
+    mprisMeta["xesam:title"] = jellyfinMeta["Name"];
+
+  if (m_duration > 0)
+    mprisMeta["mpris:length"] = QVariant::fromValue(m_duration);
+
+  // Handle different media types
+  if (mediaType == "Audio" || itemType == "Audio")
+  {
+    // Music metadata
+    if (jellyfinMeta.contains("Artists"))
+    {
+      QStringList artists = jellyfinMeta["Artists"].toStringList();
+      if (!artists.isEmpty())
+        mprisMeta["xesam:artist"] = QVariant::fromValue(artists);
+    }
+
+    if (jellyfinMeta.contains("AlbumArtist"))
+      mprisMeta["xesam:albumArtist"] = QVariant::fromValue(QStringList{jellyfinMeta["AlbumArtist"].toString()});
+
+    if (jellyfinMeta.contains("Album"))
+      mprisMeta["xesam:album"] = jellyfinMeta["Album"];
+
+    if (jellyfinMeta.contains("IndexNumber"))
+      mprisMeta["xesam:trackNumber"] = jellyfinMeta["IndexNumber"];
+
+    if (jellyfinMeta.contains("ProductionYear"))
+      mprisMeta["xesam:contentCreated"] = jellyfinMeta["ProductionYear"].toString();
+  }
+  else if (itemType == "Episode")
+  {
+    // TV Show metadata
+    QString title = jellyfinMeta.value("Name").toString();
+    QString series = jellyfinMeta.value("SeriesName").toString();
+    int season = jellyfinMeta.value("ParentIndexNumber", 0).toInt();
+    int episode = jellyfinMeta.value("IndexNumber", 0).toInt();
+
+    if (!series.isEmpty())
+    {
+      mprisMeta["xesam:album"] = series;
+      if (season > 0 && episode > 0)
+      {
+        title = QString("S%1E%2 - %3").arg(season, 2, 10, QChar('0'))
+                                      .arg(episode, 2, 10, QChar('0'))
+                                      .arg(title);
+      }
+    }
+    mprisMeta["xesam:title"] = title;
+  }
+  else if (itemType == "Movie")
+  {
+    // Movie metadata
+    if (jellyfinMeta.contains("ProductionYear"))
+    {
+      QString year = jellyfinMeta["ProductionYear"].toString();
+      QString title = jellyfinMeta.value("Name").toString();
+      mprisMeta["xesam:title"] = QString("%1 (%2)").arg(title).arg(year);
+    }
+  }
+
+  // Handle artwork (album art, movie poster, series poster)
+  QString artUrl = extractArtworkUrl(jellyfinMeta, baseUrl);
+  if (!artUrl.isEmpty())
+  {
+    QString localArtUrl = handleAlbumArt(artUrl);
+    if (!localArtUrl.isEmpty())
+    {
+      mprisMeta["mpris:artUrl"] = localArtUrl;
+    }
+  }
+
+  // Always include duration
+  mprisMeta["mpris:length"] = QVariant::fromValue(m_duration);
+
+  m_metadata = mprisMeta;
+
+  // Only emit metadata if we have a duration (to avoid CanSeek: false)
+  if (m_duration > 0) {
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
+
+    // Update navigation capabilities based on web playlist
+    updateNavigationCapabilities();
+    // Update CanSeek in case duration is now available
+    bool seekable = canSeek();
+    qDebug() << "MPRIS: Emitting CanSeek on metadata update:" << seekable << "duration:" << m_duration;
+
+    // Emit multiple properties in single message
+    QVariantMap properties;
+    properties["CanSeek"] = seekable;
+    properties["CanControl"] = canControl();
+
+    // Include shuffle/repeat for music content
+    if (m_currentMediaType == "Audio") {
+      properties["Shuffle"] = shuffle();
+      properties["LoopStatus"] = loopStatus();
+    }
+
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  } else {
+    qDebug() << "MPRIS: Delaying metadata emission until duration is available";
+  }
+}
+
+void MprisComponent::emitPropertyChange(const QString& interface,
+                                        const QString& property,
+                                        const QVariant& value)
+{
+  QVariantMap changedProps;
+  changedProps[property] = value;
+
+  QDBusMessage signal = QDBusMessage::createSignal(
+    MPRIS_OBJECT_PATH,
+    "org.freedesktop.DBus.Properties",
+    "PropertiesChanged"
+  );
+
+  signal << interface << changedProps << QStringList();
+  QDBusConnection::sessionBus().send(signal);
+}
+
+void MprisComponent::emitMultiplePropertyChanges(const QString& interface,
+                                                 const QVariantMap& properties)
+{
+  QDBusMessage signal = QDBusMessage::createSignal(
+    MPRIS_OBJECT_PATH,
+    "org.freedesktop.DBus.Properties",
+    "PropertiesChanged"
+  );
+
+  signal << interface << properties << QStringList();
+  QDBusConnection::sessionBus().send(signal);
+}
+
+QString MprisComponent::generateTrackId() const
+{
+  static int trackCounter = 0;
+  return QString("/org/mpris/MediaPlayer2/Track/%1").arg(++trackCounter);
+}
+
+QString MprisComponent::handleAlbumArt(const QString& artUrl)
+{
+  if (artUrl.isEmpty())
+    return QString();
+
+  // Clean up previous album art
+  cleanupAlbumArt();
+
+  // For local files, just return the file URL
+  if (artUrl.startsWith("file://"))
+    return artUrl;
+
+  // For HTTP URLs, we need to download
+  if (artUrl.startsWith("http://") || artUrl.startsWith("https://"))
+  {
+    // Generate a unique filename based on URL hash
+    QCryptographicHash hash(QCryptographicHash::Md5);
+    hash.addData(artUrl.toUtf8());
+    QString filename = QString("%1/%2.jpg").arg(m_albumArtDir)
+                                           .arg(hash.result().toHex().constData());
+
+    // Check if already cached
+    if (QFile::exists(filename))
+    {
+      m_currentArtPath = filename;
+      return QUrl::fromLocalFile(filename).toString();
+    }
+
+    // Download the image
+    QNetworkAccessManager manager;
+    QNetworkRequest request;
+    request.setUrl(QUrl(artUrl));
+    request.setRawHeader("User-Agent", "JellyfinMediaPlayer/1.0");
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+
+    QNetworkReply* reply = manager.get(request);
+
+    // Use event loop for synchronous download with timeout
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+    timer.setInterval(5000); // 5 second timeout
+
+    connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+
+    timer.start();
+    loop.exec();
+
+    if (reply->error() == QNetworkReply::NoError && timer.isActive())
+    {
+      QByteArray imageData = reply->readAll();
+
+      // Basic validation - check if it looks like an image
+      if (imageData.size() > 0 && imageData.size() < 10 * 1024 * 1024) // Max 10MB
+      {
+        QFile file(filename);
+        if (file.open(QIODevice::WriteOnly))
+        {
+          file.write(imageData);
+          file.close();
+
+          // Set restrictive permissions (owner read/write only)
+          file.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+
+          m_currentArtPath = filename;
+          reply->deleteLater();
+          return QUrl::fromLocalFile(filename).toString();
+        }
+      }
+    }
+
+    reply->deleteLater();
+  }
+
+  return QString();
+}
+
+void MprisComponent::cleanupAlbumArt()
+{
+  if (!m_currentArtPath.isEmpty())
+  {
+    QFile::remove(m_currentArtPath);
+    m_currentArtPath.clear();
+  }
+}
+
+QString MprisComponent::extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl)
+{
+  if (baseUrl.isEmpty())
+    return QString();
+
+  QString mediaType = metadata.value("MediaType").toString();
+  QString itemType = metadata.value("Type").toString();
+
+  QUrl artUrl = baseUrl;
+  QUrlQuery query;
+
+  // Handle different media types with priority fallback chains
+  if (mediaType == "Audio" || itemType == "Audio")
+  {
+    // MUSIC: Priority order - Album art, then track art
+    // 1. Try album art first (most common for music)
+    if (metadata.contains("AlbumId") && metadata.contains("AlbumPrimaryImageTag"))
+    {
+      QString albumId = metadata["AlbumId"].toString();
+      QString imageTag = metadata["AlbumPrimaryImageTag"].toString();
+
+      if (!albumId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(albumId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");  // Optimize size for desktop notifications
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 2. Fallback to track's own primary image
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+  else if (itemType == "Episode")
+  {
+    // TV EPISODES: Priority order - Series poster, Season poster, Episode thumbnail
+    // 1. Try series poster (most recognizable)
+    if (metadata.contains("SeriesId") && metadata.contains("SeriesPrimaryImageTag"))
+    {
+      QString seriesId = metadata["SeriesId"].toString();
+      QString imageTag = metadata["SeriesPrimaryImageTag"].toString();
+
+      if (!seriesId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(seriesId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 2. Try season poster
+    if (metadata.contains("SeasonId") && metadata.contains("SeasonPrimaryImageTag"))
+    {
+      QString seasonId = metadata["SeasonId"].toString();
+      QString imageTag = metadata["SeasonPrimaryImageTag"].toString();
+
+      if (!seasonId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(seasonId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 3. Fallback to episode thumbnail
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+  else if (itemType == "Movie")
+  {
+    // MOVIES: Primary poster, fallback to backdrop
+    // 1. Movie poster (Primary image)
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+
+    // 2. Fallback to backdrop image
+    if (imageTags.contains("Backdrop") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Backdrop"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Backdrop/0").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+  else
+  {
+    // GENERIC FALLBACK: Any media type - try primary image
+    auto imageTags = metadata["ImageTags"].toMap();
+    if (imageTags.contains("Primary") && metadata.contains("Id"))
+    {
+      QString itemId = metadata["Id"].toString();
+      QString imageTag = imageTags["Primary"].toString();
+
+      if (!itemId.isEmpty() && !imageTag.isEmpty())
+      {
+        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
+        query.addQueryItem("tag", imageTag);
+        query.addQueryItem("maxWidth", "512");
+        artUrl.setQuery(query);
+        return artUrl.toString();
+      }
+    }
+  }
+
+  return QString(); // No suitable image found
+}
+
+void MprisComponent::updateNavigationCapabilities()
+{
+  // Navigation capabilities are now managed by the web client via notifyQueueChange()
+  // This function is kept for compatibility but does nothing
+  // The queue state is tracked in JavaScript and reported to MPRIS dynamically
+}

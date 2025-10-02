@@ -469,6 +469,18 @@ void MprisComponent::notifyQueueChange(bool canNext, bool canPrevious)
     QVariantMap properties;
     properties["CanGoNext"] = m_canGoNext;
     properties["CanGoPrevious"] = m_canGoPrevious;
+
+    // If queue is now empty and we're stopped, clear metadata
+    if (!canNext && !canPrevious && m_playbackStatus == "Stopped")
+    {
+      qDebug() << "MPRIS: Queue empty and stopped, clearing metadata";
+      m_metadata.clear();
+      m_currentTrackId.clear();
+      cleanupAlbumArt();
+      properties["Metadata"] = m_metadata;
+      properties["Position"] = (qint64)0;
+    }
+
     emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
   }
 }
@@ -496,21 +508,33 @@ void MprisComponent::onPlayerStopped()
 
   m_position = 0;
   m_duration = 0;
-  m_metadata.clear();
-  m_currentTrackId.clear();
 
-  cleanupAlbumArt();
+  // Only clear metadata if we're truly done (no more items in queue)
+  // Keep the last track's metadata visible during transitions between tracks
+  bool hasQueuedItems = m_canGoNext || m_canGoPrevious;
 
-  // Reset navigation capabilities when stopped
-  m_canGoNext = false;
-  m_canGoPrevious = false;
+  if (!hasQueuedItems)
+  {
+    m_metadata.clear();
+    m_currentTrackId.clear();
+    cleanupAlbumArt();
 
-  QVariantMap properties;
-  properties["Metadata"] = m_metadata;
-  properties["Position"] = (qint64)m_position;
-  properties["CanGoNext"] = false;
-  properties["CanGoPrevious"] = false;
-  emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+    // Reset navigation capabilities when fully stopped
+    m_canGoNext = false;
+    m_canGoPrevious = false;
+
+    QVariantMap properties;
+    properties["Metadata"] = m_metadata;
+    properties["Position"] = (qint64)m_position;
+    properties["CanGoNext"] = false;
+    properties["CanGoPrevious"] = false;
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  }
+  else
+  {
+    // Just emit position reset, keep metadata for smoother transitions
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "Position", (qint64)m_position);
+  }
 }
 
 void MprisComponent::onPlayerFinished()
@@ -518,6 +542,24 @@ void MprisComponent::onPlayerFinished()
   updatePlaybackStatus("Stopped");
   if (m_positionTimer)
     m_positionTimer->stop();
+
+  // Playback finished - clear metadata and reset state
+  qDebug() << "MPRIS: Playback finished, clearing metadata";
+  m_position = 0;
+  m_duration = 0;
+  m_metadata.clear();
+  m_currentTrackId.clear();
+  m_canGoNext = false;
+  m_canGoPrevious = false;
+
+  cleanupAlbumArt();
+
+  QVariantMap properties;
+  properties["Metadata"] = m_metadata;
+  properties["Position"] = (qint64)m_position;
+  properties["CanGoNext"] = false;
+  properties["CanGoPrevious"] = false;
+  emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
 }
 
 void MprisComponent::onPlayerStateChanged(int newState, int oldState)

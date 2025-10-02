@@ -41,11 +41,44 @@ class jmpInputPlugin {
                 });
             });
 
+            // Monitor queue changes and update MPRIS navigation capabilities
+            const updateQueueState = function() {
+                try {
+                    if (!api || !api.mpris) {
+                        return;
+                    }
+
+                    // Access the internal playlist directly
+                    const playlist = playbackManager._playQueueManager?.getPlaylist();
+                    if (!playlist || !Array.isArray(playlist)) {
+                        return;
+                    }
+
+                    const currentIndex = playbackManager._playQueueManager?.getCurrentPlaylistIndex();
+                    if (currentIndex === undefined || currentIndex === null || currentIndex < 0) {
+                        return;
+                    }
+
+                    const canNext = currentIndex < playlist.length - 1;
+                    const canPrevious = currentIndex > 0;
+
+                    api.mpris.notifyQueueChange(canNext, canPrevious);
+                } catch (e) {
+                    // Silently fail
+                }
+            };
+
             // Listen for shuffle and repeat mode changes and notify native player
             // Attach listeners on playbackstart event
             let listenersAttached = false;
             window.Events.on(playbackManager, 'playbackstart', (e, player) => {
-                if (listenersAttached || !player) return;
+                if (!player) return;
+
+                // Always update queue state on playback start
+                updateQueueState();
+
+                // Only attach player-specific listeners once
+                if (listenersAttached) return;
 
                 console.log('MPRIS: Attaching shuffle, repeat, and fullscreen listeners to player');
                 window.Events.on(player, 'shufflequeuemodechange', () => {
@@ -96,6 +129,11 @@ class jmpInputPlugin {
                 } else {
                     console.log('MPRIS: Cannot attach playbackRateChanged listener - api:', !!window.api, 'player:', !!window.api?.player);
                 }
+
+                // Listen for queue changes
+                window.Events.on(playbackManager, 'playlistitemremove', updateQueueState);
+                window.Events.on(playbackManager, 'playlistitemadd', updateQueueState);
+                window.Events.on(playbackManager, 'playlistitemchange', updateQueueState);
 
                 listenersAttached = true;
             });

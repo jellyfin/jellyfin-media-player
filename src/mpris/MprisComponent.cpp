@@ -446,6 +446,33 @@ void MprisComponent::notifyRateChange(double rate)
   emitPropertyChange("org.mpris.MediaPlayer2.Player", "Rate", rate);
 }
 
+void MprisComponent::notifyQueueChange(bool canNext, bool canPrevious)
+{
+  qDebug() << "MPRIS: Queue state changed - canNext:" << canNext << "canPrevious:" << canPrevious;
+
+  bool changed = false;
+
+  if (m_canGoNext != canNext)
+  {
+    m_canGoNext = canNext;
+    changed = true;
+  }
+
+  if (m_canGoPrevious != canPrevious)
+  {
+    m_canGoPrevious = canPrevious;
+    changed = true;
+  }
+
+  if (changed)
+  {
+    QVariantMap properties;
+    properties["CanGoNext"] = m_canGoNext;
+    properties["CanGoPrevious"] = m_canGoPrevious;
+    emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
+  }
+}
+
 // PlayerComponent signal handlers
 void MprisComponent::onPlayerPlaying()
 {
@@ -474,8 +501,16 @@ void MprisComponent::onPlayerStopped()
 
   cleanupAlbumArt();
 
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Position", m_position);
+  // Reset navigation capabilities when stopped
+  m_canGoNext = false;
+  m_canGoPrevious = false;
+
+  QVariantMap properties;
+  properties["Metadata"] = m_metadata;
+  properties["Position"] = (qint64)m_position;
+  properties["CanGoNext"] = false;
+  properties["CanGoPrevious"] = false;
+  emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
 }
 
 void MprisComponent::onPlayerFinished()
@@ -1001,14 +1036,7 @@ QString MprisComponent::extractArtworkUrl(const QVariantMap& metadata, const QUr
 
 void MprisComponent::updateNavigationCapabilities()
 {
-  // Follow the same pattern as Windows taskbar - always enable when playing
-  // The web client handles the actual availability logic
-  bool hasMedia = m_playbackStatus == "Playing" || m_playbackStatus == "Paused";
-  m_canGoNext = hasMedia;
-  m_canGoPrevious = hasMedia;
-
-  qDebug() << "MPRIS: Navigation capabilities updated - canGoNext:" << m_canGoNext << "canGoPrevious:" << m_canGoPrevious << "hasMedia:" << hasMedia << "status:" << m_playbackStatus;
-
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoNext", canGoNext());
-  emitPropertyChange("org.mpris.MediaPlayer2.Player", "CanGoPrevious", canGoPrevious());
+  // Navigation capabilities are now managed by the web client via notifyQueueChange()
+  // This function is kept for compatibility but does nothing
+  // The queue state is tracked in JavaScript and reported to MPRIS dynamically
 }

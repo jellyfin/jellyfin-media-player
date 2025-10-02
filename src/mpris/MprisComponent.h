@@ -88,6 +88,7 @@ public Q_SLOTS:
   Q_INVOKABLE void notifyRepeatChange(const QString& mode);
   Q_INVOKABLE void notifyFullscreenChange(bool isFullscreen);
   Q_INVOKABLE void notifyRateChange(double rate);
+  Q_INVOKABLE void notifyQueueChange(bool canNext, bool canPrevious);
 
 private Q_SLOTS:
   // PlayerComponent signal handlers

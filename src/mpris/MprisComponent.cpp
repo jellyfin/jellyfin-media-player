@@ -169,8 +169,7 @@ qint64 MprisComponent::position() const
 
 QString MprisComponent::loopStatus() const
 {
-  // Only expose repeat for music content
-  return (m_currentMediaType == "Audio") ? m_loopStatus : "None";
+  return m_loopStatus;
 }
 
 double MprisComponent::rate() const
@@ -357,10 +356,6 @@ void MprisComponent::setVolume(double volume)
 
 void MprisComponent::setLoopStatus(const QString& value)
 {
-  // Only support for music content
-  if (m_currentMediaType != "Audio")
-    return;
-
   // Valid MPRIS values: "None", "Track", "Playlist"
   if (value == "None" || value == "Track" || value == "Playlist")
   {

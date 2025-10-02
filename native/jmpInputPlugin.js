@@ -74,6 +74,29 @@ class jmpInputPlugin {
                     }
                 });
 
+                // Listen for playback rate changes from native player (MPRIS)
+                if (window.api && window.api.player) {
+                    window.api.player.playbackRateChanged.connect(function(rate) {
+                        console.log('MPRIS: Native playback rate changed to:', rate);
+                        console.log('MPRIS: Current player:', player);
+                        console.log('MPRIS: Player _playRate before:', player?._playRate);
+
+                        // Update the current player's rate
+                        if (player && player._playRate !== undefined) {
+                            player._playRate = rate;
+                            console.log('MPRIS: Player _playRate after:', player._playRate);
+                        }
+
+                        // Trigger ratechange event to update UI
+                        if (window.Events) {
+                            console.log('MPRIS: Triggering ratechange event');
+                            window.Events.trigger(player, 'ratechange');
+                        }
+                    });
+                } else {
+                    console.log('MPRIS: Cannot attach playbackRateChanged listener - api:', !!window.api, 'player:', !!window.api?.player);
+                }
+
                 listenersAttached = true;
             });
 

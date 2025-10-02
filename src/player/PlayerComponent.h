@@ -198,6 +198,8 @@ Q_SIGNALS:
   void shuffleModeChanged(bool shuffleEnabled);
   // Repeat mode changed (for MPRIS integration)
   void repeatModeChanged(const QString& repeatMode);
+  // Playback rate changed (for MPRIS integration)
+  void playbackRateChanged(double rate);
 
   // current position in ms should be triggered 2 times a second
   // when position updates

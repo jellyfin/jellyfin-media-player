@@ -973,7 +973,9 @@ void PlayerComponent::setSubtitleDelay(qint64 milliseconds)
 /////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setPlaybackRate(int rate)
 {
-  mpv::qt::set_property(m_mpv, "speed", rate / 1000.0);
+  double speed = rate / 1000.0;
+  mpv::qt::set_property(m_mpv, "speed", speed);
+  emit playbackRateChanged(speed);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -36,6 +36,7 @@ MprisComponent::MprisComponent(QObject* parent)
   , m_canGoPrevious(false)
   , m_shuffle(false)
   , m_loopStatus("None")
+  , m_rate(1.0)
   , m_seekPending(false)
   , m_expectedPosition(0)
   , m_albumArtDir("/tmp/jellyfin-mpris")
@@ -170,6 +171,11 @@ QString MprisComponent::loopStatus() const
 {
   // Only expose repeat for music content
   return (m_currentMediaType == "Audio") ? m_loopStatus : "None";
+}
+
+double MprisComponent::rate() const
+{
+  return m_rate;
 }
 
 bool MprisComponent::shuffle() const
@@ -378,7 +384,16 @@ void MprisComponent::setLoopStatus(const QString& value)
 
 void MprisComponent::setRate(double value)
 {
-  // Not supported - playback rate is always 1.0
+  if (!m_player)
+    return;
+
+  // Clamp to supported range (0.25 to 2.0)
+  value = qBound(0.25, value, 2.0);
+
+  qDebug() << "MPRIS: Setting playback rate to:" << value;
+  m_rate = value;
+  m_player->setPlaybackRate(static_cast<int>(value * 1000));
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Rate", value);
 }
 
 void MprisComponent::setShuffle(bool value)
@@ -427,6 +442,13 @@ void MprisComponent::notifyFullscreenChange(bool isFullscreen)
 {
   qDebug() << "MPRIS: Received fullscreen change notification from web client:" << isFullscreen;
   emitPropertyChange("org.mpris.MediaPlayer2", "Fullscreen", isFullscreen);
+}
+
+void MprisComponent::notifyRateChange(double rate)
+{
+  qDebug() << "MPRIS: Received playback rate change notification from web client:" << rate;
+  m_rate = rate;
+  emitPropertyChange("org.mpris.MediaPlayer2.Player", "Rate", rate);
 }
 
 // PlayerComponent signal handlers

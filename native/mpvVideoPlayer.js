@@ -687,6 +687,11 @@
         let playSpeed = +value; //this comes as a string from player force int for now
         this._playRate = playSpeed;
         window.api.player.setPlaybackRate(playSpeed * 1000);
+
+        // Notify MPRIS of rate change
+        if (window.api && window.api.mpris) {
+            window.api.mpris.notifyRateChange(playSpeed);
+        }
     }
 
     getPlaybackRate() {

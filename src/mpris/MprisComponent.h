@@ -47,13 +47,13 @@ public:
   // MPRIS Player interface properties
   QString playbackStatus() const;
   QString loopStatus() const;
-  double rate() const { return 1.0; }
+  double rate() const;
   bool shuffle() const;
   QVariantMap metadata() const { return m_metadata; }
   double volume() const;
   qint64 position() const;
-  double minimumRate() const { return 1.0; }
-  double maximumRate() const { return 1.0; }
+  double minimumRate() const { return 0.25; }
+  double maximumRate() const { return 2.0; }
   bool canGoNext() const;
   bool canGoPrevious() const;
   bool canPlay() const;
@@ -87,6 +87,7 @@ public Q_SLOTS:
   Q_INVOKABLE void notifyShuffleChange(bool enabled);
   Q_INVOKABLE void notifyRepeatChange(const QString& mode);
   Q_INVOKABLE void notifyFullscreenChange(bool isFullscreen);
+  Q_INVOKABLE void notifyRateChange(double rate);
 
 private Q_SLOTS:
   // PlayerComponent signal handlers
@@ -140,6 +141,7 @@ private:
   // Music-specific controls
   bool m_shuffle;
   QString m_loopStatus; // "None", "Track", "Playlist"
+  double m_rate; // Playback rate
 
   // Track seek operations for Seeked signal
   bool m_seekPending;

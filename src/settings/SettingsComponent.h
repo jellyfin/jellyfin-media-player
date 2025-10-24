@@ -94,11 +94,6 @@ public:
   //
   static bool resetAndSaveOldConfiguration();
 
-  QString oldestPreviousVersion() const
-  {
-    return m_oldestPreviousVersion;
-  }
-
 private:
   explicit SettingsComponent(QObject *parent = nullptr);
   bool loadDescription();
@@ -106,14 +101,11 @@ private:
   int platformMaskFromObject(const QJsonObject& object);
   Platform platformFromString(const QString& platformString);
   void saveSection(SettingsSection* section);
-  void setupVersion();
 
   QMap<QString, SettingsSection*> m_sections;
 
   int m_settingsVersion;
   int m_sectionIndex;
-
-  QString m_oldestPreviousVersion;
 
   void loadConf(const QString& path, bool storage);
 };

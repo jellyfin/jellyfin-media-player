@@ -6,9 +6,11 @@
 #include <QIcon>
 #include <QtQml>
 #include <QtWebEngine/qtwebengineglobal.h>
+#include <QtWebEngineWidgets/QWebEngineProfile>
 #include <QErrorMessage>
 #include <QCommandLineOption>
 #include <QDebug>
+#include <QSettings>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
@@ -114,9 +116,14 @@ int main(int argc, char *argv[])
 
     auto devOption = QCommandLineOption("remote-debugging-port", "Port number for devtools.");
     devOption.setValueName("port");
+
+    auto configDirOption = QCommandLineOption("config-dir", "Override config directory path.");
+    configDirOption.setValueName("path");
+
     parser.addOption(scaleOption);
     parser.addOption(devOption);
     parser.addOption(platformOption);
+    parser.addOption(configDirOption);
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     int newArgc = argc + g_qtFlags.size();
@@ -167,8 +174,33 @@ int main(int argc, char *argv[])
       qputenv("QT_QPA_PLATFORM", platform.toUtf8());
     }
 
+    auto configDir = parser.value("config-dir");
+    QString webEngineDataDir;
+    if (!configDir.isEmpty())
+    {
+      QFileInfo fi(configDir);
+      QString absPath = fi.absoluteFilePath();
+      QDir parentDir = fi.dir();
+
+      if (!parentDir.exists())
+      {
+        qFatal("Config directory parent does not exist: %s", qPrintable(parentDir.absolutePath()));
+      }
+
+      Paths::setConfigDir(absPath);
+      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, absPath);
+      webEngineDataDir = absPath + "/QtWebEngine";
+    }
+    else
+    {
+      // Use Paths::dataDir() equivalent inline to avoid double nesting
+      QDir d(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
+      d.mkpath(d.absolutePath() + "/" + Names::MainName());
+      d.cd(Names::MainName());
+      webEngineDataDir = d.absolutePath() + "/QtWebEngine";
+    }
+
     QApplication app(newArgc, newArgv);
-    app.setApplicationName("Jellyfin Media Player");
 
 #if defined(Q_OS_WIN) 
     // Setting window icon on OSX will break user ability to change it
@@ -212,6 +244,11 @@ int main(int argc, char *argv[])
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
     QtWebEngine::initialize();
+
+    // Configure QtWebEngine paths
+    QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
+    defaultProfile->setCachePath(webEngineDataDir);
+    defaultProfile->setPersistentStoragePath(webEngineDataDir);
 
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();

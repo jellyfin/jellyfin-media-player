@@ -14,6 +14,15 @@
 #include "Version.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
+static QString g_configDirOverride;
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Paths::setConfigDir(const QString& path)
+{
+  g_configDirOverride = path;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 static QDir writableLocation(QStandardPaths::StandardLocation loc)
 {
   QDir d(QStandardPaths::writableLocation(loc));
@@ -59,7 +68,22 @@ QString Paths::resourceDir(const QString& file)
 /////////////////////////////////////////////////////////////////////////////////////////
 QString Paths::dataDir(const QString& file)
 {
-  QDir d = writableLocation(QStandardPaths::GenericDataLocation);
+  QDir d;
+
+  if (!g_configDirOverride.isEmpty())
+  {
+    d = QDir(g_configDirOverride);
+    if (!d.mkpath(d.absolutePath()))
+    {
+      qWarning() << "Failed to create override directory:" << d.absolutePath();
+      d = writableLocation(QStandardPaths::GenericDataLocation);
+    }
+  }
+  else
+  {
+    d = writableLocation(QStandardPaths::GenericDataLocation);
+  }
+
   if (file.isEmpty())
     return d.absolutePath();
   return d.filePath(file);
@@ -83,7 +107,17 @@ QString Paths::logDir(const QString& file)
   ldir.cd("Library/Logs/" + Names::MainName());
   return ldir.filePath(file);
 #else
-  QDir ldir = writableLocation(QStandardPaths::GenericDataLocation);
+  QDir ldir;
+
+  if (!g_configDirOverride.isEmpty())
+  {
+    ldir = QDir(g_configDirOverride);
+  }
+  else
+  {
+    ldir = writableLocation(QStandardPaths::GenericDataLocation);
+  }
+
   ldir.mkpath(ldir.absolutePath() + "/logs");
   ldir.cd("logs");
   return ldir.filePath(file);

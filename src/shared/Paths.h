@@ -11,6 +11,7 @@
 
 namespace Paths
 {
+  void setConfigDir(const QString& path);
   QString resourceDir(const QString& file = QString());
   QString dataDir(const QString& file = QString());
   QString cacheDir(const QString& file = QString());

@@ -46,7 +46,7 @@ PlayerComponent::PlayerComponent(QObject* parent)
   m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false), m_doAc3Transcoding(false),
-  m_videoRectangle(-1, -1, -1, -1)
+  m_videoRectangle(-1, 0, 0, 0)
 {
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "MpvVideo"); // deprecated name
   qmlRegisterType<PlayerQuickItem>("Konvergo", 1, 0, "KonvergoVideo");
@@ -110,6 +110,9 @@ bool PlayerComponent::componentInitialize()
 
   // Do not let the decoder downmix (better customization for us).
   mpv::qt::set_property(m_mpv, "ad-lavc-downmix", false);
+
+  // Make it load the hwdec interop, so hwdec can be enabled at runtime.
+  mpv::qt::set_property(m_mpv, "gpu-hwdec-interop", "auto");
 
   // User-visible application name used by some audio APIs (at least PulseAudio).
   mpv::qt::set_property(m_mpv, "audio-client-name", QCoreApplication::applicationName());
@@ -958,7 +961,7 @@ void PlayerComponent::setPlaybackRate(int rate)
 qint64 PlayerComponent::getPosition()
 {
   QVariant time = mpv::qt::get_property(m_mpv, "playback-time");
-  if (time.canConvert(QMetaType::Double))
+  if (time.canConvert<double>())
     return time.toDouble();
   return 0;
 }
@@ -967,7 +970,7 @@ qint64 PlayerComponent::getPosition()
 qint64 PlayerComponent::getDuration()
 {
   QVariant time = mpv::qt::get_property(m_mpv, "duration");
-  if (time.canConvert(QMetaType::Double))
+  if (time.canConvert<double>())
     return time.toDouble();
   return 0;
 }
@@ -1011,7 +1014,7 @@ void PlayerComponent::updateAudioDeviceList()
   QSet<QString> devices;
   for(const QVariant& d : list.toList())
   {
-    Q_ASSERT(d.type() == QVariant::Map);
+    Q_ASSERT(d.typeId() == QMetaType::QVariantMap);
     QVariantMap dmap = d.toMap();
 
     QString device = dmap["name"].toString();
@@ -1122,17 +1125,17 @@ void PlayerComponent::setAudioConfiguration()
   // here for now. We might need to add support for DTS transcoding
   // if we see user requests for it.
   //
-  m_doAc3Transcoding = false;
-  if (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
-      SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool())
+  m_doAc3Transcoding =
+  (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
+   SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool());
+  if (m_doAc3Transcoding)
   {
     QString filterArgs = "";
-    mpv::qt::command(m_mpv, QStringList() << "af" << "add" << ("@ac3:lavcac3enc" + filterArgs));
-    m_doAc3Transcoding = true;
+    mpv::qt::command(m_mpv, QStringList() << "af" << "add" << ("lavcac3enc" + filterArgs));
   }
   else
   {
-    mpv::qt::command(m_mpv, QStringList() << "af" << "remove" << "@ac3");
+    mpv::qt::command(m_mpv, QStringList() << "af" << "remove" << "lavcac3enc");
   }
 
   QVariant device = SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "device");
@@ -1300,13 +1303,13 @@ void PlayerComponent::setVideoConfiguration()
 
 #ifndef TARGET_RPI
   double displayFps = DisplayComponent::Get().currentRefreshRate();
-  mpv::qt::set_property(m_mpv, "display-fps-override", displayFps);
+  mpv::qt::set_property(m_mpv, "override-display-fps", displayFps);
 #endif
 
   setAudioDelay(m_playbackAudioDelay);
 
   QVariant cache = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "cache");
-  mpv::qt::set_property(m_mpv, "demuxer-max-bytes", cache.toInt() * 1024 * 1024);
+  mpv::qt::set_property(m_mpv, "demuxer-max-bytes", cache.toInt() * 1024);
 
   updateVideoAspectSettings();
   setOtherConfiguration();
@@ -1621,7 +1624,7 @@ QString PlayerComponent::videoInformation() const
   info << "Aspect: " << MPV_PROPERTY("video-params/aspect") << "\n";
   info << "Bitrate: " << MPV_PROPERTY("video-bitrate") << "\n";
   double displayFps = DisplayComponent::Get().currentRefreshRate();
-  info << "Display FPS: " << MPV_PROPERTY("display-fps")
+  info << "Display FPS: " << MPV_PROPERTY("override-display-fps")
                           << " (" << displayFps << ")" << "\n";
   info << "Hardware Decoding: " << MPV_PROPERTY("hwdec-current")
                                 << " (" << MPV_PROPERTY("hwdec-interop") << ")\n";

@@ -8,6 +8,7 @@ add_library(shared STATIC
   ${CMAKE_BINARY_DIR}/src/core/Version.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h
 )
+find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
 target_link_libraries(shared
 Qt6::Core
 Qt6::Core5Compat

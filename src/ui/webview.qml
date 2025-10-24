@@ -159,6 +159,7 @@ KonvergoWindow
     height: mainWindow.height
     profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
     profile.offTheRecord: false
+    profile.storageName: "JellyfinMediaPlayerStorage"
 
     Component.onCompleted:
     {

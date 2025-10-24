@@ -1,16 +1,17 @@
+#include <QDebug>
 #include <QObject>
 #include <QtQml>
 #include <qqmlwebchannel.h>
-#include <QDebug>
 
 #include "ComponentManager.h"
 
-#include "power/PowerComponent.h"
+#include "discord/DiscordComponent.h"
+#include "display/DisplayComponent.h"
 #include "input/InputComponent.h"
 #include "player/PlayerComponent.h"
-#include "display/DisplayComponent.h"
-#include "system/SystemComponent.h"
+#include "power/PowerComponent.h"
 #include "settings/SettingsComponent.h"
+#include "system/SystemComponent.h"
 #include "taskbar/TaskbarComponent.h"
 
 #if KONVERGO_OPENELEC
@@ -18,9 +19,7 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-ComponentManager::ComponentManager() : QObject(nullptr)
-{
-}
+ComponentManager::ComponentManager() : QObject(nullptr) {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void ComponentManager::registerComponent(ComponentBase* comp)
@@ -30,7 +29,7 @@ void ComponentManager::registerComponent(ComponentBase* comp)
     qCritical() << "Component" << comp->componentName() << "already registered!";
     return;
   }
-  
+
   if (comp->componentInitialize())
   {
     qInfo() << "Component:" << comp->componentName() << "inited";
@@ -58,19 +57,20 @@ void ComponentManager::initialize()
   registerComponent(&PlayerComponent::Get());
   registerComponent(&PowerComponent::Get());
   registerComponent(&TaskbarComponent::Get());
+  registerComponent(&DiscordComponent::Get());
 
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());
 #endif
 
-  for(ComponentBase* component : m_components.values())
+  for (ComponentBase* component : m_components.values())
     component->componentPostInitialize();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void ComponentManager::setWebChannel(QWebChannel* webChannel)
 {
-  for(ComponentBase* comp : m_components.values())
+  for (ComponentBase* comp : m_components.values())
   {
     if (comp->componentExport())
     {

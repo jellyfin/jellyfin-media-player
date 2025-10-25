@@ -79,7 +79,6 @@ void Log::CensorAuthTokens(QString& msg)
 /////////////////////////////////////////////////////////////////////////////////////////
 static int logLevelFromString(const QString& str)
 {
-  if (str == "trace")     return QtDebugMsg;
   if (str == "debug")     return QtDebugMsg;
   if (str == "info")      return QtInfoMsg;
   if (str == "warn")      return QtWarningMsg;

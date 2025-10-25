@@ -226,9 +226,9 @@ int main(int argc, char *argv[])
     }
 
     if (parser.isSet("quiet"))
-      Log::SetTerminalLogLevel(4);  // error+
+      Log::SetTerminalLogLevel(QtCriticalMsg);
     else if (parser.isSet("verbose"))
-      Log::SetTerminalLogLevel(0);  // all
+      Log::SetTerminalLogLevel(QtDebugMsg);
 
     Log::Init();
     qInfo() << "Config directory:" << qPrintable(Paths::dataDir());

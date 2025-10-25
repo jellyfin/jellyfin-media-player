@@ -13,9 +13,8 @@
 #include "settings/SettingsComponent.h"
 #include "Version.h"
 
-int fileLogLevel = 0;
-int terminalLogLevel = 3;
-QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
+int fileLogLevel = QtDebugMsg;
+int terminalLogLevel = QtWarningMsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // adapted from https://stackoverflow.com/a/62390212
@@ -25,8 +24,8 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
   QMutexLocker lock(&mutex);
 
   // Check if message meets any output threshold
-  bool shouldOutputToTerminal = messageLevelValue[type] >= terminalLogLevel;
-  bool shouldOutputToFile = messageLevelValue[type] >= fileLogLevel;
+  bool shouldOutputToTerminal = type >= terminalLogLevel;
+  bool shouldOutputToFile = type >= fileLogLevel;
 
   if (!shouldOutputToTerminal && !shouldOutputToFile && type != QtFatalMsg)
     return;
@@ -80,14 +79,14 @@ void Log::CensorAuthTokens(QString& msg)
 /////////////////////////////////////////////////////////////////////////////////////////
 static int logLevelFromString(const QString& str)
 {
-  if (str == "trace")     return 0;
-  if (str == "debug")     return 1;
-  if (str == "info")      return 2;
-  if (str == "warn")      return 3;
-  if (str == "error")     return 4;
-  if (str == "fatal")     return 5;
+  if (str == "trace")     return QtDebugMsg;
+  if (str == "debug")     return QtDebugMsg;
+  if (str == "info")      return QtInfoMsg;
+  if (str == "warn")      return QtWarningMsg;
+  if (str == "error")     return QtCriticalMsg;
+  if (str == "fatal")     return QtFatalMsg;
   // if not valid, use default
-  return 1;
+  return QtDebugMsg;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

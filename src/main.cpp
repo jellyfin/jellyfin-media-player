@@ -297,7 +297,6 @@ int main(int argc, char *argv[])
     Globals::EngineDestroy();
 
     Codecs::Uninit();
-    Log::Uninit();
     return ret;
   }
   catch (FatalException& e)
@@ -311,7 +310,6 @@ int main(int argc, char *argv[])
     errApp.exec();
 
     Codecs::Uninit();
-    Log::Uninit();
     return 1;
   }
 }

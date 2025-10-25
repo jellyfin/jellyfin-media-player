@@ -15,7 +15,6 @@
 
 int logLevel = 0;
 int terminalLogLevel = 3;
-bool logToTerminal = true;
 QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +25,7 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
   QMutexLocker lock(&mutex);
 
   // Check if message meets any output threshold
-  bool shouldOutputToTerminal = logToTerminal && messageLevelValue[type] >= terminalLogLevel;
+  bool shouldOutputToTerminal = messageLevelValue[type] >= terminalLogLevel;
   bool shouldOutputToFile = messageLevelValue[type] >= logLevel;
 
   if (!shouldOutputToTerminal && !shouldOutputToFile && type != QtFatalMsg)
@@ -103,12 +102,6 @@ void Log::UpdateLogLevel()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-bool Log::ShouldLogInfo()
-{
-  return logLevel <= 2;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 void Log::Init()
 {
   qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} [%{type}] %{function} @ %{line} - %{message}");
@@ -123,26 +116,7 @@ void Log::Init()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void Log::EnableTerminalOutput()
-{
-  logToTerminal = true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void Log::DisableTerminalOutput()
-{
-  logToTerminal = false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 void Log::SetTerminalLogLevel(int level)
 {
   terminalLogLevel = level;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void Log::Uninit()
-{
-  // Keep our handler installed so shutdown messages respect logToTerminal flag
-  // Qt will clean up at process exit
 }

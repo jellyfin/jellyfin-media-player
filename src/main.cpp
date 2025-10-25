@@ -225,6 +225,13 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
+    UniqueApplication* uniqueApp = new UniqueApplication();
+    if (!uniqueApp->ensureUnique())
+    {
+      fprintf(stderr, "Another instance is already running.\n");
+      return EXIT_SUCCESS;
+    }
+
     if (parser.isSet("quiet"))
       Log::SetTerminalLogLevel(QtCriticalMsg);
     else if (parser.isSet("verbose"))
@@ -232,10 +239,6 @@ int main(int argc, char *argv[])
 
     Log::Init();
     qInfo() << "Config directory:" << qPrintable(Paths::dataDir());
-
-    UniqueApplication* uniqueApp = new UniqueApplication();
-    if (!uniqueApp->ensureUnique())
-      return EXIT_SUCCESS;
 
 #ifdef Q_OS_UNIX
     // install signals handlers for proper app closing.

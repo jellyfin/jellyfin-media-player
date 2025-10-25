@@ -101,7 +101,8 @@ int main(int argc, char *argv[])
                        {"tv",                      "Start in TV mode"},
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
-                       {"terminal",                "Log to terminal"},
+                       {{"q", "quiet"},            "Show only errors and critical messages"},
+                       {"verbose",                 "Show all log messages including debug"},
                        {"disable-gpu",             "Disable QtWebEngine gpu accel"},
                        {"force-external-webclient","Use webclient provided by server"}});
 
@@ -218,6 +219,19 @@ int main(int argc, char *argv[])
     PFMoveToApplicationsFolderIfNecessary();
 #endif
 
+    if (parser.isSet("quiet") && parser.isSet("verbose"))
+    {
+      fprintf(stderr, "Error: --quiet and --verbose flags are mutually exclusive\n");
+      return EXIT_FAILURE;
+    }
+
+    if (parser.isSet("quiet"))
+      Log::SetTerminalLogLevel(4);  // error+
+    else if (parser.isSet("verbose"))
+      Log::SetTerminalLogLevel(0);  // all
+
+    Log::Init();
+
     UniqueApplication* uniqueApp = new UniqueApplication();
     if (!uniqueApp->ensureUnique())
       return EXIT_SUCCESS;
@@ -227,10 +241,6 @@ int main(int argc, char *argv[])
     SignalManager signalManager(&app);
     Q_UNUSED(signalManager);
 #endif
-
-    Log::Init();
-    if (parser.isSet("terminal"))
-      Log::EnableTerminalOutput();
 
     detectOpenGLLate();
 

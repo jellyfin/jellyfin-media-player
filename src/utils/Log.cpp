@@ -14,7 +14,8 @@
 #include "Version.h"
 
 int logLevel = 0;
-bool logToTerminal = false;
+int terminalLogLevel = 3;
+bool logToTerminal = true;
 QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +25,11 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
   static QMutex mutex;
   QMutexLocker lock(&mutex);
 
-  if (messageLevelValue[type] < logLevel && type != QtFatalMsg)
+  // Check if message meets any output threshold
+  bool shouldOutputToTerminal = logToTerminal && messageLevelValue[type] >= terminalLogLevel;
+  bool shouldOutputToFile = messageLevelValue[type] >= logLevel;
+
+  if (!shouldOutputToTerminal && !shouldOutputToFile && type != QtFatalMsg)
     return;
 
   static QFile logFile(Paths::logDir(Names::MainName() + ".log"));
@@ -33,11 +38,11 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
   QString message = qFormatLogMessage(type, context, msg);
   Log::CensorAuthTokens(message);
 
-  if (logToTerminal) {
+  if (shouldOutputToTerminal) {
     std::cerr << qPrintable(message) << std::endl;
   }
 
-  if (logFileIsOpen) {
+  if (logFileIsOpen && shouldOutputToFile) {
     logFile.write(message.toUtf8() + '\n');
     logFile.flush();
   }
@@ -106,11 +111,11 @@ bool Log::ShouldLogInfo()
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::Init()
 {
-  // Note where the logfile is going to be
-  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
-
   qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} [%{type}] %{function} @ %{line} - %{message}");
   qInstallMessageHandler(qtMessageOutput);
+
+  // Note where the logfile is going to be (now uses our handler)
+  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
 
   qInfo() << "Starting Jellyfin Media Player version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
   qInfo() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
@@ -124,7 +129,20 @@ void Log::EnableTerminalOutput()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+void Log::DisableTerminalOutput()
+{
+  logToTerminal = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Log::SetTerminalLogLevel(int level)
+{
+  terminalLogLevel = level;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void Log::Uninit()
 {
-  qInstallMessageHandler(0);
+  // Keep our handler installed so shutdown messages respect logToTerminal flag
+  // Qt will clean up at process exit
 }

@@ -14,6 +14,8 @@ namespace Log
   void UpdateLogLevel();
   void CensorAuthTokens(QString& msg);
   void EnableTerminalOutput();
+  void DisableTerminalOutput();
+  void SetTerminalLogLevel(int level);
   bool ShouldLogInfo();
 }
 

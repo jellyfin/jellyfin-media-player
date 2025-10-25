@@ -231,6 +231,7 @@ int main(int argc, char *argv[])
       Log::SetTerminalLogLevel(0);  // all
 
     Log::Init();
+    qInfo() << "Config directory:" << qPrintable(Paths::dataDir());
 
     UniqueApplication* uniqueApp = new UniqueApplication();
     if (!uniqueApp->ensureUnique())

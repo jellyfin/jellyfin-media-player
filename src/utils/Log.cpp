@@ -13,7 +13,7 @@
 #include "settings/SettingsComponent.h"
 #include "Version.h"
 
-int logLevel = 0;
+int fileLogLevel = 0;
 int terminalLogLevel = 3;
 QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
 
@@ -26,7 +26,7 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
 
   // Check if message meets any output threshold
   bool shouldOutputToTerminal = messageLevelValue[type] >= terminalLogLevel;
-  bool shouldOutputToFile = messageLevelValue[type] >= logLevel;
+  bool shouldOutputToFile = messageLevelValue[type] >= fileLogLevel;
 
   if (!shouldOutputToTerminal && !shouldOutputToFile && type != QtFatalMsg)
     return;
@@ -91,13 +91,13 @@ static int logLevelFromString(const QString& str)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void Log::UpdateLogLevel()
+void Log::SetFileLogLevel()
 {
   QString level = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "logLevel").toString();
   if (level.size())
   {
-    qInfo() << "Setting log level to:" << level;
-    logLevel = logLevelFromString(level);
+    qInfo() << "Setting file log level to:" << level;
+    fileLogLevel = logLevelFromString(level);
   }
 }
 

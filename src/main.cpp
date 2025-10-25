@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
     });
     engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
 
-    Log::UpdateLogLevel();
+    Log::SetFileLogLevel();
 
     // run our application
     int ret = app.exec();

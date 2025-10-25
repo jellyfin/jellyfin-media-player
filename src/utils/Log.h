@@ -10,7 +10,7 @@
 namespace Log
 {
   void Init();
-  void UpdateLogLevel();
+  void SetFileLogLevel();
   void CensorAuthTokens(QString& msg);
   void SetTerminalLogLevel(int level);
 }

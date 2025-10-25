@@ -60,7 +60,13 @@ public:
 
   Q_INVOKABLE virtual void pause();
   Q_INVOKABLE virtual void play();
-  
+
+  // Called from web client when shuffle mode changes
+  Q_INVOKABLE void notifyShuffleModeChanged(bool shuffleEnabled);
+
+  // Called from web client when repeat mode changes
+  Q_INVOKABLE void notifyRepeatModeChanged(const QString& repeatMode);
+
   // 0-100 volume 0=mute and 100=normal
   // Ignored if no audio output active (e.g. when no file is playing).
   Q_INVOKABLE virtual void setVolume(int volume);
@@ -121,6 +127,11 @@ public:
 
   Q_INVOKABLE qint64 getPosition();
   Q_INVOKABLE qint64 getDuration();
+
+  // Web playlist access for MPRIS
+  Q_INVOKABLE QVariantList getWebPlaylist() const;
+  Q_INVOKABLE QString getCurrentWebPlaylistItemId() const;
+  Q_INVOKABLE void setWebPlaylist(const QVariantList& playlist, const QString& currentItemId);
 
   QRect videoRectangle() { return m_videoRectangle; }
 
@@ -183,6 +194,12 @@ Q_SIGNALS:
   void windowVisible(bool visible);
   // emitted as soon as the duration of the current file is known
   void updateDuration(qint64 milliseconds);
+  // Shuffle mode changed (for MPRIS integration)
+  void shuffleModeChanged(bool shuffleEnabled);
+  // Repeat mode changed (for MPRIS integration)
+  void repeatModeChanged(const QString& repeatMode);
+  // Playback rate changed (for MPRIS integration)
+  void playbackRateChanged(double rate);
 
   // current position in ms should be triggered 2 times a second
   // when position updates
@@ -193,7 +210,9 @@ Q_SIGNALS:
   void onMpvEvents();
 
   void onMetaData(const QVariantMap &meta, QUrl baseUrl);
-  
+
+  // Web client playlist sync for MPRIS
+  void webPlaylistChanged(const QVariantList& playlist, const QString& currentItemId);
 private:
   // this is the function actually implemented in the backends. the variantmap contains
   // a few known keys:
@@ -250,6 +269,14 @@ private:
   QString m_currentSubtitleStream;
   QString m_currentAudioStream;
   QRect m_videoRectangle;
+
+  // Web playlist data for MPRIS
+  QVariantList m_webPlaylist;
+  QString m_currentWebPlaylistItemId;
+
+  // Playlist detection from queueMedia calls
+  QTimer* m_playlistTimer;
+  QVariantList m_queuedItems;
 };
 
 #endif // PLAYERCOMPONENT_H

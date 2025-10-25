@@ -10,11 +10,9 @@
 namespace Log
 {
   void Init();
-  void Uninit();
-  void UpdateLogLevel();
+  void SetFileLogLevel();
   void CensorAuthTokens(QString& msg);
-  void EnableTerminalOutput();
-  bool ShouldLogInfo();
+  void SetTerminalLogLevel(int level);
 }
 
 #endif //PLEXMEDIAPLAYER_LOG_H

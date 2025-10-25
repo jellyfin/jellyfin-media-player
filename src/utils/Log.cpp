@@ -13,9 +13,8 @@
 #include "settings/SettingsComponent.h"
 #include "Version.h"
 
-int logLevel = 0;
-bool logToTerminal = false;
-QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
+int fileLogLevel = QtDebugMsg;
+int terminalLogLevel = QtWarningMsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // adapted from https://stackoverflow.com/a/62390212
@@ -24,7 +23,11 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
   static QMutex mutex;
   QMutexLocker lock(&mutex);
 
-  if (messageLevelValue[type] < logLevel && type != QtFatalMsg)
+  // Check if message meets any output threshold
+  bool shouldOutputToTerminal = type >= terminalLogLevel;
+  bool shouldOutputToFile = type >= fileLogLevel;
+
+  if (!shouldOutputToTerminal && !shouldOutputToFile && type != QtFatalMsg)
     return;
 
   static QFile logFile(Paths::logDir(Names::MainName() + ".log"));
@@ -33,11 +36,11 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
   QString message = qFormatLogMessage(type, context, msg);
   Log::CensorAuthTokens(message);
 
-  if (logToTerminal) {
+  if (shouldOutputToTerminal) {
     std::cerr << qPrintable(message) << std::endl;
   }
 
-  if (logFileIsOpen) {
+  if (logFileIsOpen && shouldOutputToFile) {
     logFile.write(message.toUtf8() + '\n');
     logFile.flush();
   }
@@ -76,41 +79,34 @@ void Log::CensorAuthTokens(QString& msg)
 /////////////////////////////////////////////////////////////////////////////////////////
 static int logLevelFromString(const QString& str)
 {
-  if (str == "trace")     return 0;
-  if (str == "debug")     return 1;
-  if (str == "info")      return 2;
-  if (str == "warn")      return 3;
-  if (str == "error")     return 4;
-  if (str == "fatal")     return 5;
+  if (str == "debug")     return QtDebugMsg;
+  if (str == "info")      return QtInfoMsg;
+  if (str == "warn")      return QtWarningMsg;
+  if (str == "error")     return QtCriticalMsg;
+  if (str == "fatal")     return QtFatalMsg;
   // if not valid, use default
-  return 1;
+  return QtDebugMsg;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void Log::UpdateLogLevel()
+void Log::SetFileLogLevel()
 {
   QString level = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "logLevel").toString();
   if (level.size())
   {
-    qInfo() << "Setting log level to:" << level;
-    logLevel = logLevelFromString(level);
+    qInfo() << "Setting file log level to:" << level;
+    fileLogLevel = logLevelFromString(level);
   }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-bool Log::ShouldLogInfo()
-{
-  return logLevel <= 2;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::Init()
 {
-  // Note where the logfile is going to be
-  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
-
   qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} [%{type}] %{function} @ %{line} - %{message}");
   qInstallMessageHandler(qtMessageOutput);
+
+  // Note where the logfile is going to be (now uses our handler)
+  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
 
   qInfo() << "Starting Jellyfin Media Player version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
   qInfo() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
@@ -118,13 +114,7 @@ void Log::Init()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void Log::EnableTerminalOutput()
+void Log::SetTerminalLogLevel(int level)
 {
-  logToTerminal = true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void Log::Uninit()
-{
-  qInstallMessageHandler(0);
+  terminalLogLevel = level;
 }

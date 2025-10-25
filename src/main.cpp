@@ -101,7 +101,8 @@ int main(int argc, char *argv[])
                        {"tv",                      "Start in TV mode"},
                        {"windowed",                "Start in windowed mode"},
                        {"fullscreen",              "Start in fullscreen"},
-                       {"terminal",                "Log to terminal"},
+                       {{"q", "quiet"},            "Show only errors and critical messages"},
+                       {"verbose",                 "Show all log messages including debug"},
                        {"disable-gpu",             "Disable QtWebEngine gpu accel"},
                        {"force-external-webclient","Use webclient provided by server"}});
 
@@ -218,19 +219,32 @@ int main(int argc, char *argv[])
     PFMoveToApplicationsFolderIfNecessary();
 #endif
 
+    if (parser.isSet("quiet") && parser.isSet("verbose"))
+    {
+      fprintf(stderr, "Error: --quiet and --verbose flags are mutually exclusive\n");
+      return EXIT_FAILURE;
+    }
+
     UniqueApplication* uniqueApp = new UniqueApplication();
     if (!uniqueApp->ensureUnique())
+    {
+      fprintf(stderr, "Another instance is already running.\n");
       return EXIT_SUCCESS;
+    }
+
+    if (parser.isSet("quiet"))
+      Log::SetTerminalLogLevel(QtCriticalMsg);
+    else if (parser.isSet("verbose"))
+      Log::SetTerminalLogLevel(QtDebugMsg);
+
+    Log::Init();
+    qInfo() << "Config directory:" << qPrintable(Paths::dataDir());
 
 #ifdef Q_OS_UNIX
     // install signals handlers for proper app closing.
     SignalManager signalManager(&app);
     Q_UNUSED(signalManager);
 #endif
-
-    Log::Init();
-    if (parser.isSet("terminal"))
-      Log::EnableTerminalOutput();
 
     detectOpenGLLate();
 
@@ -277,7 +291,7 @@ int main(int argc, char *argv[])
     });
     engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
 
-    Log::UpdateLogLevel();
+    Log::SetFileLogLevel();
 
     // run our application
     int ret = app.exec();
@@ -286,7 +300,6 @@ int main(int argc, char *argv[])
     Globals::EngineDestroy();
 
     Codecs::Uninit();
-    Log::Uninit();
     return ret;
   }
   catch (FatalException& e)
@@ -300,7 +313,6 @@ int main(int argc, char *argv[])
     errApp.exec();
 
     Codecs::Uninit();
-    Log::Uninit();
     return 1;
   }
 }

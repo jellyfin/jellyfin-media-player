@@ -72,7 +72,6 @@
         "default": "debug",
         "hidden": true,
         "possible_values": [
-          [ "trace", "trace" ],
           [ "debug", "debug" ],
           [ "info", "info" ],
           [ "warn", "warn" ],

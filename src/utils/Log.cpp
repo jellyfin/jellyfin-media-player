@@ -13,33 +13,38 @@
 #include "settings/SettingsComponent.h"
 #include "Version.h"
 
-int logLevel = 0;
-bool logToTerminal = false;
-QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 1}, {QtInfoMsg, 2}, {QtWarningMsg, 3}, {QtCriticalMsg, 4}, {QtFatalMsg, 5}});
+int fileLogLevel = 1;  // info
+int terminalLogLevel = 3;  // error
+QHash<QtMsgType, int> messageLevelValue({{QtDebugMsg, 0}, {QtInfoMsg, 1}, {QtWarningMsg, 2}, {QtCriticalMsg, 3}, {QtFatalMsg, 4}});
+
+static QMutex logMutex;
+static QFile* logFile = nullptr;
+static QString tempLogPath;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // adapted from https://stackoverflow.com/a/62390212
 static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-  static QMutex mutex;
-  QMutexLocker lock(&mutex);
+  QMutexLocker lock(&logMutex);
 
-  if (messageLevelValue[type] < logLevel && type != QtFatalMsg)
+  // Check if message meets any output threshold
+  bool shouldOutputToTerminal = messageLevelValue[type] >= terminalLogLevel;
+  bool shouldOutputToFile = messageLevelValue[type] >= fileLogLevel;
+
+  if (!shouldOutputToTerminal && !shouldOutputToFile && type != QtFatalMsg)
     return;
 
-  static QFile logFile(Paths::logDir(Names::MainName() + ".log"));
-  static bool logFileIsOpen = logFile.open(QIODevice::Truncate | QIODevice::WriteOnly | QIODevice::Text);
-
-  QString message = qFormatLogMessage(type, context, msg);
-  Log::CensorAuthTokens(message);
-
-  if (logToTerminal) {
-    std::cerr << qPrintable(message) << std::endl;
+  if (shouldOutputToTerminal) {
+    QString terminalMsg = msg;
+    Log::CensorAuthTokens(terminalMsg);
+    std::cerr << qPrintable(terminalMsg) << std::endl;
   }
 
-  if (logFileIsOpen) {
-    logFile.write(message.toUtf8() + '\n');
-    logFile.flush();
+  if (logFile && logFile->isOpen() && shouldOutputToFile) {
+    QString fileMessage = qFormatLogMessage(type, context, msg);
+    Log::CensorAuthTokens(fileMessage);
+    logFile->write(fileMessage.toUtf8() + '\n');
+    logFile->flush();
   }
 
   if (type == QtFatalMsg)
@@ -73,58 +78,129 @@ void Log::CensorAuthTokens(QString& msg)
   elidePattern(msg, "AccessToken\":\"", 32);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-static int logLevelFromString(const QString& str)
-{
-  if (str == "trace")     return 0;
-  if (str == "debug")     return 1;
-  if (str == "info")      return 2;
-  if (str == "warn")      return 3;
-  if (str == "error")     return 4;
-  if (str == "fatal")     return 5;
-  // if not valid, use default
-  return 1;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void Log::UpdateLogLevel()
-{
-  QString level = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "logLevel").toString();
-  if (level.size())
-  {
-    qInfo() << "Setting log level to:" << level;
-    logLevel = logLevelFromString(level);
-  }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-bool Log::ShouldLogInfo()
-{
-  return logLevel <= 2;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Log::Init()
 {
-  // Note where the logfile is going to be
-  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
-
   qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} [%{type}] %{function} @ %{line} - %{message}");
   qInstallMessageHandler(qtMessageOutput);
+
+  // Create unique log file for this instance
+  QString logDir = Paths::logDir("");
+  QTemporaryFile tempFile(logDir + "/jellyfinmediaplayer-XXXXXX.log");
+  tempFile.setAutoRemove(false);
+  if (!tempFile.open())
+  {
+    qFatal("Failed to create temporary log file");
+  }
+  tempLogPath = tempFile.fileName();
+  tempFile.close();
+
+  logFile = new QFile(tempLogPath);
+  logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 
   qInfo() << "Starting Jellyfin Media Player version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
   qInfo() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
   qInfo() << "  Qt Version:" << QT_VERSION_STR << qPrintable(QString("[%1]").arg(QSysInfo::buildAbi()));
+
+  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void Log::EnableTerminalOutput()
+void Log::RotateLog()
 {
-  logToTerminal = true;
+  QMutexLocker lock(&logMutex);
+
+  // Flush and close current unique log file
+  if (logFile && logFile->isOpen())
+  {
+    logFile->flush();
+    logFile->close();
+  }
+
+  QString baseName = Names::MainName() + ".log";
+  QString mainLog = Paths::logDir(baseName);
+
+  // Rotate existing logs: .log.2 -> .log.3, .log.1 -> .log.2, .log -> .log.1
+  const int maxLogs = 10;
+  for (int i = maxLogs - 1; i >= 1; i--)
+  {
+    QString from = mainLog + "." + QString::number(i);
+    QString to = mainLog + "." + QString::number(i + 1);
+    if (QFile::exists(from))
+    {
+      QFile::remove(to);
+      QFile::rename(from, to);
+    }
+  }
+
+  // Rotate main log to .log.1
+  if (QFile::exists(mainLog))
+  {
+    QFile::remove(mainLog + ".1");
+    QFile::rename(mainLog, mainLog + ".1");
+  }
+
+  // Rename unique log to main log
+  QFile::rename(tempLogPath, mainLog);
+
+  // Reopen as main log and continue writing
+  delete logFile;
+  logFile = new QFile(mainLog);
+  logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void Log::Uninit()
+void Log::Cleanup()
 {
-  qInstallMessageHandler(0);
+  QMutexLocker lock(&logMutex);
+
+  // Close and delete temp log file
+  if (logFile && logFile->isOpen())
+    logFile->close();
+
+  delete logFile;
+  logFile = nullptr;
+
+  if (!tempLogPath.isEmpty())
+  {
+    QFile::remove(tempLogPath);
+    tempLogPath.clear();
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Log::ApplyConfigLogLevel()
+{
+  // --log-level sets both to the same; being different means --log-level not specified
+  if (terminalLogLevel == 3 && fileLogLevel == 1)
+  {
+    QString level = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "logLevel").toString();
+    if (level.size())
+    {
+      int levelValue = ParseLogLevel(level);
+      if (levelValue != -1)
+      {
+        fileLogLevel = levelValue;
+      }
+    }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+int Log::ParseLogLevel(const QString& str)
+{
+  if (str == "debug")     return 0;
+  if (str == "info")      return 1;
+  if (str == "warn")      return 2;
+  if (str == "error")     return 3;
+  if (str == "fatal")     return 4;
+  return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Log::SetLogLevel(const QString& level)
+{
+  terminalLogLevel = ParseLogLevel(level);
+  fileLogLevel = terminalLogLevel;
 }

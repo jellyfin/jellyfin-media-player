@@ -10,11 +10,12 @@
 namespace Log
 {
   void Init();
-  void Uninit();
-  void UpdateLogLevel();
+  void RotateLog();
+  void Cleanup();
+  void ApplyConfigLogLevel();
   void CensorAuthTokens(QString& msg);
-  void EnableTerminalOutput();
-  bool ShouldLogInfo();
+  void SetLogLevel(const QString& level);
+  int ParseLogLevel(const QString& level);
 }
 
 #endif //PLEXMEDIAPLAYER_LOG_H

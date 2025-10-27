@@ -218,7 +218,7 @@ KonvergoWindow
       request.accept()
     }
 
-    onJavaScriptConsoleMessage: function(message)
+    onJavaScriptConsoleMessage: function(level, message, lineNumber, sourceID)
     {
       components.system.jsLog(level, sourceID + ":" + lineNumber + " " + message);
     }

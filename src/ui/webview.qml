@@ -214,7 +214,7 @@ KonvergoWindow
 
     onJavaScriptConsoleMessage:
     {
-      components.system.info(message)
+      components.system.jsLog(level, sourceID + ":" + lineNumber + " " + message);
     }
 
     onCertificateError:

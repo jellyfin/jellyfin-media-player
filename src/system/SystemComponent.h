@@ -31,7 +31,7 @@ public:
   Q_INVOKABLE void exit();
   Q_INVOKABLE static void restart();
 
-  Q_INVOKABLE void info(QString text);
+  Q_INVOKABLE void jsLog(int level, QString text);
 
   Q_INVOKABLE void setCursorVisibility(bool visible);
 

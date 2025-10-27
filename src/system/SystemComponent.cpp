@@ -178,9 +178,22 @@ void SystemComponent::restart()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void SystemComponent::info(QString text)
+void SystemComponent::jsLog(int level, QString text)
 {
-  qInfo() << "JS:" << qPrintable(text);
+  switch (level) {
+    case 0: // Info
+      qInfo() << "JS:" << qPrintable(text);
+      break;
+    case 1: // Warning
+      qWarning() << "JS:" << qPrintable(text);
+      break;
+    case 2: // Error
+      qCritical() << "JS:" << qPrintable(text);
+      break;
+    default:
+      qDebug() << "JS: [uncaught level=" << level << "]" << qPrintable(text);
+      break;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

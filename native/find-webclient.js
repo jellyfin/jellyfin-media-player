@@ -187,6 +187,7 @@ document.addEventListener('keydown', (e) => {
         title.style.visibility = 'visible';
         address.style.visibility = 'visible';
         button.style.visibility = 'visible';
+        address.focus();
         updateButtonState();
     }
 })();

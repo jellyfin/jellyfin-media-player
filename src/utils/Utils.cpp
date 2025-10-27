@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QSaveFile>
 #include <QDebug>
+#include <QRegularExpression>
 
 #include <mutex>
 
@@ -57,7 +58,7 @@ QJsonDocument Utils::OpenJsonDocument(const QString& path, QJsonParseError* err)
 {
   QFile fp(path);
   QByteArray fdata;
-  QRegExp commentMatch("^\\s*//");
+  QRegularExpression commentMatch("^\\s*//");
 
   if (fp.open(QFile::ReadOnly))
   {
@@ -69,7 +70,7 @@ QJsonDocument Utils::OpenJsonDocument(const QString& path, QJsonParseError* err)
         break;
 
       // filter all comments
-      if (commentMatch.indexIn(row) != -1)
+      if (commentMatch.match(row).hasMatch())
         continue;
 
       fdata.append(row);

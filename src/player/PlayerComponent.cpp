@@ -19,6 +19,7 @@
 #include <math.h>
 #include <string.h>
 #include <shared/Paths.h>
+#include <QRegularExpression>
 
 #if !defined(Q_OS_WIN)
 #include <unistd.h>
@@ -144,8 +145,8 @@ bool PlayerComponent::componentInitialize()
       for (auto path : list)
       {
         if (access(path.data(), R_OK) == 0) {
-          mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
-          mpv::qt::set_property(m_mpv, "tls-verify", "yes");
+          mpv::qt::set_property(m_mpv, "tls-ca-file", QString(path.data()));
+          mpv::qt::set_property(m_mpv, "tls-verify", QString("yes"));
           success = true;
           break;
         }
@@ -1318,7 +1319,7 @@ void PlayerComponent::setOtherConfiguration()
 {
   QString otherConfiguration = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "other_conf").toString();
   qDebug() << "Parsing other configuration: "+otherConfiguration;
-  QStringList configurationList = otherConfiguration.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
+  QStringList configurationList = otherConfiguration.split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);
 
   for(const QString& configuration : configurationList)
   {
@@ -1326,8 +1327,8 @@ void PlayerComponent::setOtherConfiguration()
     int configurationLength = configuration.length();
     if (splitIndex > 0 && splitIndex < configurationLength - 1)
     {
-      QString configurationKey = configuration.left(splitIndex).remove(QRegExp("^([\"]+)")).remove(QRegExp("([\"]+)$")); 
-      QString configurationValue = configuration.right(configurationLength - splitIndex - 1).remove(QRegExp("^([\"]+)")).remove(QRegExp("([\"]+)$"));
+      QString configurationKey = configuration.left(splitIndex).remove(QRegularExpression("^([\"]+)")).remove(QRegularExpression("([\"]+)$"));
+      QString configurationValue = configuration.right(configurationLength - splitIndex - 1).remove(QRegularExpression("^([\"]+)")).remove(QRegularExpression("([\"]+)$"));
       mpv::qt::set_property(m_mpv, configurationKey, configurationValue);
     }
   }

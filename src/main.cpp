@@ -8,9 +8,9 @@
 #include <Qt>
 #include <QtWebEngineQuick>
 #include <qtwebenginecoreglobal.h>
-#include <QtWebEngineWidgets/QWebEngineProfile>
+#include <QtWebEngineCore/QWebEngineProfile>
 #include <QErrorMessage>
-#include <QWebEngineScript>
+#include <QtWebEngineCore/QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
 #include <QSettings>

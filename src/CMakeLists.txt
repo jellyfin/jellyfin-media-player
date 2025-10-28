@@ -106,8 +106,8 @@ endif()
 set(RESOURCE_ROOT .)
 if(APPLE)
   set(RESOURCE_ROOT Resources)
-  add_resources(TARGET ${MAIN_TARGET} SOURCES ${CMAKE_SOURCE_DIR}/native/ DEST ${RESOURCE_ROOT}/web-client/extension)
 endif()
+add_resources(TARGET ${MAIN_TARGET} SOURCES ${CMAKE_SOURCE_DIR}/native/ DEST ${RESOURCE_ROOT}/web-client/extension)
 
 if(NOT APPLE)
   set(rsrc_locations

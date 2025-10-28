@@ -4,6 +4,8 @@
 #include "ComponentManager.h"
 #include <QTimer>
 #include <QNetworkReply>
+#include <QNetworkAccessManager>
+#include <QJSValue>
 #include "utils/Utils.h"
 #include "Paths.h"
 #include "Names.h"
@@ -33,6 +35,9 @@ public:
 
   Q_INVOKABLE void jsLog(int level, QString text);
 
+  Q_INVOKABLE void checkServerConnectivity(QString url);
+  Q_SIGNAL void serverConnectivityResult(QString url, bool success);
+
   Q_INVOKABLE void setCursorVisibility(bool visible);
 
   Q_INVOKABLE QString getUserAgent();
@@ -46,6 +51,9 @@ public:
   Q_INVOKABLE void runUserScript(QString script);
 
   Q_INVOKABLE QString getNativeShellScript();
+
+  Q_INVOKABLE void fetchPageForCSPWorkaround(QString url);
+  Q_SIGNAL void pageContentReady(QString html, QString finalUrl, bool hadCSP);
 
   Q_INVOKABLE void checkForUpdates();
 
@@ -110,6 +118,7 @@ private:
   bool platformIsLinux() const { return m_platformType == platformTypeLinux; }
 
   QTimer* m_mouseOutTimer;
+  QNetworkAccessManager* m_networkManager;
   PlatformType m_platformType;
   PlatformArch m_platformArch;
   bool m_doLogMessages;
@@ -117,6 +126,7 @@ private:
   QString m_webClientVersion;
   bool m_cursorVisible;
   qreal m_scale;
+  QNetworkReply* m_connectivityCheckReply;
 
 };
 

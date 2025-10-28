@@ -1,3 +1,4 @@
+(function() {
 class jmpUpdatePlugin {
     constructor({ confirm }) {
         this.name = 'JMP Update Plugin';
@@ -47,3 +48,4 @@ class jmpUpdatePlugin {
 }
 
 window._jmpUpdatePlugin = jmpUpdatePlugin;
+})();

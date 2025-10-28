@@ -1,3 +1,4 @@
+(function() {
 const remap = {
     "play_pause": "playpause",
     "seek_forward": "fastforward",
@@ -36,3 +37,4 @@ class jmpInputPlugin {
 }
 
 window._jmpInputPlugin = jmpInputPlugin;
+})();

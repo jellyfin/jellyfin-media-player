@@ -732,9 +732,8 @@ QString SettingsComponent::getWebClientUrl(bool desktop)
 
   if (url == "bundled")
   {
-    auto path = Paths::webExtensionPath() + "find-webclient.html";
-
-    url = "file:///" + path;
+    // Use qrc:// scheme for bundled web client
+    url = "qrc:///web-client/extension/find-webclient.html";
   }
 
   qDebug() << "Using web-client URL: " << url;
@@ -781,6 +780,41 @@ bool SettingsComponent::ignoreSSLErrors()
 bool SettingsComponent::autodetectCertBundle()
 {
   return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "autodetectCertBundle").toBool();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SettingsComponent::detectCertBundlePath()
+{
+  static QString cachedPath;
+  static bool cached = false;
+
+  if (cached) {
+    return cachedPath;
+  }
+
+#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
+  QList<QString> certPaths;
+  certPaths << "/etc/ssl/certs/ca-certificates.crt"
+            << "/etc/pki/tls/certs/ca-bundle.crt"
+            << "/usr/share/ssl/certs/ca-bundle.crt"
+            << "/usr/local/share/certs/ca-root-nss.crt"
+            << "/etc/ssl/cert.pem"
+            << "/usr/share/curl/curl-ca-bundle.crt"
+            << "/usr/local/share/curl/curl-ca-bundle.crt"
+            << "/var/lib/ca-certificates/ca-bundle.pem";
+
+  for (const auto& path : certPaths)
+  {
+    if (QFile::exists(path) && QFileInfo(path).isReadable()) {
+      cachedPath = path;
+      cached = true;
+      return cachedPath;
+    }
+  }
+#endif
+
+  cached = true;
+  return cachedPath; // Returns empty QString if not found
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

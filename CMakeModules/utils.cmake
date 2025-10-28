@@ -25,15 +25,19 @@ function(copy_resources target)
       set(TARGET_LOC $<TARGET_FILE_DIR:${target}>)
     endif()
 
+    set(COPY_COMMANDS "")
     foreach(RF ${RESOURCE_LIST})
       string(REPLACE "|" ";" PARTS "${RF}")
       list(GET PARTS 0 SOURCE_FILE)
       list(GET PARTS 1 _TARGET_FILE)
-      add_custom_command(TARGET ${target} POST_BUILD
-                         COMMAND ${CMAKE_COMMAND} -E copy "${SOURCE_FILE}" "${TARGET_LOC}/${_TARGET_FILE}"
-                         DEPENDS ${SOURCE_FILE}
-                         COMMENT "CopyResource (${target}): ${_TARGET_FILE}")
+
+      list(APPEND COPY_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SOURCE_FILE}" "${TARGET_LOC}/${_TARGET_FILE}")
     endforeach()
+
+    # Always check and copy resources if different - simple and efficient
+    add_custom_target(${target}_CopyResources ALL
+                      ${COPY_COMMANDS}
+                      COMMENT "Copying resources for ${target}")
   endif(RESOURCE_LIST)
 endfunction()
 

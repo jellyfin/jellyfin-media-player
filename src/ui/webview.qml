@@ -139,10 +139,16 @@ KonvergoWindow
     visible: false
   }
 
+  WebChannel
+  {
+    id: webChannelObject
+  }
+
   WebEngineView
   {
     id: web
     objectName: "web"
+    webChannel: webChannelObject
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     settings.localContentCanAccessFileUrls: true
@@ -167,6 +173,15 @@ KonvergoWindow
     {
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
+
+      // Handle CSP workaround from C++
+      components.system.pageContentReady.connect(function(html, finalUrl, hadCSP) {
+        if (hadCSP) {
+          console.log("CSP workaround: navigating to", finalUrl);
+          web.url = finalUrl;
+        }
+      })
+
       var nativeshell =
       {
         sourceCode: components.system.getNativeShellScript(),
@@ -178,7 +193,7 @@ KonvergoWindow
     }
 
     onLoadingChanged: function(loadingInfo)
-    {     
+    {
       // we use a timer here to switch to the webview since
       // it take a few moments for the webview to render
       // after it has loaded.

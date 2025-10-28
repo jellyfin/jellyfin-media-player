@@ -1,3 +1,4 @@
+(function() {
 let fadeTimeout;
 function fade(instance, elem, startingVolume) {
     instance._isFadingOut = true;
@@ -347,3 +348,4 @@ function getSupportedFeatures() {
 }
 
 window._mpvAudioPlayer = mpvAudioPlayer;
+})();

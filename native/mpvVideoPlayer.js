@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-
+(function() {
     function getMediaStreamAudioTracks(mediaSource) {
         return mediaSource.MediaStreams.filter(function (s) {
             return s.Type === 'Audio';
@@ -853,3 +853,4 @@
 /* eslint-enable indent */
 
 window._mpvVideoPlayer = mpvVideoPlayer;
+})();

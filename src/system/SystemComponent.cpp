@@ -5,11 +5,18 @@
 #include <QGuiApplication>
 #include <QDesktopServices>
 #include <QDir>
+#include <QFile>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSslConfiguration>
+#include <QSslSocket>
+#include <QSslCertificate>
+#include <QSslError>
 #include <QDebug>
+#include <QRegularExpression>
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
@@ -46,11 +53,13 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(1)
+SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(1), m_connectivityCheckReply(nullptr)
 {
   m_mouseOutTimer = new QTimer(this);
   m_mouseOutTimer->setSingleShot(true);
   connect(m_mouseOutTimer, &QTimer::timeout, [&] () { setCursorVisibility(false); });
+
+  m_networkManager = new QNetworkAccessManager(this);
 
 // define OS Type
 #if defined(Q_OS_MAC)
@@ -197,6 +206,105 @@ void SystemComponent::jsLog(int level, QString text)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::checkServerConnectivity(QString url)
+{
+  // Ensure URL ends without trailing slash
+  QString baseUrl = url;
+  while (baseUrl.endsWith("/")) {
+    baseUrl.chop(1);
+  }
+
+  QString checkUrl = baseUrl + "/System/Info/Public";
+
+  // Abort any pending connectivity check
+  if (m_connectivityCheckReply) {
+    m_connectivityCheckReply->abort();
+    m_connectivityCheckReply->deleteLater();
+    m_connectivityCheckReply = nullptr;
+  }
+
+  QNetworkRequest request(checkUrl);
+  request.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
+  request.setRawHeader("Cache-Control", "no-cache");
+
+  // Configure SSL settings
+  QSslConfiguration sslConfig = request.sslConfiguration();
+
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
+    qDebug() << "checkServerConnectivity: ignoring SSL errors";
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+  } else {
+    if (SettingsComponent::Get().autodetectCertBundle()) {
+      QString certPath = SettingsComponent::Get().detectCertBundlePath();
+      if (!certPath.isEmpty()) {
+        QList<QSslCertificate> certs = QSslCertificate::fromPath(certPath);
+        if (!certs.isEmpty()) {
+          sslConfig.setCaCertificates(certs);
+          qDebug() << "checkServerConnectivity: loaded CA bundle from" << certPath;
+        }
+      }
+    }
+  }
+
+  request.setSslConfiguration(sslConfig);
+
+  m_connectivityCheckReply = m_networkManager->get(request);
+
+  // Handle SSL errors if ignoreSSLErrors is enabled
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
+    QNetworkReply* reply = m_connectivityCheckReply;
+    connect(reply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
+            this, [reply](const QList<QSslError>& errors) {
+      qDebug() << "checkServerConnectivity: ignoring SSL errors:" << errors;
+      reply->ignoreSslErrors();
+    });
+  }
+
+  QNetworkReply* reply = m_connectivityCheckReply;
+  connect(reply, &QNetworkReply::finished, this, [this, reply, url]() {
+    // Check if this reply was aborted
+    if (reply->error() == QNetworkReply::OperationCanceledError) {
+      qDebug() << "checkServerConnectivity: check was aborted";
+      reply->deleteLater();
+      if (m_connectivityCheckReply == reply) {
+        m_connectivityCheckReply = nullptr;
+      }
+      return;
+    }
+
+    bool success = false;
+
+    if (reply->error() == QNetworkReply::NoError) {
+      QByteArray data = reply->readAll();
+      int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+      // Parse JSON and verify it has an Id field
+      QJsonDocument doc = QJsonDocument::fromJson(data);
+      if (doc.isObject()) {
+        QJsonObject obj = doc.object();
+        if (obj.contains("Id") && !obj["Id"].toString().isEmpty()) {
+          success = true;
+          qInfo() << "checkServerConnectivity: success" << url << "status:" << statusCode;
+          qInfo() << "checkServerConnectivity: response:" << QString::fromUtf8(data);
+        } else {
+          qWarning() << "checkServerConnectivity: response missing Id field" << url;
+        }
+      } else {
+        qWarning() << "checkServerConnectivity: response not valid JSON" << url;
+      }
+    } else {
+      qWarning() << "checkServerConnectivity: error" << url << "error:" << reply->errorString();
+    }
+
+    emit serverConnectivityResult(url, success);
+    reply->deleteLater();
+    if (m_connectivityCheckReply == reply) {
+      m_connectivityCheckReply = nullptr;
+    }
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::setCursorVisibility(bool visible)
 {
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode") == "desktop")
@@ -333,12 +441,14 @@ void SystemComponent::hello(const QString& version)
 /////////////////////////////////////////////////////////////////////////////////////////
 QString SystemComponent::getNativeShellScript()
 {
+  static QString cachedScript;
+  if (!cachedScript.isEmpty()) {
+    return cachedScript;
+  }
+
   auto path = SettingsComponent::Get().getExtensionPath();
   qDebug() << QString("Using path for extension: %1").arg(path);
 
-  QFile file {path + "nativeshell.js"};
-  file.open(QIODevice::ReadOnly);
-  auto nativeshellString = QTextStream(&file).readAll();
   QJsonObject clientData;
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
@@ -365,8 +475,97 @@ QString SystemComponent::getNativeShellScript()
   clientData.insert("sections", QJsonValue::fromVariant(SettingsComponent::Get().orderedSections()));
   clientData.insert("settingsDescriptions", QJsonValue::fromVariant(settingsDescriptions));
   clientData.insert("settings", QJsonValue::fromVariant(SettingsComponent::Get().allValues()));
-  nativeshellString.replace("@@data@@", QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
-  return nativeshellString;
+
+  QString jmpInfoDeclaration = "const jmpInfo = JSON.parse(window.atob(\"" +
+                                QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64() +
+                                "\"));\nwindow.jmpInfo = jmpInfo;\n";
+
+  auto loadScript = [](const QString& path) -> QString {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+      qCritical() << "Failed to load" << path << "from qrc";
+      return "";
+    }
+    return QTextStream(&file).readAll();
+  };
+
+  QStringList scriptPaths = {
+    ":/qtwebchannel/qwebchannel.js",
+    ":/web-client/extension/mpvVideoPlayer.js",
+    ":/web-client/extension/mpvAudioPlayer.js",
+    ":/web-client/extension/jmpInputPlugin.js",
+    ":/web-client/extension/jmpUpdatePlugin.js",
+    ":/web-client/extension/connectivityHelper.js",
+    ":/web-client/extension/nativeshell.js"
+  };
+
+  cachedScript = jmpInfoDeclaration;
+  for (const QString& scriptPath : scriptPaths) {
+    cachedScript += loadScript(scriptPath) + "\n";
+  }
+
+  return cachedScript;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::fetchPageForCSPWorkaround(QString url)
+{
+  qDebug() << "fetchPageForCSPWorkaround:" << url;
+
+  QNetworkRequest request(url);
+  request.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
+  request.setRawHeader("Cache-Control", "no-cache");
+
+  // Configure SSL settings
+  QSslConfiguration sslConfig = request.sslConfiguration();
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
+    qDebug() << "fetchPageForCSPWorkaround: ignoring SSL errors";
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+  }
+  request.setSslConfiguration(sslConfig);
+
+  QNetworkReply* reply = m_networkManager->get(request);
+
+  // Handle SSL errors if ignoreSSLErrors is enabled
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
+    connect(reply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
+            this, [reply](const QList<QSslError>& errors) {
+      qDebug() << "fetchPageForCSPWorkaround: ignoring SSL errors:" << errors;
+      reply->ignoreSslErrors();
+    });
+  }
+
+  connect(reply, &QNetworkReply::finished, this, [this, reply, url]() {
+    if (reply->error() == QNetworkReply::NoError) {
+      QByteArray rawData = reply->readAll();
+      QString html = QString::fromUtf8(rawData);
+      QString finalUrl = reply->url().toString();
+      bool hadCSP = false;
+
+      // Check for CSP headers
+      QList<QByteArray> headerList = reply->rawHeaderList();
+      for (const QByteArray& header : headerList) {
+        QString headerName = QString::fromUtf8(header);
+        if (headerName.toLower() == "content-security-policy" ||
+            headerName.toLower() == "content-security-policy-report-only") {
+          hadCSP = true;
+          QString headerValue = QString::fromUtf8(reply->rawHeader(header));
+          qInfo() << "CSP header detected:" << headerName << "=" << headerValue.left(100);
+        }
+      }
+
+      if (hadCSP) {
+        qInfo() << "CSP workaround: applying for" << url;
+      } else {
+        qDebug() << "No CSP detected for" << url;
+      }
+
+      emit pageContentReady(html, finalUrl, hadCSP);
+    } else {
+      qCritical() << "fetchPageForCSPWorkaround: fetch failed:" << reply->errorString();
+    }
+    reply->deleteLater();
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

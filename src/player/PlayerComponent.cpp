@@ -129,30 +129,13 @@ bool PlayerComponent::componentInitialize()
   } else {
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
     if (SettingsComponent::Get().autodetectCertBundle()) {
-      QList<QByteArray> list;
-      list << "/etc/ssl/certs/ca-certificates.crt"
-          << "/etc/pki/tls/certs/ca-bundle.crt"
-          << "/usr/share/ssl/certs/ca-bundle.crt"
-          << "/usr/local/share/certs/ca-root-nss.crt"
-          << "/etc/ssl/cert.pem"
-          << "/usr/share/curl/curl-ca-bundle.crt"
-          << "/usr/local/share/curl/curl-ca-bundle.crt"
-          << "/var/lib/ca-certificates/ca-bundle.pem";
-
-      bool success = false;
-
-      for (auto path : list)
-      {
-        if (access(path.data(), R_OK) == 0) {
-          mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
-          mpv::qt::set_property(m_mpv, "tls-verify", "yes");
-          success = true;
-          break;
-        }
-      }
-
-      if (!success)
+      QString certPath = SettingsComponent::Get().detectCertBundlePath();
+      if (!certPath.isEmpty()) {
+        mpv::qt::set_property(m_mpv, "tls-ca-file", certPath);
+        mpv::qt::set_property(m_mpv, "tls-verify", QString("yes"));
+      } else {
         throw FatalException(tr("Failed to locate CA bundle."));
+      }
     } else {
       mpv::qt::set_property(m_mpv, "tls-verify", "yes");
     }

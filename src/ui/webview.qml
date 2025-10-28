@@ -139,10 +139,16 @@ KonvergoWindow
     visible: false
   }
 
+  WebChannel
+  {
+    id: webChannelObject
+  }
+
   WebEngineView
   {
     id: web
     objectName: "web"
+    webChannel: webChannelObject
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
     settings.localContentCanAccessFileUrls: true
@@ -169,29 +175,46 @@ KonvergoWindow
     {
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
+
+      // Handle CSP workaround from C++
+      components.system.pageContentReady.connect(function(html, finalUrl, hadCSP) {
+        if (hadCSP) {
+          console.log("CSP workaround: navigating to", finalUrl);
+          web.url = finalUrl;
+        }
+      })
+
+      var nativeshell =
+      {
+        sourceCode: components.system.getNativeShellScript(),
+        injectionPoint: WebEngineScript.DocumentCreation,
+        worldId: WebEngineScript.MainWorld
+      }
+
+      web.userScripts.collection = [ nativeshell ];
     }
 
-    onLoadingChanged:
+    onLoadingChanged: function(loadingInfo)
     {
       // we use a timer here to switch to the webview since
       // it take a few moments for the webview to render
       // after it has loaded.
       //
-      if (loadRequest.status == WebEngineView.LoadStartedStatus)
+      if (loadingInfo.status == WebEngineView.LoadStartedStatus)
       {
-        console.log("WebEngineLoadRequest starting: " + loadRequest.url);
+        console.log("WebEngineLoadRequest starting: " + loadingInfo.url);
       }
-      else if (loadRequest.status == WebEngineView.LoadSucceededStatus)
+      else if (loadingInfo.status == WebEngineView.LoadSucceededStatus)
       {
-        console.log("WebEngineLoadRequest success: " + loadRequest.url);
+        console.log("WebEngineLoadRequest success: " + loadingInfo.url);
       }
-      else if (loadRequest.status == WebEngineView.LoadFailedStatus)
+      else if (loadingInfo.status == WebEngineView.LoadFailedStatus)
       {
-        console.log("WebEngineLoadRequest failure: " + loadRequest.url + " error code: " + loadRequest.errorCode);
+        console.log("WebEngineLoadRequest failure: " + loadingInfo.url + " error code: " + loadingInfo.errorCode);
         errorLabel.visible = true
         errorLabel.text = "Error loading client, this is bad and should not happen<br>" +
                           "You can try to <a href='reload'>reload</a> or head to our <a href='http://jellyfin.org'>support page</a><br><br>Actual Error: <pre>" +
-                          loadRequest.errorString + " [" + loadRequest.errorCode + "]</pre><br><br>" +
+                          loadingInfo.errorString + " [" + loadingInfo.errorCode + "]</pre><br><br>" +
                           "Provide the <a target='_blank' href='file://"+ components.system.logFilePath + "'>logfile</a> as well."
       }
     }

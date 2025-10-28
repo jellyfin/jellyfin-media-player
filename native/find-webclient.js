@@ -4,59 +4,17 @@ async function tryConnect(server) {
             server = "http://" + server;
         }
         serverBaseURL = server.replace(/\/+$/, "");
-        const url = serverBaseURL + "/System/Info/Public";
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        console.log("Checking connectivity to:", server);
 
-        const response = await fetch(url, { cache: 'no-cache', signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (response.ok && (await response.json()).Id) {
-            const htmlResponse = await fetch(server, { cache: 'no-cache' });
-            if (!htmlResponse.ok) {
-                throw new Error("Status not ok");
-            }
+        await window.jmpCheckServerConnectivity(server);
+        console.log("Server connectivity check passed");
+        window.jmpInfo.settings.main.userWebClient = server;
+        window.location = server;
 
-            if (response.headers.get("content-security-policy")) {
-                console.log("Using CSP workaround");
-                const webUrl = htmlResponse.url.replace(/\/[^\/]*$/, "/");
-                const realUrl = window.location.href;
-
-                const html = await htmlResponse.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const base = doc.createElement("base");
-                base.href = webUrl
-                doc.head.insertBefore(base, doc.head.firstChild);
-
-                const oldPushState = window.history.pushState;
-                window.history.pushState = function(state, title, url) {
-                    url = url ? (new URL(url, realUrl)).toString() : realUrl;
-                    return oldPushState.call(window.history, state, title, url);
-                };
-
-                const oldReplaceState = window.history.replaceState;
-                window.history.replaceState = function(state, title, url) {
-                    url = url ? (new URL(url, realUrl)).toString() : realUrl;
-                    return oldReplaceState.call(window.history, state, title, url);
-                };
-
-                document.open();
-                document.write((new XMLSerializer()).serializeToString(doc));
-                document.close();
-            } else {
-                console.log("Using normal navigation");
-                window.location = server;
-            }
-
-            await window.initCompleted;
-            window.jmpInfo.settings.main.userWebClient = server;
-
-            return true;
-        }
-        return false;
+        return true;
     } catch (e) {
-        console.error(e);
+        console.error("Server connectivity check failed:", e);
         return false;
     }
 }
@@ -174,16 +132,64 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Auto-connect on load
-(async() => {
-    const title = document.getElementById('title');
-    const address = document.getElementById('address');
-    const button = document.getElementById('connect-button');
+(async () => {
+    console.log('Auto-connect: starting');
 
     const savedServer = window.jmpInfo.settings.main.userWebClient;
+    console.log('Auto-connect: savedServer =', savedServer);
+
     if (savedServer) {
+        console.log('Auto-connect: checking saved server', savedServer);
+
+        const address = document.getElementById('address');
+        const title = document.getElementById('title');
+        const spinner = document.getElementById('spinner');
+        const button = document.getElementById('connect-button');
+
+        // Set address value for potential display later
         address.value = savedServer;
-        await startConnecting();
+
+        // Show connecting UI
+        isConnecting = true;
+        title.textContent = '';
+        title.style.visibility = 'hidden';
+        address.classList.add('connecting');
+        address.style.visibility = 'hidden';
+        address.disabled = true;
+        spinner.style.display = 'block';
+        button.style.visibility = 'hidden';
+        document.addEventListener('keydown', cancelOnEscape);
+
+        let connected = false;
+
+        while (!connected && isConnecting) {
+            connected = await tryConnect(savedServer);
+
+            if (!connected && isConnecting) {
+                // Wait 5 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+        }
+
+        if (!connected) {
+            // User cancelled or error - show UI
+            isConnecting = false;
+            title.textContent = document.getElementById('title').getAttribute('data-original-text');
+            title.style.visibility = 'visible';
+            address.classList.remove('connecting');
+            address.style.visibility = 'visible';
+            address.disabled = false;
+            spinner.style.display = 'none';
+            button.style.visibility = 'visible';
+            document.removeEventListener('keydown', cancelOnEscape);
+            address.focus();
+            updateButtonState();
+        }
     } else {
+        const title = document.getElementById('title');
+        const address = document.getElementById('address');
+        const button = document.getElementById('connect-button');
+
         title.style.visibility = 'visible';
         address.style.visibility = 'visible';
         button.style.visibility = 'visible';

@@ -1,6 +1,3 @@
-const jmpInfo = JSON.parse(window.atob("@@data@@"));
-window.jmpInfo = jmpInfo;
-
 const features = [
     "filedownload",
     "displaylanguage",
@@ -26,20 +23,9 @@ const plugins = [
     'jmpUpdatePlugin'
 ];
 
-function loadScript(src) {
-    return new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-    });
-}
-
-// Add plugin loaders
+// Plugins are bundled, return class directly
 for (const plugin of plugins) {
-    window[plugin] = async () => {
-        await loadScript(`${jmpInfo.scriptPath}${plugin}.js`);
+    window[plugin] = () => {
         return window["_" + plugin];
     };
 }
@@ -161,10 +147,10 @@ function getDeviceProfile() {
         });
     }
 
-    const DirectPlayProfiles = [{'Type': 'Audio'}, {'Type': 'Photo'}];
+    const DirectPlayProfiles = [{ 'Type': 'Audio' }, { 'Type': 'Photo' }];
 
     if (!jmpInfo.settings.video.always_force_transcode) {
-        DirectPlayProfiles.push({'Type': 'Video'});
+        DirectPlayProfiles.push({ 'Type': 'Video' });
     }
 
     return {
@@ -173,7 +159,7 @@ function getDeviceProfile() {
         'MusicStreamingTranscodingBitrate': 1280000,
         'TimelineOffsetSeconds': 5,
         'TranscodingProfiles': [
-            {'Type': 'Audio'},
+            { 'Type': 'Audio' },
             {
                 'Container': 'ts',
                 'Type': 'Video',
@@ -182,59 +168,42 @@ function getDeviceProfile() {
                 'VideoCodec': jmpInfo.settings.video.allow_transcode_to_hevc
                     ? (
                         jmpInfo.settings.video.prefer_transcode_to_h265
-                         ? 'h265,hevc,h264,mpeg4,mpeg2video'
-                         : 'h264,h265,hevc,mpeg4,mpeg2video'
+                            ? 'h265,hevc,h264,mpeg4,mpeg2video'
+                            : 'h264,h265,hevc,mpeg4,mpeg2video'
                     )
                     : 'h264,mpeg4,mpeg2video',
                 'MaxAudioChannels': jmpInfo.settings.audio.channels === "2.0" ? '2' : '6'
             },
-            {'Container': 'jpeg', 'Type': 'Photo'}
+            { 'Container': 'jpeg', 'Type': 'Photo' }
         ],
         DirectPlayProfiles,
         'ResponseProfiles': [],
         'ContainerProfiles': [],
         CodecProfiles,
         'SubtitleProfiles': [
-            {'Format': 'srt', 'Method': 'External'},
-            {'Format': 'srt', 'Method': 'Embed'},
-            {'Format': 'ass', 'Method': 'External'},
-            {'Format': 'ass', 'Method': 'Embed'},
-            {'Format': 'sub', 'Method': 'Embed'},
-            {'Format': 'sub', 'Method': 'External'},
-            {'Format': 'ssa', 'Method': 'Embed'},
-            {'Format': 'ssa', 'Method': 'External'},
-            {'Format': 'smi', 'Method': 'Embed'},
-            {'Format': 'smi', 'Method': 'External'},
-            {'Format': 'pgssub', 'Method': 'Embed'},
-            {'Format': 'dvdsub', 'Method': 'Embed'},
-            {'Format': 'dvbsub', 'Method': 'Embed'},
-            {'Format': 'pgs', 'Method': 'Embed'}
+            { 'Format': 'srt', 'Method': 'External' },
+            { 'Format': 'srt', 'Method': 'Embed' },
+            { 'Format': 'ass', 'Method': 'External' },
+            { 'Format': 'ass', 'Method': 'Embed' },
+            { 'Format': 'sub', 'Method': 'Embed' },
+            { 'Format': 'sub', 'Method': 'External' },
+            { 'Format': 'ssa', 'Method': 'Embed' },
+            { 'Format': 'ssa', 'Method': 'External' },
+            { 'Format': 'smi', 'Method': 'Embed' },
+            { 'Format': 'smi', 'Method': 'External' },
+            { 'Format': 'pgssub', 'Method': 'Embed' },
+            { 'Format': 'dvdsub', 'Method': 'Embed' },
+            { 'Format': 'dvbsub', 'Method': 'Embed' },
+            { 'Format': 'pgs', 'Method': 'Embed' }
         ]
     };
 }
 
 async function createApi() {
-    try {
-        // Can't append script until document exists
-        await new Promise(resolve => {
-            document.addEventListener('DOMContentLoaded', resolve);
-        });
-
-        await loadScript('qrc:///qtwebchannel/qwebchannel.js');
-    } catch (e) {
-        // try clearing out any cached CSPs
-        let foundCache = false;
-        for (const cache of await caches.keys()) {
-            const dataDeleted = await caches.delete(cache);
-            if (dataDeleted) {
-                foundCache = true;
-            }
-        }
-        if (foundCache) {
-            window.location.reload();
-        }
-        throw e;
-    }
+    // Can't append script until document exists
+    await new Promise(resolve => {
+        document.addEventListener('DOMContentLoaded', resolve);
+    });
 
     const channel = await new Promise((resolve) => {
         /*global QWebChannel */
@@ -319,7 +288,7 @@ window.initCompleted = new Promise(async (resolve) => {
 });
 
 window.NativeShell.AppHost = {
-    init() {},
+    init() { },
     getDefaultLayout() {
         return jmpInfo.mode;
     },
@@ -492,8 +461,7 @@ async function showSettingsModal() {
                     control.style = "resize: none;"
                     control.value = values[setting.key];
                     control.rows = 5;
-                    control.addEventListener("change", e =>
-                    {
+                    control.addEventListener("change", e => {
                         jmpInfo.settings[section][setting.key] = e.target.value;
                     });
                     const labelText = document.createElement('label');

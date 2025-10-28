@@ -51,6 +51,7 @@ foreach(sfile in ${ALL_SRCS})
 endforeach(sfile in ${ALL_SRCS})
 
 file(GLOB_RECURSE RESOURCE_FILES ${CMAKE_SOURCE_DIR}/resources/*)
+file(GLOB_RECURSE NATIVE_FILES ${CMAKE_SOURCE_DIR}/native/*)
 
 # generate resources.qrc from directory tree listings
 add_custom_command(OUTPUT resources.qrc
@@ -58,10 +59,12 @@ add_custom_command(OUTPUT resources.qrc
           ${CMAKE_CURRENT_BINARY_DIR}/resources.qrc
           /=${CMAKE_SOURCE_DIR}/resources/
           ui/webview.qml=${CMAKE_SOURCE_DIR}/src/ui/webview.qml
+          /web-client/extension=${CMAKE_SOURCE_DIR}/native/
   COMMENT "Creating resources.qrc"
   DEPENDS ${CMAKE_SOURCE_DIR}/scripts/build-qt-resources.py
     ${RESOURCE_FILES}
     ${CMAKE_SOURCE_DIR}/src/ui/webview.qml
+    ${NATIVE_FILES}
 )
 set_source_files_properties(resources.qrc PROPERTIES GENERATED TRUE)
 add_custom_command(OUTPUT qrc_resources.cpp
@@ -104,11 +107,6 @@ if(WIN32)
 endif()
 
 set(RESOURCE_ROOT .)
-if(APPLE)
-  set(RESOURCE_ROOT Resources)
-endif()
-add_resources(TARGET ${MAIN_TARGET} SOURCES ${CMAKE_SOURCE_DIR}/native/ DEST ${RESOURCE_ROOT}/web-client/extension)
-
 if(NOT APPLE)
   set(rsrc_locations
     ${QTROOT}/resources
@@ -119,7 +117,6 @@ if(NOT APPLE)
       install(FILES ${loc}/qtwebengine_devtools_resources.pak DESTINATION resources)
     endif()
   endforeach()
-  install(DIRECTORY ${CMAKE_SOURCE_DIR}/native/ DESTINATION ${INSTALL_RESOURCE_DIR}/web-client/extension)
 endif()
 
 if(XCODE)

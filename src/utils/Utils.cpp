@@ -12,6 +12,7 @@
 #include <QUuid>
 #include <QFile>
 #include <QSaveFile>
+#include <QRegExp>
 #include <QDebug>
 #include <QRegularExpression>
 

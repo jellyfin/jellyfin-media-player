@@ -38,6 +38,7 @@ cd mpv-build
 ./use-mpv-release
 ./update
 echo -Dlibmpv=true > mpv_options
+echo -Dpipewire=disabled >> mpv_options # hopefully temporary
 ./rebuild -j`nproc`
 sudo ./install
 sudo ln -s /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1

@@ -1,6 +1,5 @@
 import QtQuick
 import Konvergo 1.0
-import QtWebEngine 1.7
 import QtWebEngine
 import QtWebChannel 1.0
 import QtQuick.Window 2.2

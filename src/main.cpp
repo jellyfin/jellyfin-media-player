@@ -17,6 +17,7 @@
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
+#include <QDebug>
 #include "Paths.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
@@ -273,8 +274,6 @@ int main(int argc, char *argv[])
     Log::ApplyConfigLogLevel();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
-
-    
 
     // Configure QtWebEngine paths
     QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();

@@ -17,6 +17,7 @@
 #include <QSslError>
 #include <QDebug>
 #include <QRegularExpression>
+#include <functional>
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
@@ -53,11 +54,18 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(1), m_connectivityCheckReply(nullptr)
+SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(1), m_connectivityCheckReply(nullptr), m_resolveUrlReply(nullptr)
 {
   m_mouseOutTimer = new QTimer(this);
   m_mouseOutTimer->setSingleShot(true);
   connect(m_mouseOutTimer, &QTimer::timeout, [&] () { setCursorVisibility(false); });
+
+  m_connectivityRetryTimer = new QTimer(this);
+  m_connectivityRetryTimer->setSingleShot(true);
+  connect(m_connectivityRetryTimer, &QTimer::timeout, [this]() {
+    qInfo() << "Retrying connectivity check for" << m_pendingConnectivityUrl;
+    checkServerConnectivity(m_pendingConnectivityUrl);
+  });
 
   m_networkManager = new QNetworkAccessManager(this);
 
@@ -206,102 +214,211 @@ void SystemComponent::jsLog(int level, QString text)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void SystemComponent::checkServerConnectivity(QString url)
+QString SystemComponent::extractBaseUrl(const QString& url)
 {
-  // Ensure URL ends without trailing slash
-  QString baseUrl = url;
-  while (baseUrl.endsWith("/")) {
-    baseUrl.chop(1);
+  QUrl parsedUrl(url);
+  QString path = parsedUrl.path();
+
+  // Find last occurrence of "/web" in path only (case-insensitive)
+  int webIndex = path.toLower().lastIndexOf("/web");
+
+  if (webIndex >= 0) {
+    // Truncate path at /web
+    path = path.left(webIndex);
+
+    // Build URL without fragment/query
+    QString result = parsedUrl.scheme() + "://" + parsedUrl.host();
+    int port = parsedUrl.port();
+    if (port != -1 &&
+        !((parsedUrl.scheme() == "https" && port == 443) ||
+          (parsedUrl.scheme() == "http" && port == 80))) {
+      result += ":" + QString::number(port);
+    }
+    result += path;
+    return result;
   }
 
-  QString checkUrl = baseUrl + "/System/Info/Public";
+  // Fallback to origin (scheme://host:port, excluding default ports and userinfo)
+  QString origin = parsedUrl.scheme() + "://" + parsedUrl.host();
+  int port = parsedUrl.port();
+  // Only add port if non-default (443 for https, 80 for http)
+  if (port != -1 &&
+      !((parsedUrl.scheme() == "https" && port == 443) ||
+        (parsedUrl.scheme() == "http" && port == 80))) {
+    origin += ":" + QString::number(port);
+  }
+  return origin;
+}
 
-  // Abort any pending connectivity check
+///////////////////////////////////////////////////////////////////////////////////////////////////
+QSslConfiguration SystemComponent::getSSLConfiguration()
+{
+  QSslConfiguration sslConfig;
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+  } else if (SettingsComponent::Get().autodetectCertBundle()) {
+    QString certPath = SettingsComponent::Get().detectCertBundlePath();
+    if (!certPath.isEmpty()) {
+      QList<QSslCertificate> certs = QSslCertificate::fromPath(certPath);
+      if (!certs.isEmpty()) {
+        sslConfig.setCaCertificates(certs);
+      }
+    }
+  }
+  return sslConfig;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::setReplyTimeout(QNetworkReply* reply, int ms)
+{
+  QTimer::singleShot(ms, this, [reply]() {
+    if (!reply->isFinished()) {
+      reply->abort();
+    }
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::resolveUrl(const QString& url, std::function<void(const QString&)> callback)
+{
+  // Abort any pending resolve
+  if (m_resolveUrlReply) {
+    m_resolveUrlReply->abort();
+    m_resolveUrlReply->deleteLater();
+    m_resolveUrlReply = nullptr;
+  }
+
+  QNetworkRequest request(url);
+  request.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
+  request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+  request.setSslConfiguration(getSSLConfiguration());
+
+  m_resolveUrlReply = m_networkManager->head(request);
+
+  QNetworkReply* reply = m_resolveUrlReply;
+  setReplyTimeout(reply, NETWORK_REQUEST_TIMEOUT_MS);
+
+  if (SettingsComponent::Get().ignoreSSLErrors()) {
+    connect(reply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
+            reply, QOverload<>::of(&QNetworkReply::ignoreSslErrors));
+  }
+  connect(reply, &QNetworkReply::finished, this, [this, reply, callback]() {
+    if (reply->error() == QNetworkReply::OperationCanceledError) {
+      reply->deleteLater();
+      if (m_resolveUrlReply == reply) {
+        m_resolveUrlReply = nullptr;
+      }
+      return;
+    }
+
+    if (reply->error() != QNetworkReply::NoError) {
+      qWarning() << "resolveUrl: error:" << reply->errorString();
+    }
+
+    callback(reply->url().toString());
+    reply->deleteLater();
+    if (m_resolveUrlReply == reply) {
+      m_resolveUrlReply = nullptr;
+    }
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::checkServerConnectivity(QString url)
+{
+  // Stop any pending retry
+  if (m_connectivityRetryTimer->isActive()) {
+    m_connectivityRetryTimer->stop();
+  }
+
   if (m_connectivityCheckReply) {
     m_connectivityCheckReply->abort();
     m_connectivityCheckReply->deleteLater();
     m_connectivityCheckReply = nullptr;
   }
 
-  QNetworkRequest request(checkUrl);
-  request.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
-  request.setRawHeader("Cache-Control", "no-cache");
+  // Store for retry
+  m_pendingConnectivityUrl = url;
 
-  // Configure SSL settings
-  QSslConfiguration sslConfig = request.sslConfiguration();
+  resolveUrl(url, [this, url](const QString& fullResolvedUrl) {
+    QString baseUrl = extractBaseUrl(fullResolvedUrl);
 
-  if (SettingsComponent::Get().ignoreSSLErrors()) {
-    qDebug() << "checkServerConnectivity: ignoring SSL errors";
-    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
-  } else {
-    if (SettingsComponent::Get().autodetectCertBundle()) {
-      QString certPath = SettingsComponent::Get().detectCertBundlePath();
-      if (!certPath.isEmpty()) {
-        QList<QSslCertificate> certs = QSslCertificate::fromPath(certPath);
-        if (!certs.isEmpty()) {
-          sslConfig.setCaCertificates(certs);
-          qDebug() << "checkServerConnectivity: loaded CA bundle from" << certPath;
-        }
-      }
-    }
-  }
+    QString checkUrl = baseUrl + "/System/Info/Public";
 
-  request.setSslConfiguration(sslConfig);
+    QNetworkRequest request(checkUrl);
+    request.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+    request.setSslConfiguration(getSSLConfiguration());
 
-  m_connectivityCheckReply = m_networkManager->get(request);
+    m_connectivityCheckReply = m_networkManager->get(request);
 
-  // Handle SSL errors if ignoreSSLErrors is enabled
-  if (SettingsComponent::Get().ignoreSSLErrors()) {
     QNetworkReply* reply = m_connectivityCheckReply;
-    connect(reply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
-            this, [reply](const QList<QSslError>& errors) {
-      qDebug() << "checkServerConnectivity: ignoring SSL errors:" << errors;
-      reply->ignoreSslErrors();
-    });
-  }
+    setReplyTimeout(reply, NETWORK_REQUEST_TIMEOUT_MS);
 
-  QNetworkReply* reply = m_connectivityCheckReply;
-  connect(reply, &QNetworkReply::finished, this, [this, reply, url]() {
-    // Check if this reply was aborted
-    if (reply->error() == QNetworkReply::OperationCanceledError) {
-      qDebug() << "checkServerConnectivity: check was aborted";
+    if (SettingsComponent::Get().ignoreSSLErrors()) {
+      connect(reply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
+              reply, QOverload<>::of(&QNetworkReply::ignoreSslErrors));
+    }
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, url, fullResolvedUrl]() {
+      if (reply->error() == QNetworkReply::OperationCanceledError) {
+        reply->deleteLater();
+        if (m_connectivityCheckReply == reply) {
+          m_connectivityCheckReply = nullptr;
+        }
+        return;
+      }
+
+      bool success = false;
+      if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (doc.isObject() && doc.object().contains("Id") && !doc.object()["Id"].toString().isEmpty()) {
+          success = true;
+        } else {
+          qWarning() << "checkServerConnectivity: invalid response";
+        }
+      } else {
+        qWarning() << "checkServerConnectivity: error:" << reply->errorString();
+      }
+
+      if (success) {
+        m_connectivityRetryTimer->stop();
+        m_pendingConnectivityUrl.clear();
+        emit serverConnectivityResult(url, success, fullResolvedUrl);
+      } else {
+        m_connectivityRetryTimer->start(CONNECTIVITY_RETRY_INTERVAL_MS);
+      }
+
       reply->deleteLater();
       if (m_connectivityCheckReply == reply) {
         m_connectivityCheckReply = nullptr;
       }
-      return;
-    }
-
-    bool success = false;
-
-    if (reply->error() == QNetworkReply::NoError) {
-      QByteArray data = reply->readAll();
-      int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-      // Parse JSON and verify it has an Id field
-      QJsonDocument doc = QJsonDocument::fromJson(data);
-      if (doc.isObject()) {
-        QJsonObject obj = doc.object();
-        if (obj.contains("Id") && !obj["Id"].toString().isEmpty()) {
-          success = true;
-          qInfo() << "checkServerConnectivity: success" << url << "status:" << statusCode;
-          qInfo() << "checkServerConnectivity: response:" << QString::fromUtf8(data);
-        } else {
-          qWarning() << "checkServerConnectivity: response missing Id field" << url;
-        }
-      } else {
-        qWarning() << "checkServerConnectivity: response not valid JSON" << url;
-      }
-    } else {
-      qWarning() << "checkServerConnectivity: error" << url << "error:" << reply->errorString();
-    }
-
-    emit serverConnectivityResult(url, success);
-    reply->deleteLater();
-    if (m_connectivityCheckReply == reply) {
-      m_connectivityCheckReply = nullptr;
-    }
+    });
   });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void SystemComponent::cancelServerConnectivity()
+{
+  if (m_connectivityRetryTimer->isActive()) {
+    m_connectivityRetryTimer->stop();
+  }
+
+  if (m_resolveUrlReply) {
+    m_resolveUrlReply->abort();
+    m_resolveUrlReply->deleteLater();
+    m_resolveUrlReply = nullptr;
+  }
+
+  if (m_connectivityCheckReply) {
+    m_connectivityCheckReply->abort();
+    m_connectivityCheckReply->deleteLater();
+    m_connectivityCheckReply = nullptr;
+  }
+
+  m_pendingConnectivityUrl.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

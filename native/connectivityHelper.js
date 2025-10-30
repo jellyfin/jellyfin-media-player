@@ -1,9 +1,10 @@
 window.jmpCheckServerConnectivity = (() => {
-    let checkInProgress = false;
+    let activeController = null;
 
-    return async function(url) {
-        if (checkInProgress) {
-            throw new Error('Connectivity check already in progress');
+    const checkFunc = async function(url) {
+        // Abort any in-progress check
+        if (activeController) {
+            activeController.abort();
         }
 
         // Wait for API
@@ -16,24 +17,48 @@ window.jmpCheckServerConnectivity = (() => {
             throw new Error('WebChannel not available');
         }
 
-        checkInProgress = true;
+        // Create abort controller for this check
+        const controller = new AbortController();
+        activeController = controller;
 
         return new Promise((resolve, reject) => {
-            const handler = (resultUrl, success) => {
-                if (resultUrl === url) {
+            // Handle abort
+            controller.signal.addEventListener('abort', () => {
+                if (handler) {
                     window.api.system.serverConnectivityResult.disconnect(handler);
-                    checkInProgress = false;
+                }
+                reject(new Error('Connection cancelled'));
+            });
+
+            let handler = (resultUrl, success, resolvedUrl) => {
+                if (resultUrl === url && !controller.signal.aborted) {
+                    window.api.system.serverConnectivityResult.disconnect(handler);
+                    handler = null;
+                    if (activeController === controller) {
+                        activeController = null;
+                    }
                     if (success) {
-                        resolve();
+                        resolve(resolvedUrl);
                     } else {
                         reject(new Error('Connection failed'));
                     }
                 }
             };
+
             window.api.system.serverConnectivityResult.connect(handler);
             window.api.system.checkServerConnectivity(url);
         });
     };
+
+    // Expose abort function for cancellation
+    checkFunc.abort = () => {
+        if (activeController) {
+            activeController.abort();
+            activeController = null;
+        }
+    };
+
+    return checkFunc;
 })();
 
 window.jmpFetchPage = (() => {

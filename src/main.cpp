@@ -5,15 +5,19 @@
 #include <QFileInfo>
 #include <QIcon>
 #include <QtQml>
-#include <QtWebEngine/qtwebengineglobal.h>
-#include <QtWebEngineWidgets/QWebEngineProfile>
+#include <Qt>
+#include <QtWebEngineQuick>
+#include <qtwebenginecoreglobal.h>
+#include <QtWebEngineCore/QWebEngineProfile>
 #include <QErrorMessage>
+#include <QtWebEngineCore/QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
 #include <QSettings>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
+#include <QDebug>
 #include "Paths.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
@@ -78,7 +82,7 @@ void ShowLicenseInfo()
   QFile licenses(":/misc/licenses.txt");
   licenses.open(QIODevice::ReadOnly | QIODevice::Text);
   QByteArray contents = licenses.readAll();
-  printf("%.*s\n", contents.size(), contents.data());
+  printf("%.*s\n", static_cast<int>(contents.size()), contents.data());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -139,6 +143,8 @@ int main(int argc, char *argv[])
 
     preinitQt();
     detectOpenGLEarly();
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -178,9 +184,15 @@ int main(int argc, char *argv[])
 
     auto scale = parser.value("scale-factor");
     if (scale.isEmpty() || scale == "auto")
+    {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
       QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    }
     else if (scale != "none")
+    {
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
+    }
 
     auto platform = parser.value("platform");
     if (!(platform.isEmpty() || platform == "default"))
@@ -214,6 +226,7 @@ int main(int argc, char *argv[])
       webEngineDataDir = d.absolutePath() + "/QtWebEngine";
     }
 
+    QtWebEngineQuick::initialize();
     QApplication app(newArgc, newArgv);
 
 #if defined(Q_OS_WIN) 
@@ -261,8 +274,6 @@ int main(int argc, char *argv[])
     Log::ApplyConfigLogLevel();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
-
-    QtWebEngine::initialize();
 
     // Configure QtWebEngine paths
     QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();

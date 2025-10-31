@@ -1,9 +1,9 @@
-import QtQuick 2.4
+import QtQuick
 import Konvergo 1.0
-import QtWebEngine 1.7
+import QtWebEngine
 import QtWebChannel 1.0
 import QtQuick.Window 2.2
-import QtQuick.Controls 1.4
+import QtQuick.Controls 6.0
 
 KonvergoWindow
 {
@@ -128,7 +128,6 @@ KonvergoWindow
     onTriggered: runWebAction(WebEngineView.Forward)
     id: action_forward
   }
-
   MpvVideo
   {
     id: video
@@ -159,17 +158,15 @@ KonvergoWindow
     url: mainWindow.webUrl
     focus: true
     property string currentHoveredUrl: ""
-    onLinkHovered: web.currentHoveredUrl = hoveredUrl
+    onLinkHovered: function(hoveredUrl) 
+    {
+      web.currentHoveredUrl = hoveredUrl;
+    }
     width: mainWindow.width
     height: mainWindow.height
-    userScripts: [
-      WebEngineScript
-      {
-        sourceCode: components.system.getNativeShellScript()
-        injectionPoint: WebEngineScript.DocumentCreation
-        worldId: WebEngineScript.MainWorld
-      }
-    ]
+    profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
+    profile.offTheRecord: false
+    profile.storageName: "JellyfinMediaPlayerStorage"
 
     Component.onCompleted:
     {
@@ -219,7 +216,7 @@ KonvergoWindow
       }
     }
 
-    onNewViewRequested:
+    onNewWindowRequested:
     {
       if (request.userInitiated)
       {
@@ -235,7 +232,7 @@ KonvergoWindow
       request.accept()
     }
 
-    onJavaScriptConsoleMessage:
+    onJavaScriptConsoleMessage: function(level, message, lineNumber, sourceID)
     {
       components.system.jsLog(level, sourceID + ":" + lineNumber + " " + message);
     }
@@ -264,14 +261,14 @@ KonvergoWindow
     textFormat: Text.StyledText
     onLinkActivated:
     {
-      if (link == "reload")
+      if (url == "reload")
       {
         errorLabel.visible = false
         web.reload()
       }
       else
       {
-        Qt.openUrlExternally(link)
+        Qt.openUrlExternally(url)
       }
     }
   }

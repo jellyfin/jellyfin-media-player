@@ -13,6 +13,10 @@
 // System modifiers
 #define SYSTEM_MODIFIER_OPENELEC "OpenELEC"
 
+// Network timeouts (milliseconds)
+constexpr int NETWORK_REQUEST_TIMEOUT_MS = 30000;
+constexpr int CONNECTIVITY_RETRY_INTERVAL_MS = 5000;
+
 class SystemComponent : public ComponentBase
 {
   Q_OBJECT
@@ -36,7 +40,11 @@ public:
   Q_INVOKABLE void jsLog(int level, QString text);
 
   Q_INVOKABLE void checkServerConnectivity(QString url);
-  Q_SIGNAL void serverConnectivityResult(QString url, bool success);
+  Q_INVOKABLE void cancelServerConnectivity();
+  Q_SIGNAL void serverConnectivityResult(QString url, bool success, QString resolvedUrl);
+
+  QString extractBaseUrl(const QString& url);
+  void resolveUrl(const QString& url, std::function<void(const QString&)> callback);
 
   Q_INVOKABLE void setCursorVisibility(bool visible);
 
@@ -117,6 +125,9 @@ private:
   bool platformIsMac() const { return m_platformType == platformTypeOsx; }
   bool platformIsLinux() const { return m_platformType == platformTypeLinux; }
 
+  QSslConfiguration getSSLConfiguration();
+  void setReplyTimeout(QNetworkReply* reply, int ms);
+
   QTimer* m_mouseOutTimer;
   QNetworkAccessManager* m_networkManager;
   PlatformType m_platformType;
@@ -127,6 +138,9 @@ private:
   bool m_cursorVisible;
   qreal m_scale;
   QNetworkReply* m_connectivityCheckReply;
+  QNetworkReply* m_resolveUrlReply;
+  QTimer* m_connectivityRetryTimer;
+  QString m_pendingConnectivityUrl;
 
 };
 

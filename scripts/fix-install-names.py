@@ -56,6 +56,18 @@ def main(argv=tuple(sys.argv[1:])):
                 subprocess.run(['install_name_tool', '-id', target, lib])
                 subprocess.run(['install_name_tool', '-change', dependency_str, target, lib])
 
+    # Explicitly fix the main executable reference to @rpath/libdiscord-rpc.dylib
+    main_exec = bundle_path / 'Contents' / 'MacOS' / 'Jellyfin Media Player'
+    discordDylib = bundle_path / 'Contents' / 'Frameworks' / 'libdiscord-rpc.dylib'
+    if main_exec.exists() and discordDylib.exists():
+        print(f'Fixing @rpath/libdiscord-rpc.dylib in main executable: {main_exec}')
+        subprocess.run([
+            'install_name_tool',
+            '-change',
+            '@rpath/libdiscord-rpc.dylib',
+            '@executable_path/../Frameworks/libdiscord-rpc.dylib',
+            str(main_exec.resolve())
+        ])
 
 if __name__ == '__main__':
     main()

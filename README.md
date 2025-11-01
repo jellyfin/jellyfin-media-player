@@ -42,7 +42,7 @@ cd mpv-build
 ./use-mpv-release
 ./update
 echo -Dlibmpv=true > mpv_options
-./rebuild -j`nproc`
+./rebuild -j$(nproc)
 sudo ./install
 sudo ln -s /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.1
 sudo ln -sf /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/libmpv.so.2

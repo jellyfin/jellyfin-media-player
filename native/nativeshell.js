@@ -16,12 +16,25 @@ const features = [
     "fileinput"
 ];
 
-const plugins = [
-    'mpvVideoPlayer',
-    'mpvAudioPlayer',
-    'jmpInputPlugin',
-    'jmpUpdatePlugin'
-];
+const getPlugins = () => {
+    const basePlugins = [
+        'jmpInputPlugin',
+        'jmpUpdatePlugin'
+    ];
+
+    const mpvEnabled = jmpInfo.settings?.main?.enableMPV !== false;
+    if (mpvEnabled) {
+        return [
+            'mpvVideoPlayer',
+            'mpvAudioPlayer',
+            ...basePlugins
+        ];
+    }
+
+    return basePlugins;
+};
+
+const plugins = getPlugins();
 
 // Plugins are bundled, return class directly
 for (const plugin of plugins) {

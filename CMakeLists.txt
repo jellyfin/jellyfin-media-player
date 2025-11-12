@@ -77,6 +77,9 @@ endif(Qt5_POSITION_INDEPENDENT_CODE)
 add_subdirectory(external)
 add_subdirectory(src)
 
+enable_testing()
+add_subdirectory(tests)
+
 include(CPackConfiguration)
 
 add_custom_target(install_app_bundle COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake DEPENDS JellyfinMediaPlayer)

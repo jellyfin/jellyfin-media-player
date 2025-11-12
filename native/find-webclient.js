@@ -3,14 +3,18 @@ async function tryConnect(server) {
         if (!server.startsWith("http")) {
             server = "http://" + server;
         }
-        serverBaseURL = server.replace(/\/+$/, "");
 
         console.log("Checking connectivity to:", server);
 
-        await window.jmpCheckServerConnectivity(server);
+        const resolvedUrl = await window.jmpCheckServerConnectivity(server);
         console.log("Server connectivity check passed");
+        console.log("Resolved URL:", resolvedUrl);
+
+        // Save original URL but navigate to fully-resolved redirect
         window.jmpInfo.settings.main.userWebClient = server;
-        window.location = server;
+
+        // Navigation will clean up handlers, but do it explicitly
+        window.location = resolvedUrl;
 
         return true;
     } catch (e) {
@@ -54,16 +58,8 @@ const startConnecting = async () => {
     button.style.visibility = 'hidden';
     document.addEventListener('keydown', cancelOnEscape);
 
-    let connected = false;
-
-    while (!connected && isConnecting) {
-        connected = await tryConnect(server);
-
-        if (!connected && isConnecting) {
-            // Wait 5 seconds before retrying
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        }
-    }
+    // C++ handles retries, just wait for result
+    const connected = await tryConnect(server);
 
     if (!connected) {
         isConnecting = false;
@@ -82,7 +78,16 @@ const startConnecting = async () => {
 const cancelConnection = () => {
     if (!isConnecting) return;
 
+    console.log("Cancelling connection");
     isConnecting = false;
+
+    // Cancel C++ connectivity check and abort JS promise
+    if (window.api && window.api.system) {
+        window.api.system.cancelServerConnectivity();
+    }
+    if (window.jmpCheckServerConnectivity.abort) {
+        window.jmpCheckServerConnectivity.abort();
+    }
 
     const address = document.getElementById('address');
     const title = document.getElementById('title');
@@ -160,16 +165,8 @@ document.addEventListener('keydown', (e) => {
         button.style.visibility = 'hidden';
         document.addEventListener('keydown', cancelOnEscape);
 
-        let connected = false;
-
-        while (!connected && isConnecting) {
-            connected = await tryConnect(savedServer);
-
-            if (!connected && isConnecting) {
-                // Wait 5 seconds before retrying
-                await new Promise(resolve => setTimeout(resolve, 5000));
-            }
-        }
+        // C++ handles retries, just wait for result
+        const connected = await tryConnect(savedServer);
 
         if (!connected) {
             // User cancelled or error - show UI

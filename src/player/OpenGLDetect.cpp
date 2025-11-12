@@ -41,6 +41,7 @@ static QString probeHwdecInterop()
   auto mpv = mpv::qt::Handle::FromRawHandle(mpv_create());
   if (!mpv)
     return "";
+  mpv::qt::set_property(mpv, "gpu-hwdec-interop", "auto");
   // Actually creating a window is required. There is currently no way to keep
   // this window hidden or invisible.
   mpv::qt::set_property(mpv, "force-window", true);

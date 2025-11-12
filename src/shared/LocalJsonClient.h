@@ -6,6 +6,7 @@
 #define KONVERGO_LOCALJSONCLIENT_H
 
 #include <QLocalSocket>
+#include <QVariant>
 
 class LocalJsonClient : public QLocalSocket
 {

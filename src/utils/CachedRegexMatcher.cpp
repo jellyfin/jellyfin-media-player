@@ -48,7 +48,7 @@ QVariantList CachedRegexMatcher::match(const QString& input)
       // found match
       QVariant returnValue = matcher.second;
 
-      if (re.captureCount() > 0 && matcher.second.type() == QVariant::String)
+      if (re.captureCount() > 0 && matcher.second.typeId() == QMetaType::QString)
       {
         QString value(matcher.second.toString());
 

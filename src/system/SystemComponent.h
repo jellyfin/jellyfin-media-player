@@ -40,11 +40,7 @@ public:
   Q_INVOKABLE void jsLog(int level, QString text);
 
   Q_INVOKABLE void checkServerConnectivity(QString url);
-  Q_INVOKABLE void cancelServerConnectivity();
-  Q_SIGNAL void serverConnectivityResult(QString url, bool success, QString resolvedUrl);
-
-  QString extractBaseUrl(const QString& url);
-  void resolveUrl(const QString& url, std::function<void(const QString&)> callback);
+  Q_SIGNAL void serverConnectivityResult(QString url, bool success);
 
   Q_INVOKABLE void setCursorVisibility(bool visible);
 
@@ -138,9 +134,6 @@ private:
   bool m_cursorVisible;
   qreal m_scale;
   QNetworkReply* m_connectivityCheckReply;
-  QNetworkReply* m_resolveUrlReply;
-  QTimer* m_connectivityRetryTimer;
-  QString m_pendingConnectivityUrl;
 
 };
 

@@ -13,6 +13,10 @@
 #include "settings/SettingsComponent.h"
 #include "taskbar/TaskbarComponent.h"
 
+#ifdef LINUX_DBUS
+#include "mpris/MprisComponent.h"
+#endif
+
 #if KONVERGO_OPENELEC
 #include "system/openelec/OESystemComponent.h"
 #endif
@@ -58,6 +62,10 @@ void ComponentManager::initialize()
   registerComponent(&PlayerComponent::Get());
   registerComponent(&PowerComponent::Get());
   registerComponent(&TaskbarComponent::Get());
+
+#ifdef LINUX_DBUS
+  registerComponent(&MprisComponent::Get());
+#endif
 
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());

@@ -17,6 +17,7 @@
 #include <QSslError>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QPointer>
 #include <functional>
 
 #include "input/InputComponent.h"
@@ -271,9 +272,10 @@ QSslConfiguration SystemComponent::getSSLConfiguration()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::setReplyTimeout(QNetworkReply* reply, int ms)
 {
-  QTimer::singleShot(ms, this, [reply]() {
-    if (!reply->isFinished()) {
-      reply->abort();
+  QPointer<QNetworkReply> replyPtr(reply);
+  QTimer::singleShot(ms, this, [replyPtr]() {
+    if (replyPtr && !replyPtr->isFinished()) {
+      replyPtr->abort();
     }
   });
 }

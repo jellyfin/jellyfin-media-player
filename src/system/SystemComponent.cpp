@@ -504,36 +504,6 @@ QString SystemComponent::getNativeShellScript()
     cachedScript += loadScript(scriptPath) + "\n";
   }
 
-  // Inject CSS to make web UI transparent for video overlay
-  cachedScript += R"(
-(function() {
-  function injectTransparentCSS() {
-    const style = document.createElement('style');
-    style.textContent = `
-      /* Make background transparent for MPV video to show through */
-      .backgroundContainer,
-      .backgroundContainer.withBackdrop,
-      html,
-      body {
-        background-color: transparent !important;
-        background: transparent !important;
-      }
-    `;
-    if (document.head) {
-      document.head.appendChild(style);
-    } else {
-      document.documentElement.appendChild(style);
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectTransparentCSS);
-  } else {
-    injectTransparentCSS();
-  }
-})();
-)";
-
   return cachedScript;
 }
 

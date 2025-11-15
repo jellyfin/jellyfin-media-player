@@ -140,8 +140,6 @@
                     dlg.style.zIndex = 'unset';
                 }
 
-                document.body.parentElement.classList.remove('transparentDocument');
-
                 // no direct way to know when OSD is hidden
                 if (this.osdObserver) {
                     this.osdObserver.disconnect();
@@ -503,6 +501,7 @@
 
             const dlg = this._videoDialog;
             if (dlg) {
+                this.setTransparency(0); // TRANSPARENCY_LEVEL.None
                 this._videoDialog = null;
                 dlg.parentNode.removeChild(dlg);
             }
@@ -556,6 +555,7 @@
                 dlg.innerHTML = html;
 
                 document.body.insertBefore(dlg, document.body.firstChild);
+                this.setTransparency(2); // TRANSPARENCY_LEVEL.Full
                 this._videoDialog = dlg;
                 const player = window.api.player;
                 if (!this._hasConnection) {

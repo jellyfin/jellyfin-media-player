@@ -195,33 +195,7 @@ ApplicationWindow
     anchors.left: video.left
     anchors.top: video.top
     z: 100
-    property bool isVideoPlayback: false
-    backgroundColor: isVideoPlayback ? "transparent" : "#101010"
-
-    // Connect to player signals to track playback state
-    Connections {
-      target: components.player
-      function onPlaying() {
-        console.log("Player playing - enabling transparency");
-        web.isVideoPlayback = true;
-      }
-      function onStopped() {
-        console.log("Player stopped - disabling transparency");
-        web.isVideoPlayback = false;
-        web.runJavaScript("if (document.documentElement) document.documentElement.classList.remove('transparentDocument');");
-      }
-      function onFinished() {
-        console.log("Player finished - disabling transparency");
-        web.isVideoPlayback = false;
-        web.runJavaScript("if (document.documentElement) document.documentElement.classList.remove('transparentDocument');");
-      }
-      function onCanceled() {
-        console.log("Player canceled - disabling transparency");
-        web.isVideoPlayback = false;
-        web.runJavaScript("if (document.documentElement) document.documentElement.classList.remove('transparentDocument');");
-      }
-    }
-
+    backgroundColor: "transparent"
     webChannel: webChannelObject
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true

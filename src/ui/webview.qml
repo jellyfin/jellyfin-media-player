@@ -172,6 +172,7 @@ ApplicationWindow
   {
     id: video
     objectName: "video"
+    enabled: false
 
     width: mainWindow.contentItem.width
     height: mainWindow.contentItem.height
@@ -190,10 +191,8 @@ ApplicationWindow
   {
     id: web
     objectName: "web"
-    width: video.width
-    height: video.height
-    anchors.left: video.left
-    anchors.top: video.top
+    width: mainWindow.width
+    height: mainWindow.height
     z: 100
     backgroundColor: "transparent"
     webChannel: webChannelObject

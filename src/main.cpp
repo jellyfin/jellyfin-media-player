@@ -300,6 +300,9 @@ int main(int argc, char *argv[])
 
       QQuickWindow* window = Globals::MainWindow();
 
+      // Set window flags for proper popup handling (e.g., WebEngineView dropdowns)
+      window->setFlags(window->flags() | Qt::WindowFullscreenButtonHint);
+
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));

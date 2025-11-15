@@ -2,8 +2,7 @@
 #define KONVERGOENGINE_H
 
 #include <QQmlApplicationEngine>
-
-class KonvergoWindow;
+#include <QQuickWindow>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 namespace Globals
@@ -13,7 +12,7 @@ namespace Globals
   void SetContextProperty(const QString& property, QObject* object);
   void SetContextProperty(const QString& property, const QVariant& value);
   void EngineDestroy();
-  KonvergoWindow* MainWindow();
+  QQuickWindow* MainWindow();
 };
 
 #endif // KONVERGOENGINE_H

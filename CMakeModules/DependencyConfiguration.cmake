@@ -41,3 +41,4 @@ endif(IS_DIRECTORY ${DEPENDENCY_ROOT})
 
 find_package(Threads REQUIRED)
 find_package(PythonInterp REQUIRED)
+find_package(MpvQt REQUIRED)

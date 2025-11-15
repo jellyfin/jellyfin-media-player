@@ -22,6 +22,7 @@
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
 #include "player/OpenGLDetect.h"
+#include "display/DisplayComponent.h"
 #include "Version.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
@@ -297,13 +298,21 @@ int main(int argc, char *argv[])
       if (object == nullptr)
         throw FatalException(QObject::tr("Failed to parse application engine script."));
 
-      KonvergoWindow* window = Globals::MainWindow();
+      QQuickWindow* window = Globals::MainWindow();
 
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));
 
-      QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, &KonvergoWindow::otherAppFocus);
+      // Initialize player and display components with window
+      PlayerComponent::Get().setWindow(window);
+      DisplayComponent::Get().setApplicationWindow(window);
+
+      // Handle other app focus by raising window
+      QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, [window]() {
+        window->setWindowState((Qt::WindowState)((window->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive));
+        window->raise();
+      });
     });
     engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
 

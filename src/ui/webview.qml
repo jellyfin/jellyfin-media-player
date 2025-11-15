@@ -5,13 +5,47 @@ import QtWebChannel 1.0
 import QtQuick.Window 2.2
 import QtQuick.Controls 6.0
 
-KonvergoWindow
+ApplicationWindow
 {
   id: mainWindow
   title: "Jellyfin Media Player"
   objectName: "mainWindow"
-  minimumHeight: windowMinSize.height
-  minimumWidth: windowMinSize.width
+  width: 1280
+  height: 720
+  visible: true
+  color: "#000000"
+
+  // Properties previously from KonvergoWindow
+  property bool webDesktopMode: true
+  property bool showDebugLayer: false
+  property string debugInfo: ""
+  property string videoInfo: ""
+  property string webUrl: ""
+
+  signal reloadWebClient()
+
+  Component.onCompleted: {
+    if (components && components.settings) {
+      webUrl = components.settings.getWebClientUrl(webDesktopMode)
+    }
+  }
+
+  function toggleFullscreen() {
+    visibility = (visibility === Window.FullScreen) ? Window.Windowed : Window.FullScreen
+  }
+
+  function toggleDebug() {
+    showDebugLayer = !showDebugLayer
+  }
+
+  function setFullScreen(enable) {
+    visibility = enable ? Window.FullScreen : Window.Windowed
+  }
+
+  function minimizeWindow() {
+    if (visibility !== Window.FullScreen)
+      visibility = Window.Minimized
+  }
 
   function runWebAction(action)
   {
@@ -128,25 +162,40 @@ KonvergoWindow
     onTriggered: runWebAction(WebEngineView.Forward)
     id: action_forward
   }
-  MpvVideo
-  {
-    id: video
-    objectName: "video"
-    // It's not a real item. Its renderer draws onto the view's background.
-    width: 0
-    height: 0
-    visible: false
-  }
 
   WebChannel
   {
     id: webChannelObject
   }
 
+  MpvVideoItem
+  {
+    id: video
+    objectName: "video"
+
+    width: mainWindow.contentItem.width
+    height: mainWindow.contentItem.height
+    anchors.left: mainWindow.contentItem.left
+    anchors.right: mainWindow.contentItem.right
+    anchors.top: mainWindow.contentItem.top
+
+    Component.onCompleted: {
+      console.log("MpvVideoItem size:", width, "x", height, "visible:", visible)
+    }
+    onWidthChanged: console.log("MpvVideoItem width changed:", width)
+    onHeightChanged: console.log("MpvVideoItem height changed:", height)
+  }
+
   WebEngineView
   {
     id: web
     objectName: "web"
+    width: video.width
+    height: video.height
+    anchors.left: video.left
+    anchors.top: video.top
+    z: 100
+    backgroundColor: "transparent"
     webChannel: webChannelObject
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
@@ -158,18 +207,17 @@ KonvergoWindow
     url: mainWindow.webUrl
     focus: true
     property string currentHoveredUrl: ""
-    onLinkHovered: function(hoveredUrl) 
+    onLinkHovered: function(hoveredUrl)
     {
       web.currentHoveredUrl = hoveredUrl;
     }
-    width: mainWindow.width
-    height: mainWindow.height
     profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
     profile.offTheRecord: false
     profile.storageName: "JellyfinMediaPlayerStorage"
 
     Component.onCompleted:
     {
+      console.log("WebEngineView size:", width, "x", height, "backgroundColor:", backgroundColor)
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
 

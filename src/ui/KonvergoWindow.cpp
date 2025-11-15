@@ -15,7 +15,7 @@
 #include "settings/SettingsSection.h"
 #include "system/SystemComponent.h"
 #include "player/PlayerComponent.h"
-#include "player/PlayerQuickItem.h"
+#include "player/MpvVideoItem.h"
 #include "display/DisplayComponent.h"
 #include "taskbar/TaskbarComponent.h"
 #include "utils/Utils.h"
@@ -541,9 +541,8 @@ void KonvergoWindow::updateDebugInfo()
     m_systemDebugInfo = SystemComponent::Get().debugInformation();
   m_debugInfo = m_systemDebugInfo;
   m_debugInfo += DisplayComponent::Get().debugInformation();
-  PlayerQuickItem* video = findChild<PlayerQuickItem*>("video");
-  if (video)
-    m_debugInfo += video->debugInfo();
+  MpvVideoItem* video = findChild<MpvVideoItem*>("video");
+  // MpvQt handles debug info internally, skip for now
   QString infoString;
   QDebug info(&infoString);
   info << "Qt windowing info:\n";

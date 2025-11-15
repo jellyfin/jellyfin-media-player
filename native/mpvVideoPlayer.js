@@ -157,7 +157,8 @@
                     } else {
                         console.log('OSD shown');
                         document.body.style.cursor = 'default';
-                        window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
+                        // Keep video fullscreen - native OSD is above it
+                        window.api.player.setVideoRectangle(0, 0, 0, 0);
                     }
                 });
 
@@ -184,7 +185,8 @@
                         this._videoDialog.dlg.style.zIndex = 'unset';
                     }
 
-                    window.api.player.setVideoRectangle(0, 68 * window.devicePixelRatio, 0, -100 * window.devicePixelRatio);
+                    // Keep video fullscreen - native OSD is above it
+                    window.api.player.setVideoRectangle(0, 0, 0, 0);
                 }
 
                 if (this._paused) {

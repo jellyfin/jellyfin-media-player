@@ -17,6 +17,7 @@
 
 #include <mpv/client.h>
 
+class MpvController;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class PlayerComponent : public ComponentBase
@@ -124,7 +125,11 @@ public:
 
   QRect videoRectangle() { return m_videoRectangle; }
 
-  const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
+  void setMpvController(MpvController* controller) {
+    if (!m_mpv)
+      m_mpv = controller;
+  }
+  void initializeMpv();
 
   virtual void setWindow(QQuickWindow* window);
 
@@ -223,7 +228,7 @@ private:
   QVariantList findStreamsForURL(const QString &url);
   void reselectStream(const QString &streamSelection, MediaType target);
 
-  mpv::qt::Handle m_mpv;
+  MpvController* m_mpv = nullptr;
 
   State m_state;
   bool m_paused;

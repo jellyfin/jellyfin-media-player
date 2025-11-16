@@ -132,17 +132,20 @@ void InputComponent::handleAction(const QString& action)
         else
         {
           qDebug() << "Invoking slot" << qPrintable(recvSlot->m_slot.data());
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-          QMetaMethodArgument arg0;
-#else
-          QGenericArgument arg0;
-#endif
 
+          bool success;
           if (recvSlot->m_hasArguments)
-            arg0 = Q_ARG(const QString&, hostArguments);
+          {
+            success = QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
+                                                Qt::AutoConnection, Q_ARG(const QString&, hostArguments));
+          }
+          else
+          {
+            success = QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
+                                                Qt::AutoConnection);
+          }
 
-          if (!QMetaObject::invokeMethod(recvSlot->m_receiver, recvSlot->m_slot.data(),
-                                         Qt::AutoConnection, arg0))
+          if (!success)
           {
             qCritical() << "Invoking slot" << qPrintable(recvSlot->m_slot.data()) << "failed!";
           }

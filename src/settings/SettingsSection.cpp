@@ -117,6 +117,24 @@ bool SettingsSection::setValue(const QString& key, const QVariant& value)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void SettingsSection::setValueNoSave(const QString& key, const QVariant& value)
+{
+  if (key == "index" || !m_values.contains(key))
+    return;
+
+  if (m_values[key]->value() == value)
+    return;
+
+  m_values[key]->setValue(value);
+
+  QVariantMap updatedValues;
+  updatedValues[key] = value;
+
+  emit valuesUpdated(updatedValues);
+  emit SettingsComponent::Get().sectionValueUpdate(m_sectionID, updatedValues);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsSection::resetValueNoNotify(const QString& key, QVariantMap& updatedValues)
 {
   if (!m_values.contains(key))

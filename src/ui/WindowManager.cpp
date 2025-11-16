@@ -5,6 +5,7 @@
 #include "player/PlayerComponent.h"
 #include "display/DisplayComponent.h"
 #include "taskbar/TaskbarComponent.h"
+#include "input/InputComponent.h"
 
 #include <QGuiApplication>
 #include <QScreen>
@@ -54,6 +55,9 @@ void WindowManager::initializeWindow(QQuickWindow* window)
   PlayerComponent::Get().setWindow(m_window);
   DisplayComponent::Get().setApplicationWindow(m_window);
   TaskbarComponent::Get().setWindow(m_window);
+
+  // Register host command for fullscreen toggle
+  InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
 
   // Load and apply saved geometry
   loadGeometry();
@@ -171,8 +175,6 @@ void WindowManager::setFullScreen(bool enable)
   if (!m_window)
     return;
 
-  m_ignoreFullscreenSettingsChange++;
-
   m_window->setVisibility(enable ? QWindow::FullScreen : QWindow::Windowed);
 
   if (enable)
@@ -189,17 +191,17 @@ bool WindowManager::isFullScreen() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void WindowManager::toggleFullscreen()
+{
+  setFullScreen(!isFullScreen());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowManager::onVisibilityChanged(QWindow::Visibility visibility)
 {
-  // Check ignore flag (prevent settings loop)
-  if (m_ignoreFullscreenSettingsChange > 0)
-  {
-    m_ignoreFullscreenSettingsChange--;
-    return;
-  }
-
   bool isFS = (visibility == QWindow::FullScreen);
   bool wasMaximized = m_maximized;
+  bool wasFullscreen = m_fullscreen;
 
   // Kiosk mode: force back to fullscreen if user tried to exit
   if (!isFS)
@@ -224,6 +226,16 @@ void WindowManager::onVisibilityChanged(QWindow::Visibility visibility)
   {
     m_maximized = (visibility == QWindow::Maximized);
     m_fullscreen = isFS;
+  }
+
+  // Update setting in-memory only (no disk write) when fullscreen state changes
+  if (m_fullscreen != wasFullscreen && (visibility == QWindow::FullScreen || visibility == QWindow::Windowed))
+  {
+    SettingsSection* section = SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN);
+    if (section)
+    {
+      section->setValueNoSave("fullscreen", m_fullscreen);
+    }
   }
 
   // Save geometry when exiting fullscreen

@@ -14,7 +14,7 @@ const remap = {
 }
 
 class jmpInputPlugin {
-    constructor({ inputManager }) {
+    constructor({ inputManager, playbackManager }) {
         this.name = 'JMP Input Plugin';
         this.type = 'input';
         this.id = 'jmpInputPlugin';
@@ -29,6 +29,22 @@ class jmpInputPlugin {
                     }
                     inputManager.handleCommand(action, {});
                 });
+            });
+
+            // Listen for fullscreen setting changes and trigger fullscreenchange event
+            let lastFullscreenState = window.jmpInfo.settings.main.fullscreen;
+            window.jmpInfo.settingsUpdate.push(function(section) {
+                if (section === 'main') {
+                    const currentFullscreenState = window.jmpInfo.settings.main.fullscreen;
+                    if (currentFullscreenState !== lastFullscreenState) {
+                        lastFullscreenState = currentFullscreenState;
+                        console.log('[jmpInputPlugin] Fullscreen setting changed, triggering fullscreenchange event');
+                        const currentPlayer = playbackManager._currentPlayer;
+                        if (currentPlayer) {
+                            window.Events.trigger(currentPlayer, 'fullscreenchange');
+                        }
+                    }
+                }
             });
 
             api.system.hello("jmpInputPlugin");

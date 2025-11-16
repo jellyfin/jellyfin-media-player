@@ -43,6 +43,9 @@ public:
   Q_INVOKABLE void setFullScreen(bool enable);
   Q_INVOKABLE bool isFullScreen() const;
 
+public slots:
+  void toggleFullscreen();
+
 private slots:
   void onVisibilityChanged(QWindow::Visibility visibility);
   void onScreenAdded(QScreen* screen);

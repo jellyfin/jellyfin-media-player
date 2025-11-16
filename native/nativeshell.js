@@ -541,3 +541,4 @@ async function showSettingsModal() {
     });
     closeContainer.appendChild(close);
 }
+

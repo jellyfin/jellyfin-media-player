@@ -878,6 +878,21 @@
     setAspectRatio(value) {
         window.jmpInfo.settings.video.aspect = value;
     }
+
+    isFullscreen() {
+        // Check native window fullscreen state from settings (universal source of truth)
+        if (window.jmpInfo && window.jmpInfo.settings && window.jmpInfo.settings.main) {
+            return window.jmpInfo.settings.main.fullscreen === true;
+        }
+        return false;
+    }
+
+    toggleFullscreen() {
+        // Toggle native window fullscreen via host command
+        if (window.api && window.api.input) {
+            window.api.input.executeActions(['host:fullscreen']);
+        }
+    }
     }
 /* eslint-enable indent */
 

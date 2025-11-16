@@ -8,7 +8,12 @@ add_library(shared STATIC
   ${CMAKE_BINARY_DIR}/src/core/Version.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Names.cpp Names.h
 )
-find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
+
+# GuiPrivate only needed for RPI builds
+if(BUILD_TARGET STREQUAL "RPI")
+  find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
+endif()
+
 target_link_libraries(shared
 Qt6::Core
 Qt6::Core5Compat
@@ -16,8 +21,11 @@ Qt6::Network
 Qt6::Qml
 Qt6::WebChannel
 Qt6::Gui
-Qt6::GuiPrivate
 )
+
+if(BUILD_TARGET STREQUAL "RPI")
+  target_link_libraries(shared Qt6::GuiPrivate)
+endif()
 std_target_properties(shared)
 
 clang_tidy(shared)

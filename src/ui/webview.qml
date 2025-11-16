@@ -12,6 +12,8 @@ Window
   objectName: "mainWindow"
   width: 1280
   height: 720
+  minimumWidth: 213
+  minimumHeight: 120
   visible: true
   color: "#000000"
 

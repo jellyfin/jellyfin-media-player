@@ -35,7 +35,12 @@ static void qtMessageOutput(QtMsgType type, const QMessageLogContext& context, c
     return;
 
   if (shouldOutputToTerminal) {
-    QString terminalMsg = msg;
+    QString terminalMsg;
+    if (terminalLogLevel == 0) {  // debug level
+      terminalMsg = qFormatLogMessage(type, context, msg);
+    } else {
+      terminalMsg = msg;
+    }
     Log::CensorAuthTokens(terminalMsg);
     std::cerr << qPrintable(terminalMsg) << std::endl;
   }

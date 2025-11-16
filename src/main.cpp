@@ -29,6 +29,7 @@
 #include "ui/KonvergoWindow.h"
 #include "ui/KonvergoWindow.h"
 #include "ui/EventFilter.h"
+#include "ui/WindowManager.h"
 #include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
@@ -361,9 +362,8 @@ int main(int argc, char *argv[])
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));
 
-      // Initialize player and display components with window
-      PlayerComponent::Get().setWindow(window);
-      DisplayComponent::Get().setApplicationWindow(window);
+      // Initialize WindowManager with window reference
+      WindowManager::Get().initializeWindow(window);
 
       // Handle other app focus by raising window
       QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, [window]() {

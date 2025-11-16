@@ -28,6 +28,7 @@
 #include "settings/SettingsSection.h"
 #include "ui/KonvergoWindow.h"
 #include "ui/KonvergoWindow.h"
+#include "ui/EventFilter.h"
 #include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
@@ -291,7 +292,7 @@ int main(int argc, char *argv[])
     // if we get a valid object passed to it. Any error messages will be reported on stderr
     // but since no normal user should ever see this it should be fine
     //
-    QObject::connect(engine, &QQmlApplicationEngine::objectCreated, [=](QObject* object, const QUrl& url)
+    QObject::connect(engine, &QQmlApplicationEngine::objectCreated, [&](QObject* object, const QUrl& url)
     {
       Q_UNUSED(url);
 
@@ -302,6 +303,9 @@ int main(int argc, char *argv[])
 
       // Set window flags for proper popup handling (e.g., WebEngineView dropdowns)
       window->setFlags(window->flags() | Qt::WindowFullscreenButtonHint);
+
+      // Install event filter for proper event handling
+      window->installEventFilter(new EventFilter(window));
 
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);

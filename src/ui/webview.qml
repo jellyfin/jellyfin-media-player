@@ -5,7 +5,7 @@ import QtWebChannel 1.0
 import QtQuick.Window 2.2
 import QtQuick.Controls 6.0
 
-ApplicationWindow
+Window
 {
   id: mainWindow
   title: "Jellyfin Media Player"
@@ -28,6 +28,12 @@ ApplicationWindow
     if (components && components.settings) {
       webUrl = components.settings.getWebClientUrl(webDesktopMode)
     }
+    console.log("=== Window Configuration ===")
+    console.log("Window flags:", flags)
+    console.log("Window modality:", modality)
+    console.log("Window visibility:", visibility)
+    console.log("Window color:", color)
+    console.log("Window activeFocusOnPress:", activeFocusOnPress)
   }
 
   function toggleFullscreen() {

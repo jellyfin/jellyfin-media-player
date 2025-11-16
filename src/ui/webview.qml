@@ -28,12 +28,6 @@ Window
     if (components && components.settings) {
       webUrl = components.settings.getWebClientUrl(webDesktopMode)
     }
-    console.log("=== Window Configuration ===")
-    console.log("Window flags:", flags)
-    console.log("Window modality:", modality)
-    console.log("Window visibility:", visibility)
-    console.log("Window color:", color)
-    console.log("Window activeFocusOnPress:", activeFocusOnPress)
   }
 
   function toggleFullscreen() {

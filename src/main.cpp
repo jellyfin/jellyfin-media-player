@@ -307,6 +307,52 @@ int main(int argc, char *argv[])
       // Install event filter for proper event handling
       window->installEventFilter(new EventFilter(window));
 
+      // Install application event filter to catch popup window creation early
+      class PopupFixer : public QObject {
+        QQuickWindow* m_mainWindow;
+      public:
+        PopupFixer(QQuickWindow* mainWin) : m_mainWindow(mainWin) {}
+        bool eventFilter(QObject* obj, QEvent* event) override {
+          QWindow* win = qobject_cast<QWindow*>(obj);
+          if (!win || win == m_mainWindow) {
+            return QObject::eventFilter(obj, event);
+          }
+
+          // Fix WebEngineView popup flags to accept focus
+          if (event->type() == QEvent::Show) {
+            Qt::WindowFlags flags = win->flags();
+
+            // Only fix WebEngineView dropdowns (Tool + FramelessWindowHint + WindowStaysOnTopHint)
+            // Don't touch other windows (e.g., MPV-related)
+            bool isWebEnginePopup = (flags & Qt::Tool) &&
+                                     (flags & Qt::FramelessWindowHint) &&
+                                     (flags & Qt::WindowStaysOnTopHint);
+
+            if (!isWebEnginePopup) {
+              return QObject::eventFilter(obj, event);
+            }
+
+            if (win->transientParent() == nullptr) {
+              win->setTransientParent(m_mainWindow);
+            }
+
+            if (win->modality() != Qt::NonModal) {
+              win->setModality(Qt::NonModal);
+            }
+
+            // WebEngineView creates popups with Qt::Tool | WindowDoesNotAcceptFocus
+            // which prevents interaction. Change to Qt::Popup to accept focus.
+            flags &= ~Qt::Tool;
+            flags |= Qt::Popup;
+            flags &= ~Qt::WindowDoesNotAcceptFocus;
+            win->setFlags(flags);
+          }
+
+          return QObject::eventFilter(obj, event);
+        }
+      };
+      app.installEventFilter(new PopupFixer(window));
+
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));

@@ -82,7 +82,11 @@ char** appendCommandLineArguments(int argc, char **argv, const QStringList& args
 void ShowLicenseInfo()
 {
   QFile licenses(":/misc/licenses.txt");
-  licenses.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!licenses.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    fprintf(stderr, "Error: Could not open license file\n");
+    return;
+  }
   QByteArray contents = licenses.readAll();
   printf("%.*s\n", static_cast<int>(contents.size()), contents.data());
 }

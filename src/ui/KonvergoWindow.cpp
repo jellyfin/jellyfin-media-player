@@ -542,7 +542,7 @@ void KonvergoWindow::updateDebugInfo()
   m_debugInfo = m_systemDebugInfo;
   m_debugInfo += DisplayComponent::Get().debugInformation();
   MpvVideoItem* video = findChild<MpvVideoItem*>("video");
-  // MpvQt handles debug info internally, skip for now
+  Q_UNUSED(video);  // MpvQt handles debug info internally, skip for now
   QString infoString;
   QDebug info(&infoString);
   info << "Qt windowing info:\n";

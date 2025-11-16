@@ -178,7 +178,11 @@ QVariant SettingsComponent::orderedSections()
 static void writeFile(const QString& filename, const QByteArray& data)
 {
   QSaveFile file(filename);
-  file.open(QIODevice::WriteOnly | QIODevice::Text);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+  {
+    qCritical() << "Could not open" << filename << "for writing";
+    return;
+  }
   file.write(data);
   if (!file.commit())
   {

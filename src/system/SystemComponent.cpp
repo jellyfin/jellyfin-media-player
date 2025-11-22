@@ -579,11 +579,12 @@ QString SystemComponent::getNativeShellScript()
   QFile flatpakOsFile {"/run/host/os-release"};
   if (flatpakOsFile.exists()) {
     qDebug() << "Found flatpak os-release file";
-    flatpakOsFile.open(QIODevice::ReadOnly);
-    QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
-    if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
-      qDebug() << "Detected SteamOS";
-      defaultMode = "tv";
+    if (flatpakOsFile.open(QIODevice::ReadOnly)) {
+      QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
+      if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
+        qDebug() << "Detected SteamOS";
+        defaultMode = "tv";
+      }
     }
   }
   clientData.insert("mode", QJsonValue::fromVariant(defaultMode));

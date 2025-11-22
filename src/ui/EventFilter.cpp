@@ -6,7 +6,7 @@
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "input/InputKeyboard.h"
-#include "KonvergoWindow.h"
+#include <QQuickWindow>
 #include <QQuickItem>
 
 #include <QKeyEvent>
@@ -64,7 +64,7 @@ static QString keyEventToKeyString(QKeyEvent *kevent)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool EventFilter::eventFilter(QObject* watched, QEvent* event)
 {
-  KonvergoWindow* window = qobject_cast<KonvergoWindow*>(parent());
+  QQuickWindow* window = qobject_cast<QQuickWindow*>(parent());
 
   if (window && window->property("webDesktopMode").toBool())
   {

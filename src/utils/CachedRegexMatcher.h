@@ -5,12 +5,12 @@
 #ifndef KONVERGO_CACHEDREGEXMATCHER_H
 #define KONVERGO_CACHEDREGEXMATCHER_H
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QVariant>
 #include <QString>
 #include <QHash>
 
-typedef QPair<QRegExp, QVariant> MatcherValuePair;
+typedef QPair<QRegularExpression, QVariant> MatcherValuePair;
 typedef QList<MatcherValuePair> MatcherValueList;
 
 class CachedRegexMatcher : public QObject

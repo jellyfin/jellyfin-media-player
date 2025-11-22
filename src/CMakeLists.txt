@@ -8,7 +8,7 @@ include_directories(
 )
 
 set(CMAKE_AUTOMOC ON)
-
+set(Qt6Core_RCC_EXECUTABLE Qt6::rcc)
 add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
 
 add_subdirectory(shared)
@@ -68,8 +68,8 @@ add_custom_command(OUTPUT resources.qrc
 )
 set_source_files_properties(resources.qrc PROPERTIES GENERATED TRUE)
 add_custom_command(OUTPUT qrc_resources.cpp
-  COMMAND ${Qt5Core_RCC_EXECUTABLE} -name resources -o qrc_resources.cpp resources.qrc
-  DEPENDS resources.qrc ${CMAKE_SOURCE_DIR}/src/ui/webview.qml ${RESOURCE_FILES}
+  COMMAND ${Qt6Core_RCC_EXECUTABLE} -name resources -o qrc_resources.cpp resources.qrc
+  DEPENDS resources.qrc ${CMAKE_SOURCE_DIR}/src/ui/webview.qml ${RESOURCE_FILES} ${NATIVE_FILES}
 )
 set_source_files_properties(qrc_resources.cpp PROPERTIES GENERATED TRUE)
 
@@ -164,7 +164,7 @@ target_link_libraries(${MAIN_TARGET}
   shared
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
-  ${QT5_LIBRARIES}
+  ${QT6_LIBRARIES}
   ${OS_LIBS}
   ${EXTRA_LIBS}
   ${X11_LIBRARIES}
@@ -173,8 +173,17 @@ target_link_libraries(${MAIN_TARGET}
   ${CMAKE_THREAD_LIBS_INIT}
   ${RPI_LIBS}
   ${MINIZIP_LIBS}
+  Qt6::Core
+  Qt6::Quick
+  Qt6::Widgets
+  Qt6::WebEngineQuick
+  Qt6::WebEngineCore
+  Qt6::OpenGL
+  Qt6::Xml
+  Qt6::Gui
+  Qt6::DBus
+  MpvQt::MpvQt
 )
-
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 
 set(EXE "${MAIN_NAME}.app")

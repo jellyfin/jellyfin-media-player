@@ -5,24 +5,31 @@
 #include <QFileInfo>
 #include <QIcon>
 #include <QtQml>
-#include <QtWebEngine/qtwebengineglobal.h>
-#include <QtWebEngineWidgets/QWebEngineProfile>
+#include <Qt>
+#include <QtWebEngineQuick>
+#include <qtwebenginecoreglobal.h>
+#include <QtWebEngineCore/QWebEngineProfile>
 #include <QErrorMessage>
+#include <QtWebEngineCore/QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
 #include <QSettings>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
+#include <QDebug>
 #include "Paths.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
 #include "player/OpenGLDetect.h"
+#include "display/DisplayComponent.h"
 #include "Version.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 #include "ui/KonvergoWindow.h"
 #include "ui/KonvergoWindow.h"
+#include "ui/EventFilter.h"
+#include "ui/WindowManager.h"
 #include "Globals.h"
 #include "ui/ErrorMessage.h"
 #include "UniqueApplication.h"
@@ -76,9 +83,13 @@ char** appendCommandLineArguments(int argc, char **argv, const QStringList& args
 void ShowLicenseInfo()
 {
   QFile licenses(":/misc/licenses.txt");
-  licenses.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!licenses.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    fprintf(stderr, "Error: Could not open license file\n");
+    return;
+  }
   QByteArray contents = licenses.readAll();
-  printf("%.*s\n", contents.size(), contents.data());
+  printf("%.*s\n", static_cast<int>(contents.size()), contents.data());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -139,6 +150,8 @@ int main(int argc, char *argv[])
 
     preinitQt();
     detectOpenGLEarly();
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -178,9 +191,15 @@ int main(int argc, char *argv[])
 
     auto scale = parser.value("scale-factor");
     if (scale.isEmpty() || scale == "auto")
+    {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
       QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    }
     else if (scale != "none")
+    {
       qputenv("QT_SCALE_FACTOR", scale.toUtf8());
+    }
 
     auto platform = parser.value("platform");
     if (!(platform.isEmpty() || platform == "default"))
@@ -214,6 +233,7 @@ int main(int argc, char *argv[])
       webEngineDataDir = d.absolutePath() + "/QtWebEngine";
     }
 
+    QtWebEngineQuick::initialize();
     QApplication app(newArgc, newArgv);
 
 #if defined(Q_OS_WIN) 
@@ -262,8 +282,6 @@ int main(int argc, char *argv[])
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
-    QtWebEngine::initialize();
-
     // Configure QtWebEngine paths
     QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
     defaultProfile->setCachePath(webEngineDataDir);
@@ -279,20 +297,78 @@ int main(int argc, char *argv[])
     // if we get a valid object passed to it. Any error messages will be reported on stderr
     // but since no normal user should ever see this it should be fine
     //
-    QObject::connect(engine, &QQmlApplicationEngine::objectCreated, [=](QObject* object, const QUrl& url)
+    QObject::connect(engine, &QQmlApplicationEngine::objectCreated, [&](QObject* object, const QUrl& url)
     {
       Q_UNUSED(url);
 
       if (object == nullptr)
         throw FatalException(QObject::tr("Failed to parse application engine script."));
 
-      KonvergoWindow* window = Globals::MainWindow();
+      QQuickWindow* window = Globals::MainWindow();
+
+      // Set window flags for proper popup handling (e.g., WebEngineView dropdowns)
+      window->setFlags(window->flags() | Qt::WindowFullscreenButtonHint);
+
+      // Install event filter for proper event handling
+      window->installEventFilter(new EventFilter(window));
+
+      // Install application event filter to catch popup window creation early
+      class PopupFixer : public QObject {
+        QQuickWindow* m_mainWindow;
+      public:
+        PopupFixer(QQuickWindow* mainWin) : m_mainWindow(mainWin) {}
+        bool eventFilter(QObject* obj, QEvent* event) override {
+          QWindow* win = qobject_cast<QWindow*>(obj);
+          if (!win || win == m_mainWindow) {
+            return QObject::eventFilter(obj, event);
+          }
+
+          // Fix WebEngineView popup flags to accept focus
+          if (event->type() == QEvent::Show) {
+            Qt::WindowFlags flags = win->flags();
+
+            // Only fix WebEngineView dropdowns (Tool + FramelessWindowHint + WindowStaysOnTopHint)
+            // Don't touch other windows (e.g., MPV-related)
+            bool isWebEnginePopup = (flags & Qt::Tool) &&
+                                     (flags & Qt::FramelessWindowHint) &&
+                                     (flags & Qt::WindowStaysOnTopHint);
+
+            if (!isWebEnginePopup) {
+              return QObject::eventFilter(obj, event);
+            }
+
+            if (win->transientParent() == nullptr) {
+              win->setTransientParent(m_mainWindow);
+            }
+
+            if (win->modality() != Qt::NonModal) {
+              win->setModality(Qt::NonModal);
+            }
+
+            // WebEngineView creates popups with Qt::Tool | WindowDoesNotAcceptFocus
+            // which prevents interaction. Change to Qt::Popup to accept focus.
+            flags &= ~Qt::Tool;
+            flags |= Qt::Popup;
+            flags &= ~Qt::WindowDoesNotAcceptFocus;
+            win->setFlags(flags);
+          }
+
+          return QObject::eventFilter(obj, event);
+        }
+      };
+      app.installEventFilter(new PopupFixer(window));
 
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
       ComponentManager::Get().setWebChannel(qobject_cast<QWebChannel*>(webChannel));
 
-      QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, window, &KonvergoWindow::otherAppFocus);
+      // Initialize WindowManager with window reference
+      WindowManager::Get().initializeWindow(window);
+
+      // Handle other app focus by raising window
+      QObject::connect(uniqueApp, &UniqueApplication::otherApplicationStarted, []() {
+        WindowManager::Get().raiseWindow();
+      });
     });
     engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
 

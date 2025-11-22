@@ -51,12 +51,12 @@ void SettingsComponent::cycleSettingCommand(const QString& args)
   // If no possible values are defined, check the type of the default value.
   // In the case it's a boolean simply negate the current value to cycle through.
   // Otherwise log an error message, that it's not possible to cycle through the value.
-  if (values.size() == 0)
+  if (values.empty())
   {
-    if (section->defaultValue(valueName).type() == QVariant::Bool)
+    if (section->defaultValue(valueName).typeId()== QMetaType::Bool)
     {
       QVariant currentValue = section->value(valueName);
-      auto nextValue = currentValue.toBool() ? false : true;
+      auto nextValue = !currentValue.toBool();
       setValue(sectionID, valueName, nextValue);
       qDebug() << "Setting" << settingName << "to " << (nextValue ? "Enabled" : "Disabled");
       emit SystemComponent::Get().settingsMessage(valueName, nextValue ? "Enabled" : "Disabled");
@@ -178,7 +178,11 @@ QVariant SettingsComponent::orderedSections()
 static void writeFile(const QString& filename, const QByteArray& data)
 {
   QSaveFile file(filename);
-  file.open(QIODevice::WriteOnly | QIODevice::Text);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+  {
+    qCritical() << "Could not open" << filename << "for writing";
+    return;
+  }
   file.write(data);
   if (!file.commit())
   {
@@ -386,7 +390,7 @@ void SettingsComponent::setValues(const QVariantMap& options)
   QString key = options["key"].toString();
   QVariant values = options["value"];
 
-  if (values.type() == QVariant::Map || values.isNull())
+  if (values.typeId() == QMetaType::QVariantMap || values.isNull())
   {
     SettingsSection* section = getSection(key);
     if (!section)
@@ -405,7 +409,7 @@ void SettingsComponent::setValues(const QVariantMap& options)
 
     saveSection(section);
   }
-  else if (values.type() == QVariant::String)
+  else if (values.typeId() == QMetaType::QString)
   {
     setValue(SETTINGS_SECTION_WEBCLIENT, key, values);
   }

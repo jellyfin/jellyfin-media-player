@@ -62,10 +62,10 @@ DAMAGE.
 Others:
 -------
 
-- qt: LGPL v2.1 or v3 (http://doc.qt.io/qt-5/licensing.html)
+- qt: LGPL v2.1 or v3 (http://doc.qt.io/qt-6/licensing.html)
   The Qt website also lists further licenses for some of its components and
   dependencies.
-  - qtwebengine: LGPL v3, or GPL v2 or later (http://doc.qt.io/qt-5/qtwebenginewidgets-index.html#license-information)
+  - qtwebengine: LGPL v3, or GPL v2 or later (http://doc.qt.io/qt-6/qtwebenginewidgets-index.html#license-information)
 - mpv: GPL v2 or later (https://github.com/mpv-player/mpv/blob/master/LICENSE)
   - FFmpeg: LGPL v2.1 or later (http://www.ffmpeg.org/legal.html)
     - bzip2: BSD-style (http://www.bzip.org)

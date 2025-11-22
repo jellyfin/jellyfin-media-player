@@ -60,8 +60,9 @@ public:
 
   Q_SLOT void otherAppFocus()
   {
-    setWindowState((Qt::WindowState)((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive));
+    setWindowState((Qt::WindowState)(windowState() & ~Qt::WindowMinimized));
     raise();
+    requestActivate();
   }
 
   Q_SLOT void toggleDebug();

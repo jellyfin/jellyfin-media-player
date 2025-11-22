@@ -17,6 +17,7 @@
 
 #include <mpv/client.h>
 
+class MpvController;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class PlayerComponent : public ComponentBase
@@ -34,14 +35,14 @@ public:
   ~PlayerComponent() override;
 
   // Deprecated. Corresponds to stop() + queueMedia().
-  Q_INVOKABLE bool load(const QString& url, const QVariantMap& options, const QVariantMap& metadata, const QString& audioStream = QString(), const QString& subtitleStream = QString());
+  Q_INVOKABLE bool load(const QString& url, const QVariantMap& options, const QVariantMap& metadata, const QVariant& audioStream = QVariant(), const QVariant& subtitleStream = QVariant());
 
   // Append a media item to the internal playlist. If nothing is played yet, the
   // newly appended item will start playing immediately.
   // options:
   //  - startMilliseconds: start playback at this time (in ms)
   //  - autoplay: if false, start playback paused; if true, start normally
-  Q_INVOKABLE void queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QString& audioStream, const QString& subtitleStream);
+  Q_INVOKABLE void queueMedia(const QString& url, const QVariantMap& options, const QVariantMap &metadata, const QVariant& audioStream, const QVariant& subtitleStream);
 
   // This clears all items queued with queueMedia().
   // It explicitly excludes the currently playing item. The main use of this function
@@ -82,8 +83,8 @@ public:
   // Uses the "name" from the device list.
   Q_INVOKABLE virtual void setAudioDevice(const QString& name);
   
-  Q_INVOKABLE virtual void setAudioStream(const QString& audioStream);
-  Q_INVOKABLE virtual void setSubtitleStream(const QString& subtitleStream);
+  Q_INVOKABLE virtual void setAudioStream(const QVariant& audioStream);
+  Q_INVOKABLE virtual void setSubtitleStream(const QVariant& subtitleStream);
 
   Q_INVOKABLE virtual void setAudioDelay(qint64 milliseconds);
   Q_INVOKABLE virtual void setSubtitleDelay(qint64 milliseconds);
@@ -124,7 +125,11 @@ public:
 
   QRect videoRectangle() { return m_videoRectangle; }
 
-  const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
+  void setMpvController(MpvController* controller) {
+    if (!m_mpv)
+      m_mpv = controller;
+  }
+  void initializeMpv();
 
   virtual void setWindow(QQuickWindow* window);
 
@@ -221,9 +226,9 @@ private:
   void startCodecsLoading(std::function<void()> resume);
   void updateVideoAspectSettings();
   QVariantList findStreamsForURL(const QString &url);
-  void reselectStream(const QString &streamSelection, MediaType target);
+  void reselectStream(const QVariant &streamSelection, MediaType target);
 
-  mpv::qt::Handle m_mpv;
+  MpvController* m_mpv = nullptr;
 
   State m_state;
   bool m_paused;
@@ -247,8 +252,8 @@ private:
   bool m_doAc3Transcoding;
   QStringList m_passthroughCodecs;
   QVariantMap m_serverMediaInfo;
-  QString m_currentSubtitleStream;
-  QString m_currentAudioStream;
+  QVariant m_currentSubtitleStream;
+  QVariant m_currentAudioStream;
   QRect m_videoRectangle;
 };
 

@@ -3,6 +3,7 @@
 #include <QMap>
 #include <QtNetwork/qnetworkinterface.h>
 #include <QGuiApplication>
+#include <QCursor>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
@@ -24,7 +25,6 @@
 #include "SystemComponent.h"
 #include "Version.h"
 #include "settings/SettingsComponent.h"
-#include "ui/KonvergoWindow.h"
 #include "settings/SettingsSection.h"
 #include "Paths.h"
 #include "Names.h"

@@ -26,8 +26,6 @@
 #include "Version.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
-#include "ui/KonvergoWindow.h"
-#include "ui/KonvergoWindow.h"
 #include "ui/EventFilter.h"
 #include "ui/WindowManager.h"
 #include "Globals.h"
@@ -290,7 +288,6 @@ int main(int argc, char *argv[])
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
 
-    KonvergoWindow::RegisterClass();
     Globals::SetContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see

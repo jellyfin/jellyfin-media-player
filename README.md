@@ -23,7 +23,7 @@ To download the latest stable release, get the latest version tag from the [late
 
 Example:
 ```bash
-git clone https://github.com/jellyfin/jellyfin-media-player.git --branch v1.9.1 --single-branch
+git clone --recursive https://github.com/jellyfin/jellyfin-media-player.git --branch v1.9.1 --single-branch
 ```
 
 
@@ -44,7 +44,7 @@ sudo ln -s /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/x86_64-linux
 sudo ln -sf /usr/local/lib/x86_64-linux-gnu/libmpv.so /usr/local/lib/libmpv.so.2
 sudo ldconfig
 cd ~/jmp/
-git clone https://github.com/jellyfin/jellyfin-media-player.git
+git clone --recursive https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player
 mkdir build
 cd build
@@ -77,7 +77,7 @@ sudo ln -s /usr/local/lib64/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so.
 sudo ln -s /usr/local/lib64/libmpv.so /usr/local/lib/x86_64-linux-gnu/libmpv.so
 sudo ldconfig
 cd ~/jmp/
-git clone https://github.com/jellyfin/jellyfin-media-player.git
+git clone --recursive https://github.com/jellyfin/jellyfin-media-player.git
 cd jellyfin-media-player/
 mkdir build
 cd build/
@@ -107,7 +107,7 @@ Please install:
 You need to run these commands in git bash.
 
 ```bash
-git clone https://github.com/jellyfin/jellyfin-media-player
+git clone --recursive https://github.com/jellyfin/jellyfin-media-player
 cd jellyfin-media-player
 mkdir build
 cd build
@@ -131,6 +131,9 @@ Then run the following commands (replace <QT_DIR> with your QT installation loca
 
 ```bash
 brew install mpv ninja
+
+git clone --recursive https://github.com/jellyfin/jellyfin-media-player.git
+cd jellyfin-media-player
 mkdir build
 cd build
 cmake -GNinja -DQTROOT=<QT_DIR> -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..

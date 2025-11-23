@@ -16,6 +16,12 @@ add_executable(test_systemcomponent
   ${ALL_SRCS}
 )
 
+if(USE_STATIC_MPVQT)
+  set(MPVQT_TARGET MpvQt)
+else()
+  set(MPVQT_TARGET MpvQt::MpvQt)
+endif()
+
 # Link Qt6 libraries and other dependencies
 target_link_libraries(test_systemcomponent
   shared
@@ -31,7 +37,7 @@ target_link_libraries(test_systemcomponent
   Qt6::WebEngineCore
   Qt6::OpenGL
   Qt6::DBus
-  MpvQt::MpvQt
+  ${MPVQT_TARGET}
   ${QT6_LIBRARIES}
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}

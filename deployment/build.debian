@@ -6,6 +6,9 @@ set -o xtrace
 # move to source directory
 pushd ${SOURCE_DIR}
 
+# Initialize git submodules
+git submodule update --init --recursive
+
 # Convert to format like deb12 or ubu2204 like Jellyfin packages
 IMGSNIP="${IMG:0:3}"
 RELVER="$( grep 'VERSION_ID' /etc/os-release | awk -F'"' '{ print $2 }' | tr -d '.' )"

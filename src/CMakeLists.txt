@@ -160,6 +160,12 @@ else()
   endif()
 endif()
 
+if(USE_STATIC_MPVQT)
+  set(MPVQT_TARGET MpvQt)
+else()
+  set(MPVQT_TARGET MpvQt::MpvQt)
+endif()
+
 target_link_libraries(${MAIN_TARGET}
   shared
   ${MPV_LIBRARY}
@@ -182,7 +188,7 @@ target_link_libraries(${MAIN_TARGET}
   Qt6::Xml
   Qt6::Gui
   Qt6::DBus
-  MpvQt::MpvQt
+  ${MPVQT_TARGET}
 )
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 

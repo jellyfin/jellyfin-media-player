@@ -5,12 +5,15 @@ on:
   push:
     branches:
       - master
+      - testci
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Install build dependencies from debian/control
       run: |

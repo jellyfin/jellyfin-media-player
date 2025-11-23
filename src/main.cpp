@@ -204,6 +204,13 @@ int main(int argc, char *argv[])
     {
       qputenv("QT_QPA_PLATFORM", platform.toUtf8());
     }
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) && !defined(Q_OS_ANDROID) && QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+    // Force xcb on Qt < 6.5 due to mpvqt wayland requiring >=6.5
+    else if (platform.isEmpty() || platform == "default")
+    {
+      qputenv("QT_QPA_PLATFORM", "xcb");
+    }
+#endif
 
     auto configDir = parser.value("config-dir");
     QString webEngineDataDir;

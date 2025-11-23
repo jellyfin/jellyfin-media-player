@@ -262,6 +262,10 @@ class mpvAudioPlayer {
     setPlaybackRate(value) {
         this._playRate = value;
         window.api.player.setPlaybackRate(value * 1000);
+
+        if (window.api && window.api.player) {
+            window.api.player.notifyRateChange(value);
+        }
     }
 
     getPlaybackRate() {

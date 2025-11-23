@@ -13,6 +13,7 @@
 #include "settings/SettingsComponent.h"
 #include "taskbar/TaskbarComponent.h"
 #include "ui/WindowManager.h"
+#include "mpris/MprisComponent.h"
 
 #if KONVERGO_OPENELEC
 #include "system/openelec/OESystemComponent.h"
@@ -60,6 +61,7 @@ void ComponentManager::initialize()
   registerComponent(&PowerComponent::Get());
   registerComponent(&TaskbarComponent::Get());
   registerComponent(&WindowManager::Get());
+  registerComponent(&MprisComponent::Get());
 
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());

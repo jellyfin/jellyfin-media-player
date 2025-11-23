@@ -61,7 +61,21 @@ public:
 
   Q_INVOKABLE virtual void pause();
   Q_INVOKABLE virtual void play();
-  
+
+  // OS media integration notifications (called from JavaScript)
+  Q_INVOKABLE void notifyShuffleChange(bool enabled);
+  Q_INVOKABLE void notifyRepeatChange(const QString& mode);
+  Q_INVOKABLE void notifyFullscreenChange(bool isFullscreen);
+  Q_INVOKABLE void notifyRateChange(double rate);
+  Q_INVOKABLE void notifyQueueChange(bool canNext, bool canPrevious);
+  Q_INVOKABLE void notifyPlaybackStop(bool isNavigating);
+  Q_INVOKABLE void notifyDurationChange(qint64 durationMs);
+  Q_INVOKABLE void notifyPlaybackState(const QString& state);
+  Q_INVOKABLE void notifyPosition(qint64 positionMs);
+  Q_INVOKABLE void notifySeek(qint64 positionMs);
+  Q_INVOKABLE void notifyMetadata(const QVariantMap& metadata, const QString& baseUrl);
+  Q_INVOKABLE void notifyVolumeChange(double volume);
+
   // 0-100 volume 0=mute and 100=normal
   // Ignored if no audio output active (e.g. when no file is playing).
   Q_INVOKABLE virtual void setVolume(int volume);
@@ -122,6 +136,10 @@ public:
 
   Q_INVOKABLE qint64 getPosition();
   Q_INVOKABLE qint64 getDuration();
+
+  Q_INVOKABLE QVariantList getWebPlaylist() const;
+  Q_INVOKABLE QString getCurrentWebPlaylistItemId() const;
+  Q_INVOKABLE void setWebPlaylist(const QVariantList& playlist, const QString& currentItemId);
 
   QRect videoRectangle() { return m_videoRectangle; }
 
@@ -188,6 +206,7 @@ Q_SIGNALS:
   void windowVisible(bool visible);
   // emitted as soon as the duration of the current file is known
   void updateDuration(qint64 milliseconds);
+  void playbackRateChanged(double rate);
 
   // current position in ms should be triggered 2 times a second
   // when position updates
@@ -198,7 +217,22 @@ Q_SIGNALS:
   void onMpvEvents();
 
   void onMetaData(const QVariantMap &meta, QUrl baseUrl);
-  
+
+  void webPlaylistChanged(const QVariantList& playlist, const QString& currentItemId);
+
+  // OS media integration signals (for MPRIS, SMTC, etc.)
+  void shuffleChanged(bool enabled);
+  void repeatChanged(const QString& mode);
+  void fullscreenChanged(bool isFullscreen);
+  void rateChanged(double rate);
+  void queueChanged(bool canNext, bool canPrevious);
+  void playbackStopped(bool isNavigating);
+  void durationChanged(qint64 durationMs);
+  void playbackStateChanged(const QString& state);
+  void positionChanged(qint64 positionMs);
+  void seekPerformed(qint64 positionMs);
+  void metadataChanged(const QVariantMap& metadata, const QString& baseUrl);
+  void volumeChanged(double volume);
 private:
   // this is the function actually implemented in the backends. the variantmap contains
   // a few known keys:
@@ -255,6 +289,11 @@ private:
   QVariant m_currentSubtitleStream;
   QVariant m_currentAudioStream;
   QRect m_videoRectangle;
+
+  QVariantList m_webPlaylist;
+  QString m_currentWebPlaylistItemId;
+  QTimer* m_playlistTimer;
+  QVariantList m_queuedItems;
 };
 
 #endif // PLAYERCOMPONENT_H

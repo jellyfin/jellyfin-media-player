@@ -259,6 +259,27 @@ void InputComponent::sendAction(const QString action)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::setVolume(int volume)
+{
+  qDebug() << "InputComponent: setVolume" << volume;
+  emit volumeChanged(volume);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::seekTo(qint64 position)
+{
+  qDebug() << "InputComponent: seekTo" << position << "ms";
+  emit positionSeek(position);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::setRate(double rate)
+{
+  qDebug() << "InputComponent: setRate" << rate;
+  emit rateChanged(rate);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void InputComponent::registerHostCommand(const QString& command, QObject* receiver, const char* slot)
 {
   auto  recvSlot = new ReceiverSlot;

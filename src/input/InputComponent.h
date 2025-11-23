@@ -108,6 +108,11 @@ public:
   void cancelAutoRepeat();
   void sendAction(const QString action);
 
+  // Volume, seek, and rate control
+  Q_INVOKABLE void setVolume(int volume);
+  Q_INVOKABLE void seekTo(qint64 position);
+  Q_INVOKABLE void setRate(double rate);
+
 signals:
   // Always emitted when any input arrives
   void receivedInput();
@@ -115,6 +120,15 @@ signals:
   // Emitted when new input arrives. Each entry is an action that matches
   // in the keymap, such as "host:fullscreen".
   void hostInput(const QStringList& actions);
+
+  // Emitted when volume should be changed (0-100)
+  void volumeChanged(int volume);
+
+  // Emitted when position should be changed (milliseconds)
+  void positionSeek(qint64 position);
+
+  // Emitted when playback rate should be changed (1.0 = normal speed)
+  void rateChanged(double rate);
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);

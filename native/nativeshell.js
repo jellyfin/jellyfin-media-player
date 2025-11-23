@@ -554,3 +554,23 @@ async function showSettingsModal() {
     });
     closeContainer.appendChild(close);
 }
+
+let lastFullscreenState = window.jmpInfo.settings.main.fullscreen;
+
+window.jmpInfo.settingsUpdate.push(function(section) {
+    if (section === 'main') {
+        const currentFullscreenState = window.jmpInfo.settings.main.fullscreen;
+        if (currentFullscreenState !== lastFullscreenState) {
+            lastFullscreenState = currentFullscreenState;
+
+            if (window.api && window.api.player) {
+                window.api.player.notifyFullscreenChange(currentFullscreenState);
+                console.log('Player fullscreen notified');
+            }
+
+            if (window.Events && window.playbackManager && window.playbackManager._currentPlayer) {
+                window.Events.trigger(window.playbackManager._currentPlayer, 'fullscreenchange');
+            }
+        }
+    }
+});

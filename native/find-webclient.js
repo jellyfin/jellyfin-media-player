@@ -140,6 +140,8 @@ document.addEventListener('keydown', (e) => {
 (async () => {
     console.log('Auto-connect: starting');
 
+    await window.apiPromise;
+
     const savedServer = window.jmpInfo.settings.main.userWebClient;
     console.log('Auto-connect: savedServer =', savedServer);
 

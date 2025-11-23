@@ -3,9 +3,9 @@
 //
 
 #include "Globals.h"
-#include "ui/KonvergoWindow.h"
 
 #include <QQmlContext>
+#include <QQuickWindow>
 
 static QQmlApplicationEngine* g_qmlEngine = nullptr;
 
@@ -50,15 +50,15 @@ void Globals::EngineDestroy()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-KonvergoWindow* Globals::MainWindow()
+QQuickWindow* Globals::MainWindow()
 {
   Q_ASSERT_X(g_qmlEngine, "Globals", "QmlEngine not inited yet");
 
   auto rootObject = g_qmlEngine->rootObjects().first();
   Q_ASSERT_X(g_qmlEngine, "Globals", "No root objects in QmlEngine");
 
-  auto window = qobject_cast<KonvergoWindow*>(rootObject);
-  Q_ASSERT_X(g_qmlEngine, "Globals", "RootObject in QmlEngine is not a KonvergoWindow");
+  auto window = qobject_cast<QQuickWindow*>(rootObject);
+  Q_ASSERT_X(g_qmlEngine, "Globals", "RootObject in QmlEngine is not a QQuickWindow");
 
   return window;
 }

@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.5.0)
 
 set(CMAKE_AUTOMOC ON)
 
-# Find Qt5 Test module
-find_package(Qt5 ${REQUIRED_QT_VERSION} REQUIRED COMPONENTS Test Core Network)
+# Find Qt6 Test module
+find_package(Qt6 ${REQUIRED_QT_VERSION} REQUIRED COMPONENTS
+  Test Core Network Widgets WebChannel Qml Quick Xml
+  WebEngineQuick WebEngineCore OpenGL DBus)
 
 # Get all source files that are part of the main application
 get_property(ALL_SRCS GLOBAL PROPERTY SRCS_LIST)
@@ -14,13 +16,23 @@ add_executable(test_systemcomponent
   ${ALL_SRCS}
 )
 
-# Link Qt5 libraries and other dependencies
+# Link Qt6 libraries and other dependencies
 target_link_libraries(test_systemcomponent
   shared
-  Qt5::Test
-  Qt5::Core
-  Qt5::Network
-  ${QT5_LIBRARIES}
+  Qt6::Test
+  Qt6::Core
+  Qt6::Network
+  Qt6::Widgets
+  Qt6::WebChannel
+  Qt6::Qml
+  Qt6::Quick
+  Qt6::Xml
+  Qt6::WebEngineQuick
+  Qt6::WebEngineCore
+  Qt6::OpenGL
+  Qt6::DBus
+  MpvQt::MpvQt
+  ${QT6_LIBRARIES}
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
   ${OS_LIBS}

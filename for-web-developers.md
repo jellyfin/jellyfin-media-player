@@ -272,7 +272,7 @@ after less than a second.
 
 ### Client API Usage
 
-The API is a [QWebChannel](https://doc.qt.io/qt-5/qtwebchannel-javascript.html) API which is async and callback-driven.
+The API is a [QWebChannel](https://doc.qt.io/qt-6/qtwebchannel-javascript.html) API which is async and callback-driven.
 
 To invoke a function:
 

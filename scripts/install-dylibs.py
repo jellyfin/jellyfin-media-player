@@ -26,7 +26,7 @@ def install_libraries(binary):
   out = exec_cmd(["otool", "-L", binary], supress_output=True)
   for line in out.split('\n'):
     line = line.strip()
-    if line.find("dylib") != -1 and (line.startswith('@executable_path') or line.find("libQt5") != -1):
+    if line.find("dylib") != -1 and (line.startswith('@executable_path') or line.find("libQt6") != -1):
       file = line.split('/')[-1].split(' ')[0]
       if line.startswith("@executable_path"):
         src = os.path.join(sys.argv[1], "dependencies/darwin-x86_64/lib", file)

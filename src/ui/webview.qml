@@ -1,17 +1,53 @@
-import QtQuick 2.4
+import QtQuick
 import Konvergo 1.0
-import QtWebEngine 1.7
+import QtWebEngine
 import QtWebChannel 1.0
 import QtQuick.Window 2.2
-import QtQuick.Controls 1.4
+import QtQuick.Controls 6.0
 
-KonvergoWindow
+Window
 {
   id: mainWindow
   title: "Jellyfin Media Player"
   objectName: "mainWindow"
-  minimumHeight: windowMinSize.height
-  minimumWidth: windowMinSize.width
+  width: 1280
+  height: 720
+  minimumWidth: 213
+  minimumHeight: 120
+  visible: true
+  color: "#000000"
+
+  // Properties previously from KonvergoWindow
+  property bool webDesktopMode: true
+  property bool showDebugLayer: false
+  property string debugInfo: ""
+  property string videoInfo: ""
+  property string webUrl: ""
+
+  signal reloadWebClient()
+
+  Component.onCompleted: {
+    if (components && components.settings) {
+      webUrl = components.settings.getWebClientUrl(webDesktopMode)
+    }
+  }
+
+  function toggleFullscreen() {
+    visibility = (visibility === Window.FullScreen) ? Window.Windowed : Window.FullScreen
+  }
+
+  function toggleDebug() {
+    showDebugLayer = !showDebugLayer
+  }
+
+  function setFullScreen(enable) {
+    visibility = enable ? Window.FullScreen : Window.Windowed
+  }
+
+  function minimizeWindow() {
+    if (visibility !== Window.FullScreen)
+      visibility = Window.Minimized
+  }
 
   function runWebAction(action)
   {
@@ -129,25 +165,38 @@ KonvergoWindow
     id: action_forward
   }
 
-  MpvVideo
-  {
-    id: video
-    objectName: "video"
-    // It's not a real item. Its renderer draws onto the view's background.
-    width: 0
-    height: 0
-    visible: false
-  }
-
   WebChannel
   {
     id: webChannelObject
+  }
+
+  MpvVideoItem
+  {
+    id: video
+    objectName: "video"
+    enabled: true
+
+    width: mainWindow.contentItem.width
+    height: mainWindow.contentItem.height
+    anchors.left: mainWindow.contentItem.left
+    anchors.right: mainWindow.contentItem.right
+    anchors.top: mainWindow.contentItem.top
+
+    Component.onCompleted: {
+      console.log("MpvVideoItem size:", width, "x", height, "visible:", visible)
+    }
+    onWidthChanged: console.log("MpvVideoItem width changed:", width)
+    onHeightChanged: console.log("MpvVideoItem height changed:", height)
   }
 
   WebEngineView
   {
     id: web
     objectName: "web"
+    width: mainWindow.width
+    height: mainWindow.height
+    z: 100
+    backgroundColor: "transparent"
     webChannel: webChannelObject
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true
@@ -159,20 +208,17 @@ KonvergoWindow
     url: mainWindow.webUrl
     focus: true
     property string currentHoveredUrl: ""
-    onLinkHovered: web.currentHoveredUrl = hoveredUrl
-    width: mainWindow.width
-    height: mainWindow.height
-    userScripts: [
-      WebEngineScript
-      {
-        sourceCode: components.system.getNativeShellScript()
-        injectionPoint: WebEngineScript.DocumentCreation
-        worldId: WebEngineScript.MainWorld
-      }
-    ]
+    onLinkHovered: function(hoveredUrl)
+    {
+      web.currentHoveredUrl = hoveredUrl;
+    }
+    profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
+    profile.offTheRecord: false
+    profile.storageName: "JellyfinMediaPlayerStorage"
 
     Component.onCompleted:
     {
+      console.log("WebEngineView size:", width, "x", height, "backgroundColor:", backgroundColor)
       forceActiveFocus()
       mainWindow.reloadWebClient.connect(reload)
 
@@ -219,7 +265,7 @@ KonvergoWindow
       }
     }
 
-    onNewViewRequested:
+    onNewWindowRequested:
     {
       if (request.userInitiated)
       {
@@ -235,7 +281,7 @@ KonvergoWindow
       request.accept()
     }
 
-    onJavaScriptConsoleMessage:
+    onJavaScriptConsoleMessage: function(level, message, lineNumber, sourceID)
     {
       components.system.jsLog(level, sourceID + ":" + lineNumber + " " + message);
     }
@@ -264,14 +310,14 @@ KonvergoWindow
     textFormat: Text.StyledText
     onLinkActivated:
     {
-      if (link == "reload")
+      if (url == "reload")
       {
         errorLabel.visible = false
         web.reload()
       }
       else
       {
-        Qt.openUrlExternally(link)
+        Qt.openUrlExternally(url)
       }
     }
   }

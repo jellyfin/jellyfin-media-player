@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 bool CachedRegexMatcher::addMatcher(const QString& pattern, const QVariant& result)
 {
-  QRegExp matcher(pattern);
+  QRegularExpression matcher(pattern);
   if (!matcher.isValid())
   {
     qWarning() << "Could not compile pattern:" << pattern;
@@ -41,22 +41,22 @@ QVariantList CachedRegexMatcher::match(const QString& input)
   // otherwise try to iterate our list and find a match
   for(const MatcherValuePair& matcher : m_matcherList)
   {
-    QRegExp re(matcher.first);
+    QRegularExpressionMatch match = matcher.first.match(input);
 
-    if (re.indexIn(input) != -1)
+    if (match.hasMatch())
     {
       // found match
       QVariant returnValue = matcher.second;
 
-      if (re.captureCount() > 0 && matcher.second.type() == QVariant::String)
+      if (match.lastCapturedIndex() > 0 && matcher.second.typeId() == QMetaType::QString)
       {
         QString value(matcher.second.toString());
 
-        for (int i = 0; i < re.captureCount(); i ++)
+        for (int i = 0; i < match.lastCapturedIndex(); i ++)
         {
           QString argFmt = QString("%%1").arg(i + 1);
           if (value.contains(argFmt))
-            value = value.arg(re.cap(i + 1));
+            value = value.arg(match.captured(i + 1));
         }
         returnValue = QVariant(value);
       }

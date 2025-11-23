@@ -70,9 +70,9 @@ elseif(UNIX AND (NOT APPLE))
   include(LinuxConfiguration)
 endif(APPLE)
 
-if (Qt5_POSITION_INDEPENDENT_CODE)
+if (Qt6_POSITION_INDEPENDENT_CODE)
   SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif(Qt5_POSITION_INDEPENDENT_CODE)
+endif(Qt6_POSITION_INDEPENDENT_CODE)
 
 add_subdirectory(external)
 add_subdirectory(src)

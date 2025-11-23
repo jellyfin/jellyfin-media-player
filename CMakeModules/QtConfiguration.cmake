@@ -19,32 +19,27 @@ list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})
 list(APPEND CMAKE_PREFIX_PATH ${QTROOT})
 include_directories(${QTROOT}/include)
 
-set(REQUIRED_QT_VERSION "5.7.0")
+set(REQUIRED_QT_VERSION "6.0.0")
 
-set(QTCONFIGROOT ${QTROOT}/lib/cmake/Qt5)
-set(components Core Network WebChannel Qml Quick Xml WebChannel WebEngine WebEngineWidgets Widgets)
+set(QTCONFIGROOT ${QTROOT}/lib/cmake/Qt6)
+set(components Core Network WebChannel Qml Quick Xml WebEngineQuick WebEngineCore Widgets OpenGL)
 
 if(UNIX AND (NOT APPLE) AND ((NOT BUILD_TARGET STREQUAL "RPI")))
-  add_definitions(-DUSE_X11EXTRAS)
-  set(components ${components} X11Extras Gui)
+  set(components ${components} Gui)
 endif()
 
 if(LINUX_DBUS)
   set(components ${components} DBus)
 endif(LINUX_DBUS)
 
-if(WIN32)
-  set(components ${components} WinExtras)
-endif(WIN32)
-
 foreach(COMP ${components})
-	set(mod Qt5${COMP})
-	
+	set(mod Qt6${COMP})
+
 	# look for the config files in the QtConfigRoot defined above
 	set(${mod}_DIR ${QTCONFIGROOT}${COMP})
 
 	# look for the actual package
-	find_package(${mod} ${REQUIRED_QT_VERSION} REQUIRED)
+  find_package(Qt6 REQUIRED COMPONENTS ${COMP})
 
 	include_directories(${${mod}_INCLUDE_DIRS})
 	if(OPENELEC)
@@ -52,26 +47,26 @@ foreach(COMP ${components})
 	endif(OPENELEC)
 
 	# Need private interfaces for qpa/qplatformnativeinterface.h:
-	if(${mod} STREQUAL Qt5Gui)
-		include_directories(${Qt5Gui_PRIVATE_INCLUDE_DIRS})
+	if(${mod} STREQUAL Qt6Gui)
+		include_directories(${Qt6Gui_PRIVATE_INCLUDE_DIRS})
 	endif()
 
-	list(APPEND QT5_LIBRARIES ${${mod}_LIBRARIES})
-	list(APPEND QT5_CFLAGS ${${mod}_EXECUTABLE_COMPILE_FLAGS})
+	list(APPEND QT6_LIBRARIES ${${mod}_LIBRARIES})
+	list(APPEND QT6_CFLAGS ${${mod}_EXECUTABLE_COMPILE_FLAGS})
 endforeach(COMP ${components})
 
-if(QT5_CFLAGS)
-	list(REMOVE_DUPLICATES QT5_CFLAGS)
+if(QT6_CFLAGS)
+	list(REMOVE_DUPLICATES QT6_CFLAGS)
   if(WIN32)
-    list(REMOVE_ITEM QT5_CFLAGS -fPIC)
+    list(REMOVE_ITEM QT6_CFLAGS -fPIC)
   endif(WIN32)
-endif(QT5_CFLAGS)
+endif(QT6_CFLAGS)
 
-message(STATUS "Qt version: ${Qt5Core_VERSION_STRING}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${QT5_CFLAGS}")
+message(STATUS "Qt version: ${Qt6Core_VERSION}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${QT6_CFLAGS}")
 
-set(CMAKE_REQUIRED_INCLUDES ${Qt5WebEngine_INCLUDE_DIRS};${Qt5WebEngine_PRIVATE_INCLUDE_DIRS})
-set(CMAKE_REQUIRED_LIBRARIES ${QT5_LIBRARIES})
+set(CMAKE_REQUIRED_INCLUDES ${Qt6WebEngineCore_INCLUDE_DIRS};${Qt6WebEngineCore_PRIVATE_INCLUDE_DIRS})
+set(CMAKE_REQUIRED_LIBRARIES ${QT6_LIBRARIES})
 
 include(CheckCXXSourceCompiles)
 
@@ -83,9 +78,9 @@ CHECK_CXX_SOURCE_COMPILES(
     QSurfaceFormat::FormatOption o = QSurfaceFormat::UseOptimalOrientation;
     return 0;
   }
-" QT5_HAVE_OPTIMALORIENTATION)
+" QT6_HAVE_OPTIMALORIENTATION)
 
-if(QT5_HAVE_OPTIMALORIENTATION)
+if(QT6_HAVE_OPTIMALORIENTATION)
   message(STATUS "QSurfaceFormat::UseOptimalOrientation found")
   add_definitions(-DHAVE_OPTIMALORIENTATION)
 endif()

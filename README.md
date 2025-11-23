@@ -31,11 +31,7 @@ git clone https://github.com/jellyfin/jellyfin-media-player.git --branch v1.9.1 
 
 Install dependencies:
 ```bash
-sudo apt install build-essential autoconf automake libtool libharfbuzz-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxrandr-dev libvdpau-dev libva-dev mesa-common-dev libegl1-mesa-dev yasm libasound2-dev libpulse-dev libuchardet-dev zlib1g-dev libfribidi-dev git libgnutls28-dev libgl1-mesa-dev libsdl2-dev cmake wget meson nasm ninja-build python3 g++ qtwebengine5-dev qtquickcontrols2-5-dev libqt5x11extras5-dev libcec-dev qml-module-qtquick-controls qml-module-qtwebengine qml-module-qtwebchannel qtbase5-private-dev curl unzip
-```
-
-Build commands for Ubuntu:
-```bash
+sudo apt install  autoconf automake build-essential cmake curl g++ git libasound2-dev libcec-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libgl1-mesa-dev libgnutls28-dev libharfbuzz-dev libpulse-dev libsdl2-dev libtool libuchardet-dev libva-dev libvdpau-dev libx11-dev libxrandr-dev mesa-common-dev meson python3 qml6-module-qtqml-workerscript qml6-module-qtquick-controls qml6-module-qtquick-templates qml6-module-qtquick-window qml6-module-qtwebchannel qml6-module-qtwebengine qml6-module-qtwebengine-controlsdelegates qml6-module-qtwebview qt6-base-private-dev qt6-webengine-private-dev unzip wget yasm zlib1g-dev
 mkdir ~/jmp; cd ~/jmp
 git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
@@ -62,7 +58,7 @@ rm -rf ~/jmp/
 
 Install dependencies:
 ```bash
-sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget python g++  qt-devel libcec-devel qt5-qtbase-devel curl unzip qt5-qtwebchannel-devel qt5-qtwebengine-devel qt5-qtx11extras-devel mpv.x86_64 qwt-qt5-devel.x86_64 qt5-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt5-qtbase-private-devel mpv-libs.x86_64 mpv-devel qt5-qtquickcontrols qt5-qtquickcontrols2 nasm libatomic libshaderc-2024.3
+sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget python g++  qt-devel libcec-devel qt6-qtbase-devel curl unzip qt6-qtwebchannel-devel qt6-qtwebengine-devel mpv.x86_64 qt6-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt6-qtbase-private-devel mpv-libs.x86_64 mpv-devel qt6-qtdeclarative nasm libatomic libshaderc-2024.3
 ```
 
 Build commands for Fedora:
@@ -99,7 +95,7 @@ Please install:
    - Place this in the build directory.
  - [QT](https://www.qt.io/download-thank-you?hsLang=en)
    - This package is huge. You also need to make a QT account...
-   - Check "MSVC 2019 64-bit" and "Qt WebEngine" under QT 5.15.2.
+   - Check "MSVC 2019 64-bit" and "Qt WebEngine" under Qt 6.
  - [VS2019 Build Tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
    - Again this will use a lot of disk space. The installer is small though.
  - [libmpv1](https://sourceforge.net/projects/mpv-player-windows/files/libmpv/)
@@ -121,7 +117,7 @@ Open the "x86_x64 Cross Tools Command Prompt for VS 2019". `cd` to the `build` d
 
 ```
 set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin
-cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:/Qt/5.15.2/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCMAKE_INSTALL_PREFIX=output ..
+cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=C:/Qt/6.x.x/msvc2019_64 -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCMAKE_INSTALL_PREFIX=output ..
 lib /def:mpv\mpv.def /out:mpv\mpv.dll.lib /MACHINE:X64
 ninja
 ninja windows_package
@@ -129,7 +125,7 @@ ninja windows_package
 
 ## Building for MacOS
 
-Install [QT 5.15.2](https://www.qt.io/download-thank-you?hsLang=en), remember to check `Qt WebEngine`.
+Install [Qt 6](https://www.qt.io/download-thank-you?hsLang=en), remember to check `Qt WebEngine`.
 
 Then run the following commands (replace <QT_DIR> with your QT installation location):
 

@@ -3,6 +3,7 @@
 #include <QMap>
 #include <QtNetwork/qnetworkinterface.h>
 #include <QGuiApplication>
+#include <QCursor>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
@@ -24,7 +25,6 @@
 #include "SystemComponent.h"
 #include "Version.h"
 #include "settings/SettingsComponent.h"
-#include "ui/KonvergoWindow.h"
 #include "settings/SettingsSection.h"
 #include "Paths.h"
 #include "Names.h"
@@ -579,11 +579,12 @@ QString SystemComponent::getNativeShellScript()
   QFile flatpakOsFile {"/run/host/os-release"};
   if (flatpakOsFile.exists()) {
     qDebug() << "Found flatpak os-release file";
-    flatpakOsFile.open(QIODevice::ReadOnly);
-    QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
-    if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
-      qDebug() << "Detected SteamOS";
-      defaultMode = "tv";
+    if (flatpakOsFile.open(QIODevice::ReadOnly)) {
+      QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
+      if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
+        qDebug() << "Detected SteamOS";
+        defaultMode = "tv";
+      }
     }
   }
   clientData.insert("mode", QJsonValue::fromVariant(defaultMode));

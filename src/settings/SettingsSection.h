@@ -20,6 +20,7 @@ public:
 
   void setValues(const QVariant& values);
   bool setValue(const QString& key, const QVariant& value);
+  void setValueNoSave(const QString& key, const QVariant& value);
   void resetValue(const QString& key);
   void resetValues();
   void registerSetting(SettingsValue* value);

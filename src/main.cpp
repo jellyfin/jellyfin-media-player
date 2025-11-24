@@ -92,7 +92,8 @@ void ShowLicenseInfo()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStringList g_qtFlags = {
-  "--enable-gpu-rasterization"
+  "--enable-gpu-rasterization",
+  "--disable-features=MediaSessionService"
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -237,6 +238,11 @@ int main(int argc, char *argv[])
       d.cd(Names::MainName());
       webEngineDataDir = d.absolutePath() + "/QtWebEngine";
     }
+
+#ifdef Q_OS_LINUX
+    // Disable QtWebEngine's automatic MPRIS registration - we handle it ourselves
+    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--disable-features=MediaSessionService,HardwareMediaKeyHandling");
+#endif
 
     QtWebEngineQuick::initialize();
     QApplication app(newArgc, newArgv);

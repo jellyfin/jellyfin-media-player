@@ -254,6 +254,8 @@ void WindowManager::onVisibilityChanged(QWindow::Visibility visibility)
     {
       section->setValueNoSave("fullscreen", m_fullscreen);
     }
+
+    emit fullScreenSwitched();
   }
 
   // Save geometry when exiting fullscreen

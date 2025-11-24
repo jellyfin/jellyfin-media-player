@@ -49,6 +49,9 @@ public:
 public slots:
   void toggleFullscreen();
 
+signals:
+  void fullScreenSwitched();
+
 private slots:
   void onVisibilityChanged(QWindow::Visibility visibility);
   void onScreenAdded(QScreen* screen);

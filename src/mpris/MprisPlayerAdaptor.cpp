@@ -135,13 +135,11 @@ void MprisPlayerAdaptor::Play()
 void MprisPlayerAdaptor::Seek(qint64 offset)
 {
   m_component->Seek(offset);
-  Q_EMIT Seeked(m_component->position());
 }
 
 void MprisPlayerAdaptor::SetPosition(const QDBusObjectPath& trackId, qint64 position)
 {
   m_component->SetPosition(trackId, position);
-  Q_EMIT Seeked(m_component->position());
 }
 
 void MprisPlayerAdaptor::OpenUri(const QString& uri)

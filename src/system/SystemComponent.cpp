@@ -31,7 +31,6 @@
 #include "utils/Utils.h"
 #include "utils/Log.h"
 
-#define MOUSE_TIMEOUT 5 * 1000
 
 #define KONVERGO_PRODUCTID_DEFAULT  3
 #define KONVERGO_PRODUCTID_OPENELEC 4
@@ -58,10 +57,6 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(1), m_connectivityCheckReply(nullptr), m_resolveUrlReply(nullptr)
 {
-  m_mouseOutTimer = new QTimer(this);
-  m_mouseOutTimer->setSingleShot(true);
-  connect(m_mouseOutTimer, &QTimer::timeout, [&] () { setCursorVisibility(false); });
-
   m_connectivityRetryTimer = new QTimer(this);
   m_connectivityRetryTimer->setSingleShot(true);
   connect(m_connectivityRetryTimer, &QTimer::timeout, [this]() {
@@ -440,12 +435,10 @@ void SystemComponent::setCursorVisibility(bool visible)
   if (visible)
   {
     qApp->restoreOverrideCursor();
-    m_mouseOutTimer->start(MOUSE_TIMEOUT);
   }
   else
   {
     qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
-    m_mouseOutTimer->stop();
   }
 
 #ifdef Q_OS_MAC

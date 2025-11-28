@@ -297,6 +297,18 @@ window.initCompleted = new Promise(async (resolve) => {
             window.sessionStorage.setItem("settingsDescriptions", JSON.stringify(jmpInfo.settingsDescriptions));
         }
     );
+
+    // Sync cursor visibility with jellyfin-web's mouse idle state
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.attributeName === 'class') {
+                const isIdle = document.body.classList.contains('mouseIdle');
+                window.api.system.setCursorVisibility(!isIdle);
+            }
+        }
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
     resolve();
 });
 

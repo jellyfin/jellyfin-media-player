@@ -3,7 +3,6 @@
 //
 
 #include "EventFilter.h"
-#include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "input/InputKeyboard.h"
 #include <QQuickWindow>
@@ -119,8 +118,6 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     return QObject::eventFilter(watched, event);
   }
 
-  SystemComponent& system = SystemComponent::Get();
-
   // ignore mouse events if mouse is disabled
   if  (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool() &&
        ((event->type() == QEvent::MouseMove) ||
@@ -172,16 +169,11 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
     else
       m_currentKeyDown = false;
 
-    system.setCursorVisibility(false);
     if (kevent->spontaneous() && !kevent->isAutoRepeat())
     {
       InputKeyboard::Get().keyPress(keyName, keystatus);
       return true;
     }
-  }
-  else if (event->type() == QEvent::MouseMove)
-  {
-    system.setCursorVisibility(true);
   }
   else if (event->type() == QEvent::Wheel)
   {

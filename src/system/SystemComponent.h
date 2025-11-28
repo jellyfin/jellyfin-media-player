@@ -131,7 +131,6 @@ private:
   QSslConfiguration getSSLConfiguration();
   void setReplyTimeout(QNetworkReply* reply, int ms);
 
-  QTimer* m_mouseOutTimer;
   QNetworkAccessManager* m_networkManager;
   PlatformType m_platformType;
   PlatformArch m_platformArch;

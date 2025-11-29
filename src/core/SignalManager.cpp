@@ -54,7 +54,7 @@ int SignalManager::setupHandlers()
 void SignalManager::signalHandler(int signal_num)
 {
   unsigned char a = signal_num < 255 ? signal_num : 0;
-  (void)write(g_sigtermFd[0], &a, sizeof(a));
+  if (write(g_sigtermFd[0], &a, sizeof(a)) < 0) { /* signal handler, can't do much */ }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

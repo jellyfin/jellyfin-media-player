@@ -446,6 +446,8 @@ void DisplayComponent::componentPostInitialize()
 {
   InputComponent::Get().registerHostCommand("switch", this, "switchCommand");
 
+#ifdef TARGET_RPI
   if (m_displayManager)
     InputComponent::Get().registerHostCommand("recreateRpiUI", m_displayManager, "resetRendering");
+#endif
 }

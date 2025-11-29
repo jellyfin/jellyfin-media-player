@@ -197,6 +197,11 @@ Window
     height: mainWindow.height
     z: 100
     backgroundColor: "transparent"
+
+    // this is needed to prevent intermittent(?) black screens when unminizing
+    // or resumsing from suspend (linux/{x11/wayland}, possibly others).
+    layer.enabled: true
+
     webChannel: webChannelObject
     settings.errorPageEnabled: false
     settings.localContentCanAccessRemoteUrls: true

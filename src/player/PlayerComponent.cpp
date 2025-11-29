@@ -34,7 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void wakeup_cb(void *context)
 {
-  PlayerComponent *player = (PlayerComponent *)context;
+  auto *player = static_cast<PlayerComponent*>(context);
 
   emit player->onMpvEvents();
 }
@@ -509,7 +509,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     }
     case MPV_EVENT_END_FILE:
     {
-      mpv_event_end_file *endFile = (mpv_event_end_file *)event->data;
+      auto *endFile = static_cast<mpv_event_end_file*>(event->data);
 
       m_inPlayback = false;
       m_playbackCanceled = false;
@@ -540,39 +540,39 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     }
     case MPV_EVENT_PROPERTY_CHANGE:
     {
-      mpv_event_property *prop = (mpv_event_property *)event->data;
+      auto *prop = static_cast<mpv_event_property*>(event->data);
       if (strcmp(prop->name, "pause") == 0 && prop->format == MPV_FORMAT_FLAG)
       {
-        m_paused = !!*(int *)prop->data;
+        m_paused = !!*static_cast<int*>(prop->data);
       }
       else if (strcmp(prop->name, "core-idle") == 0 && prop->format == MPV_FORMAT_FLAG)
       {
-        m_playbackActive = !*(int *)prop->data;
+        m_playbackActive = !*static_cast<int*>(prop->data);
       }
       else if (strcmp(prop->name, "cache-buffering-state") == 0)
       {
-        m_bufferingPercentage = prop->format == MPV_FORMAT_INT64 ? (int)*(int64_t *)prop->data : 100;
+        m_bufferingPercentage = prop->format == MPV_FORMAT_INT64 ? static_cast<int>(*static_cast<int64_t*>(prop->data)) : 100;
       }
       else if (strcmp(prop->name, "playback-time") == 0 && prop->format == MPV_FORMAT_DOUBLE)
       {
-        double pos = *(double*)prop->data;
+        double pos = *static_cast<double*>(prop->data);
         if (fabs(pos - m_lastPositionUpdate) > 0.015)
         {
-          quint64 ms = (quint64)(qMax(pos * 1000.0, 0.0));
+          quint64 ms = static_cast<quint64>(qMax(pos * 1000.0, 0.0));
           emit positionUpdate(ms);
           m_lastPositionUpdate = pos;
         }
       }
       else if (strcmp(prop->name, "vo-configured") == 0)
       {
-        int state = prop->format == MPV_FORMAT_FLAG ? *(int *)prop->data : 0;
+        int state = prop->format == MPV_FORMAT_FLAG ? *static_cast<int*>(prop->data) : 0;
         m_windowVisible = state;
         emit windowVisible(m_windowVisible);
       }
       else if (strcmp(prop->name, "duration") == 0)
       {
         if (prop->format == MPV_FORMAT_DOUBLE)
-          emit updateDuration(*(double *)prop->data * 1000.0);
+          emit updateDuration(*static_cast<double*>(prop->data) * 1000.0);
       }
       else if (strcmp(prop->name, "audio-device-list") == 0)
       {
@@ -588,12 +588,12 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     }
     case MPV_EVENT_LOG_MESSAGE:
     {
-      mpv_event_log_message *msg = (mpv_event_log_message *)event->data;
+      auto *msg = static_cast<mpv_event_log_message*>(event->data);
       // Strip the trailing '\n'
       size_t len = strlen(msg->text);
       if (len > 0 && msg->text[len - 1] == '\n')
         len -= 1;
-      QString logline = QString::fromUtf8(msg->prefix) + ": " + QString::fromUtf8(msg->text, (int)len);
+      QString logline = QString::fromUtf8(msg->prefix) + ": " + QString::fromUtf8(msg->text, static_cast<int>(len));
       if (msg->log_level >= MPV_LOG_LEVEL_V)
         qDebug() << qPrintable(logline);
       else if (msg->log_level >= MPV_LOG_LEVEL_INFO)
@@ -606,7 +606,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     }
     case MPV_EVENT_CLIENT_MESSAGE:
     {
-      mpv_event_client_message *msg = (mpv_event_client_message *)event->data;
+      auto *msg = static_cast<mpv_event_client_message*>(event->data);
       if (msg->num_args < 3 || strcmp(msg->args[0], "hook_run") != 0)
         break;
       QString resumeId = QString::fromUtf8(msg->args[2]);
@@ -655,7 +655,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
 #if MPV_CLIENT_API_VERSION >= MPV_MAKE_VERSION(1, 100)
     case MPV_EVENT_HOOK:
     {
-      mpv_event_hook *hook = (mpv_event_hook *)event->data;
+      auto *hook = static_cast<mpv_event_hook*>(event->data);
       uint64_t id = hook->id;
 
       if (!strcmp(hook->name, "on_load"))

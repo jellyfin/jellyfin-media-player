@@ -448,7 +448,7 @@ void MprisComponent::notifyDurationChange(qint64 durationMs)
 void MprisComponent::notifyQueueChange(bool canNext, bool canPrevious)
 {
   qDebug() << "MPRIS: Queue change - canNext:" << canNext << "canPrevious:" << canPrevious
-           << "status:" << m_playbackStatus << "state:" << (int)m_playerState;
+           << "status:" << m_playbackStatus << "state:" << static_cast<int>(m_playerState);
 
   bool changed = false;
 
@@ -477,7 +477,7 @@ void MprisComponent::notifyQueueChange(bool canNext, bool canPrevious)
       m_currentTrackId.clear();
       cleanupAlbumArt();
       properties["Metadata"] = m_metadata;
-      properties["Position"] = (qint64)0;
+      properties["Position"] = static_cast<qint64>(0);
     }
 
     emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
@@ -558,7 +558,7 @@ void MprisComponent::notifyPlaybackState(const QString& state)
     properties["CanPause"] = canPause();
     properties["CanSeek"] = seekable;
     properties["CanControl"] = canControl();
-    properties["Position"] = (qint64)0;
+    properties["Position"] = static_cast<qint64>(0);
     properties["Metadata"] = m_metadata;
     emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
   }
@@ -652,7 +652,7 @@ void MprisComponent::onPlayerStopped()
   properties["CanPause"] = canPause();
   properties["CanSeek"] = seekable;
   properties["CanControl"] = canControl();
-  properties["Position"] = (qint64)0;
+  properties["Position"] = static_cast<qint64>(0);
   emitMultiplePropertyChanges("org.mpris.MediaPlayer2.Player", properties);
 }
 
@@ -674,7 +674,7 @@ void MprisComponent::onPlayerFinished()
 
   QVariantMap properties;
   properties["Metadata"] = m_metadata;
-  properties["Position"] = (qint64)m_position;
+  properties["Position"] = static_cast<qint64>(m_position);
   properties["CanGoNext"] = false;
   properties["CanGoPrevious"] = false;
   properties["CanControl"] = canControl();
@@ -683,7 +683,7 @@ void MprisComponent::onPlayerFinished()
 
 void MprisComponent::onPlayerStateChanged(PlayerComponent::State newState, PlayerComponent::State oldState)
 {
-  qDebug() << "MPRIS: State changed from" << (int)oldState << "to" << (int)newState;
+  qDebug() << "MPRIS: State changed from" << static_cast<int>(oldState) << "to" << static_cast<int>(newState);
   m_playerState = newState;
 
   if (newState == PlayerComponent::State::finished)

@@ -95,11 +95,11 @@ bool InputCECWorker::init()
   m_configuration.bAutodetectAddress =  CEC_DEFAULT_SETTING_AUTODETECT_ADDRESS;
   m_configuration.iPhysicalAddress = CEC_PHYSICAL_ADDRESS_TV;
   m_configuration.baseDevice = CECDEVICE_AUDIOSYSTEM;
-  m_configuration.bActivateSource = (uint8_t)SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool();
-  m_configuration.iHDMIPort = (quint8)SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "hdmiport").toInt();
+  m_configuration.bActivateSource = static_cast<uint8_t>(SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool());
+  m_configuration.iHDMIPort = static_cast<quint8>(SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "hdmiport").toInt());
 
   // open libcec
-  m_adapter = (ICECAdapter*)CECInitialise(&m_configuration);
+  m_adapter = static_cast<ICECAdapter*>(CECInitialise(&m_configuration));
   if (!m_adapter)
   {
     qCritical() << "Unable to initialize libCEC.";
@@ -343,7 +343,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
         }
       }
 
-      cmdString = cec->getCommandString((cec_user_control_code)command->parameters[0]);
+      cmdString = cec->getCommandString(static_cast<cec_user_control_code>(command->parameters[0]));
 
       if (!cmdString.isEmpty())
       {

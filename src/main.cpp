@@ -66,9 +66,9 @@ static void preinitQt()
 /////////////////////////////////////////////////////////////////////////////////////////
 char** appendCommandLineArguments(int argc, char **argv, const QStringList& args)
 {
-  size_t newSize = (argc + args.length() + 1) * sizeof(char*);
-  char** newArgv = (char**)calloc(1, newSize);
-  memcpy(newArgv, argv, (size_t)(argc * sizeof(char*)));
+  size_t newSize = static_cast<size_t>(argc + args.length() + 1) * sizeof(char*);
+  char** newArgv = static_cast<char**>(calloc(1, newSize));
+  memcpy(newArgv, argv, static_cast<size_t>(argc) * sizeof(char*));
 
   int pos = argc;
   for(const QString& str : args)
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
       public:
         PopupFixer(QQuickWindow* mainWin) : m_mainWindow(mainWin) {}
         bool eventFilter(QObject* obj, QEvent* event) override {
-          QWindow* win = qobject_cast<QWindow*>(obj);
+          auto* win = qobject_cast<QWindow*>(obj);
           if (!win || win == m_mainWindow) {
             return QObject::eventFilter(obj, event);
           }

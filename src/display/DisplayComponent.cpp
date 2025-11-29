@@ -65,7 +65,7 @@ bool DisplayComponent::componentInitialize()
 
   if (initializeDisplayManager())
   {
-    QGuiApplication* app = (QGuiApplication*)QGuiApplication::instance();
+    auto* app = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
 
     connect(app, SIGNAL(screenAdded(QScreen*)), this, SLOT(monitorChange()));
     connect(app, SIGNAL(screenRemoved(QScreen*)), this,  SLOT(monitorChange()));

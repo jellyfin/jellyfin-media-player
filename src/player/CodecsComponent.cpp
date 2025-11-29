@@ -813,7 +813,7 @@ long unz_seek_file(voidpf opaque, voidpf stream, uLong offset, int origin)
       whence = SEEK_SET;
       break;
   }
-  return fseek((FILE *)stream, offset, whence);
+  return fseek(static_cast<FILE*>(stream), offset, whence);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1128,7 +1128,7 @@ void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
   if (bytesTotal > 0)
   {
-    int progress = (int)(bytesReceived * 100 / bytesTotal);
+    int progress = static_cast<int>(bytesReceived * 100 / bytesTotal);
     if (m_lastProgress < 0 || progress > m_lastProgress + 10)
     {
       m_lastProgress = progress;

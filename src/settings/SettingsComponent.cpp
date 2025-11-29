@@ -546,7 +546,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
   int platformMask = platformMaskFromObject(sectionObject);
   int sectionOrder = sectionObject.value("order").toInt(-1);
 
-  auto section = new SettingsSection(sectionName, (quint8)platformMask, sectionOrder, this);
+  auto section = new SettingsSection(sectionName, static_cast<quint8>(platformMask), sectionOrder, this);
   section->setHidden(sectionObject.value("hidden").toBool(false));
   section->setStorage(sectionObject.value("storage").toBool(false));
 
@@ -580,7 +580,7 @@ void SettingsComponent::parseSection(const QJsonObject& sectionObject)
     }
 
     int vPlatformMask = platformMaskFromObject(valobj);
-    SettingsValue* setting = new SettingsValue(valobj.value("value").toString(), defaultval, (quint8)vPlatformMask, this);
+    SettingsValue* setting = new SettingsValue(valobj.value("value").toString(), defaultval, static_cast<quint8>(vPlatformMask), this);
 
     if (valobj.contains("display_name"))
       setting->setDisplayName(valobj.value("display_name").toString());

@@ -43,6 +43,9 @@ public:
   Q_INVOKABLE void setFullScreen(bool enable);
   Q_INVOKABLE bool isFullScreen() const;
 
+  // Cursor visibility
+  Q_INVOKABLE void setCursorVisibility(bool visible);
+
   // Window activation
   Q_INVOKABLE void raiseWindow();
 
@@ -86,6 +89,7 @@ private:
   QRect m_normalGeometry;
   bool m_maximized;
   bool m_fullscreen;
+  bool m_cursorVisible;
   QTimer* m_geometryChangeTimer;
   QRect m_pendingGeometry;
 };

@@ -55,7 +55,7 @@ QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_cursorVisible(true), m_scale(1), m_connectivityCheckReply(nullptr), m_resolveUrlReply(nullptr)
+SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_platformType(platformTypeUnknown), m_platformArch(platformArchUnknown), m_doLogMessages(false), m_scale(1), m_connectivityCheckReply(nullptr), m_resolveUrlReply(nullptr)
 {
   m_connectivityRetryTimer = new QTimer(this);
   m_connectivityRetryTimer->setSingleShot(true);
@@ -99,9 +99,6 @@ bool SystemComponent::componentInitialize()
 {
   QDir().mkpath(Paths::dataDir("scripts"));
   QDir().mkpath(Paths::dataDir("sounds"));
-
-  // Hide mouse pointer on any keyboard input
-  connect(&InputComponent::Get(), &InputComponent::receivedInput, [=]() { setCursorVisibility(false); });
 
   return true;
 }
@@ -419,33 +416,6 @@ void SystemComponent::cancelServerConnectivity()
   }
 
   m_pendingConnectivityUrl.clear();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void SystemComponent::setCursorVisibility(bool visible)
-{
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "webMode") == "desktop")
-    visible = true;
-
-  if (visible == m_cursorVisible)
-    return;
-
-  m_cursorVisible = visible;
-
-  if (visible)
-  {
-    qApp->restoreOverrideCursor();
-  }
-  else
-  {
-    qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
-  }
-
-#ifdef Q_OS_MAC
-  // OSX notifications will reset the cursor image (without Qt's knowledge). The
-  // only thing we can do override this is using Cocoa's native cursor hiding.
-  OSXUtils::SetCursorVisible(visible);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

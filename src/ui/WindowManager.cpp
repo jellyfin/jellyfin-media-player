@@ -6,7 +6,9 @@
 #include "display/DisplayComponent.h"
 #include "taskbar/TaskbarComponent.h"
 #include "input/InputComponent.h"
+#include "utils/Utils.h"
 
+#include <QCursor>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QDebug>
@@ -25,6 +27,7 @@ WindowManager::WindowManager(QObject* parent)
     m_ignoreFullscreenSettingsChange(0),
     m_maximized(false),
     m_fullscreen(false),
+    m_cursorVisible(true),
     m_geometryChangeTimer(nullptr)
 {
 }
@@ -195,6 +198,25 @@ void WindowManager::toggleFullscreen()
 {
   setFullScreen(!isFullScreen());
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WindowManager::setCursorVisibility(bool visible)
+{
+  if (visible == m_cursorVisible)
+    return;
+
+  m_cursorVisible = visible;
+
+  if (visible)
+    qApp->restoreOverrideCursor();
+  else
+    qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
+
+#ifdef Q_OS_MAC
+  OSXUtils::SetCursorVisible(visible);
+#endif
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowManager::raiseWindow()

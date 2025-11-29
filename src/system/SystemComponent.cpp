@@ -566,10 +566,10 @@ QString SystemComponent::getNativeShellScript()
                                 QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64() +
                                 "\"));\nwindow.jmpInfo = jmpInfo;\n";
 
-  auto loadScript = [](const QString& path) -> QString {
-    QFile file(path);
+  auto loadScript = [](const QString& scriptPath) -> QString {
+    QFile file(scriptPath);
     if (!file.open(QIODevice::ReadOnly)) {
-      qCritical() << "Failed to load" << path << "from qrc";
+      qCritical() << "Failed to load" << scriptPath << "from qrc";
       return "";
     }
     return QTextStream(&file).readAll();

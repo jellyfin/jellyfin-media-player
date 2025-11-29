@@ -745,9 +745,9 @@ bool CodecsFetcher::processCodecInfoReply(const QVariant& context, const QByteAr
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void CodecsFetcher::codecInfoDownloadDone(QVariant userData, bool success, const QByteArray& data)
+void CodecsFetcher::codecInfoDownloadDone(QVariant cbUserData, bool success, const QByteArray& data)
 {
-  if (!success || !processCodecInfoReply(userData, data))
+  if (!success || !processCodecInfoReply(cbUserData, data))
   {
     qCritical() << "Codec download failed.";
     startNext();
@@ -1015,12 +1015,12 @@ void CodecsFetcher::processCodecDownloadDone(const QVariant& context, const QByt
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void CodecsFetcher::codecDownloadDone(QVariant userData, bool success, const QByteArray& data)
+void CodecsFetcher::codecDownloadDone(QVariant cbUserData, bool success, const QByteArray& data)
 {
   qInfo() << "Codec request finished.";
   if (success)
   {
-    processCodecDownloadDone(userData, data);
+    processCodecDownloadDone(cbUserData, data);
   }
   else
   {

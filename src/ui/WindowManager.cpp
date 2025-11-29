@@ -226,7 +226,7 @@ void WindowManager::raiseWindow()
 
   // Restore from minimized state if needed
   if (m_window->windowState() & Qt::WindowMinimized)
-    m_window->setWindowState((Qt::WindowState)(m_window->windowState() & ~Qt::WindowMinimized));
+    m_window->setWindowState(static_cast<Qt::WindowState>(m_window->windowState() & ~Qt::WindowMinimized));
 
   // Raise and request activation
   // Note: Wayland blocks requestActivate() for security (prevents focus stealing)

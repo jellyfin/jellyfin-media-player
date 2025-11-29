@@ -17,7 +17,9 @@ message(STATUS "Qt root directory: ${QTROOT}")
 
 list(APPEND CMAKE_FIND_ROOT_PATH ${QTROOT})
 list(APPEND CMAKE_PREFIX_PATH ${QTROOT})
-include_directories(${QTROOT}/include)
+if(IS_DIRECTORY "${QTROOT}/include")
+  include_directories(${QTROOT}/include)
+endif()
 
 set(REQUIRED_QT_VERSION "6.0.0")
 

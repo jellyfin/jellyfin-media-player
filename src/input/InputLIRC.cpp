@@ -85,6 +85,7 @@ void InputLIRC::socketerror(QLocalSocket::LocalSocketError socketError)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputLIRC::read(int handle)
 {
+  (void)handle;
   QString input;
 
   while ((input = socket->readLine()) != "")

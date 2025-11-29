@@ -116,8 +116,8 @@ Q_SIGNALS:
   void done(CodecsFetcher* sender);
 
 private Q_SLOTS:
-  void codecInfoDownloadDone(QVariant userData, bool success, const QByteArray& data);
-  void codecDownloadDone(QVariant userData, bool success, const QByteArray& data);
+  void codecInfoDownloadDone(QVariant cbUserData, bool success, const QByteArray& data);
+  void codecDownloadDone(QVariant cbUserData, bool success, const QByteArray& data);
 
 private:
   bool codecNeedsDownload(const CodecDriver& codec);

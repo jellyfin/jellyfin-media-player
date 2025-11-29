@@ -17,11 +17,11 @@ jobs:
     - name: Install build dependencies from debian/control
       run: |
         sudo apt-get update
-        sudo apt-get install --yes devscripts equivs
+        sudo apt-get install --yes devscripts equivs ninja-build
         sudo mk-build-deps -i -r -t "apt-get --yes" debian/control
 
     - name: Configure
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 
     - name: Build
       run: cmake --build build

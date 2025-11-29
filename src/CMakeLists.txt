@@ -28,13 +28,12 @@ get_property(ALL_SRCS GLOBAL PROPERTY SRCS_LIST)
 set(MAIN_SRCS main.cpp)
 
 source_group("Source Files" FILES ${MAIN_SRCS})
-set(SOURCES ${MAIN_SRCS} ${ALL_SRCS})
 
 # Set some Objective-C flags.
 # We need to force the Language to C instead of C++
 # and also make sure that we use ARC
 #
-foreach(S ${SOURCES})
+foreach(S ${ALL_SRCS})
   string(REGEX MATCH ".*\\.m$" MATCH_OBJC ${S})
   if(MATCH_OBJC)
     set_property(SOURCE ${S} PROPERTY COMPILE_FLAGS "-fobjc-arc")
@@ -50,6 +49,9 @@ foreach(sfile in ${ALL_SRCS})
   string(REPLACE "/" "\\\\" GNAME ${SUBDIR})
   source_group("Source Files\\\\${GNAME}" FILES ${sfile})
 endforeach(sfile in ${ALL_SRCS})
+
+# Build core sources as static library for reuse by tests
+add_library(jmp_core STATIC ${ALL_SRCS})
 
 file(GLOB_RECURSE RESOURCE_FILES ${CMAKE_SOURCE_DIR}/resources/*)
 file(GLOB_RECURSE NATIVE_FILES ${CMAKE_SOURCE_DIR}/native/*)
@@ -125,7 +127,7 @@ if(XCODE)
 endif()
 
 get_property(BUNDLED_FILES GLOBAL PROPERTY CONFIG_BUNDLED_FILES)
-add_executable(${MAIN_TARGET} WIN32 MACOSX_BUNDLE ${SOURCES} ${BUNDLED_FILES} ${RESOURCE_FILES} ${XCODE_RESOURCES})
+add_executable(${MAIN_TARGET} WIN32 MACOSX_BUNDLE ${MAIN_SRCS} ${BUNDLED_FILES} ${RESOURCE_FILES} ${XCODE_RESOURCES})
 std_target_properties(${MAIN_TARGET})
 set_target_properties(${MAIN_TARGET} PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/bundle/osx/Info.plist.in
@@ -167,7 +169,8 @@ else()
   set(MPVQT_TARGET MpvQt::MpvQt)
 endif()
 
-target_link_libraries(${MAIN_TARGET}
+# Link core library with all dependencies
+target_link_libraries(jmp_core
   shared
   ${MPV_LIBRARY}
   ${OPENGL_LIBS}
@@ -191,6 +194,8 @@ target_link_libraries(${MAIN_TARGET}
   Qt6::DBus
   ${MPVQT_TARGET}
 )
+
+target_link_libraries(${MAIN_TARGET} jmp_core)
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 
 set(EXE "${MAIN_NAME}.app")

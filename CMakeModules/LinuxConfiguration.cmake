@@ -2,7 +2,7 @@ include(GNUInstallDirs)
 
 find_package(X11)
 if(X11_FOUND AND X11_Xrandr_FOUND)
-  include_directories(X11_X11_INCLUDE_PATH X11_Xrandr_INCLUDE_PATH)
+  include_directories(${X11_X11_INCLUDE_PATH} ${X11_Xrandr_INCLUDE_PATH})
   set(X11XRANDR_FOUND 1)
   add_definitions(-DUSE_X11XRANDR)
 else()

@@ -80,7 +80,7 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 #endif
 
 // define target type
-#if TARGET_RPI
+#ifdef TARGET_RPI
   m_platformArch = platformArchRpi2;
 #elif defined(Q_PROCESSOR_X86_32)
   m_platformArch = platformArchX86_32;
@@ -106,7 +106,7 @@ bool SystemComponent::componentInitialize()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::crashApp()
 {
-  *(volatile int*)nullptr=0;
+  *static_cast<volatile int*>(nullptr) = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -566,10 +566,10 @@ QString SystemComponent::getNativeShellScript()
                                 QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64() +
                                 "\"));\nwindow.jmpInfo = jmpInfo;\n";
 
-  auto loadScript = [](const QString& path) -> QString {
-    QFile file(path);
+  auto loadScript = [](const QString& scriptPath) -> QString {
+    QFile file(scriptPath);
     if (!file.open(QIODevice::ReadOnly)) {
-      qCritical() << "Failed to load" << path << "from qrc";
+      qCritical() << "Failed to load" << scriptPath << "from qrc";
       return "";
     }
     return QTextStream(&file).readAll();

@@ -1,5 +1,3 @@
-#include <locale.h>
-
 #include <QGuiApplication>
 #include <QApplication>
 #include <QFileInfo>
@@ -139,13 +137,6 @@ int main(int argc, char *argv[])
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     int newArgc = argc + g_qtFlags.size();
-
-    // Qt calls setlocale(LC_ALL, "") in a bunch of places, which breaks
-    // float/string processing in mpv and ffmpeg.
-#ifdef Q_OS_UNIX
-    qputenv("LC_ALL", "C");
-    qputenv("LC_NUMERIC", "C");
-#endif
 
     preinitQt();
     detectOpenGLEarly();

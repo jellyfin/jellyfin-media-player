@@ -1,4 +1,5 @@
 #include "CodecsComponent.h"
+#include <clocale>
 #include <QDebug>
 #include <QString>
 #include <Qt>
@@ -372,6 +373,7 @@ static QString loadDeviceID()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString getFFmpegVersion()
 {
+  std::setlocale(LC_NUMERIC, "C");
   auto mpv = mpv::qt::Handle::FromRawHandle(mpv_create());
   if (!mpv || mpv_initialize(mpv) < 0)
     return "";

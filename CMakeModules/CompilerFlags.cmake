@@ -1,6 +1,15 @@
 # MSVC goes totally bananas if we pass it -Wall
 if(NOT MSVC)
   enable_if_supported(COMPILER_FLAGS "-Wall")
+  enable_if_supported(COMPILER_FLAGS "-Wextra")
+  enable_if_supported(COMPILER_FLAGS "-Wformat")
+  enable_if_supported(COMPILER_FLAGS "-Werror=format-security")
+  enable_if_supported(COMPILER_FLAGS "-Wshadow")
+  enable_if_supported(COMPILER_FLAGS "-Wundef")
+  enable_if_supported(COMPILER_FLAGS "-Wcast-align")
+  enable_if_supported(COMPILER_FLAGS "-Wmissing-include-dirs")
+  enable_if_supported(COMPILER_FLAGS "-Woverloaded-virtual")
+  enable_if_supported(COMPILER_FLAGS "-Wold-style-cast")
 endif()
 
 enable_if_supported(COMPILER_FLAGS "-Wshorten-64-to-32")

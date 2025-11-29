@@ -54,7 +54,7 @@ int SignalManager::setupHandlers()
 void SignalManager::signalHandler(int signal_num)
 {
   unsigned char a = signal_num < 255 ? signal_num : 0;
-  write(g_sigtermFd[0], &a, sizeof(a));
+  (void)write(g_sigtermFd[0], &a, sizeof(a));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,8 @@ void SignalManager::handleSignal()
 {
   m_snTerm->setEnabled(false);
   unsigned char signalNumber = 0;
-  read(g_sigtermFd[1], &signalNumber, sizeof(signalNumber));
+  if (read(g_sigtermFd[1], &signalNumber, sizeof(signalNumber)) < 0)
+    return;
 
   // do Qt stuff
   if (signalNumber == SIGUSR1)

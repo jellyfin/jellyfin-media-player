@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.10...3.31)
 
 set(CMAKE_AUTOMOC ON)
 

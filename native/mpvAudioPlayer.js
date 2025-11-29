@@ -160,13 +160,12 @@ class mpvAudioPlayer {
         function onPlaying() {
             if (!self._started) {
                 self._started = true;
+
+                const volume = self.getSavedVolume() * 100;
+                self.setVolume(volume, volume != self._volume);
             }
 
-            const volume = self.getSavedVolume() * 100;
-            self.setVolume(volume, volume != self._volume);
-
-            self.setPlaybackRate(1);
-            self.setMute(false, false);
+            self.setPlaybackRate(self.getPlaybackRate());
 
             if (self._paused) {
                 self._paused = false;

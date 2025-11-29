@@ -372,7 +372,7 @@ bool PlayerComponent::switchDisplayFrameRate()
   }
 
   bool fs = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
-#if KONVERGO_OPENELEC
+#ifdef KONVERGO_OPENELEC
   fs = true;
 #endif
   if (!fs)

@@ -15,7 +15,7 @@
 #include "ui/WindowManager.h"
 #include "mpris/MprisComponent.h"
 
-#if KONVERGO_OPENELEC
+#ifdef KONVERGO_OPENELEC
 #include "system/openelec/OESystemComponent.h"
 #endif
 
@@ -63,7 +63,7 @@ void ComponentManager::initialize()
   registerComponent(&WindowManager::Get());
   registerComponent(&MprisComponent::Get());
 
-#if KONVERGO_OPENELEC
+#ifdef KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());
 #endif
 

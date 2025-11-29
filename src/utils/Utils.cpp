@@ -87,8 +87,8 @@ Platform Utils::CurrentPlatform()
 {
 #if defined(Q_OS_MAC)
   return PLATFORM_OSX;
-#elif KONVERGO_OPENELEC
-  #if TARGET_RPI
+#elif defined(KONVERGO_OPENELEC)
+  #ifdef TARGET_RPI
     return PLATFORM_OE_RPI;
   #else
     return PLATFORM_OE_X86;

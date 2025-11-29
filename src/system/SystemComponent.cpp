@@ -80,7 +80,7 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 #endif
 
 // define target type
-#if TARGET_RPI
+#ifdef TARGET_RPI
   m_platformArch = platformArchRpi2;
 #elif defined(Q_PROCESSOR_X86_32)
   m_platformArch = platformArchX86_32;

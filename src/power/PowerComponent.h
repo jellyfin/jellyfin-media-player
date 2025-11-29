@@ -36,7 +36,7 @@ public Q_SLOTS:
   bool canSuspend() { return checkCap(CAP_SUSPEND); }
   bool canRelaunch()
   {
-#if OPENELEC
+#ifdef OPENELEC
       return true;
 #else
       return false;

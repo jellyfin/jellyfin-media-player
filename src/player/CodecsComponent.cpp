@@ -662,6 +662,7 @@ static Downloader::HeaderList getPlexHeaders()
 
 static QUrl buildCodecQuery(QString version, QString name, QString build)
 {
+  (void)version; (void)name; (void)build;
   return QUrl("");
 }
 
@@ -758,6 +759,7 @@ void CodecsFetcher::codecInfoDownloadDone(QVariant cbUserData, bool success, con
 
 static voidpf unz_open_file(voidpf opaque, const char* filename, int mode)
 {
+  (void)opaque; (void)mode;
 #ifdef Q_OS_WIN32
   return _wfopen(QString::fromUtf8(filename).toStdWString().c_str(), L"rb");
 #else
@@ -767,31 +769,37 @@ static voidpf unz_open_file(voidpf opaque, const char* filename, int mode)
 
 static uLong unz_read_file(voidpf opaque, voidpf stream, void* buf, uLong size)
 {
-  return fread(buf, 1, size, (FILE *)stream);
+  (void)opaque;
+  return fread(buf, 1, size, static_cast<FILE*>(stream));
 }
 
 static uLong unz_write_file(voidpf opaque, voidpf stream, const void* buf, uLong size)
 {
+  (void)opaque; (void)stream; (void)buf; (void)size;
   return 0;
 }
 
 static int unz_close_file(voidpf opaque, voidpf stream)
 {
-  return fclose((FILE *)stream);
+  (void)opaque;
+  return fclose(static_cast<FILE*>(stream));
 }
 
 static int unz_error_file(voidpf opaque, voidpf stream)
 {
-  return ferror((FILE *)stream);
+  (void)opaque;
+  return ferror(static_cast<FILE*>(stream));
 }
 
 static long unz_tell_file(voidpf opaque, voidpf stream)
 {
-  return ftell((FILE *)stream);
+  (void)opaque;
+  return ftell(static_cast<FILE*>(stream));
 }
 
 long unz_seek_file(voidpf opaque, voidpf stream, uLong offset, int origin)
 {
+  (void)opaque;
   int whence = -1;
   switch (origin)
   {
@@ -947,6 +955,7 @@ fail:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static bool extractZip(QString zip, QString dest)
 {
+  (void)zip; (void)dest;
   return false;
 }
 

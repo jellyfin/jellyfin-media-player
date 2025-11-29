@@ -730,6 +730,7 @@ bool SettingsComponent::resetAndSaveOldConfiguration()
 /////////////////////////////////////////////////////////////////////////////////////////
 QString SettingsComponent::getWebClientUrl(bool desktop)
 {
+  (void)desktop;
   QString url;
 
   url = SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl_desktop").toString();

@@ -382,6 +382,7 @@ void InputCECWorker::CecCommand(void *cbParam, const cec_command *command)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputCECWorker::CecAlert(void *cbParam, const libcec_alert type, const libcec_parameter param)
 {
+  (void)param;
   bool reopen = false;
 
   switch (type)

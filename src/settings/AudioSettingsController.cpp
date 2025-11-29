@@ -25,6 +25,7 @@ void AudioSettingsController::setHiddenPassthrough(const QStringList& codecs, bo
 /////////////////////////////////////////////////////////////////////////////////////////
 void AudioSettingsController::valuesUpdated(const QVariantMap& values)
 {
+  (void)values;
   SettingsSection* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO);
   auto prevDescriptions = audioSection->descriptions();
 

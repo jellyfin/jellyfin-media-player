@@ -320,6 +320,7 @@ void MprisComponent::SetPosition(const QDBusObjectPath& trackId, qint64 position
 
 void MprisComponent::OpenUri(const QString& uri)
 {
+  (void)uri;
 }
 
 void MprisComponent::setVolume(double volume)

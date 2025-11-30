@@ -10,10 +10,7 @@
 #include <QDBusMessage>
 #include <QDBusError>
 #include <QApplication>
-#include <QCryptographicHash>
 #include <QDebug>
-#include <QDir>
-#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -23,6 +20,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QUrlQuery>
+#include <QMimeDatabase>
 
 #define MPRIS_SERVICE_NAME "org.mpris.MediaPlayer2.jellyfinmediaplayer"
 #define MPRIS_OBJECT_PATH "/org/mpris/MediaPlayer2"
@@ -44,16 +42,10 @@ MprisComponent::MprisComponent(QObject* parent)
   , m_seekPending(false)
   , m_expectedPosition(0)
   , m_isNavigating(false)
-  , m_albumArtDir("/tmp/jellyfin-mpris")
   , m_playerState(PlayerComponent::State::finished)
-  , m_albumArtManager(nullptr)
+  , m_albumArtManager(new QNetworkAccessManager(this))
   , m_pendingArtReply(nullptr)
 {
-  // Create album art directory
-  QDir dir;
-  dir.mkpath(m_albumArtDir);
-
-  m_albumArtManager = new QNetworkAccessManager(this);
 }
 
 MprisComponent::~MprisComponent()
@@ -1002,38 +994,25 @@ QString MprisComponent::handleAlbumArt(const QString& artUrl)
   if (artUrl.isEmpty())
     return QString();
 
+  // For file:// URLs, return as-is
   if (artUrl.startsWith("file://"))
   {
-    if (!m_currentArtPath.isEmpty())
-      cleanupAlbumArt();
+    cleanupAlbumArt();
     return artUrl;
   }
 
+  // For http/https URLs, download and convert to data URI
   if (artUrl.startsWith("http://") || artUrl.startsWith("https://"))
   {
-    QCryptographicHash hash(QCryptographicHash::Md5);
-    hash.addData(artUrl.toUtf8());
-    QString filename = QString("%1/%2.jpg").arg(m_albumArtDir)
-                                           .arg(hash.result().toHex().constData());
-
-    if (QFile::exists(filename))
-    {
-      if (m_currentArtPath != filename && !m_currentArtPath.isEmpty())
-        cleanupAlbumArt();
-
-      m_currentArtPath = filename;
-      return QUrl::fromLocalFile(filename).toString();
-    }
-
+    // If already downloading this URL, wait for it
     if (m_pendingArtReply && m_pendingArtUrl == artUrl)
-    {
-      return QString();
-    }
+      return m_currentArtDataUri;
 
-    if (!m_currentArtPath.isEmpty() || m_pendingArtReply)
-      cleanupAlbumArt();
+    // If URL hasn't changed and we have a cached data URI, return it
+    if (m_pendingArtUrl == artUrl && !m_currentArtDataUri.isEmpty())
+      return m_currentArtDataUri;
 
-    m_pendingArtPath = filename;
+    cleanupAlbumArt();
     m_pendingArtUrl = artUrl;
 
     QNetworkRequest request;
@@ -1041,7 +1020,6 @@ QString MprisComponent::handleAlbumArt(const QString& artUrl)
     request.setRawHeader("User-Agent", "JellyfinMediaPlayer/1.0");
 
     m_pendingArtReply = m_albumArtManager->get(request);
-
     connect(m_pendingArtReply, &QNetworkReply::finished, this, &MprisComponent::onAlbumArtDownloaded);
 
     return QString();
@@ -1057,15 +1035,10 @@ void MprisComponent::cleanupAlbumArt()
     m_pendingArtReply->abort();
     m_pendingArtReply->deleteLater();
     m_pendingArtReply = nullptr;
-    m_pendingArtPath.clear();
     m_pendingArtUrl.clear();
   }
 
-  if (!m_currentArtPath.isEmpty())
-  {
-    QFile::remove(m_currentArtPath);
-    m_currentArtPath.clear();
-  }
+  m_currentArtDataUri.clear();
 }
 
 void MprisComponent::onAlbumArtDownloaded()
@@ -1083,44 +1056,40 @@ void MprisComponent::onAlbumArtDownloaded()
   {
     if (reply->error() != QNetworkReply::OperationCanceledError)
       qDebug() << "MPRIS: Album art download failed:" << reply->errorString();
-    m_pendingArtPath.clear();
     return;
   }
 
   QByteArray imageData = reply->readAll();
-
-  if (imageData.size() > 0)
+  if (imageData.isEmpty())
   {
-    QFile file(m_pendingArtPath);
-    if (file.open(QIODevice::WriteOnly))
+    qDebug() << "MPRIS: Album art download returned empty data";
+    return;
+  }
+
+  static QMimeDatabase mimeDb;
+  QString mimeType = mimeDb.mimeTypeForData(imageData).name();
+  qDebug() << "MPRIS: Album art mime type:" << mimeType;
+  if (mimeType.startsWith("image/"))
+  {
+    // Create data URI
+    QString dataUri = QString("data:%1;base64,%2")
+                        .arg(mimeType)
+                        .arg(QString::fromLatin1(imageData.toBase64()));
+
+    m_currentArtDataUri = dataUri;
+
+    if (!m_metadata.isEmpty())
     {
-      file.write(imageData);
-      file.close();
-
-      file.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
-
-      m_currentArtPath = m_pendingArtPath;
-      QString artUrl = QUrl::fromLocalFile(m_currentArtPath).toString();
-
-      if (!m_metadata.isEmpty())
-      {
-        m_metadata["mpris:artUrl"] = artUrl;
-        emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
-      }
-
-      qDebug() << "MPRIS: Album art downloaded successfully:" << m_currentArtPath;
+      m_metadata["mpris:artUrl"] = dataUri;
+      emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
     }
-    else
-    {
-      qDebug() << "MPRIS: Failed to write album art to:" << m_pendingArtPath;
-    }
+
+    qDebug() << "MPRIS: Album art downloaded successfully, data URI length:" << dataUri.length();
   }
   else
   {
-    qDebug() << "MPRIS: Album art validation failed - empty data";
+    qDebug() << "MPRIS: Album art not an image type:" << mimeType;
   }
-
-  m_pendingArtPath.clear();
 }
 
 QString MprisComponent::extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl)

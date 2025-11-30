@@ -151,9 +151,7 @@ private:
 
   bool m_isNavigating;
 
-  QString m_currentArtPath;
-  QString m_albumArtDir;
-  QString m_pendingArtPath;
+  QString m_currentArtDataUri;
   QString m_pendingArtUrl;
   PlayerComponent::State m_playerState;
 

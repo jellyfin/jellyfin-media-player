@@ -788,6 +788,12 @@ bool SettingsComponent::autodetectCertBundle()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+bool SettingsComponent::allowBrowserZoom()
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "allowBrowserZoom").toBool();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 QString SettingsComponent::detectCertBundlePath()
 {
   static QString cachedPath;

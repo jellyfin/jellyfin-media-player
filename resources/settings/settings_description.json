@@ -168,6 +168,12 @@
         "display_name": "Enable MPV Player",
         "help": "Enables MPV player for video and audio playback. When disabled, Jellyfin Media Player will fall back to the browser's built-in HTML5 player. This setting requires an application restart to take effect.\n\nNote: Disabling MPV will lose advanced features like audio passthrough, hardware decoding options, and codec-specific settings.",
         "default": true
+      },
+      {
+        "value": "allowBrowserZoom",
+        "display_name": "Allow Browser Zoom",
+        "help": "Allows zooming the web interface using Ctrl+Plus/Minus, Ctrl+Scroll, or pinch-to-zoom. Changing this setting requires an application restart for pinch-to-zoom.",
+        "default": true
       }
     ]
   },

@@ -165,9 +165,24 @@ Window
     id: action_forward
   }
 
+  Action
+  {
+    enabled: mainWindow.webDesktopMode
+    shortcut: "Ctrl+0"
+    onTriggered: web.zoomFactor = 1.0
+  }
+
   WebChannel
   {
     id: webChannelObject
+  }
+
+  Binding
+  {
+    target: web
+    property: "zoomFactor"
+    value: 1.0
+    when: !components.settings.allowBrowserZoom()
   }
 
   MpvVideoItem

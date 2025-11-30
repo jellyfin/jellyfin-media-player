@@ -230,10 +230,19 @@ int main(int argc, char *argv[])
       webEngineDataDir = d.absolutePath() + "/QtWebEngine";
     }
 
+    QStringList chromiumFlags;
 #ifdef Q_OS_LINUX
     // Disable QtWebEngine's automatic MPRIS registration - we handle it ourselves
-    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--disable-features=MediaSessionService,HardwareMediaKeyHandling");
+    chromiumFlags << "--disable-features=MediaSessionService,HardwareMediaKeyHandling";
 #endif
+    // Disable pinch-to-zoom if browser zoom is not allowed
+    QVariant allowZoom = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "allowBrowserZoom");
+    if (allowZoom.isValid() && !allowZoom.toBool())
+      chromiumFlags << "--disable-pinch";
+
+    if (!chromiumFlags.isEmpty())
+      qputenv("QTWEBENGINE_CHROMIUM_FLAGS", chromiumFlags.join(" ").toUtf8());
+
     if (parser.isSet("remote-debugging-port"))
       qputenv("QTWEBENGINE_REMOTE_DEBUGGING", parser.value("remote-debugging-port").toUtf8());
 

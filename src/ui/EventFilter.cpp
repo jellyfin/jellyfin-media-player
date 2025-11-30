@@ -9,6 +9,7 @@
 #include <QQuickItem>
 
 #include <QKeyEvent>
+#include <QWheelEvent>
 #include <QObject>
 
 static QStringList desktopWhiteListedKeys = { "Media Play",
@@ -113,6 +114,27 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
         if (mouseEvent->button() == Qt::ForwardButton)
           QMetaObject::invokeMethod(webView, "goForward");
       }
+    }
+
+    // Block zoom keyboard shortcuts when zoom is disabled (but allow Ctrl+0 reset)
+    bool allowZoom = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "allowBrowserZoom").toBool();
+    if (!allowZoom && (event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride))
+    {
+      QKeyEvent* key = dynamic_cast<QKeyEvent*>(event);
+      if (key && (key->modifiers() & Qt::ControlModifier))
+      {
+        if (key->key() == Qt::Key_Plus || key->key() == Qt::Key_Equal ||
+            key->key() == Qt::Key_Minus)
+          return true;
+      }
+    }
+
+    // Block Ctrl+scroll zoom when zoom is disabled
+    if (!allowZoom && event->type() == QEvent::Wheel)
+    {
+      QWheelEvent* wheel = dynamic_cast<QWheelEvent*>(event);
+      if (wheel && (wheel->modifiers() & Qt::ControlModifier))
+        return true;
     }
 
     return QObject::eventFilter(watched, event);

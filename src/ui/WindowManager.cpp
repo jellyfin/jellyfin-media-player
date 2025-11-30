@@ -24,6 +24,8 @@ WindowManager& WindowManager::Get()
 WindowManager::WindowManager(QObject* parent)
   : ComponentBase(parent),
     m_window(nullptr),
+    m_webView(nullptr),
+    m_enforcingZoom(false),
     m_ignoreFullscreenSettingsChange(0),
     m_maximized(false),
     m_fullscreen(false),
@@ -121,6 +123,14 @@ void WindowManager::initializeWindow(QQuickWindow* window)
   // Connect to application shutdown
   connect(qApp, &QGuiApplication::aboutToQuit,
           this, &WindowManager::saveGeometrySlot);
+
+  // Find web view and connect to zoom changes
+  m_webView = m_window->findChild<QQuickItem*>("web");
+  if (m_webView)
+  {
+    connect(m_webView, SIGNAL(zoomFactorChanged()), this, SLOT(onZoomFactorChanged()));
+    enforceZoom();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -389,6 +399,10 @@ void WindowManager::updateMainSectionSettings(const QVariantMap& values)
     if (!url.isEmpty())
       m_window->setProperty("webUrl", url);
   }
+
+  // Browser zoom
+  if (values.contains("allowBrowserZoom"))
+    enforceZoom();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,4 +640,29 @@ void WindowManager::applySettings()
   values["startupurl"] = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "startupurl");
 
   updateMainSectionSettings(values);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WindowManager::onZoomFactorChanged()
+{
+  enforceZoom();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WindowManager::enforceZoom()
+{
+  if (!m_webView || m_enforcingZoom)
+    return;
+
+  bool allowZoom = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "allowBrowserZoom").toBool();
+  if (!allowZoom)
+  {
+    qreal currentZoom = m_webView->property("zoomFactor").toReal();
+    if (currentZoom != 1.0)
+    {
+      m_enforcingZoom = true;
+      m_webView->setProperty("zoomFactor", 1.0);
+      m_enforcingZoom = false;
+    }
+  }
 }

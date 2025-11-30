@@ -65,6 +65,7 @@ public:
   Q_INVOKABLE bool ignoreSSLErrors();
   Q_INVOKABLE bool autodetectCertBundle();
   Q_INVOKABLE QString detectCertBundlePath();
+  Q_INVOKABLE bool allowBrowserZoom();
 
   // host commands
   Q_SLOT Q_INVOKABLE void cycleSettingCommand(const QString& args);

@@ -2,6 +2,7 @@
 #define WINDOWMANAGER_H
 
 #include <QObject>
+#include <QQuickItem>
 #include <QQuickWindow>
 #include <QRect>
 #include <QScreen>
@@ -64,6 +65,7 @@ private slots:
   void updateMainSectionSettings(const QVariantMap& values);
   void updateWindowState(bool saveGeo = true);
   void saveGeometrySlot();
+  void onZoomFactorChanged();
 
 private:
   // Geometry
@@ -83,7 +85,11 @@ private:
   void connectSettings();
   void applySettings();
 
+  void enforceZoom();
+
   QQuickWindow* m_window;
+  QQuickItem* m_webView;
+  bool m_enforcingZoom;
   QString m_currentScreenName;
   int m_ignoreFullscreenSettingsChange;
   QRect m_normalGeometry;

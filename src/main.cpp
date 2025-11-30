@@ -234,6 +234,8 @@ int main(int argc, char *argv[])
     // Disable QtWebEngine's automatic MPRIS registration - we handle it ourselves
     qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--disable-features=MediaSessionService,HardwareMediaKeyHandling");
 #endif
+    if (parser.isSet("remote-debugging-port"))
+      qputenv("QTWEBENGINE_REMOTE_DEBUGGING", parser.value("remote-debugging-port").toUtf8());
 
     QtWebEngineQuick::initialize();
     QApplication app(newArgc, newArgv);

@@ -10,8 +10,6 @@
 #include "PowerComponentMac.h"
 #elif defined(LINUX_DBUS)
 #include "PowerComponentDBus.h"
-#elif defined(USE_X11POWER)
-#include "PowerComponentX11.h"
 #elif defined(Q_OS_WIN32)
 #include "PowerComponentWin.h"
 #endif
@@ -24,9 +22,6 @@ PowerComponent& PowerComponent::Get()
   return instance;
 #elif defined(LINUX_DBUS)
   static PowerComponentDBus instance;
-  return instance;
-#elif defined(USE_X11POWER)
-  static PowerComponentX11 instance;
   return instance;
 #elif defined(Q_OS_WIN32)
   static PowerComponentWin instance;

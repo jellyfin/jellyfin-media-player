@@ -239,7 +239,6 @@
             if (options.fullscreen) {
                 this.loading.show();
             }
-            window.api.power.setScreensaverEnabled(false);
             const elem = await this.createMediaElement(options);
             return await this.setCurrentSrc(elem, options);
         }
@@ -448,7 +447,6 @@
 
         stop(destroyPlayer) {
             window.api.player.stop();
-            window.api.power.setScreensaverEnabled(true);
 
             this.onEndedInternal();
 
@@ -460,7 +458,6 @@
 
         removeMediaDialog() {
             window.api.player.stop();
-            window.api.power.setScreensaverEnabled(true);
 
             window.api.player.setVideoRectangle(-1, 0, 0, 0);
 
@@ -682,7 +679,6 @@
 
     pause() {
         window.api.player.pause();
-        window.api.power.setScreensaverEnabled(true);
     }
 
     // This is a retry after error
@@ -693,7 +689,6 @@
 
     unpause() {
         window.api.player.play();
-        window.api.power.setScreensaverEnabled(false);
     }
 
     paused() {

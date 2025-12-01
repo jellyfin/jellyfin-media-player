@@ -103,7 +103,7 @@ void PowerComponentDBus::doDisableScreensaver()
     qInfo() << "doDisableScreensaver : already disabled.";
     return;
   }
-  if (QDBusConnection::systemBus().isConnected())
+  if (QDBusConnection::sessionBus().isConnected())
   {
     QDBusInterface iface(DBUS_SCREENSAVER_SERVICE_NAME, DBUS_SCREENSAVER_SERVICE_PATH,
                          DBUS_SCREENSAVER_INTERFACE, QDBusConnection::sessionBus());
@@ -128,7 +128,7 @@ void PowerComponentDBus::doDisableScreensaver()
   }
   else
   {
-    qCritical() << "doDisableScreensaver : could not find system bus";
+    qCritical() << "doDisableScreensaver : could not find session bus";
   }
 }
 
@@ -140,7 +140,7 @@ void PowerComponentDBus::doEnableScreensaver()
     qInfo() << "doEnableScreensaver : already enabled.";
     return;
   }
-  if (QDBusConnection::systemBus().isConnected())
+  if (QDBusConnection::sessionBus().isConnected())
   {
     QDBusInterface iface(DBUS_SCREENSAVER_SERVICE_NAME, DBUS_SCREENSAVER_SERVICE_PATH,
                          DBUS_SCREENSAVER_INTERFACE, QDBusConnection::sessionBus());
@@ -165,7 +165,7 @@ void PowerComponentDBus::doEnableScreensaver()
   }
   else
   {
-    qCritical() << "doEnableScreensaver : could not find system bus";
+    qCritical() << "doEnableScreensaver : could not find session bus";
   }
 }
 

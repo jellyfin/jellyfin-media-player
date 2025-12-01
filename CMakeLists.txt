@@ -12,13 +12,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 
 option(CHECK_FOR_UPDATES "Enable checking for new versions of Jellyfin Media Player" ON)
 option(OPENELEC "Make an OpenELEC build" OFF)
+option(LINUX_X11POWER "Enable non D-Bus screensaver management" OFF)
 option(USE_STATIC_MPVQT "Build MpvQt from bundled submodule instead of using system library" ON)
 
 if (NOT CHECK_FOR_UPDATES)
     add_definitions(-DDISABLE_UPDATE_CHECK)
 endif()
 
-if(UNIX AND (NOT APPLE))
+if((NOT LINUX_X11POWER) AND (UNIX AND (NOT APPLE)))
   set(LINUX_DBUS ON)
 endif()
 

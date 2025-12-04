@@ -37,7 +37,7 @@
 	<key>NSRequiresAquaSystemAppearance</key>
 	<string>False</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.9</string>
+	<string>10.15</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 </dict>

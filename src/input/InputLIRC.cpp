@@ -11,8 +11,7 @@ InputLIRC::InputLIRC(QObject* parent) : InputBase(parent)
   socket = new QLocalSocket(this);
   socketNotifier = NULL;
 
-  connect(socket, SIGNAL(error(QLocalSocket::LocalSocketError)), this,
-          SLOT(socketerror(QLocalSocket::LocalSocketError)));
+  connect(socket, &QLocalSocket::errorOccurred, this, &InputLIRC::socketerror);
   connect(socket, SIGNAL(connected()), this, SLOT(connected()));
   connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 }

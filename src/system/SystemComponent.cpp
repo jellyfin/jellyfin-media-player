@@ -88,10 +88,13 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
   m_platformArch = platformArchX86_64;
 #endif
 
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO), &SettingsSection::valuesUpdated, [=]()
+  if (auto* s = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO))
   {
-    emit capabilitiesChanged(getCapabilitiesString());
-  });
+    connect(s, &SettingsSection::valuesUpdated, [=]()
+    {
+      emit capabilitiesChanged(getCapabilitiesString());
+    });
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

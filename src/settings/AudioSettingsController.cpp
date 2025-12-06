@@ -10,8 +10,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 AudioSettingsController::AudioSettingsController(QObject* parent) : QObject(parent)
 {
-  SettingsSection* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO);
-  connect(audioSection, &SettingsSection::valuesUpdated, this, &AudioSettingsController::valuesUpdated);
+  if (auto* audioSection = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO))
+    connect(audioSection, &SettingsSection::valuesUpdated, this, &AudioSettingsController::valuesUpdated);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

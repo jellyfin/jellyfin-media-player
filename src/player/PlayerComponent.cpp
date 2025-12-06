@@ -204,17 +204,17 @@ void PlayerComponent::initializeMpv()
   setSubtitleConfiguration();
   setOtherConfiguration();
 
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::updateAudioConfiguration);
+  if (auto* s = SettingsComponent::Get().getSection(SETTINGS_SECTION_AUDIO))
+    connect(s, &SettingsSection::valuesUpdated, this, &PlayerComponent::updateAudioConfiguration);
 
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_VIDEO), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::updateVideoConfiguration);
+  if (auto* s = SettingsComponent::Get().getSection(SETTINGS_SECTION_VIDEO))
+    connect(s, &SettingsSection::valuesUpdated, this, &PlayerComponent::updateVideoConfiguration);
 
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_SUBTITLES), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::updateSubtitleConfiguration);
+  if (auto* s = SettingsComponent::Get().getSection(SETTINGS_SECTION_SUBTITLES))
+    connect(s, &SettingsSection::valuesUpdated, this, &PlayerComponent::updateSubtitleConfiguration);
 
-  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER), &SettingsSection::valuesUpdated,
-          this, &PlayerComponent::updateConfiguration);
+  if (auto* s = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER))
+    connect(s, &SettingsSection::valuesUpdated, this, &PlayerComponent::updateConfiguration);
 
   initializeCodecSupport();
   Codecs::initCodecs();

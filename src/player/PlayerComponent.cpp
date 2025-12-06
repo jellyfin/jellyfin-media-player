@@ -1284,15 +1284,15 @@ void PlayerComponent::setAudioConfiguration()
   // here for now. We might need to add support for DTS transcoding
   // if we see user requests for it.
   //
+  bool wasAc3Transcoding = m_doAc3Transcoding;
   m_doAc3Transcoding =
   (deviceType == AUDIO_DEVICE_TYPE_SPDIF &&
    SettingsComponent::Get().value(SETTINGS_SECTION_AUDIO, "passthrough.ac3").toBool());
-  if (m_doAc3Transcoding)
+  if (m_doAc3Transcoding && !wasAc3Transcoding)
   {
-    QString filterArgs = "";
-    m_mpv->command( QStringList() << "af" << "add" << ("lavcac3enc" + filterArgs));
+    m_mpv->command( QStringList() << "af" << "add" << "@ac3:lavcac3enc");
   }
-  else
+  else if (!m_doAc3Transcoding && wasAc3Transcoding)
   {
     m_mpv->command( QStringList() << "af" << "remove" << "@ac3");
   }

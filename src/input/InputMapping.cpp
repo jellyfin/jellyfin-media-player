@@ -89,7 +89,7 @@ bool InputMapping::loadMappingFile(const QString& path, QPair<QString, QVariantM
 
     if (!obj.contains("idmatcher"))
     {
-      qWarning() << "Missing element 'idmatcher' from mapping file:" << path;
+      // Missing idmatcher is valid for disabled mapping files
       return false;
     }
 

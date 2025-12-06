@@ -1383,7 +1383,7 @@ void PlayerComponent::updateVideoAspectSettings()
   QVariant mode = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "aspect").toString();
   bool disableScaling = false;
   bool keepAspect = true;
-  QString forceAspect = "-1";
+  QString forceAspect = "no";
   double panScan = 0.0;
   if (mode == "custom")
   {

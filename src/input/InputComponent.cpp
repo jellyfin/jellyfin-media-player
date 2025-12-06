@@ -305,7 +305,8 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
   }
   else
   {
-    qCritical() << "Slot for host command missing, or has incorrect signature!";
+    qCritical() << "Slot for host command" << command << "missing, or has incorrect signature:"
+                << receiver->metaObject()->className() << "::" << slot;
   }
 }
 

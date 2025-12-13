@@ -68,11 +68,22 @@ private slots:
   void onZoomFactorChanged();
 
 private:
-  // Geometry
+  // Geometry (separate size/position)
   void loadGeometry();
-  void saveGeometry();
   QRect loadGeometryRect();
+  void saveWindowSize();
+  void saveWindowPosition();
+  void saveGeometry();  // Calls both size and position
   bool fitsInScreens(const QRect& rc);
+
+  // Config key helpers (per-screen-configuration)
+  QString configKeyPrefix() const;
+  QString sizeWidthKey() const;
+  QString sizeHeightKey() const;
+  QString maximizedKey() const;
+  QString positionXKey() const;
+  QString positionYKey() const;
+  QString screenNameKey() const;
 
   // Screens
   void updateScreens();
@@ -92,12 +103,16 @@ private:
   bool m_enforcingZoom;
   QString m_currentScreenName;
   int m_ignoreFullscreenSettingsChange;
-  QRect m_normalGeometry;
-  bool m_maximized;
-  bool m_fullscreen;
   bool m_cursorVisible;
-  QTimer* m_geometryChangeTimer;
-  QRect m_pendingGeometry;
+
+  // Window state
+  QWindow::Visibility m_previousVisibility;  // State before fullscreen
+  QRect m_windowedGeometry;                  // Geometry when in Windowed state
+  QTimer* m_geometrySaveTimer;               // Debounced disk sync
+
+  // initial size tracking to detect if size changed from default
+  QSize m_initialSize;
+  QSize m_initialScreenSize;
 };
 
 #endif // WINDOWMANAGER_H

@@ -175,11 +175,15 @@ QString Paths::logDir(const QString& file)
 QString Paths::socketName(const QString& serverName)
 {
   QString profileId = g_activeProfileId.isEmpty() ? "default" : g_activeProfileId;
+  QString socketFile = QString("jellyfin-desktop.%1.%2").arg(profileId, serverName);
 
 #ifdef Q_OS_UNIX
-  return QString("/tmp/jellyfin-desktop.%1.%2").arg(profileId, serverName);
+  QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+  if (runtimeDir.isEmpty())
+    runtimeDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+  return runtimeDir + "/" + socketFile;
 #else
-  return QString("jellyfin-desktop.%1.%2").arg(profileId, serverName);
+  return socketFile;
 #endif
 }
 

@@ -407,16 +407,20 @@ void SystemComponent::cancelServerConnectivity()
     m_connectivityRetryTimer->stop();
   }
 
+  // Save pointers before abort() since it synchronously triggers finished handlers
+  // which may set member variables to nullptr
   if (m_resolveUrlReply) {
-    m_resolveUrlReply->abort();
-    m_resolveUrlReply->deleteLater();
+    QNetworkReply* reply = m_resolveUrlReply;
     m_resolveUrlReply = nullptr;
+    reply->abort();
+    reply->deleteLater();
   }
 
   if (m_connectivityCheckReply) {
-    m_connectivityCheckReply->abort();
-    m_connectivityCheckReply->deleteLater();
+    QNetworkReply* reply = m_connectivityCheckReply;
     m_connectivityCheckReply = nullptr;
+    reply->abort();
+    reply->deleteLater();
   }
 
   m_pendingConnectivityUrl.clear();

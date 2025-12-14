@@ -11,7 +11,7 @@
 #include "LocalJsonClient.h"
 #include "utils/Utils.h"
 
-#define SOCKET_NAME "pmpUniqueApplication"
+#define SOCKET_NAME "singleton"
 
 class UniqueApplication : public QObject
 {

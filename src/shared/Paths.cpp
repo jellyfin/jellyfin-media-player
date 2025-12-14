@@ -174,22 +174,12 @@ QString Paths::logDir(const QString& file)
 /////////////////////////////////////////////////////////////////////////////////////////
 QString Paths::socketName(const QString& serverName)
 {
-  QString userName = qgetenv("USER");
-
-  if(userName.isEmpty())
-    userName = qgetenv("USERNAME");
-  if(userName.isEmpty())
-    userName = "unknown";
-
-  // Include profile ID in socket name for profile isolation
-  QString profileSuffix;
-  if (!g_activeProfileId.isEmpty())
-    profileSuffix = "_" + g_activeProfileId.left(8);
+  QString profileId = g_activeProfileId.isEmpty() ? "default" : g_activeProfileId;
 
 #ifdef Q_OS_UNIX
-  return QString("/tmp/jmp_%1_%2%3.sock").arg(serverName, userName, profileSuffix);
+  return QString("/tmp/jellyfin-desktop.%1.%2").arg(profileId, serverName);
 #else
-  return QString("jmp_%1_%2%3.sock").arg(serverName, userName, profileSuffix);
+  return QString("jellyfin-desktop.%1.%2").arg(profileId, serverName);
 #endif
 }
 

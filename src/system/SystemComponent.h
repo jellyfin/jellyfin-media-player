@@ -108,6 +108,8 @@ public:
 
   void updateScale(qreal scale);
 
+  QSslConfiguration getSSLConfiguration();
+
 private Q_SLOTS:
   void updateInfoHandler(QNetworkReply* reply);
 
@@ -125,7 +127,6 @@ private:
   bool platformIsLinux() const { return m_platformType == platformTypeLinux; }
   bool platformIsFreeBSD() const { return m_platformType == platformTypeFreeBSD; }
 
-  QSslConfiguration getSSLConfiguration();
   void setReplyTimeout(QNetworkReply* reply, int ms);
 
   QNetworkAccessManager* m_networkManager;

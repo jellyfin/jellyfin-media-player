@@ -306,11 +306,11 @@ Window
       components.system.jsLog(level, sourceID + ":" + lineNumber + " " + message);
     }
 
-    onCertificateError:
+    onCertificateError: function(error)
     {
       console.log(error.url + " :" + error.description + error.error)
       if (components.settings.ignoreSSLErrors()) {
-        error.ignoreCertificateError()
+        error.acceptCertificate()
       }
     }
   }

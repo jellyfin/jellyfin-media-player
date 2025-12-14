@@ -4,6 +4,7 @@
 #include "player/PlayerComponent.h"
 #include "input/InputComponent.h"
 #include "system/SystemComponent.h"
+#include "settings/SettingsComponent.h"
 #include "core/Globals.h"
 #include "ui/WindowManager.h"
 #include "shared/Paths.h"
@@ -1022,8 +1023,13 @@ QString MprisComponent::handleAlbumArt(const QString& artUrl)
     QNetworkRequest request;
     request.setUrl(QUrl(artUrl));
     request.setRawHeader("User-Agent", SystemComponent::Get().getUserAgent().toUtf8());
+    request.setSslConfiguration(SystemComponent::Get().getSSLConfiguration());
 
     m_pendingArtReply = m_albumArtManager->get(request);
+    if (SettingsComponent::Get().ignoreSSLErrors()) {
+      connect(m_pendingArtReply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
+              m_pendingArtReply, QOverload<>::of(&QNetworkReply::ignoreSslErrors));
+    }
     connect(m_pendingArtReply, &QNetworkReply::finished, this, &MprisComponent::onAlbumArtDownloaded);
 
     return QString();

@@ -35,7 +35,7 @@ int SignalManager::setupHandlers()
 
   term.sa_handler = SignalManager::signalHandler;
   sigemptyset(&term.sa_mask);
-  term.sa_flags = SA_RESTART | SA_RESETHAND;
+  term.sa_flags = SA_RESTART;
 
   if (sigaction(SIGHUP, &term, nullptr) < 0)
     return -1;
@@ -43,9 +43,11 @@ int SignalManager::setupHandlers()
   if (sigaction(SIGTERM, &term, nullptr) < 0)
     return -2;
 
-  term.sa_flags = SA_RESTART;
-  if (sigaction(SIGUSR1, &term, nullptr) < 0)
+  if (sigaction(SIGINT, &term, nullptr) < 0)
     return -3;
+
+  if (sigaction(SIGUSR1, &term, nullptr) < 0)
+    return -4;
 
   return 0;
 }

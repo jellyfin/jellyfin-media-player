@@ -14,7 +14,7 @@ class InputSocket : public InputBase
 public:
   explicit InputSocket(QObject* parent = nullptr) : InputBase(parent)
   {
-    m_server = new LocalJsonServer("inputSocket");
+    m_server = new LocalJsonServer("input", this);
     connect(m_server, &LocalJsonServer::clientConnected, this, &InputSocket::clientConnected);
     connect(m_server, &LocalJsonServer::messageReceived, this, &InputSocket::messageReceived);
   }

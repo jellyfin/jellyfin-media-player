@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
     PFMoveToApplicationsFolderIfNecessary();
 #endif
 
-    UniqueApplication* uniqueApp = new UniqueApplication();
+    UniqueApplication* uniqueApp = new UniqueApplication(&app);
     if (!uniqueApp->ensureUnique())
     {
       Log::Cleanup();

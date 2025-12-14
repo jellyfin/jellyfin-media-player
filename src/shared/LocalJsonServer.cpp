@@ -17,6 +17,13 @@ LocalJsonServer::LocalJsonServer(const QString& serverName, QObject* parent) : Q
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+LocalJsonServer::~LocalJsonServer()
+{
+  m_server->close();
+  QLocalServer::removeServer(m_serverName);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 bool LocalJsonServer::listen()
 {
   while (!m_server->listen(m_serverName))

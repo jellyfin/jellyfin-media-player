@@ -15,6 +15,7 @@ class LocalJsonServer : public QObject
   Q_OBJECT
 public:
   explicit LocalJsonServer(const QString& serverName, QObject* parent = nullptr);
+  ~LocalJsonServer();
 
   bool listen();
   static bool sendMessage(const QVariantMap& message, QLocalSocket* socket);

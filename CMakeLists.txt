@@ -13,7 +13,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 option(CHECK_FOR_UPDATES "Enable checking for new versions of Jellyfin" ON)
 option(OPENELEC "Make an OpenELEC build" OFF)
 option(LINUX_X11POWER "Enable non D-Bus screensaver management" OFF)
-option(USE_STATIC_MPVQT "Build MpvQt from bundled submodule instead of using system library" ON)
+option(USE_STATIC_MPVQT "Build MpvQt from bundled submodule instead of using system library" OFF)
 
 if (NOT CHECK_FOR_UPDATES)
     add_definitions(-DDISABLE_UPDATE_CHECK)

@@ -313,7 +313,13 @@ window.initCompleted = new Promise(async (resolve) => {
 });
 
 window.NativeShell.AppHost = {
-    init() { },
+    init() {
+        return Promise.resolve({
+            deviceName: jmpInfo.deviceName,
+            appName: "Jellyfin Desktop",
+            appVersion: jmpInfo.version
+        });
+    },
     getDefaultLayout() {
         return jmpInfo.mode;
     },
@@ -323,10 +329,10 @@ window.NativeShell.AppHost = {
     getDeviceProfile,
     getSyncProfile: getDeviceProfile,
     appName() {
-        return "Jellyfin";
+        return "Jellyfin Desktop";
     },
     appVersion() {
-        return navigator.userAgent.split(" ")[1];
+        return jmpInfo.version;
     },
     deviceName() {
         return jmpInfo.deviceName;

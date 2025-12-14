@@ -305,7 +305,7 @@
                 console.log('[MPV] Audio track index:', this._audioTrackIndexToSetOnPlaying);
                 console.log('[MPV] Subtitle track index:', this._subtitleTrackIndexToSetOnPlaying);
 
-                const streamdata = {type: 'video', headers: {'User-Agent': 'JellyfinDesktop'}, metadata: options.item, media: {}};
+                const streamdata = {type: 'video', headers: {'User-Agent': jmpInfo.userAgent}, metadata: options.item, media: {}};
                 const fps = this.tryGetFramerate(options);
                 if (fps) {
                     streamdata.frameRate = fps;

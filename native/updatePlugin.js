@@ -18,7 +18,7 @@ class updatePlugin {
 
                 const urlSegments = url.split("/");
                 const version = urlSegments[urlSegments.length - 1].substring(1);
-                const currentVersion = navigator.userAgent.split(" ")[1];
+                const currentVersion = jmpInfo.version;
 
                 if (currentVersion.includes('pre')) return; // Do not notify for prereleases
                 if (version == currentVersion) return;

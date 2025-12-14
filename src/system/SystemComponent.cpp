@@ -21,6 +21,8 @@
 #include <QPointer>
 #include <functional>
 
+#include <QtWebEngineCore/qtwebenginecoreglobal.h>
+
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
 #include "Version.h"
@@ -423,8 +425,14 @@ void SystemComponent::cancelServerConnectivity()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QString SystemComponent::getUserAgent()
 {
-  QString osVersion = QSysInfo::productVersion();
-  QString userAgent = QString("JellyfinDesktop %1 (%2-%3 %4)").arg(Version::GetVersionString()).arg(getPlatformTypeString()).arg(getPlatformArchString()).arg(osVersion);
+  QString kernel = QSysInfo::kernelType();
+  kernel[0] = kernel[0].toUpper();
+  QString chromeVersion = QString(qWebEngineChromiumVersion()).split('.').first() + ".0.0.0";
+  QString userAgent = QString("JellyfinDesktop/%1 (%2; %3) Chrome/%4")
+    .arg(Version::GetVersionString())
+    .arg(kernel)
+    .arg(getPlatformArchString())
+    .arg(chromeVersion);
   return userAgent;
 }
 
@@ -538,6 +546,8 @@ QString SystemComponent::getNativeShellScript()
 
   QJsonObject clientData;
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
+  clientData.insert("version", QJsonValue::fromVariant(Version::GetVersionString()));
+  clientData.insert("userAgent", QJsonValue::fromVariant(getUserAgent()));
   clientData.insert("scriptPath", QJsonValue::fromVariant("file:///" + path));
   QString defaultMode = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "layout").toString();
 
@@ -667,6 +677,7 @@ void SystemComponent::checkForUpdates()
     QUrl qCheckUrl = QUrl(checkUrl);
     qDebug() << QString("Checking URL for updates: %1").arg(checkUrl);
     QNetworkRequest req(qCheckUrl);
+    req.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
 
     connect(manager, &QNetworkAccessManager::finished, this, &SystemComponent::updateInfoHandler);
     manager->get(req);

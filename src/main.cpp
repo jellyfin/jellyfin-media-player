@@ -295,10 +295,11 @@ int main(int argc, char *argv[])
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
-    // Configure QtWebEngine paths
+    // Configure QtWebEngine paths and user agent
     QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
     defaultProfile->setCachePath(webEngineDataDir);
     defaultProfile->setPersistentStoragePath(webEngineDataDir);
+    defaultProfile->setHttpUserAgent(SystemComponent::Get().getUserAgent());
 
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();

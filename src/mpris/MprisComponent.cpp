@@ -3,6 +3,7 @@
 #include "MprisPlayerAdaptor.h"
 #include "player/PlayerComponent.h"
 #include "input/InputComponent.h"
+#include "system/SystemComponent.h"
 #include "core/Globals.h"
 #include "ui/WindowManager.h"
 
@@ -1017,7 +1018,7 @@ QString MprisComponent::handleAlbumArt(const QString& artUrl)
 
     QNetworkRequest request;
     request.setUrl(QUrl(artUrl));
-    request.setRawHeader("User-Agent", "JellyfinDesktop/1.0");
+    request.setRawHeader("User-Agent", SystemComponent::Get().getUserAgent().toUtf8());
 
     m_pendingArtReply = m_albumArtManager->get(request);
     connect(m_pendingArtReply, &QNetworkReply::finished, this, &MprisComponent::onAlbumArtDownloaded);

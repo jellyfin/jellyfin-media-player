@@ -10,7 +10,7 @@
   <!-- https://michielsioen.be/2017-12-02-wix-bootstrapper-customization/ -->
 
   <?define FirstProductVersion=0.0.0 ?>
-  <?define JellyfinMediaPlayerRegistryKey=Software\Jellyfin\Jellyfin Media Player?>
+  <?define JellyfinDesktopRegistryKey=Software\Jellyfin\Jellyfin Desktop?>
 
     <!-- To keep things simple, the installer considers each new release
          a major upgrade, in which everything is uninstalled, then reinstalled
@@ -34,7 +34,7 @@
     </Condition>
     
     <!-- Icon used in the control panel -->
-    <Icon Id="JellyfinMediaPlayerIcon" SourceFile="jellyfin.ico" />
+    <Icon Id="JellyfinDesktopIcon" SourceFile="jellyfin.ico" />
 
     <!-- Useful control panel fields -->
     <?include ControlPanel.wxi ?>
@@ -55,7 +55,7 @@
     </Upgrade>
     
     <!-- Running program termination -->
-    <util:CloseApplication Id="JellyfinMediaPlayer" CloseMessage="yes" Target="JellyfinMediaPlayer.exe" ElevatedCloseMessage="yes" RebootPrompt="yes" />
+    <util:CloseApplication Id="JellyfinDesktop" CloseMessage="yes" Target="Jellyfin Desktop.exe" ElevatedCloseMessage="yes" RebootPrompt="yes" />
 
     <!-- Custom action to Install MediaFoundation on Windows Server -->
     <Property Id="WINDOWSTYPE" Value="Client"/>
@@ -63,7 +63,7 @@
     <CustomAction Id="EnableMediaFoundation" BinaryKey="WixCA" DllEntry="WixQuietExec64" Execute="immediate" Return="ignore" Impersonate="no"/>
 
     <Property Id="AUTOLAUNCH" Value="0"/>
-    <Property Id="WixShellExecTarget" Value="[INSTALLLOCATION]JellyfinMediaPlayer.exe" />
+    <Property Id="WixShellExecTarget" Value="[INSTALLLOCATION]Jellyfin Desktop.exe" />
     <CustomAction Id="LaunchPMP" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="ignore"/>
 
     <InstallExecuteSequence>
@@ -87,20 +87,20 @@
         </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder">
-        <Directory Id="JellyfinStartMenuFolder" Name="Jellyfin Media Player"/>
+        <Directory Id="JellyfinStartMenuFolder" Name="Jellyfin"/>
       </Directory>
       <Directory Id="DesktopFolder" Name="Desktop">
         <Component Id="ApplicationShortcutDesktop" Guid="{b2a1316d-917f-433f-bd87-02ec717c2648}">
             <Condition>ADDDESKTOPSHORTCUT=1</Condition>
             <Shortcut Id="ApplicationDesktopShortcut"
-                Name="Jellyfin Media Player"
+                Name="Jellyfin"
                 Description="Desktop client for Jellyfin"
-                Target="[INSTALLLOCATION]JellyfinMediaPlayer.exe"
+                Target="[INSTALLLOCATION]Jellyfin Desktop.exe"
                 WorkingDirectory="INSTALLLOCATION"/>
             <RemoveFolder Id="DesktopFolder" On="uninstall"/>
             <RegistryValue
                 Root="HKCU"
-                Key="Software\Jellyfin\Jellyfin Media Player"
+                Key="Software\Jellyfin\Jellyfin Desktop"
                 Name="installed"
                 Type="integer"
                 Value="1"
@@ -111,15 +111,15 @@
     
     <!-- Start Menu shortcut -->
     <DirectoryRef Id="JellyfinStartMenuFolder">
-      <Component Id="JellyfinMediaPlayerShortcuts" Guid="*">
+      <Component Id="JellyfinDesktopShortcuts" Guid="*">
 
-        <Shortcut Id="JellyfinMediaPlayerExeShortcut"
-                  Name="Jellyfin Media Player"
-                  Description="Jellyfin Media Player for Windows"
-                  Target="[INSTALLLOCATION]JellyfinMediaPlayer.exe"
+        <Shortcut Id="JellyfinDesktopExeShortcut"
+                  Name="Jellyfin"
+                  Description="Jellyfin for Windows"
+                  Target="[INSTALLLOCATION]Jellyfin Desktop.exe"
                   WorkingDirectory="INSTALLLOCATION" />
                   
-        <RegistryKey Root="HKCU" Key="Software\Jellyfin\Jellyfin Media Player">
+        <RegistryKey Root="HKCU" Key="Software\Jellyfin\Jellyfin Desktop">
           <RegistryValue Name="InstallFolder" Type="string" Value="[INSTALLLOCATION]" Action="write" KeyPath="no" />
         </RegistryKey>
                           
@@ -131,7 +131,7 @@
     <!-- Product Feature -->
     <Feature Id="ProductFeature" Title="Jellyfin" Level="1">
       <ComponentGroupRef Id="ProgramFilesComponentGroup" />
-      <ComponentRef Id="JellyfinMediaPlayerShortcuts" />
+      <ComponentRef Id="JellyfinDesktopShortcuts" />
       <ComponentRef Id="ApplicationShortcutDesktop" />
     </Feature>
 

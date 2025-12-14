@@ -18,8 +18,8 @@ const features = [
 
 const getPlugins = () => {
     const basePlugins = [
-        'jmpInputPlugin',
-        'jmpUpdatePlugin'
+        'inputPlugin',
+        'updatePlugin'
     ];
 
     const mpvEnabled = jmpInfo.settings?.main?.enableMPV !== false;
@@ -167,7 +167,7 @@ function getDeviceProfile() {
     }
 
     return {
-        'Name': 'Jellyfin Media Player',
+        'Name': 'Jellyfin',
         'MaxStaticBitrate': 1000000000,
         'MusicStreamingTranscodingBitrate': 1280000,
         'TimelineOffsetSeconds': 5,
@@ -323,7 +323,7 @@ window.NativeShell.AppHost = {
     getDeviceProfile,
     getSyncProfile: getDeviceProfile,
     appName() {
-        return "Jellyfin Media Player";
+        return "Jellyfin";
     },
     appVersion() {
         return navigator.userAgent.split(" ")[1];
@@ -393,7 +393,7 @@ async function showSettingsModal() {
 
     const title = document.createElement("h3");
     title.className = "formDialogHeaderTitle";
-    title.textContent = "Jellyfin Media Player Settings";
+    title.textContent = "Client Settings";
     modalHeader.appendChild(title);
 
     const modalContents = document.createElement("div");
@@ -535,7 +535,7 @@ async function showSettingsModal() {
         const legendSubHeader = document.createElement("h4");
         legendSubHeader.textContent = (
             "The server you first connected to is your saved server. " +
-            "It provides the web client for Jellyfin Media Player in the absence of a bundled one. " +
+            "It provides the web client for Jellyfin in the absence of a bundled one. " +
             "You can use this option to change it to another one. This does NOT log you off."
         );
         legend.appendChild(legendSubHeader);

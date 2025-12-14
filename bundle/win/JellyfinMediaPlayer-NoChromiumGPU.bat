@@ -1,1 +1,0 @@
-start "" "JellyfinMediaPlayer.exe" "--disable-gpu"

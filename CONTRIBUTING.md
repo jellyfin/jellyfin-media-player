@@ -1,8 +1,8 @@
-# Contributing to Jellyfin Media Player
+# Contributing to Jellyfin Desktop
 
 ## Running Tests
 
-Jellyfin Media Player uses Qt Test for unit testing.
+Jellyfin Desktop uses Qt Test for unit testing.
 
 ### Building Tests
 

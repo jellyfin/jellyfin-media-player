@@ -5,12 +5,12 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/toolchain.cmake")
   set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/toolchain.cmake")
 endif()
 
-project(JellyfinMediaPlayer CXX C)
+project(JellyfinDesktop CXX C)
 
 # we want this to be able to run clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 
-option(CHECK_FOR_UPDATES "Enable checking for new versions of Jellyfin Media Player" ON)
+option(CHECK_FOR_UPDATES "Enable checking for new versions of Jellyfin" ON)
 option(OPENELEC "Make an OpenELEC build" OFF)
 option(LINUX_X11POWER "Enable non D-Bus screensaver management" OFF)
 option(USE_STATIC_MPVQT "Build MpvQt from bundled submodule instead of using system library" ON)
@@ -83,4 +83,4 @@ add_subdirectory(tests)
 
 include(CPackConfiguration)
 
-add_custom_target(install_app_bundle COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake DEPENDS JellyfinMediaPlayer)
+add_custom_target(install_app_bundle COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake DEPENDS JellyfinDesktop)

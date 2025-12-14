@@ -1,9 +1,9 @@
 (function() {
-class jmpUpdatePlugin {
+class updatePlugin {
     constructor({ confirm }) {
-        this.name = 'JMP Update Plugin';
+        this.name = 'Update Plugin';
         this.type = 'input';
-        this.id = 'jmpUpdatePlugin';
+        this.id = 'updatePlugin';
 
         (async () => {
             const api = await window.apiPromise;
@@ -12,7 +12,7 @@ class jmpUpdatePlugin {
                 if (url == "SSL_UNAVAILABLE") {
                     // Windows (and possibly macOS) don't ship with SSL in QT......
                     // So we get to do a full request to GitHub here :(
-                    const checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
+                    const checkUrl = "https://github.com/jellyfin/jellyfin-desktop/releases/latest";
                     url = (await fetch(checkUrl)).url;
                 }
 
@@ -30,7 +30,7 @@ class jmpUpdatePlugin {
 
                     await confirm({
                         title: "Update Available",
-                        text: `Jellyfin Media Player version ${version} is available.`,
+                        text: `Jellyfin version ${version} is available.`,
                         cancelText: "Ignore",
                         confirmText: "Download"
                     });
@@ -47,5 +47,5 @@ class jmpUpdatePlugin {
     }
 }
 
-window._jmpUpdatePlugin = jmpUpdatePlugin;
+window._updatePlugin = updatePlugin;
 })();

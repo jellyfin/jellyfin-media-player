@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   try
   {
     QCommandLineParser parser;
-    parser.setApplicationDescription("Jellyfin Media Player");
+    parser.setApplicationDescription("Jellyfin Desktop");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOptions({{{"l", "licenses"},         "Show license information"},
@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
     {
       // Use Paths::dataDir() equivalent inline to avoid double nesting
       QDir d(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
-      d.mkpath(d.absolutePath() + "/" + Names::MainName());
-      d.cd(Names::MainName());
+      d.mkpath(d.absolutePath() + "/" + Names::DataName());
+      d.cd(Names::DataName());
       webEngineDataDir = d.absolutePath() + "/QtWebEngine";
     }
 
@@ -256,9 +256,9 @@ int main(int argc, char *argv[])
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
   	// Set window icon on Linux using system icon theme
-  	app.setWindowIcon(QIcon::fromTheme("com.github.iwalton3.jellyfin-media-player", QIcon(":/images/icon.png")));
+  	app.setWindowIcon(QIcon::fromTheme("org.jellyfin.JellyfinDesktop", QIcon(":/images/icon.png")));
     // Set app id for Wayland compositor window icon
-    app.setDesktopFileName("com.github.iwalton3.jellyfin-media-player");
+    app.setDesktopFileName("org.jellyfin.JellyfinDesktop");
 #endif
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)

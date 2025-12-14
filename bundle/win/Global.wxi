@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
-  <?define ProductName=Jellyfin Media Player ?>
-  <?define ProductDesc=Jellyfin Media Player for Windows ?>
+  <?define ProductName=Jellyfin ?>
+  <?define ProductDesc=Jellyfin for Windows ?>
   <?define ProductUUID=abea6faf-13ea-465f-b2bd-a24b5524e98b ?>
   <?define JellyfinWebsiteUrl=https://jellyfin.org ?>
   <?define LanguageCode=1033 ?>
-  <?define LaunchCondition_PerUser=Jellyfin Media Player does not allow per-user installations. Setup will now exit ?>
-  <?define OldWindowsError=Jellyfin Media Player requires at least Windows 7 ?>
-  <?define NewerVersionError=A newer version of Jellyfin Media Server is already installed ?>
+  <?define LaunchCondition_PerUser=Jellyfin does not allow per-user installations. Setup will now exit ?>
+  <?define OldWindowsError=Jellyfin requires at least Windows 7 ?>
+  <?define NewerVersionError=A newer version of Jellyfin is already installed ?>
 </Include>

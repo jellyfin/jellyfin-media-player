@@ -1,0 +1,1 @@
+start "" "Jellyfin Desktop.exe" "--disable-gpu"

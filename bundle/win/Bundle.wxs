@@ -38,16 +38,16 @@
                          Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\Package_for_KB2919355~31bf3856ad364e35~x86~~6.3.1.14"
                          Value="CurrentState"
                          />
-    <bal:Condition Message="Jellyfin Media Player can only be installed on Windows 7 or newer.">
+    <bal:Condition Message="Jellyfin can only be installed on Windows 7 or newer.">
       <![CDATA[VersionNT >= v6.1]]>
     </bal:Condition>
     <!-- Checking for prerequisites for windows versions where they are required -->
     <!-- We need to check for when ServicePackLevel is not defined as well, with (NOT ServicePackLevel) -->
-    <bal:Condition Message="Jellyfin Media Player on Windows 7 or Windows Server 2008 R2 requires Service Pack 1.">
+    <bal:Condition Message="Jellyfin on Windows 7 or Windows Server 2008 R2 requires Service Pack 1.">
       <![CDATA[NOT ((VersionNT = v6.1) AND ((NOT ServicePackLevel) OR (ServicePackLevel < 1)))]]>
     </bal:Condition>
     <!-- Windows 8 and 2012 have no prerequisites -->
-    <bal:Condition Message="Jellyfin Media Player on Windows 8.1 or Windows Server 2012 R2 requires KB2919355 installed.">
+    <bal:Condition Message="Jellyfin on Windows 8.1 or Windows Server 2012 R2 requires KB2919355 installed.">
       <![CDATA[NOT ((VersionNT = v6.3) AND (KB2919355_x86 <> 112 AND KB2919355_amd64 <> 112))]]>
     </bal:Condition>
 
@@ -74,15 +74,15 @@
 
     <Variable Name="autolaunch" bal:Overridable="yes" Type="numeric" Value="0" />
 
-    <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles64Folder]Jellyfin\Jellyfin Media Player" />
+    <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles64Folder]Jellyfin\Jellyfin Desktop" />
     <!-- Search for InstallFolder in registry and set it to the PreviousInstallFolder -->
     <util:RegistrySearch
-      Id="PreviousInstallFolderSearch" Root='HKCU' Key='Software\Jellyfin\Jellyfin Media Player' Value='InstallFolder' Variable='PreviousInstallFolder' />
+      Id="PreviousInstallFolderSearch" Root='HKCU' Key='Software\Jellyfin\Jellyfin Desktop' Value='InstallFolder' Variable='PreviousInstallFolder' />
     <!-- Checks if PreviousInstallFolder exists event if it is defined in the Registry, sets it to InstallFolder if so -->
     <util:DirectorySearch
       Path='[PreviousInstallFolder]' Variable='InstallFolder' After='PreviousInstallFolderSearch' Condition='PreviousInstallFolder' />
 
-    <Variable Name="LaunchTarget" Value="[InstallFolder]\JellyfinMediaPlayer.exe"/>
+    <Variable Name="LaunchTarget" Value="[InstallFolder]\Jellyfin Desktop.exe"/>
     <Variable Name="AddDesktopShortcut" Value="1" />
 
     <!-- Is Media Feature Pack present? (This should be enough for detecting if we are running on Windows N or not) -->

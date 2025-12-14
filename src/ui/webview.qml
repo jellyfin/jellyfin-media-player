@@ -8,7 +8,7 @@ import QtQuick.Controls 6.0
 Window
 {
   id: mainWindow
-  title: "Jellyfin Media Player"
+  title: "Jellyfin"
   objectName: "mainWindow"
   width: 1280
   height: 720
@@ -234,7 +234,7 @@ Window
     }
     profile.persistentCookiesPolicy: WebEngineProfile.AllowPersistentCookies
     profile.offTheRecord: false
-    profile.storageName: "JellyfinMediaPlayerStorage"
+    profile.storageName: "JellyfinDesktopStorage"
 
     Component.onCompleted:
     {

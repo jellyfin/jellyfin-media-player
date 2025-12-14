@@ -1,4 +1,4 @@
-# Jellyfin Media Player Implementation
+# Jellyfin Desktop Implementation
 
 ## Detection
 
@@ -6,7 +6,7 @@ You can detect JMP by looking for the object `window.jmpInfo`, which is defined 
 
 ## Device Profile
 
-You can query a device profile for Jellyfin Media Player with:
+You can query a device profile for Jellyfin Desktop with:
 
 ```js
 window.NativeShell.AppHost.getDeviceProfile()
@@ -32,7 +32,7 @@ The following functions are available after less than a second:
 
 ## Media Playback
 
-See [mpvVideoPlayer.js](https://github.com/jellyfin/jellyfin-media-player/blob/master/native/mpvVideoPlayer.js) for a complete example of how to connect and control the player.
+See [mpvVideoPlayer.js](https://github.com/jellyfin/jellyfin-desktop/blob/master/native/mpvVideoPlayer.js) for a complete example of how to connect and control the player.
 
 Notable API methods:
 
@@ -82,7 +82,7 @@ Note: The callback does NOT mean the video actually finished loading. You need t
 {
     type: 'video',  // use 'music' to disable video rendering
     headers: {
-        'User-Agent': 'JellyfinMediaPlayer'
+        'User-Agent': 'JellyfinDesktop'
     },
     metadata: {
         // Only used for system UI integration, eg. taskbar/windows media.
@@ -119,7 +119,7 @@ You can recieve input from remote controls and gamepads via the input component.
 "TV" mode which can be set in the config. It disables keyboard into the webapp and redirects it through
 this as well.
 
-See [jmpInputPlugin.js](https://github.com/jellyfin/jellyfin-media-player/blob/master/native/jmpInputPlugin.js) for an example which picks up events and translates them to ones that `jellyfin-web` understands.
+See [inputPlugin.js](https://github.com/jellyfin/jellyfin-desktop/blob/master/native/inputPlugin.js) for an example which picks up events and translates them to ones that `jellyfin-web` understands.
 
 ```js
 api.input.hostInput.connect((actions) => {
@@ -132,14 +132,14 @@ api.system.hello("jmpInputPlugin"); // signals to start sending user input
 ```
 
 The inputs which are actually processed by `jellyfin-web` are fairly limited, but there are many more possible events.
-See the [inputmaps](https://github.com/jellyfin/jellyfin-media-player/tree/master/resources/inputmaps) folder for event names for various input devices.
+See the [inputmaps](https://github.com/jellyfin/jellyfin-desktop/tree/master/resources/inputmaps) folder for event names for various input devices.
 
 ## Settings
 
 The application retains some user settings that control advanced functions, such as audio passthrough.
-There is already [a modal](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/native/nativeshell.js#L189-L308) you can invoke display of which allows basic configuration changes.
+There is already [a modal](https://github.com/jellyfin/jellyfin-desktop/blob/7d5943becc1ca672d599887cac9107836c38d337/native/nativeshell.js#L189-L308) you can invoke display of which allows basic configuration changes.
 
-The configuration options are defined here: [settings_description.json](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json)
+The configuration options are defined here: [settings_description.json](https://github.com/jellyfin/jellyfin-desktop/blob/master/resources/settings/settings_description.json)
 
 Current Settings:
 
@@ -194,23 +194,23 @@ Current Settings:
  - Subtitle Section (`subtitles`):
      - `ass_scale_border_and_shadow`: Controls whether or not ASS subtitles scale their border and shadow with the video resolution. Default `true`
      - `ass_style_override: string enum`: Controls whether user style override should be applied to ASS subtitles. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L412-L419)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L412-L419)
      - `placement: string enum`: Controls where subtitles are displayed on the screen. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L424-L432)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L424-L432)
      - `color: string enum`: Controls colors of subtitles. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L437-L446)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/master/resources/settings/settings_description.json#L437-L446)
      - `border_color: string enum`: Controls font border colors of subtitles. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L451-L460)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/master/resources/settings/settings_description.json#L451-L460)
      - `border_size: int`: Controls subtitle border size. Default is `-1`.
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L465-L473)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L465-L473)
      - `background_color: string enum`: Controls backgroud colors of subtitles. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L478-L487)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/master/resources/settings/settings_description.json#L478-L487)
      - `background_transparency: string enum`: Controls backgroud transparency (in hex) of subtitles. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L492-L499)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/master/resources/settings/settings_description.json#L492-L499)
      - `size: int`: Controls subtitle size. Default is `-1`.
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L504-L511)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/7d5943becc1ca672d599887cac9107836c38d337/resources/settings/settings_description.json#L504-L511)
      - `font: string enum`: Specify font to use for subtitles that do not themselves specify a particular font. Default: ``
-         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-media-player/blob/master/resources/settings/settings_description.json#L515-L525)
+         - Provided options: [see enum](https://github.com/jellyfin/jellyfin-desktop/blob/master/resources/settings/settings_description.json#L515-L525)
 
 The global `window.jmpInfo` object contains settings for the application in the form of `window.jmpInfo.settings.[section][key] = value`.
 Settings descriptions are stored in the form `window.jmpInfo.settingsDescriptions.[section] = [{ key, options }]`
@@ -295,12 +295,12 @@ api.system.updateInfoEmitted.disconnect(myEventListener);
 
 The client API corresponds to the methods in the application with `Q_INVOKABLE`.
 
- - `api.display` - [DisplayComponent.h](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/display/DisplayComponent.h) [DisplayComponent.cpp](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/display/DisplayComponent.cpp)
- - `api.input` - [InputComponent.h](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/input/InputComponent.h) [InputComponent.cpp](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/input/InputComponent.cpp)
- - `api.player` - [PlayerComponent.h](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/player/PlayerComponent.h) [PlayerComponent.cpp](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/player/PlayerComponent.cpp)
- - `api.power` - [PowerComponent.h](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/power/PowerComponent.h) [PowerComponent.cpp](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/power/PowerComponent.cpp)
- - `api.settings` - [SettingsComponent.h](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/settings/SettingsComponent.h)
- - `api.system` - [SystemComponent.h](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/system/SystemComponent.h) [SystemComponent.cpp](https://github.com/jellyfin/jellyfin-media-player/blob/master/src/system/SystemComponent.cpp)
+ - `api.display` - [DisplayComponent.h](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/display/DisplayComponent.h) [DisplayComponent.cpp](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/display/DisplayComponent.cpp)
+ - `api.input` - [InputComponent.h](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/input/InputComponent.h) [InputComponent.cpp](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/input/InputComponent.cpp)
+ - `api.player` - [PlayerComponent.h](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/player/PlayerComponent.h) [PlayerComponent.cpp](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/player/PlayerComponent.cpp)
+ - `api.power` - [PowerComponent.h](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/power/PowerComponent.h) [PowerComponent.cpp](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/power/PowerComponent.cpp)
+ - `api.settings` - [SettingsComponent.h](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/settings/SettingsComponent.h)
+ - `api.system` - [SystemComponent.h](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/system/SystemComponent.h) [SystemComponent.cpp](https://github.com/jellyfin/jellyfin-desktop/blob/master/src/system/SystemComponent.cpp)
  - `api.taskbar` - (this is empty)
 
-For a (slightly outdated) list of functions, you can look here: https://github.com/jellyfin/jellyfin-media-player/blob/master/client-api.md
+For a (slightly outdated) list of functions, you can look here: https://github.com/jellyfin/jellyfin-desktop/blob/master/client-api.md

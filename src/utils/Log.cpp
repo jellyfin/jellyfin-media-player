@@ -92,7 +92,7 @@ void Log::Init()
 
   // Create unique log file for this instance
   QString logDir = Paths::logDir("");
-  QTemporaryFile tempFile(logDir + "/jellyfinmediaplayer-XXXXXX.log");
+  QTemporaryFile tempFile(logDir + "/jellyfin-desktop-XXXXXX.log");
   tempFile.setAutoRemove(false);
   if (!tempFile.open())
   {
@@ -104,11 +104,11 @@ void Log::Init()
   logFile = new QFile(tempLogPath);
   logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 
-  qInfo() << "Starting Jellyfin Media Player version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
+  qInfo() << "Starting Jellyfin version:" << qPrintable(Version::GetVersionString()) << "build date:" << qPrintable(Version::GetBuildDate());
   qInfo() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
   qInfo() << "  Qt Version:" << QT_VERSION_STR << qPrintable(QString("[%1]").arg(QSysInfo::buildAbi()));
 
-  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::MainName() + ".log"));
+  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::DataName() + ".log"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ void Log::RotateLog()
     logFile->close();
   }
 
-  QString baseName = Names::MainName() + ".log";
+  QString baseName = Names::DataName() + ".log";
   QString mainLog = Paths::logDir(baseName);
 
   // Rotate existing logs: .log.2 -> .log.3, .log.1 -> .log.2, .log -> .log.1

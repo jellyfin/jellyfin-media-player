@@ -53,7 +53,7 @@
       {
         "value": "alwaysOnTop",
         "display_name": "Always on Top",
-        "help": "Keeps Jellyfin Media Player on top of other windows.",
+        "help": "Keeps Jellyfin on top of other windows.",
         "default": false
       },
       {
@@ -166,7 +166,7 @@
       {
         "value": "enableMPV",
         "display_name": "Enable MPV Player",
-        "help": "Enables MPV player for video and audio playback. When disabled, Jellyfin Media Player will fall back to the browser's built-in HTML5 player. This setting requires an application restart to take effect.\n\nNote: Disabling MPV will lose advanced features like audio passthrough, hardware decoding options, and codec-specific settings.",
+        "help": "Enables MPV player for video and audio playback. When disabled, Jellyfin will fall back to the browser's built-in HTML5 player. This setting requires an application restart to take effect.\n\nNote: Disabling MPV will lose advanced features like audio passthrough, hardware decoding options, and codec-specific settings.",
         "default": true
       },
       {
@@ -661,7 +661,7 @@
     "values": [
         {
           "value": "systemname",
-          "default": "JellyfinMediaPlayer",
+          "default": "JellyfinDesktop",
           "hidden": true,
           "platforms": [ "oe" ]
         },
@@ -689,7 +689,7 @@
       {
         "value": "other_conf",
         "display_name": "Manual MPV Configuration",
-        "help": "Configuration must be supplied in the same format as mpv.conf, with each configuration on a new line. i.e. \"sub-border-size=5\". Removing all set values of a configuration, from both here and the settings above, will only restore it to default once Jellyfin Media Player has restarted.",
+        "help": "Configuration must be supplied in the same format as mpv.conf, with each configuration on a new line. i.e. \"sub-border-size=5\". Removing all set values of a configuration, from both here and the settings above, will only restore it to default once Jellyfin has restarted.",
         "input_type": "textarea",
         "default": ""
       }

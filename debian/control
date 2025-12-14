@@ -1,4 +1,4 @@
-Source: jellyfin-media-player
+Source: jellyfin-desktop
 Section: video
 Priority: optional
 Maintainer:  Izzie Walton <izzie@iwalton.com>, Joshua Boniface <joshua@boniface.me>
@@ -40,10 +40,10 @@ Build-Depends: debhelper (>= 10),
                qt6-base-private-dev
 Standards-Version: 3.9.4
 Homepage: https://jellyfin.org/
-Vcs-Git: https://github.org/jellyfin/jellyfin-media-player.git
-Vcs-Browser: https://github.org/jellyfin/jellyfin-media-player
+Vcs-Git: https://github.org/jellyfin/jellyfin-desktop.git
+Vcs-Browser: https://github.org/jellyfin/jellyfin-desktop
 
-Package: jellyfin-media-player
+Package: jellyfin-desktop
 Architecture: any
 Depends: ${shlibs:Depends},
          qml6-module-qtwebengine,

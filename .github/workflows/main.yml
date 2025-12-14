@@ -26,18 +26,18 @@ jobs:
         ninja install
     - name: Fix library paths and create dmg
       run: |
-        python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
-        python3 ./scripts/fix-webengine.py ./build/output/Jellyfin\ Media\ Player.app
-        codesign --force --deep -s - ./build/output/Jellyfin\ Media\ Player.app/
+        python3 ./scripts/fix-install-names.py "./build/output/Jellyfin Desktop.app"
+        python3 ./scripts/fix-webengine.py "./build/output/Jellyfin Desktop.app"
+        codesign --force --deep -s - "./build/output/Jellyfin Desktop.app/"
         brew install create-dmg
         attempts=0
         while [[ "$attempts" -lt 10 ]]
         do
           attempts=$((attempts+1))
-          create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app" && break || echo "dmg create failed, retrying..."
+          create-dmg --volname "Jellyfin Desktop" --no-internet-enable "Jellyfin Desktop.dmg" "./build/output/Jellyfin Desktop.app" && break || echo "dmg create failed, retrying..."
           sleep 5
         done
-        if ! [[ -e JellyfinMediaPlayer.dmg ]]
+        if ! [[ -e "Jellyfin Desktop.dmg" ]]
         then
           echo "Failed to create dmg after 10 attempts"
           exit 1
@@ -46,7 +46,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: macos
-        path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
+        path: ${{ github.workspace }}/Jellyfin Desktop.dmg
 
   build-macarm64:
     runs-on: macos-14
@@ -67,16 +67,16 @@ jobs:
         ninja install
     - name: Fix library paths and create dmg
       run: |
-        python3 ./scripts/fix-install-names.py ./build/output/Jellyfin\ Media\ Player.app
-        python3 ./scripts/fix-webengine.py ./build/output/Jellyfin\ Media\ Player.app
-        codesign --force --deep -s - ./build/output/Jellyfin\ Media\ Player.app/
+        python3 ./scripts/fix-install-names.py "./build/output/Jellyfin Desktop.app"
+        python3 ./scripts/fix-webengine.py "./build/output/Jellyfin Desktop.app"
+        codesign --force --deep -s - "./build/output/Jellyfin Desktop.app/"
         brew install create-dmg
-        create-dmg --volname "Jellyfin Media Player" --no-internet-enable "JellyfinMediaPlayer.dmg" "./build/output/Jellyfin Media Player.app"
+        create-dmg --volname "Jellyfin Desktop" --no-internet-enable "Jellyfin Desktop.dmg" "./build/output/Jellyfin Desktop.app"
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: macos-arm64
-        path: ${{ github.workspace }}/JellyfinMediaPlayer.dmg
+        path: ${{ github.workspace }}/Jellyfin Desktop.dmg
 
   build-win64-legacy:
     runs-on: windows-latest
@@ -122,7 +122,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-legacy64
-        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
 
   build-win64:
     runs-on: windows-latest
@@ -168,7 +168,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows
-        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
 
   build-win32:
     runs-on: windows-latest
@@ -214,7 +214,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-legacy32
-        path: ${{ github.workspace }}/build/JellyfinMediaPlayer-*.exe
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
 
   build-ubuntu:
     strategy:
@@ -260,7 +260,7 @@ jobs:
         key: "${{ secrets.REPO_KEY }}"
         source: deployment/dist/*
         strip_components: 2
-        target: "/srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}"
+        target: "/srv/incoming/client/jellyfin-desktop/ubuntu/${{ matrix.tag }}"
     - name: Import artifactsinto reprepro
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -272,8 +272,8 @@ jobs:
         script: |
           set -o xtrace
           COMPONENT="main"
-          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}/*.deb || exit 1
-          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}/*.dsc || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-desktop/ubuntu/${{ matrix.tag }}/*.deb || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/ubuntu --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-desktop/ubuntu/${{ matrix.tag }}/*.dsc || exit 1
     - name: Move artifacts into repository
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -283,9 +283,9 @@ jobs:
         debug: false
         script_stop: false
         script: |
-          export BASEDIR="/srv/repository/main/client/jellyfin-media-player/ubuntu"
+          export BASEDIR="/srv/repository/main/client/jellyfin-desktop/ubuntu"
           sudo mkdir -p ${BASEDIR}/stable/${{ github.ref_name }} || exit 1
-          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/ubuntu/${{ matrix.tag }}/* || exit 1
+          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-desktop/ubuntu/${{ matrix.tag }}/* || exit 1
           sudo rm ${BASEDIR}/latest || true
           sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1
 
@@ -333,7 +333,7 @@ jobs:
         key: "${{ secrets.REPO_KEY }}"
         source: deployment/dist/*
         strip_components: 2
-        target: "/srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}"
+        target: "/srv/incoming/client/jellyfin-desktop/debian/${{ matrix.tag }}"
     - name: Import artifactsinto reprepro
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -345,8 +345,8 @@ jobs:
         script: |
           set -o xtrace
           COMPONENT="main"
-          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}/*.deb || exit 1
-          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}/*.dsc || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedeb ${{ matrix.tag }} /srv/incoming/client/jellyfin-desktop/debian/${{ matrix.tag }}/*.deb || exit 1
+          sudo reprepro --waitforlock 30 --basedir /srv/debian --component ${COMPONENT} includedsc ${{ matrix.tag }} /srv/incoming/client/jellyfin-desktop/debian/${{ matrix.tag }}/*.dsc || exit 1
     - name: Move artifacts into repository
       uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
       with:
@@ -356,8 +356,8 @@ jobs:
         debug: false
         script_stop: false
         script: |
-          export BASEDIR="/srv/repository/main/client/jellyfin-media-player/debian"
+          export BASEDIR="/srv/repository/main/client/jellyfin-desktop/debian"
           sudo mkdir -p ${BASEDIR}/stable/${{ github.ref_name }} || exit 1
-          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-media-player/debian/${{ matrix.tag }}/* || exit 1
+          sudo mv -t ${BASEDIR}/stable/${{ github.ref_name }} /srv/incoming/client/jellyfin-desktop/debian/${{ matrix.tag }}/* || exit 1
           sudo rm ${BASEDIR}/latest || true
           sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1

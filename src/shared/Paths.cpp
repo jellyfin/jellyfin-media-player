@@ -26,13 +26,13 @@ void Paths::setConfigDir(const QString& path)
 static QDir writableLocation(QStandardPaths::StandardLocation loc)
 {
   QDir d(QStandardPaths::writableLocation(loc));
-  if (!d.mkpath(d.absolutePath() + "/" + Names::MainName()))
+  if (!d.mkpath(d.absolutePath() + "/" + Names::DataName()))
   {
     qWarning() << "Failed to create directory:" << d.absolutePath();
     return QDir();
   }
 
-  d.cd(Names::MainName());
+  d.cd(Names::DataName());
 
   return d;
 }
@@ -41,8 +41,8 @@ static QDir writableLocation(QStandardPaths::StandardLocation loc)
 // Try a couple of different strategies to find the file we are looking for.
 // 1) By looking next to the application binary
 // 2) By looking in binary/../Resources
-// 3) By looking in PREFIX/share/jellyfinmediaplayer
-// 4) By looking in PREFIX/jellyfinmediaplayer
+// 3) By looking in PREFIX/share/jellyfin-desktop
+// 4) By looking in PREFIX/jellyfin-desktop
 //
 QString Paths::resourceDir(const QString& file)
 {
@@ -52,8 +52,8 @@ QString Paths::resourceDir(const QString& file)
   QStringList possibleResourceDirs = {
     appResourceDir,
     appResourceDir + "../Resources/",
-    prefixDir + "/share/jellyfinmediaplayer/",
-    prefixDir + "/jellyfinmediaplayer/"
+    prefixDir + "/share/jellyfin-desktop/",
+    prefixDir + "/jellyfin-desktop/"
   };
 
   for (const auto& fileStr : possibleResourceDirs)
@@ -103,8 +103,8 @@ QString Paths::logDir(const QString& file)
 {
 #ifdef Q_OS_MAC
   QDir ldir = QDir(QStandardPaths::locate(QStandardPaths::HomeLocation, "", QStandardPaths::LocateDirectory));
-  ldir.mkpath(ldir.absolutePath() + "/Library/Logs/" + Names::MainName());
-  ldir.cd("Library/Logs/" + Names::MainName());
+  ldir.mkpath(ldir.absolutePath() + "/Library/Logs/" + Names::DataName());
+  ldir.cd("Library/Logs/" + Names::DataName());
   return ldir.filePath(file);
 #else
   QDir ldir;

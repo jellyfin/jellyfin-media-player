@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.github.iwalton3.jellyfin-media-player</id>
-  <name>Jellyfin Media Player</name>
+  <id>org.jellyfin.JellyfinDesktop</id>
+  <name>Jellyfin</name>
   <summary>Desktop client for Jellyfin media server</summary>
   <developer id="com.github.iwalton3">
     <name>Izzie Walton</name>
   </developer>
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>
-  <url type="homepage">https://github.com/iwalton3/jellyfin-media-player</url>
-  <url type="help">https://github.com/iwalton3/jellyfin-media-player/blob/master/README.md</url>
-  <url type="bugtracker">https://github.com/iwalton3/jellyfin-media-player/issues</url>
+  <url type="homepage">https://github.com/jellyfin/jellyfin-desktop</url>
+  <url type="help">https://github.com/jellyfin/jellyfin-desktop/blob/master/README.md</url>
+  <url type="bugtracker">https://github.com/jellyfin/jellyfin-desktop/issues</url>
 
   <provides>
-    <binary>jellyfinmediaplayer</binary>
+    <binary>jellyfin-desktop</binary>
   </provides>
-  <launchable type="desktop-id">com.github.iwalton3.jellyfin-media-player.desktop</launchable>
+  <launchable type="desktop-id">org.jellyfin.JellyfinDesktop.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">

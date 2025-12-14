@@ -22,7 +22,7 @@
 #include <QUrlQuery>
 #include <QMimeDatabase>
 
-#define MPRIS_SERVICE_NAME "org.mpris.MediaPlayer2.jellyfinmediaplayer"
+#define MPRIS_SERVICE_NAME "org.mpris.MediaPlayer2.jellyfin-desktop"
 #define MPRIS_OBJECT_PATH "/org/mpris/MediaPlayer2"
 
 MprisComponent::MprisComponent(QObject* parent)
@@ -1017,7 +1017,7 @@ QString MprisComponent::handleAlbumArt(const QString& artUrl)
 
     QNetworkRequest request;
     request.setUrl(QUrl(artUrl));
-    request.setRawHeader("User-Agent", "JellyfinMediaPlayer/1.0");
+    request.setRawHeader("User-Agent", "JellyfinDesktop/1.0");
 
     m_pendingArtReply = m_albumArtManager->get(request);
     connect(m_pendingArtReply, &QNetworkReply::finished, this, &MprisComponent::onAlbumArtDownloaded);

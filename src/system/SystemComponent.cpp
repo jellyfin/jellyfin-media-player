@@ -424,7 +424,7 @@ void SystemComponent::cancelServerConnectivity()
 QString SystemComponent::getUserAgent()
 {
   QString osVersion = QSysInfo::productVersion();
-  QString userAgent = QString("JellyfinMediaPlayer %1 (%2-%3 %4)").arg(Version::GetVersionString()).arg(getPlatformTypeString()).arg(getPlatformArchString()).arg(osVersion);
+  QString userAgent = QString("JellyfinDesktop %1 (%2-%3 %4)").arg(Version::GetVersionString()).arg(getPlatformTypeString()).arg(getPlatformArchString()).arg(osVersion);
   return userAgent;
 }
 
@@ -434,7 +434,7 @@ QString SystemComponent::debugInformation()
   QString debugInfo;
   QTextStream stream(&debugInfo);
 
-  stream << "Jellyfin Media Player\n";
+  stream << "Jellyfin\n";
   stream << "  Version: " << Version::GetVersionString() << " built: " << Version::GetBuildDate() << "\n";
   stream << "  Web Client Version: " << Version::GetWebVersion() << "\n";
   stream << "  Web Client URL: " << SettingsComponent::Get().value(SETTINGS_SECTION_PATH, "startupurl").toString() << "\n";
@@ -445,8 +445,8 @@ QString SystemComponent::debugInformation()
   stream << "\n";
 
   stream << "Files\n";
-  stream << "  Log file: " << Paths::logDir(Names::MainName() + ".log") << "\n";
-  stream << "  Config file: " << Paths::dataDir(Names::MainName() + ".conf") << "\n";
+  stream << "  Log file: " << Paths::logDir(Names::DataName() + ".log") << "\n";
+  stream << "  Config file: " << Paths::dataDir(Names::DataName() + ".conf") << "\n";
   stream << "\n";
 
   stream << "Network Addresses\n";
@@ -581,8 +581,8 @@ QString SystemComponent::getNativeShellScript()
     ":/qtwebchannel/qwebchannel.js",
     ":/web-client/extension/mpvVideoPlayer.js",
     ":/web-client/extension/mpvAudioPlayer.js",
-    ":/web-client/extension/jmpInputPlugin.js",
-    ":/web-client/extension/jmpUpdatePlugin.js",
+    ":/web-client/extension/inputPlugin.js",
+    ":/web-client/extension/updatePlugin.js",
     ":/web-client/extension/connectivityHelper.js",
     ":/web-client/extension/nativeshell.js"
   };
@@ -663,7 +663,7 @@ void SystemComponent::checkForUpdates()
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "checkForUpdates").toBool()) {
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QString checkUrl = "https://github.com/jellyfin/jellyfin-media-player/releases/latest";
+    QString checkUrl = "https://github.com/jellyfin/jellyfin-desktop/releases/latest";
     QUrl qCheckUrl = QUrl(checkUrl);
     qDebug() << QString("Checking URL for updates: %1").arg(checkUrl);
     QNetworkRequest req(qCheckUrl);

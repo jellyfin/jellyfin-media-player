@@ -1,6 +1,6 @@
 set(PROJECT_SOURCE_DIR @PROJECT_SOURCE_DIR@)
 
-execute_process(COMMAND @QTROOT@/bin/windeployqt.exe --verbose 9 --qmldir @SOURCE_ROOT@/src/ui ${CMAKE_INSTALL_PREFIX}/JellyfinMediaPlayer.exe)
+execute_process(COMMAND @QTROOT@/bin/windeployqt.exe --verbose 9 --qmldir @SOURCE_ROOT@/src/ui "${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe")
 
 # on windows windeployqt doesnt install non qt libraries, let cmake do that
 # include(BundleUtilities)
@@ -13,7 +13,7 @@ endforeach()
 get_filename_component(CEC_DIR @CEC_LIBRARY@ DIRECTORY)
 list(APPEND SEARCHDIRS ${CEC_DIR})
 
-# fixup_bundle("${CMAKE_INSTALL_PREFIX}/JellyfinMediaPlayer.exe" "" "${SEARCHDIRS}") 
+# fixup_bundle("${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe" "" "${SEARCHDIRS}") 
 #install(PROGRAMS ${VCREDIST_DIR}/vcredist_msvc2017_x64.exe DESTINATION .)
 file(INSTALL @MPV_LIBRARY@ DESTINATION "${CMAKE_INSTALL_PREFIX}")
 

@@ -16,7 +16,7 @@ sed -i "1 s/-1)/+${DEBVER})/" debian/changelog
 
 # install deps
 echo y | mk-build-deps -i
-rm jellyfin-media-player-build-deps_*
+rm jellyfin-desktop-build-deps_*
 
 # build deb
 dpkg-buildpackage -us -uc --pre-clean --post-clean

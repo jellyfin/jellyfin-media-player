@@ -13,11 +13,11 @@ const remap = {
     "enter": "select",
 }
 
-class jmpInputPlugin {
+class inputPlugin {
     constructor({ inputManager, playbackManager }) {
-        this.name = 'JMP Input Plugin';
+        this.name = 'Input Plugin';
         this.type = 'input';
-        this.id = 'jmpInputPlugin';
+        this.id = 'inputPlugin';
 
         this.durationCheckInterval = null;
         this.positionUpdateInterval = null;
@@ -356,9 +356,9 @@ class jmpInputPlugin {
             window.Events.off(window.playbackManager, 'playbackstop');
         }
 
-        console.log('SystemMedia: jmpInputPlugin destroyed and cleaned up');
+        console.log('SystemMedia: inputPlugin destroyed and cleaned up');
     }
 }
 
-window._jmpInputPlugin = jmpInputPlugin;
+window._inputPlugin = inputPlugin;
 })();

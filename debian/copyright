@@ -1,6 +1,6 @@
 Format: http://dep.debian.net/deps/dep5
 Upstream-Name: jellyfin
-Source: https://github.com/jellyfin/jellyfin-media-player
+Source: https://github.com/jellyfin/jellyfin-desktop
 
 Files: *
 Copyright: 2018 Izzie Walton

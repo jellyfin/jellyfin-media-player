@@ -133,7 +133,7 @@ endfunction()
 add_custom_target(wix_install
                   COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake
                   COMMENT "Copying files..."
-                  DEPENDS JellyfinMediaPlayer)
+                  DEPENDS JellyfinDesktop)
 
 wix_harvest_directory("${CMAKE_INSTALL_PREFIX}" files.wxs CGROUP ProgramFilesComponentGroup DEPENDS wix_install)
 
@@ -149,12 +149,12 @@ else()
   set(INSTALLER_ARCH_STR windows-x86)
 endif()
 
-wix_create_installer(JellyfinMediaPlayer-${VERSION_STRING}-${INSTALLER_ARCH_STR}.exe
-                     TARGET JellyfinMediaPlayerInstaller
+wix_create_installer(JellyfinDesktop-${VERSION_STRING}-${INSTALLER_ARCH_STR}.exe
+                     TARGET JellyfinDesktopInstaller
                      WXS_FILES "${PROJECT_SOURCE_DIR}/bundle/win/Bundle.wxs"
                      EXTENSIONS WixUtilExtension WixBalExtension
                      DEPENDS wix_PMP.msi
                      BASEDIR "${PROJECT_SOURCE_DIR}/bundle/win"
 )
 
-add_custom_target(windows_package DEPENDS JellyfinMediaPlayerInstaller)
+add_custom_target(windows_package DEPENDS JellyfinDesktopInstaller)

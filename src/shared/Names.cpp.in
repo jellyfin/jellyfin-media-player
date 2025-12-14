@@ -9,6 +9,11 @@ QString Names::MainName()
   return QString("@MAIN_NAME@");
 }
 
+QString Names::DataName()
+{
+  return QString("@DATA_NAME@");
+}
+
 QString Names::HelperName()
 {
   return QString("@HELPER_NAME@");

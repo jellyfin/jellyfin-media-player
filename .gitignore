@@ -22,9 +22,9 @@ toolchain.cmake
 .last_wc_version
 debian/*.debhelper.log
 debian/.debhelper/
-debian/jellyfin-media-player/
+debian/jellyfin-desktop/
 debian/files
-debian/jellyfin-media-player.substvars
+debian/jellyfin-desktop.substvars
 debian/debhelper-build-stamp
 dist.zip
 obj-x86_64-linux-gnu/

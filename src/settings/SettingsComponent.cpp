@@ -217,14 +217,14 @@ static void writeJson(const QString& filename, const QJsonObject& data, bool pre
 /////////////////////////////////////////////////////////////////////////////////////////
 QVariant SettingsComponent::readPreinitValue(const QString& sectionID, const QString& key)
 {
-  QJsonObject json = loadJson(Paths::dataDir("jellyfinmediaplayer.conf"));
+  QJsonObject json = loadJson(Paths::dataDir("jellyfin-desktop.conf"));
   return json["sections"].toObject()[sectionID].toObject()[key].toVariant();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::load()
 {
-  loadConf(Paths::dataDir("jellyfinmediaplayer.conf"), false);
+  loadConf(Paths::dataDir("jellyfin-desktop.conf"), false);
   loadConf(Paths::dataDir("storage.json"), true);
 }
 
@@ -327,7 +327,7 @@ void SettingsComponent::saveSettings()
   QJsonObject json;
   json.insert("sections", QJsonValue::fromVariant(sections));
   json.insert("version", m_settingsVersion);
-  writeJson(Paths::dataDir("jellyfinmediaplayer.conf"), json);
+  writeJson(Paths::dataDir("jellyfin-desktop.conf"), json);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -723,8 +723,8 @@ bool SettingsComponent::componentInitialize()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsComponent::resetAndSaveOldConfiguration()
 {
-  QFile settingsFile(Paths::dataDir("jellyfinmediaplayer.conf"));
-  return settingsFile.rename(Paths::dataDir("jellyfinmediaplayer.conf.old"));
+  QFile settingsFile(Paths::dataDir("jellyfin-desktop.conf"));
+  return settingsFile.rename(Paths::dataDir("jellyfin-desktop.conf.old"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -768,7 +768,7 @@ QString SettingsComponent::getClientName()
   QString name;
   name = SettingsComponent::Get().value(SETTINGS_SECTION_SYSTEM, "systemname").toString();
 
-  if (name.compare("JellyfinMediaPlayer") == 0) {
+  if (name.compare("JellyfinDesktop") == 0) {
     name = Utils::ComputerName();
   }
 

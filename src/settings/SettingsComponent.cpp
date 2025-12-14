@@ -804,7 +804,7 @@ QString SettingsComponent::getClientName()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsComponent::ignoreSSLErrors()
 {
-  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "ignoreSSLErrors").toBool();
+  return m_cliIgnoreSSLErrors || SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "ignoreSSLErrors").toBool();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -869,6 +869,8 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
       setValue(SETTINGS_SECTION_MAIN, "layout", "desktop");
     else if (value == "tv")
       setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
+    else if (value == "ignore-certificate-errors")
+      m_cliIgnoreSSLErrors = true;
   }
 }
 

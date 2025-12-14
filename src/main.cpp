@@ -114,7 +114,8 @@ int main(int argc, char *argv[])
                        {"tv",                       "Start in TV mode"},
                        {"windowed",                 "Start in windowed mode"},
                        {"fullscreen",               "Start in fullscreen"},
-                       {"disable-gpu",              "Disable QtWebEngine gpu accel"}});
+                       {"disable-gpu",              "Disable QtWebEngine gpu accel"},
+                       {"ignore-certificate-errors", "Ignore certificate errors"}});
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
                                                           "the scale (DPI) of the desktop interface.");
@@ -486,6 +487,9 @@ int main(int argc, char *argv[])
     QVariant allowZoom = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "allowBrowserZoom");
     if (allowZoom.isValid() && !allowZoom.toBool())
       chromiumFlags << "--disable-pinch";
+
+    if (parser.isSet("ignore-certificate-errors"))
+      chromiumFlags << "--ignore-certificate-errors";
 
     if (!chromiumFlags.isEmpty())
       qputenv("QTWEBENGINE_CHROMIUM_FLAGS", chromiumFlags.join(" ").toUtf8());

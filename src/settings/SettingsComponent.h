@@ -108,6 +108,7 @@ private:
 
   int m_settingsVersion;
   int m_sectionIndex;
+  bool m_cliIgnoreSSLErrors = false;
 
   void loadConf(const QString& path, bool storage);
 };

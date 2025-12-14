@@ -1,7 +1,12 @@
 #include <QGuiApplication>
 #include <QApplication>
+#include <QDateTime>
 #include <QFileInfo>
 #include <QIcon>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QUuid>
 #include <QtQml>
 #include <Qt>
 #include <QtWebEngineQuick>
@@ -11,6 +16,7 @@
 #include <QtWebEngineCore/QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
+#include <QRegularExpression>
 #include <QSettings>
 
 #include "shared/Names.h"
@@ -101,15 +107,14 @@ int main(int argc, char *argv[])
   {
     QCommandLineParser parser;
     parser.setApplicationDescription("Jellyfin Desktop");
-    parser.addHelpOption();
     parser.addVersionOption();
-    parser.addOptions({{{"l", "licenses"},         "Show license information"},
-                       {"desktop",                 "Start in desktop mode"},
-                       {"tv",                      "Start in TV mode"},
-                       {"windowed",                "Start in windowed mode"},
-                       {"fullscreen",              "Start in fullscreen"},
-                       {"disable-gpu",             "Disable QtWebEngine gpu accel"},
-                       {"force-external-webclient","Use webclient provided by server"}});
+    parser.addOptions({{{"h", "help"},              "Show this help"},
+                       {{"l", "licenses"},          "Show license information"},
+                       {"desktop",                  "Start in desktop mode"},
+                       {"tv",                       "Start in TV mode"},
+                       {"windowed",                 "Start in windowed mode"},
+                       {"fullscreen",               "Start in fullscreen"},
+                       {"disable-gpu",              "Disable QtWebEngine gpu accel"}});
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
                                                           "the scale (DPI) of the desktop interface.");
@@ -129,11 +134,30 @@ int main(int argc, char *argv[])
     auto logLevelOption = QCommandLineOption("log-level", "Log level: debug, info, warn, error, fatal (default: error)");
     logLevelOption.setValueName("level");
 
+    auto profileOption = QCommandLineOption("profile", "Use specific profile for this session.");
+    profileOption.setValueName("name");
+
+    auto setDefaultProfileOption = QCommandLineOption("set-default-profile", "Set the default profile and exit.");
+    setDefaultProfileOption.setValueName("name");
+
+    auto listProfilesOption = QCommandLineOption("list-profiles", "List all profiles and exit.");
+
+    auto deleteProfileOption = QCommandLineOption("delete-profile", "Delete a profile and exit.");
+    deleteProfileOption.setValueName("name");
+
+    auto createProfileOption = QCommandLineOption("create-profile", "Create a new profile and exit.");
+    createProfileOption.setValueName("name");
+
     parser.addOption(scaleOption);
     parser.addOption(devOption);
     parser.addOption(platformOption);
     parser.addOption(configDirOption);
     parser.addOption(logLevelOption);
+    parser.addOption(profileOption);
+    parser.addOption(setDefaultProfileOption);
+    parser.addOption(listProfilesOption);
+    parser.addOption(deleteProfileOption);
+    parser.addOption(createProfileOption);
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     int newArgc = argc + g_qtFlags.size();
@@ -161,12 +185,261 @@ int main(int argc, char *argv[])
       parser.process(arguments);
     }
 
+    if (parser.isSet("help"))
+    {
+      // Get Qt's generated help, insert section header before profile options
+      QString help = parser.helpText();
+      help.replace("  --profile", "\nProfile Options:\n  --profile");
+      printf("%s", qPrintable(help));
+      return EXIT_SUCCESS;
+    }
+
     if (parser.isSet("licenses"))
     {
       ShowLicenseInfo();
       return EXIT_SUCCESS;
     }
 
+    // Handle config-dir first (affects where profiles.json is located)
+    auto configDir = parser.value("config-dir");
+    if (!configDir.isEmpty())
+    {
+      QFileInfo fi(configDir);
+      QString absPath = fi.absoluteFilePath();
+      QDir parentDir = fi.dir();
+
+      if (!parentDir.exists())
+      {
+        fprintf(stderr, "Config directory parent does not exist: %s\n", qPrintable(parentDir.absolutePath()));
+        return EXIT_FAILURE;
+      }
+
+      Paths::setConfigDir(absPath);
+      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, absPath);
+    }
+
+    // Helper lambdas for profile operations
+    auto profileExists = [](const QString& id) {
+      return QDir(Paths::globalDataDir("profiles/" + id)).exists();
+    };
+
+    auto getProfilesList = []() {
+      QStringList profiles;
+      QDir profilesDir(Paths::globalDataDir("profiles"));
+      if (profilesDir.exists())
+      {
+        for (const QString& dir : profilesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
+        {
+          if (dir.length() == 32 && dir.contains(QRegularExpression("^[0-9a-f]+$")))
+            profiles << dir;
+        }
+      }
+      return profiles;
+    };
+
+    auto getProfileName = [](const QString& id) {
+      QFile meta(Paths::globalDataDir("profiles/" + id + "/profile.json"));
+      if (meta.open(QIODevice::ReadOnly))
+      {
+        QJsonDocument doc = QJsonDocument::fromJson(meta.readAll());
+        meta.close();
+        return doc.object()["name"].toString();
+      }
+      return QString();
+    };
+
+    auto findProfileByName = [&getProfilesList, &getProfileName](const QString& name) {
+      for (const QString& id : getProfilesList())
+      {
+        if (getProfileName(id) == name)
+          return id;
+      }
+      return QString();
+    };
+
+    auto readDefaultProfile = []() {
+      QString profilesFile = Paths::globalDataDir("profiles.json");
+      QFile file(profilesFile);
+      if (file.open(QIODevice::ReadOnly))
+      {
+        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        file.close();
+        return doc.object()["defaultProfile"].toString();
+      }
+      return QString();
+    };
+
+    auto writeDefaultProfile = [](const QString& id) {
+      QString profilesFile = Paths::globalDataDir("profiles.json");
+      QJsonObject root;
+      root["defaultProfile"] = id;
+      QFile out(profilesFile);
+      if (out.open(QIODevice::WriteOnly))
+      {
+        out.write(QJsonDocument(root).toJson());
+        out.close();
+        return true;
+      }
+      return false;
+    };
+
+    auto createNewProfile = [](const QString& name) {
+      QString id = QUuid::createUuid().toString(QUuid::Id128);
+      QDir().mkpath(Paths::globalDataDir("profiles/" + id));
+      QDir().mkpath(Paths::globalDataDir("profiles/" + id + "/logs"));
+      // Always write profile.json with name
+      QFile meta(Paths::globalDataDir("profiles/" + id + "/profile.json"));
+      if (meta.open(QIODevice::WriteOnly))
+      {
+        QJsonObject obj;
+        obj["name"] = name;
+        meta.write(QJsonDocument(obj).toJson());
+        meta.close();
+      }
+      return id;
+    };
+
+    // Handle --list-profiles
+    if (parser.isSet("list-profiles"))
+    {
+      QStringList profiles = getProfilesList();
+      QString defaultId = readDefaultProfile();
+      if (profiles.isEmpty())
+      {
+        printf("No profiles found.\n");
+      }
+      else
+      {
+        for (const QString& id : profiles)
+        {
+          QString marker = (id == defaultId) ? " *" : "";
+          QString name = getProfileName(id);
+          if (name.isEmpty())
+            printf("%s%s\n", qPrintable(id), qPrintable(marker));
+          else
+            printf("%s%s\n", qPrintable(name), qPrintable(marker));
+        }
+      }
+      return EXIT_SUCCESS;
+    }
+
+    // Handle --create-profile
+    if (parser.isSet("create-profile"))
+    {
+      QString name = parser.value("create-profile");
+      if (name.isEmpty())
+      {
+        fprintf(stderr, "Profile name is required\n");
+        return EXIT_FAILURE;
+      }
+      if (!findProfileByName(name).isEmpty())
+      {
+        fprintf(stderr, "Profile already exists: %s\n", qPrintable(name));
+        return EXIT_FAILURE;
+      }
+      createNewProfile(name);
+      printf("Created profile: %s\n", qPrintable(name));
+      return EXIT_SUCCESS;
+    }
+
+    // Handle --delete-profile
+    if (parser.isSet("delete-profile"))
+    {
+      QString name = parser.value("delete-profile");
+      QString id = findProfileByName(name);
+      if (id.isEmpty())
+      {
+        fprintf(stderr, "Profile not found: %s\n", qPrintable(name));
+        return EXIT_FAILURE;
+      }
+      QString profilePath = Paths::globalDataDir("profiles/" + id);
+      QDir dir(profilePath);
+      if (!dir.removeRecursively())
+      {
+        fprintf(stderr, "Failed to delete profile: %s\n", qPrintable(name));
+        return EXIT_FAILURE;
+      }
+      // Update default if we deleted it
+      if (readDefaultProfile() == id)
+      {
+        QStringList remaining = getProfilesList();
+        writeDefaultProfile(remaining.isEmpty() ? QString() : remaining.first());
+      }
+      printf("Deleted profile: %s\n", qPrintable(name));
+      return EXIT_SUCCESS;
+    }
+
+    // Handle --set-default-profile
+    if (parser.isSet("set-default-profile"))
+    {
+      QString name = parser.value("set-default-profile");
+      QString id = findProfileByName(name);
+      if (id.isEmpty())
+      {
+        fprintf(stderr, "Profile not found: %s\n", qPrintable(name));
+        return EXIT_FAILURE;
+      }
+      if (!writeDefaultProfile(id))
+      {
+        fprintf(stderr, "Failed to write profiles.json\n");
+        return EXIT_FAILURE;
+      }
+      printf("Default profile set to: %s\n", qPrintable(name));
+      return EXIT_SUCCESS;
+    }
+
+    // Determine which profile to use for this session
+    QString profileId;
+
+    // --profile overrides everything
+    if (parser.isSet("profile"))
+    {
+      QString name = parser.value("profile");
+      profileId = findProfileByName(name);
+      if (profileId.isEmpty())
+      {
+        fprintf(stderr, "Profile not found: %s\n", qPrintable(name));
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      // Use default profile
+      profileId = readDefaultProfile();
+      bool needsWrite = false;
+
+      // Validate default exists
+      if (!profileId.isEmpty() && !profileExists(profileId))
+      {
+        profileId.clear();
+        needsWrite = true;
+      }
+
+      // Find first profile
+      if (profileId.isEmpty())
+      {
+        QStringList profiles = getProfilesList();
+        if (!profiles.isEmpty())
+        {
+          profileId = profiles.first();
+          needsWrite = true;
+        }
+      }
+
+      // Create new profile
+      if (profileId.isEmpty())
+      {
+        profileId = createNewProfile("Default");
+        needsWrite = true;
+      }
+
+      if (needsWrite)
+        writeDefaultProfile(profileId);
+    }
+
+    Paths::setActiveProfileId(profileId);
+
+    // Now everything else - all paths are profile-specific from here on
     QString logLevel = parser.value("log-level");
     if (parser.isSet("log-level") && (logLevel.isEmpty() || Log::ParseLogLevel(logLevel) == -1))
     {
@@ -204,32 +477,6 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    auto configDir = parser.value("config-dir");
-    QString webEngineDataDir;
-    if (!configDir.isEmpty())
-    {
-      QFileInfo fi(configDir);
-      QString absPath = fi.absoluteFilePath();
-      QDir parentDir = fi.dir();
-
-      if (!parentDir.exists())
-      {
-        qFatal("Config directory parent does not exist: %s", qPrintable(parentDir.absolutePath()));
-      }
-
-      Paths::setConfigDir(absPath);
-      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, absPath);
-      webEngineDataDir = absPath + "/QtWebEngine";
-    }
-    else
-    {
-      // Use Paths::dataDir() equivalent inline to avoid double nesting
-      QDir d(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
-      d.mkpath(d.absolutePath() + "/" + Names::DataName());
-      d.cd(Names::DataName());
-      webEngineDataDir = d.absolutePath() + "/QtWebEngine";
-    }
-
     QStringList chromiumFlags;
 #ifdef Q_OS_LINUX
     // Disable QtWebEngine's automatic MPRIS registration - we handle it ourselves
@@ -261,6 +508,14 @@ int main(int argc, char *argv[])
     app.setDesktopFileName("org.jellyfin.JellyfinDesktop");
 #endif
 
+    // Configure default WebEngineProfile paths early (profile is already set)
+    {
+      QString webEngineDir = Paths::dataDir("QtWebEngine");
+      QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
+      defaultProfile->setCachePath(webEngineDir);
+      defaultProfile->setPersistentStoragePath(webEngineDir);
+    }
+
 #if defined(Q_OS_MAC) && defined(NDEBUG)
     PFMoveToApplicationsFolderIfNecessary();
 #endif
@@ -272,10 +527,6 @@ int main(int argc, char *argv[])
       return EXIT_SUCCESS;
     }
 
-    Log::RotateLog();
-
-    qInfo() << "Config directory:" << qPrintable(Paths::dataDir());
-
 #ifdef Q_OS_UNIX
     // install signals handlers for proper app closing.
     SignalManager signalManager(&app);
@@ -284,22 +535,24 @@ int main(int argc, char *argv[])
 
     detectOpenGLLate();
 
-    Codecs::preinitCodecs();
-
     // Initialize all the components. This needs to be done
     // early since most everything else relies on it
     //
     ComponentManager::Get().initialize();
 
+    // Rotate temp log to main log file and rotate old logs
+    Log::RotateLog();
+
+    qInfo() << "Config directory:" << qPrintable(Paths::dataDir());
+
+    Codecs::preinitCodecs();
+
     Log::ApplyConfigLogLevel();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
-    // Configure QtWebEngine paths and user agent
-    QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
-    defaultProfile->setCachePath(webEngineDataDir);
-    defaultProfile->setPersistentStoragePath(webEngineDataDir);
-    defaultProfile->setHttpUserAgent(SystemComponent::Get().getUserAgent());
+    // Set user agent now that SystemComponent is available
+    QWebEngineProfile::defaultProfile()->setHttpUserAgent(SystemComponent::Get().getUserAgent());
 
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();

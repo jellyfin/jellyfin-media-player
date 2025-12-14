@@ -6,6 +6,7 @@
 #include "system/SystemComponent.h"
 #include "core/Globals.h"
 #include "ui/WindowManager.h"
+#include "shared/Paths.h"
 
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -23,7 +24,6 @@
 #include <QUrlQuery>
 #include <QMimeDatabase>
 
-#define MPRIS_SERVICE_NAME "org.mpris.MediaPlayer2.jellyfin-desktop"
 #define MPRIS_OBJECT_PATH "/org/mpris/MediaPlayer2"
 
 MprisComponent::MprisComponent(QObject* parent)
@@ -55,7 +55,7 @@ MprisComponent::~MprisComponent()
   {
     disconnectPlayerSignals();
     cleanupAlbumArt();
-    QDBusConnection::sessionBus().unregisterService(MPRIS_SERVICE_NAME);
+    QDBusConnection::sessionBus().unregisterService(m_serviceName);
     QDBusConnection::sessionBus().unregisterObject(MPRIS_OBJECT_PATH);
   }
 }
@@ -68,8 +68,11 @@ bool MprisComponent::componentInitialize()
     return true;
   }
 
-  qDebug() << "Attempting to register MPRIS service:" << MPRIS_SERVICE_NAME;
-  if (!QDBusConnection::sessionBus().registerService(MPRIS_SERVICE_NAME))
+  // Generate profile-specific service name
+  m_serviceName = QString("org.mpris.MediaPlayer2.JellyfinDesktop.profile_%1").arg(Paths::activeProfileId());
+
+  qDebug() << "Attempting to register MPRIS service:" << m_serviceName;
+  if (!QDBusConnection::sessionBus().registerService(m_serviceName))
   {
     qWarning() << "Failed to register MPRIS service:"
                << QDBusConnection::sessionBus().lastError().message();
@@ -84,7 +87,7 @@ bool MprisComponent::componentInitialize()
   {
     qWarning() << "Failed to register MPRIS object:"
                << QDBusConnection::sessionBus().lastError().message();
-    QDBusConnection::sessionBus().unregisterService(MPRIS_SERVICE_NAME);
+    QDBusConnection::sessionBus().unregisterService(m_serviceName);
     return true;
   }
 

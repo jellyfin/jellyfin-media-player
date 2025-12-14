@@ -217,13 +217,23 @@ static void writeJson(const QString& filename, const QJsonObject& data, bool pre
 /////////////////////////////////////////////////////////////////////////////////////////
 QVariant SettingsComponent::readPreinitValue(const QString& sectionID, const QString& key)
 {
-  QJsonObject json = loadJson(Paths::dataDir("jellyfin-desktop.conf"));
+  QString path = Paths::dataDir("jellyfin-desktop.conf");
+  if (path.isEmpty())
+    return QVariant();
+  QJsonObject json = loadJson(path);
   return json["sections"].toObject()[sectionID].toObject()[key].toVariant();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::load()
 {
+  QString profileDir = Paths::dataDir();
+  if (profileDir.isEmpty())
+  {
+    qInfo() << "No active profile, skipping settings load (using defaults)";
+    return;
+  }
+
   loadConf(Paths::dataDir("jellyfin-desktop.conf"), false);
   loadConf(Paths::dataDir("storage.json"), true);
 }
@@ -315,6 +325,12 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::saveSettings()
 {
+  QString path = Paths::dataDir("jellyfin-desktop.conf");
+  if (path.isEmpty())
+  {
+    qWarning() << "No active profile, cannot save settings";
+    return;
+  }
 
   QVariantMap sections;
 
@@ -327,12 +343,19 @@ void SettingsComponent::saveSettings()
   QJsonObject json;
   json.insert("sections", QJsonValue::fromVariant(sections));
   json.insert("version", m_settingsVersion);
-  writeJson(Paths::dataDir("jellyfin-desktop.conf"), json);
+  writeJson(path, json);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::saveStorage()
 {
+  QString path = Paths::dataDir("storage.json");
+  if (path.isEmpty())
+  {
+    qWarning() << "No active profile, cannot save storage";
+    return;
+  }
+
   QVariantMap storage;
 
   for(SettingsSection* section : m_sections.values())
@@ -344,7 +367,7 @@ void SettingsComponent::saveStorage()
   QJsonObject storagejson;
   storagejson.insert("sections", QJsonValue::fromVariant(storage));
   storagejson.insert("version", m_settingsVersion);
-  writeJson(Paths::dataDir("storage.json"), storagejson, false);
+  writeJson(path, storagejson, false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -723,7 +746,10 @@ bool SettingsComponent::componentInitialize()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsComponent::resetAndSaveOldConfiguration()
 {
-  QFile settingsFile(Paths::dataDir("jellyfin-desktop.conf"));
+  QString path = Paths::dataDir("jellyfin-desktop.conf");
+  if (path.isEmpty())
+    return false;
+  QFile settingsFile(path);
   return settingsFile.rename(Paths::dataDir("jellyfin-desktop.conf.old"));
 }
 
@@ -843,8 +869,6 @@ void SettingsComponent::setCommandLineValues(const QStringList& values)
       setValue(SETTINGS_SECTION_MAIN, "layout", "desktop");
     else if (value == "tv")
       setValue(SETTINGS_SECTION_MAIN, "layout", "tv");
-    else if (value == "force-external-webclient")
-      setValue(SETTINGS_SECTION_MAIN, "forceExternalWebclient", true);
   }
 }
 

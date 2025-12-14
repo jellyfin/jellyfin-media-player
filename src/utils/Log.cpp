@@ -85,13 +85,20 @@ void Log::CensorAuthTokens(QString& msg)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+static QString getLogDir()
+{
+  // Paths::logDir() returns profile-specific path when profile is active
+  return Paths::logDir("");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void Log::Init()
 {
   qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} [%{type}] %{function} @ %{line} - %{message}");
   qInstallMessageHandler(qtMessageOutput);
 
   // Create unique log file for this instance
-  QString logDir = Paths::logDir("");
+  QString logDir = getLogDir();
   QTemporaryFile tempFile(logDir + "/jellyfin-desktop-XXXXXX.log");
   tempFile.setAutoRemove(false);
   if (!tempFile.open())
@@ -108,7 +115,7 @@ void Log::Init()
   qInfo() << qPrintable(QString("  Running on: %1 [%2] arch %3").arg(QSysInfo::prettyProductName()).arg(QSysInfo::kernelVersion()).arg(QSysInfo::currentCpuArchitecture()));
   qInfo() << "  Qt Version:" << QT_VERSION_STR << qPrintable(QString("[%1]").arg(QSysInfo::buildAbi()));
 
-  qDebug() << "Logging to " << qPrintable(Paths::logDir(Names::DataName() + ".log"));
+  qDebug() << "Logging to " << qPrintable(getLogDir() + "/" + Names::DataName() + ".log");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +131,7 @@ void Log::RotateLog()
   }
 
   QString baseName = Names::DataName() + ".log";
-  QString mainLog = Paths::logDir(baseName);
+  QString mainLog = getLogDir() + "/" + baseName;
 
   // Rotate existing logs: .log.2 -> .log.3, .log.1 -> .log.2, .log -> .log.1
   const int maxLogs = 10;

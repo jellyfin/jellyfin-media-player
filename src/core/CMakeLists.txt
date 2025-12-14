@@ -1,5 +1,6 @@
 add_sources(
   ComponentManager.cpp ComponentManager.h
+  ProfileManager.cpp ProfileManager.h
   Globals.cpp Globals.h
   Version.h
 )

@@ -15,6 +15,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 static QString g_configDirOverride;
+static QString g_activeProfileId;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Paths::setConfigDir(const QString& path)
@@ -66,7 +67,7 @@ QString Paths::resourceDir(const QString& file)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString Paths::dataDir(const QString& file)
+QString Paths::globalDataDir(const QString& file)
 {
   QDir d;
 
@@ -90,7 +91,7 @@ QString Paths::dataDir(const QString& file)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString Paths::cacheDir(const QString& file)
+QString Paths::globalCacheDir(const QString& file)
 {
   QDir d = writableLocation(QStandardPaths::GenericCacheLocation);
   if (file.isEmpty())
@@ -99,25 +100,71 @@ QString Paths::cacheDir(const QString& file)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::dataDir(const QString& file)
+{
+  // Use profile-specific directory when profile is active
+  if (!g_activeProfileId.isEmpty())
+  {
+    QDir d(globalDataDir("profiles/" + g_activeProfileId));
+    if (!d.mkpath(d.absolutePath()))
+    {
+      qWarning() << "Failed to create profile data directory:" << d.absolutePath();
+      return globalDataDir(file);
+    }
+
+    if (file.isEmpty())
+      return d.absolutePath();
+    return d.filePath(file);
+  }
+
+  // Fallback to global when no profile active
+  return globalDataDir(file);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::cacheDir(const QString& file)
+{
+  // Use profile-specific directory when profile is active
+  if (!g_activeProfileId.isEmpty())
+  {
+    QDir d(globalCacheDir("profiles/" + g_activeProfileId));
+    if (!d.mkpath(d.absolutePath()))
+    {
+      qWarning() << "Failed to create profile cache directory:" << d.absolutePath();
+      return globalCacheDir(file);
+    }
+
+    if (file.isEmpty())
+      return d.absolutePath();
+    return d.filePath(file);
+  }
+
+  // Fallback to global when no profile active
+  return globalCacheDir(file);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 QString Paths::logDir(const QString& file)
 {
 #ifdef Q_OS_MAC
+  // On macOS, logs go to ~/Library/Logs/
   QDir ldir = QDir(QStandardPaths::locate(QStandardPaths::HomeLocation, "", QStandardPaths::LocateDirectory));
-  ldir.mkpath(ldir.absolutePath() + "/Library/Logs/" + Names::DataName());
-  ldir.cd("Library/Logs/" + Names::DataName());
-  return ldir.filePath(file);
-#else
-  QDir ldir;
 
-  if (!g_configDirOverride.isEmpty())
+  if (!g_activeProfileId.isEmpty())
   {
-    ldir = QDir(g_configDirOverride);
+    ldir.mkpath(ldir.absolutePath() + "/Library/Logs/" + Names::DataName() + "/" + g_activeProfileId);
+    ldir.cd("Library/Logs/" + Names::DataName() + "/" + g_activeProfileId);
   }
   else
   {
-    ldir = writableLocation(QStandardPaths::GenericDataLocation);
+    ldir.mkpath(ldir.absolutePath() + "/Library/Logs/" + Names::DataName());
+    ldir.cd("Library/Logs/" + Names::DataName());
   }
 
+  return ldir.filePath(file);
+#else
+  // On other platforms, logs go to dataDir/logs/
+  QDir ldir(dataDir());
   ldir.mkpath(ldir.absolutePath() + "/logs");
   ldir.cd("logs");
   return ldir.filePath(file);
@@ -134,10 +181,15 @@ QString Paths::socketName(const QString& serverName)
   if(userName.isEmpty())
     userName = "unknown";
 
+  // Include profile ID in socket name for profile isolation
+  QString profileSuffix;
+  if (!g_activeProfileId.isEmpty())
+    profileSuffix = "_" + g_activeProfileId.left(8);
+
 #ifdef Q_OS_UNIX
-  return QString("/tmp/jmp_%1_%2.sock").arg(serverName).arg(userName);
+  return QString("/tmp/jmp_%1_%2%3.sock").arg(serverName, userName, profileSuffix);
 #else
-  return QString("jmp_%1_%2.sock").arg(serverName).arg(userName);
+  return QString("jmp_%1_%2%3.sock").arg(serverName, userName, profileSuffix);
 #endif
 }
 
@@ -173,4 +225,16 @@ QString Paths::webExtensionPath(const QString& mode)
 {
   QString webName = QString("web-client/%1").arg(mode);
   return resourceDir(webName + "/");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Paths::setActiveProfileId(const QString& id)
+{
+  g_activeProfileId = id;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString Paths::activeProfileId()
+{
+  return g_activeProfileId;
 }

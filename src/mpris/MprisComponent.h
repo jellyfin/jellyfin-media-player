@@ -126,6 +126,7 @@ private:
   void updateNavigationCapabilities();
 
   bool m_enabled;
+  QString m_serviceName;
   PlayerComponent* m_player;
   std::unique_ptr<MprisRootAdaptor> m_rootAdaptor;
   std::unique_ptr<MprisPlayerAdaptor> m_playerAdaptor;

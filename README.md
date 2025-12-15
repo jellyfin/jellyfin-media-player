@@ -58,7 +58,7 @@ rm -rf ~/jmp/
 
 Install dependencies:
 ```bash
-sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget python g++  qt-devel libcec-devel qt6-qtbase-devel curl unzip qt6-qtwebchannel-devel qt6-qtwebengine-devel mpv.x86_64 qt6-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt6-qtbase-private-devel mpv-libs.x86_64 mpv-devel qt6-qtdeclarative nasm libatomic libshaderc-2024.3
+sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget python g++  qt-devel libcec-devel qt6-qtbase-devel curl unzip qt6-qtwebchannel-devel qt6-qtwebengine-devel mpv.x86_64 qt6-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt6-qtbase-private-devel mpv-libs.x86_64 mpv-devel qt6-qtdeclarative nasm libatomic libshaderc mpvqt-devel
 ```
 
 Build commands for Fedora:

@@ -78,7 +78,10 @@ void InputLIRC::disconnected()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InputLIRC::socketerror(QLocalSocket::LocalSocketError socketError)
 {
-  qCritical() << "LIRC Socket Error : " << socketError;
+  if (socketError == QLocalSocket::ServerNotFoundError)
+    qDebug() << "LIRC socket not found";
+  else
+    qCritical() << "LIRC Socket Error : " << socketError;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

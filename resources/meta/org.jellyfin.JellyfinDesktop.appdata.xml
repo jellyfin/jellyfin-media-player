@@ -3,8 +3,8 @@
   <id>org.jellyfin.JellyfinDesktop</id>
   <name>Jellyfin</name>
   <summary>Desktop client for Jellyfin media server</summary>
-  <developer id="com.github.iwalton3">
-    <name>Izzie Walton</name>
+  <developer id="org.jellyfin">
+    <name>Jellyfin</name>
   </developer>
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>

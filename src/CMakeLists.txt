@@ -57,14 +57,20 @@ file(GLOB_RECURSE RESOURCE_FILES ${CMAKE_SOURCE_DIR}/resources/*)
 file(GLOB_RECURSE NATIVE_FILES ${CMAKE_SOURCE_DIR}/native/*)
 
 # generate resources.qrc from directory tree listings
+set(QRC_MAPPINGS
+  "/=${CMAKE_SOURCE_DIR}/resources/"
+  "ui/webview.qml=${CMAKE_SOURCE_DIR}/src/ui/webview.qml"
+  "/web-client/extension=${CMAKE_SOURCE_DIR}/native/"
+)
+string(REPLACE ";" "|" QRC_MAPPINGS_STR "${QRC_MAPPINGS}")
 add_custom_command(OUTPUT resources.qrc
-  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/build-qt-resources.py
-          ${CMAKE_CURRENT_BINARY_DIR}/resources.qrc
-          /=${CMAKE_SOURCE_DIR}/resources/
-          ui/webview.qml=${CMAKE_SOURCE_DIR}/src/ui/webview.qml
-          /web-client/extension=${CMAKE_SOURCE_DIR}/native/
+  COMMAND ${CMAKE_COMMAND}
+          -DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/resources.qrc
+          "-DMAPPINGS=${QRC_MAPPINGS_STR}"
+          -P ${CMAKE_SOURCE_DIR}/CMakeModules/GenerateQtResources.cmake
+  VERBATIM
   COMMENT "Creating resources.qrc"
-  DEPENDS ${CMAKE_SOURCE_DIR}/scripts/build-qt-resources.py
+  DEPENDS ${CMAKE_SOURCE_DIR}/CMakeModules/GenerateQtResources.cmake
     ${RESOURCE_FILES}
     ${CMAKE_SOURCE_DIR}/src/ui/webview.qml
     ${NATIVE_FILES}
@@ -179,7 +185,6 @@ target_link_libraries(jmp_core
   ${EXTRA_LIBS}
   ${X11_LIBRARIES}
   ${X11_Xrandr_LIB}
-  ${ICU_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${RPI_LIBS}
   ${MINIZIP_LIBS}

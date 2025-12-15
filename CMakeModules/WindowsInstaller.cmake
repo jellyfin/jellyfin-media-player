@@ -99,13 +99,13 @@ function(wix_light)
     if(_WL_OUTPUT MATCHES ".*exe")
       add_custom_command(TARGET ${_WL_TARGET} POST_BUILD
         COMMAND ${WIX_INSIGNIA} -ib ${_WL_OUTPUT} -o engine.exe
-        COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd engine.exe
+        COMMAND ${CMAKE_SOURCE_DIR}/bundle/win/WindowsSign.cmd engine.exe
         COMMAND ${WIX_INSIGNIA} -ab engine.exe ${_WL_OUTPUT} -o ${_WL_OUTPUT}
         COMMENT "Doing insignia dance"
       )
     endif()
     add_custom_command(TARGET ${_WL_TARGET} POST_BUILD
-                       COMMAND ${CMAKE_SOURCE_DIR}/scripts/WindowsSign.cmd ${_WL_OUTPUT}
+                       COMMAND ${CMAKE_SOURCE_DIR}/bundle/win/WindowsSign.cmd ${_WL_OUTPUT}
                        COMMENT Signing ${_WL_OUTPUT}
     )
   endif()

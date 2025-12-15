@@ -70,7 +70,6 @@ function(download_deps DD_NAME)
                      VARIANT
                      DEPHASH_VAR
                      ARCHSTR
-                     DYLIB_SCRIPT_PATH
                      BASE_URL
                      TOKEN)
 
@@ -190,19 +189,6 @@ function(download_deps DD_NAME)
     if(NOT UNPACK_RESULT EQUAL 0)
       message(FATAL_ERROR "Failed to unpack deps..")
     endif(NOT UNPACK_RESULT EQUAL 0)
-
-    if(APPLE AND DD_DYLIB_SCRIPT_PATH)
-      message(STATUS "Fixing install library names...${DEP_DIR}/${DEP_DIRNAME}")
-      execute_process(
-        COMMAND ${DD_DYLIB_SCRIPT_PATH} ${DEP_DIR}/${DEP_DIRNAME}
-        WORKING_DIRECTORY ${DEP_DIR}
-        RESULT_VARIABLE DYLIB_RESULT
-      )
-      if(NOT DYLIB_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to run ${DD_DYLIB_SCRIPT_PATH}")
-      endif()
-      message(STATUS "Done")
-    endif()
 
     if(EXISTS ${DEP_DIR}/${DEP_DIRNAME}/etc)
       message(STATUS "Removing etc in dependency bundle")

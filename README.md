@@ -130,20 +130,19 @@ Install [Qt 6](https://www.qt.io/download-thank-you?hsLang=en), remember to chec
 Then run the following commands (replace <QT_DIR> with your QT installation location):
 
 ```bash
-brew install mpv ninja
+brew install mpv ninja qt
 
 git clone --recursive https://github.com/jellyfin/jellyfin-desktop.git
 cd jellyfin-desktop
-mkdir build
-cd build
-cmake -GNinja -DQTROOT=<QT_DIR> -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output ..
-ninja install
+
+cmake -B build -G Ninja -DUSE_STATIC_MPVQT=ON
+cmake --build build
 ```
 
 To create redistributable bundle, some library paths need to be fixed. At the project root directory, run:
 
 ```bash
-python3 ./scripts/fix-install-names.py "./build/output/Jellyfin Desktop.app"
+python3 ./scripts/fix-install-names.py "./build/src/Jellyfin Desktop.app"
 ```
 
 ## Log File Location

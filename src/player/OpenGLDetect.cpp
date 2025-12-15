@@ -22,6 +22,8 @@ void detectOpenGLEarly()
   format.setMajorVersion(3);
   format.setMinorVersion(2);
   format.setProfile(QSurfaceFormat::CoreProfile);
+  // Fix oversaturated colors on HDR displays
+  format.setColorSpace(QSurfaceFormat::sRGBColorSpace);
   QSurfaceFormat::setDefaultFormat(format);
 }
 

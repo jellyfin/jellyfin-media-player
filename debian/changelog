@@ -1,8 +1,33 @@
-jellyfin-media-player (1.13.0-1) unstable; urgency=medium
+jellyfin-desktop (2.0.0-1) unstable; urgency=medium
 
-  * Update to Qt 6
+  * Rename to Jellyfin Desktop
+  * Change launcher/taskbar/dock name to "Jellyfin"
+  * Upgrade to Qt 6
+  * Add MpvQt library dependency
+  * Change configuration paths (settings from Jellyfin Media Player will NOT be migrated)
+  * Add MPRIS support for media control
+  * Add initial multi-profile support (CLI flags only)
+  * Require D-Bus for screensaver management
+  * Show movie/show backdrop before playback starts (matches jellyfin-web)
+  * Add option to force using the HTML5 player
+  * Add option to disable UI zoom
+  * Add ability to exit fullscreen mode with Escape key
+  * Add log rotation (10 most-recent)
+  * Add --config-dir and --log-level CLI options
+  * Bundle native/ assets directly into application binary (no more separate files)
+  * Change startup server connection to retry indefinitely (cancelable with Escape)
+  * Change app ID to org.jellyfin.JellyfinDesktop
+  * Update playback rate options (matches jellyfin-web)
+  * Fix various window geometry, maximize, and fullscreen window issues
+  * Fix audio mute not persisting between tracks
+  * Fix audio to only fade out when stopping playback (matches jellyfin-web)
+  * Fix cursor sometimes not hiding in fullscreen
+  * Fix server base URL determination (matches jellyfin-web)
+  * Fix CORS and CSP (no more security bypass hacks)
+  * Use XDG runtime directory for input and singleton sockets
+  * Various bug fixes and optimizations
 
- -- Izzie Walton <izzie@iwalton.com>  Fri, 22 Nov 2024 00:00:00 -0500
+ -- Andrew Rabert <ar@nullsum.net>  Sun, 14 Dec 2025 00:00:00 -0500
 
 jellyfin-media-player (1.12.0-1) unstable; urgency=medium
 

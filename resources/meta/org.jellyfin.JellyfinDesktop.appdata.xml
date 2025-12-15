@@ -3,8 +3,8 @@
   <id>org.jellyfin.JellyfinDesktop</id>
   <name>Jellyfin</name>
   <summary>Desktop client for Jellyfin media server</summary>
-  <developer id="com.github.iwalton3">
-    <name>Izzie Walton</name>
+  <developer id="org.jellyfin">
+    <name>Jellyfin</name>
   </developer>
   <project_license>GPL-2.0</project_license>
   <metadata_license>CC0-1.0</metadata_license>
@@ -42,6 +42,39 @@
     <category>TV</category>
   </categories>
   <releases>
+      <release version="2.0.0" date="2025-12-14">
+        <description>
+          <p>Changes:</p>
+          <ul>
+            <li>Rename to Jellyfin Desktop</li>
+            <li>Change launcher/taskbar/dock name to "Jellyfin"</li>
+            <li>Upgrade to Qt 6</li>
+            <li>Add MpvQt library dependency</li>
+            <li>Change configuration paths (settings from Jellyfin Media Player will NOT be migrated)</li>
+            <li>Add MPRIS support for media control</li>
+            <li>Add initial multi-profile support (CLI flags only)</li>
+            <li>Require D-Bus for screensaver management</li>
+            <li>Show movie/show backdrop before playback starts (matches jellyfin-web)</li>
+            <li>Add option to force using the HTML5 player</li>
+            <li>Add option to disable UI zoom</li>
+            <li>Add ability to exit fullscreen mode with Escape key</li>
+            <li>Add log rotation (10 most-recent)</li>
+            <li>Add --config-dir and --log-level CLI options</li>
+            <li>Bundle native/ assets directly into application binary (no more separate files)</li>
+            <li>Change startup server connection to retry indefinitely (cancelable with Escape)</li>
+            <li>Change app ID to org.jellyfin.JellyfinDesktop</li>
+            <li>Update playback rate options (matches jellyfin-web)</li>
+            <li>Fix various window geometry, maximize, and fullscreen window issues</li>
+            <li>Fix audio mute not persisting between tracks</li>
+            <li>Fix audio to only fade out when stopping playback (matches jellyfin-web)</li>
+            <li>Fix cursor sometimes not hiding in fullscreen</li>
+            <li>Fix server base URL determination (matches jellyfin-web)</li>
+            <li>Fix CORS and CSP (no more security bypass hacks)</li>
+            <li>Use XDG runtime directory for input and singleton sockets</li>
+            <li>Various bug fixes and optimizations</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.12.0" date="2025-03-18">
         <description>
           <p>Changes:</p>

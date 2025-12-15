@@ -241,26 +241,11 @@ void SettingsComponent::load()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::loadConf(const QString& path, bool storage)
 {
-  bool migrateJmpSettings4 = false;
-  bool migrateJmpSettings5 = false;
-  bool migrateJmpSettings6 = false;
   QJsonObject json = loadJson(path);
 
   int version = json["version"].toInt(0);
 
-  if (version == 4 && m_settingsVersion == 6)
-  {
-    migrateJmpSettings4 = true;
-  }
-  else if (version == 5 && m_settingsVersion == 6)
-  {
-    migrateJmpSettings5 = true;
-  }
-  else if (version == 6 && m_settingsVersion == 7)
-  {
-    migrateJmpSettings6 = true;
-  }
-  else if (version != m_settingsVersion)
+  if (version != m_settingsVersion)
   {
     // version 0 means file doesn't exist or is empty - skip backup/warning
     if (version != 0)
@@ -300,22 +285,6 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 
     for(const QString& setting : jsonSection.keys())
       sec->setValue(setting, jsonSection.value(setting).toVariant());
-  }
-
-  if (migrateJmpSettings4) {
-    getSection(SETTINGS_SECTION_MAIN)->setValue("webMode", "desktop");
-    getSection(SETTINGS_SECTION_MAIN)->setValue("layout", "desktop");
-    if (getSection(SETTINGS_SECTION_VIDEO)->value("hardwareDecoding") == "disabled") {
-      getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "copy");
-    }
-  } else if (migrateJmpSettings5) {
-    if (getSection(SETTINGS_SECTION_VIDEO)->value("hardwareDecoding") == "enabled") {
-      getSection(SETTINGS_SECTION_VIDEO)->setValue("hardwareDecoding", "copy");
-    }
-  } else if (migrateJmpSettings6) {
-    if (getSection(SETTINGS_SECTION_MAIN)->value("autodetectCertBundle") == "false") {
-      getSection(SETTINGS_SECTION_MAIN)->setValue("autodetectCertBundle", "true");
-    }
   }
 
 #ifdef DISABLE_UPDATE_CHECK

@@ -262,13 +262,14 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
   }
   else if (version != m_settingsVersion)
   {
-    QString backup = path + ".broken";
-    QFile::remove(backup);
-    QFile::rename(path, backup);
-    if (version == 0)
-      qCritical() << "Could not read config file.";
-    else
+    // version 0 means file doesn't exist or is empty - skip backup/warning
+    if (version != 0)
+    {
+      QString backup = path + ".broken";
+      QFile::remove(backup);
+      QFile::rename(path, backup);
       qCritical() << "Config version is" << version << "but" << m_settingsVersion << "expected. Moving old config to" << backup;
+    }
     // Overwrite/create it with the defaults.
     if (storage)
       saveStorage();

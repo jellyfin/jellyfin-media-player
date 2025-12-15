@@ -31,7 +31,7 @@ git clone --recursive https://github.com/jellyfin/jellyfin-desktop.git --branch 
 
 Install dependencies:
 ```bash
-sudo apt install  autoconf automake build-essential cmake curl g++ git libasound2-dev libcec-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libgl1-mesa-dev libgnutls28-dev libharfbuzz-dev libpulse-dev libsdl2-dev libtool libuchardet-dev libva-dev libvdpau-dev libx11-dev libxrandr-dev mesa-common-dev meson python3 qml6-module-qtqml-workerscript qml6-module-qtquick-controls qml6-module-qtquick-templates qml6-module-qtquick-window qml6-module-qtwebchannel qml6-module-qtwebengine qml6-module-qtwebengine-controlsdelegates qml6-module-qtwebview qt6-base-private-dev qt6-webengine-private-dev unzip wget yasm zlib1g-dev
+sudo apt install  autoconf automake build-essential cmake curl g++ git libasound2-dev libcec-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libgl1-mesa-dev libgnutls28-dev libharfbuzz-dev libpulse-dev libsdl2-dev libtool libuchardet-dev libva-dev libvdpau-dev libx11-dev libxrandr-dev mesa-common-dev meson qml6-module-qtqml-workerscript qml6-module-qtquick-controls qml6-module-qtquick-templates qml6-module-qtquick-window qml6-module-qtwebchannel qml6-module-qtwebengine qml6-module-qtwebengine-controlsdelegates qml6-module-qtwebview qt6-base-private-dev qt6-webengine-private-dev unzip wget yasm zlib1g-dev
 mkdir ~/jmp; cd ~/jmp
 git clone https://github.com/mpv-player/mpv-build.git
 cd mpv-build
@@ -58,7 +58,7 @@ rm -rf ~/jmp/
 
 Install dependencies:
 ```bash
-sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget python g++  qt-devel libcec-devel qt6-qtbase-devel curl unzip qt6-qtwebchannel-devel qt6-qtwebengine-devel mpv.x86_64 qt6-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt6-qtbase-private-devel mpv-libs.x86_64 mpv-devel qt6-qtdeclarative nasm libatomic libshaderc mpvqt-devel
+sudo dnf install autoconf automake libtool freetype-devel libXrandr-devel libvdpau-devel libva-devel  mesa-libGL-devel libdrm-devel libX11-devel  mesa-libEGL-devel yasm  alsa-lib pulseaudio-libs-devel zlib-devel fribidi-devel git gnutls-devel mesa-libGLU-devel  SDL2-devel cmake wget g++ qt-devel libcec-devel qt6-qtbase-devel curl unzip qt6-qtwebchannel-devel qt6-qtwebengine-devel mpv.x86_64 qt6-qtbase.x86_64 meson.noarch ninja-build.x86_64 qt6-qtbase-private-devel mpv-libs.x86_64 mpv-devel qt6-qtdeclarative nasm libatomic libshaderc mpvqt-devel
 ```
 
 Build commands for Fedora:
@@ -137,12 +137,6 @@ cd jellyfin-desktop
 
 cmake -B build -G Ninja -DUSE_STATIC_MPVQT=ON
 cmake --build build
-```
-
-To create redistributable bundle, some library paths need to be fixed. At the project root directory, run:
-
-```bash
-python3 ./scripts/fix-install-names.py "./build/src/Jellyfin Desktop.app"
 ```
 
 ## Log File Location

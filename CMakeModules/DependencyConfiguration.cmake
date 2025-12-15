@@ -18,7 +18,6 @@ if(DEPENDENCY_TOKEN)
       BUILD_NUMBER ${DEPS_BUILD_NUMBER}
       DIRECTORY dir
       DEPHASH_VAR DEPS_HASH
-      DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
       TOKEN ${DEPENDENCY_TOKEN}
     )
     message("dependencies are: ${dir}")
@@ -40,7 +39,6 @@ else(IS_DIRECTORY ${DEPENDENCY_ROOT})
 endif(IS_DIRECTORY ${DEPENDENCY_ROOT})
 
 find_package(Threads REQUIRED)
-find_package(PythonInterp REQUIRED)
 
 if(NOT USE_STATIC_MPVQT)
   find_package(MpvQt REQUIRED)

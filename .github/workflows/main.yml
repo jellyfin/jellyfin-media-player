@@ -24,10 +24,8 @@ jobs:
         cd build
         cmake -GNinja -DQTROOT=/usr/local/opt/qt@6 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         ninja install
-    - name: Fix library paths and create dmg
+    - name: Sign and create dmg
       run: |
-        python3 ./scripts/fix-install-names.py "./build/output/Jellyfin Desktop.app"
-        python3 ./scripts/fix-webengine.py "./build/output/Jellyfin Desktop.app"
         codesign --force --deep -s - "./build/output/Jellyfin Desktop.app/"
         brew install create-dmg
         attempts=0
@@ -65,10 +63,8 @@ jobs:
         cd build
         cmake -GNinja -DQTROOT=/opt/homebrew/opt/qt@6 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         ninja install
-    - name: Fix library paths and create dmg
+    - name: Sign and create dmg
       run: |
-        python3 ./scripts/fix-install-names.py "./build/output/Jellyfin Desktop.app"
-        python3 ./scripts/fix-webengine.py "./build/output/Jellyfin Desktop.app"
         codesign --force --deep -s - "./build/output/Jellyfin Desktop.app/"
         brew install create-dmg
         create-dmg --volname "Jellyfin Desktop" --no-internet-enable "Jellyfin Desktop.dmg" "./build/output/Jellyfin Desktop.app"

@@ -1,5 +1,14 @@
 set(app "${CMAKE_INSTALL_PREFIX}/@EXE@")
-set(weprocess "${app}/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
+set(framework_path "${app}/Contents/Frameworks")
+set(weprocess "${framework_path}/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
+
+# Determine rpath based on architecture
+cmake_host_system_information(RESULT arch QUERY OS_PLATFORM)
+if(arch STREQUAL "arm64")
+  set(rpath_str "/opt/homebrew/lib")
+else()
+  set(rpath_str "/usr/local/lib")
+endif()
 
 set(args ${app})
 list(APPEND args "-verbose=2")
@@ -17,9 +26,152 @@ execute_process(
   WORKING_DIRECTORY "@QTROOT@/bin"
 )
 
-#set(ENTITLEMENTS --entitlements @SOURCE_ROOT@/bundle/osx/Konvergo.entitlements)
-#set(CODESIGN codesign ${ENTITLEMENTS} --force --sign "Developer ID Application: Plex Inc.")
+#
+# fix_install_names: Fix library paths for bundled dylibs/sos
+#
+function(fix_lib_dependencies lib framework_libs_var)
+  set(framework_libs ${${framework_libs_var}})
 
+  execute_process(
+    COMMAND otool -L "${lib}"
+    OUTPUT_VARIABLE otool_output
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  string(REPLACE "\n" ";" otool_lines "${otool_output}")
+
+  foreach(line ${otool_lines})
+    string(STRIP "${line}" line)
+
+    # Check if dependency needs fixing
+    set(needs_fix FALSE)
+    if(line MATCHES "^(/usr/local|/opt/homebrew|@rpath|@loader_path)")
+      set(needs_fix TRUE)
+    endif()
+
+    if(needs_fix)
+      # Extract dependency path (remove compatibility version suffix)
+      string(REGEX REPLACE " \\(compatibility.*$" "" dependency_str "${line}")
+      string(STRIP "${dependency_str}" dependency_str)
+
+      # Resolve the actual path
+      if(dependency_str MATCHES "^@rpath/(.+)")
+        set(dep_name "${CMAKE_MATCH_1}")
+        set(resolved_path "${rpath_str}/${dep_name}")
+      elseif(dependency_str MATCHES "^@loader_path/(.+)")
+        get_filename_component(dep_name "${CMAKE_MATCH_1}" NAME)
+        set(resolved_path "${rpath_str}/${dep_name}")
+      else()
+        set(resolved_path "${dependency_str}")
+      endif()
+
+      get_filename_component(dep_name "${resolved_path}" NAME)
+      set(target "@executable_path/../Frameworks/${dep_name}")
+
+      # Copy if not already in Frameworks
+      list(FIND framework_libs "${dep_name}" idx)
+      if(idx EQUAL -1 AND EXISTS "${resolved_path}")
+        message(STATUS "Copying ${resolved_path} to ${framework_path}/${dep_name}")
+        file(COPY "${resolved_path}" DESTINATION "${framework_path}")
+        list(APPEND framework_libs "${dep_name}")
+        set(${framework_libs_var} "${framework_libs}" PARENT_SCOPE)
+        # Queue newly added lib for processing
+        set_property(GLOBAL APPEND PROPERTY LIBS_TO_FIX "${framework_path}/${dep_name}")
+      endif()
+
+      # Fix the path
+      message(STATUS "Fixing ${dependency_str} -> ${target} in ${lib}")
+      execute_process(COMMAND install_name_tool -id "${target}" "${lib}" ERROR_QUIET)
+      execute_process(COMMAND install_name_tool -change "${dependency_str}" "${target}" "${lib}" ERROR_QUIET)
+    endif()
+  endforeach()
+endfunction()
+
+# Build initial list of framework libs
+file(GLOB existing_dylibs "${framework_path}/*.dylib")
+file(GLOB existing_sos "${framework_path}/*.so")
+set(framework_libs "")
+foreach(f ${existing_dylibs} ${existing_sos})
+  get_filename_component(fname "${f}" NAME)
+  list(APPEND framework_libs "${fname}")
+endforeach()
+
+# Collect all libs to fix
+file(GLOB_RECURSE all_dylibs "${app}/*.dylib")
+file(GLOB_RECURSE all_sos "${app}/*.so")
+set_property(GLOBAL PROPERTY LIBS_TO_FIX ${all_dylibs} ${all_sos})
+
+# Process libs iteratively (handles newly discovered deps)
+set(max_iterations 100)
+set(iteration 0)
+while(iteration LESS max_iterations)
+  get_property(libs_to_fix GLOBAL PROPERTY LIBS_TO_FIX)
+  if(NOT libs_to_fix)
+    break()
+  endif()
+
+  # Clear the queue and process
+  set_property(GLOBAL PROPERTY LIBS_TO_FIX "")
+  list(REMOVE_DUPLICATES libs_to_fix)
+
+  foreach(lib ${libs_to_fix})
+    if(EXISTS "${lib}")
+      fix_lib_dependencies("${lib}" framework_libs)
+    endif()
+  endforeach()
+
+  math(EXPR iteration "${iteration} + 1")
+endwhile()
+
+message(STATUS "Library path fixing complete")
+
+#
+# fix_webengine: Fix QtWebEngineProcess paths and create Frameworks symlink
+#
+set(webengine_link_path "${weprocess}/Contents/Frameworks")
+set(webengine_bin "${weprocess}/Contents/MacOS/QtWebEngineProcess")
+
+if(EXISTS "${weprocess}" AND NOT EXISTS "${webengine_link_path}")
+  message(STATUS "Creating Frameworks symlink for QtWebEngineProcess")
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink "../../../../../../../Frameworks" "${webengine_link_path}"
+  )
+endif()
+
+if(EXISTS "${webengine_bin}")
+  execute_process(
+    COMMAND otool -L "${webengine_bin}"
+    OUTPUT_VARIABLE otool_output
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  string(REPLACE "\n" ";" otool_lines "${otool_output}")
+
+  foreach(line ${otool_lines})
+    string(STRIP "${line}" line)
+
+    if(line MATCHES "^(/opt/homebrew|/usr/local)")
+      string(REGEX REPLACE " \\(compatibility.*$" "" dependency_str "${line}")
+      string(STRIP "${dependency_str}" dependency_str)
+
+      # Extract framework path component after /lib
+      string(REGEX REPLACE "^.*/lib" "" framework_suffix "${dependency_str}")
+      set(target "@executable_path/../Frameworks${framework_suffix}")
+
+      message(STATUS "Fixing WebEngine: ${dependency_str} -> ${target}")
+      execute_process(COMMAND install_name_tool -id "${target}" "${webengine_bin}" ERROR_QUIET)
+      execute_process(COMMAND install_name_tool -change "${dependency_str}" "${target}" "${webengine_bin}" ERROR_QUIET)
+    endif()
+  endforeach()
+endif()
+
+message(STATUS "WebEngine path fixing complete")
+
+#
+# Code signing (optional)
+#
 macro(sign_binary BIN)
   message(STATUS "Signing: ${BIN}")
   execute_process(
@@ -37,7 +189,7 @@ if(@DO_SIGN@)
     FOLLOW_SYMLINKS
     "${app}/*.dylib"
   )
-  file(GLOB FRAMEWORKS FOLLOW_SYMLINKS LIST_DIRECTORIES true "${app}/Contents/Frameworks/*")
+  file(GLOB FRAMEWORKS FOLLOW_SYMLINKS LIST_DIRECTORIES true "${framework_path}/*")
   foreach(LIB ${LIBS} ${FRAMEWORKS})
     sign_binary(${LIB})
   endforeach(LIB ${LIBS})
@@ -48,7 +200,7 @@ if(@DO_SIGN@)
 
   sign_binary(${app})
 
-  message("Verifing signature")
+  message("Verifying signature")
   execute_process(
     COMMAND codesign --verbose=4 --verify "${CMAKE_INSTALL_PREFIX}/@EXE@"
     RESULT_VARIABLE result

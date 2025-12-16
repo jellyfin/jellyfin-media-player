@@ -66,6 +66,7 @@ class mpvAudioPlayer {
                 player.updateDuration.connect(onDuration);
                 player.error.connect(onError);
                 player.paused.connect(onPause);
+                player.trackTransitioned.connect(onTrackTransitioned);
             }
 
             return setCurrentSrc(options);
@@ -139,6 +140,7 @@ class mpvAudioPlayer {
             player.updateDuration.disconnect(onDuration);
             player.error.disconnect(onError);
             player.paused.disconnect(onPause);
+            player.trackTransitioned.disconnect(onTrackTransitioned);
         };
 
         function onDuration(duration) {
@@ -190,6 +192,20 @@ class mpvAudioPlayer {
                 }
             ]);
         }
+
+        // Gapless audio: handle auto-transition to queued track
+        // Note: This runs without access to playbackManager - inputPlugin handles state updates
+        function onTrackTransitioned(itemId) {
+            console.debug('[Gapless] Transitioned to:', itemId);
+
+            // Reset our internal state
+            self._currentTime = 0;
+            self._duration = undefined;
+
+            // Notify inputPlugin to update jellyfin-web state
+            // Pass itemId so inputPlugin can find the item and update everything
+            self.events.trigger(self, 'gaplessTransition', [{ itemId }]);
+        }
     }
 
     getSavedVolume() {
@@ -198,6 +214,15 @@ class mpvAudioPlayer {
 
     currentSrc() {
         return this._currentSrc;
+    }
+
+    currentItem() {
+        return this._currentPlayOptions?.item;
+    }
+
+    currentMediaSource() {
+        const item = this._currentPlayOptions?.item;
+        return item?.MediaSources?.[0] || null;
     }
 
     canPlayMediaType(mediaType) {
@@ -237,6 +262,23 @@ class mpvAudioPlayer {
 
     seekable() {
         return Boolean(this._duration);
+    }
+
+    // Called by playbackManager.seek() - ticks are 10000ths of a second
+    seek(ticks) {
+        const ms = Math.floor(ticks / 10000);
+        window.api.player.seekTo(ms);
+    }
+
+    // Use native MPV playlist navigation for gapless transitions
+    nextTrack() {
+        console.debug('[Gapless mpvAudioPlayer] nextTrack() called');
+        window.api.player.playlistNext();
+    }
+
+    previousTrack() {
+        console.debug('[Gapless mpvAudioPlayer] previousTrack() called');
+        window.api.player.playlistPrev();
     }
 
     getBufferedRanges() {

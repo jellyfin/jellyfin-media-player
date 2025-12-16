@@ -1,69 +1,50 @@
-# CMake script to generate Qt resources (.qrc) file
-# Run with: cmake -DOUTPUT=out.qrc -DMAPPINGS="vpath1=rpath1|vpath2=rpath2" -P GenerateQtResources.cmake
+# Generate qrc and run rcc, only write output if changed
 
-if(NOT DEFINED OUTPUT)
-  message(FATAL_ERROR "OUTPUT not defined")
-endif()
+# Generate qrc XML
+set(qrc "<RCC>\n")
 
-if(NOT DEFINED MAPPINGS)
-  message(FATAL_ERROR "MAPPINGS not defined")
-endif()
-
-# Convert pipe-delimited string to list
-string(REPLACE "|" ";" MAPPINGS_LIST "${MAPPINGS}")
-
-set(qrc_content "<RCC>\n")
-
-foreach(mapping ${MAPPINGS_LIST})
-  # Split on first =
-  string(FIND "${mapping}" "=" eq_pos)
-  if(eq_pos EQUAL -1)
-    message(FATAL_ERROR "Invalid mapping '${mapping}', expected virtualpath=realpath")
-  endif()
-
-  string(SUBSTRING "${mapping}" 0 ${eq_pos} virtualpath)
-  math(EXPR value_start "${eq_pos} + 1")
-  string(SUBSTRING "${mapping}" ${value_start} -1 realpath)
-
-  if(IS_DIRECTORY "${realpath}")
-    # Recursively add all files from directory
-    file(GLOB_RECURSE dir_files RELATIVE "${realpath}" "${realpath}/*")
-    foreach(file ${dir_files})
-      set(full_virtual "${virtualpath}/${file}")
-      # Normalize path
-      string(REGEX REPLACE "^/+" "" full_virtual "${full_virtual}")
-      string(REGEX REPLACE "/+" "/" full_virtual "${full_virtual}")
-
-      # Split into prefix (directory) and alias (filename)
-      get_filename_component(prefix "/${full_virtual}" DIRECTORY)
-      get_filename_component(alias "${full_virtual}" NAME)
-
-      string(APPEND qrc_content "<qresource prefix=\"${prefix}\">\n")
-      string(APPEND qrc_content " <file alias=\"${alias}\">${realpath}/${file}</file>\n")
-      string(APPEND qrc_content "</qresource>\n")
-    endforeach()
-  else()
-    # Single file
-    string(REGEX REPLACE "^/+" "" virtualpath_clean "${virtualpath}")
-    get_filename_component(prefix "/${virtualpath_clean}" DIRECTORY)
-    get_filename_component(alias "${virtualpath_clean}" NAME)
-
-    string(APPEND qrc_content "<qresource prefix=\"${prefix}\">\n")
-    string(APPEND qrc_content " <file alias=\"${alias}\">${realpath}</file>\n")
-    string(APPEND qrc_content "</qresource>\n")
-  endif()
+file(GLOB_RECURSE _files "${RESOURCES_DIR}/*")
+list(SORT _files)
+foreach(_file ${_files})
+  file(RELATIVE_PATH _rel "${RESOURCES_DIR}" "${_file}")
+  get_filename_component(_prefix "/${_rel}" DIRECTORY)
+  get_filename_component(_alias "${_rel}" NAME)
+  string(APPEND qrc "<qresource prefix=\"${_prefix}\"><file alias=\"${_alias}\">${_file}</file></qresource>\n")
 endforeach()
 
-string(APPEND qrc_content "</RCC>")
+string(APPEND qrc "<qresource prefix=\"/ui\"><file alias=\"webview.qml\">${WEBVIEW_QML}</file></qresource>\n")
 
-# Only write if content changed (prevents unnecessary rebuilds)
+file(GLOB_RECURSE _files "${NATIVE_DIR}/*")
+list(SORT _files)
+foreach(_file ${_files})
+  file(RELATIVE_PATH _rel "${NATIVE_DIR}" "${_file}")
+  string(APPEND qrc "<qresource prefix=\"/web-client/extension\"><file alias=\"${_rel}\">${_file}</file></qresource>\n")
+endforeach()
+
+string(APPEND qrc "</RCC>")
+
+# Write qrc to temp file and run rcc
+set(_qrc_tmp "${OUTPUT}.qrc")
+file(WRITE "${_qrc_tmp}" "${qrc}")
+
+execute_process(
+  COMMAND "${RCC}" -name resources "${_qrc_tmp}"
+  OUTPUT_VARIABLE _rcc_output
+  RESULT_VARIABLE _rcc_result
+)
+
+if(NOT _rcc_result EQUAL 0)
+  message(FATAL_ERROR "rcc failed")
+endif()
+
+# Compare with existing output, write only if changed
 if(EXISTS "${OUTPUT}")
-  file(READ "${OUTPUT}" existing_content)
-  if("${existing_content}" STREQUAL "${qrc_content}")
-    message(STATUS "resources.qrc unchanged")
+  file(READ "${OUTPUT}" _existing)
+  if("${_existing}" STREQUAL "${_rcc_output}")
+    message(STATUS "Resources unchanged")
     return()
   endif()
 endif()
 
-file(WRITE "${OUTPUT}" "${qrc_content}")
-message(STATUS "Generated ${OUTPUT}")
+file(WRITE "${OUTPUT}" "${_rcc_output}")
+message(STATUS "Resources updated")

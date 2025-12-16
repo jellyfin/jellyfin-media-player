@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     scaleOption.setValueName("scale");
     scaleOption.setDefaultValue("auto");
 
-    auto platformOption = QCommandLineOption("platform", "Equivalant to QT_QPA_PLATFORM.");
+    auto platformOption = QCommandLineOption("platform", "Equivalent to QT_QPA_PLATFORM.");
     platformOption.setValueName("platform");
     platformOption.setDefaultValue("default");
 

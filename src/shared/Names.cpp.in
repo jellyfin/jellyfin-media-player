@@ -6,7 +6,7 @@
 
 QString Names::MainName()
 {
-  return QString("@MAIN_NAME@");
+  return QString("@DISPLAY_NAME@");
 }
 
 QString Names::DataName()

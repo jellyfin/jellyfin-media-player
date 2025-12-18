@@ -8,7 +8,7 @@ import QtQuick.Controls 6.0
 Window
 {
   id: mainWindow
-  title: "Jellyfin"
+  title: "Jellyfin Desktop"
   objectName: "mainWindow"
   width: 1280
   height: 720

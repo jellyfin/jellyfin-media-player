@@ -1478,6 +1478,8 @@ void PlayerComponent::setVideoConfiguration()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setOtherConfiguration()
 {
+  if (!m_mpv) return;
+
   QString otherConfiguration = SettingsComponent::Get().value(SETTINGS_SECTION_OTHER, "other_conf").toString();
   qDebug() << "Parsing other configuration: "+otherConfiguration;
   QStringList configurationList = otherConfiguration.split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);

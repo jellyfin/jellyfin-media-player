@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>org.jellyfin.JellyfinDesktop</id>
-  <name>Jellyfin</name>
+  <name>Jellyfin Desktop</name>
   <summary>Desktop client for Jellyfin media server</summary>
   <developer id="org.jellyfin">
     <name>Jellyfin</name>

@@ -38,16 +38,16 @@
                          Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\Package_for_KB2919355~31bf3856ad364e35~x86~~6.3.1.14"
                          Value="CurrentState"
                          />
-    <bal:Condition Message="Jellyfin can only be installed on Windows 7 or newer.">
+    <bal:Condition Message="Jellyfin Desktop can only be installed on Windows 7 or newer.">
       <![CDATA[VersionNT >= v6.1]]>
     </bal:Condition>
     <!-- Checking for prerequisites for windows versions where they are required -->
     <!-- We need to check for when ServicePackLevel is not defined as well, with (NOT ServicePackLevel) -->
-    <bal:Condition Message="Jellyfin on Windows 7 or Windows Server 2008 R2 requires Service Pack 1.">
+    <bal:Condition Message="Jellyfin Desktop on Windows 7 or Windows Server 2008 R2 requires Service Pack 1.">
       <![CDATA[NOT ((VersionNT = v6.1) AND ((NOT ServicePackLevel) OR (ServicePackLevel < 1)))]]>
     </bal:Condition>
     <!-- Windows 8 and 2012 have no prerequisites -->
-    <bal:Condition Message="Jellyfin on Windows 8.1 or Windows Server 2012 R2 requires KB2919355 installed.">
+    <bal:Condition Message="Jellyfin Desktop on Windows 8.1 or Windows Server 2012 R2 requires KB2919355 installed.">
       <![CDATA[NOT ((VersionNT = v6.3) AND (KB2919355_x86 <> 112 AND KB2919355_amd64 <> 112))]]>
     </bal:Condition>
 

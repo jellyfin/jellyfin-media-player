@@ -30,7 +30,7 @@ class updatePlugin {
 
                     await confirm({
                         title: "Update Available",
-                        text: `Jellyfin version ${version} is available.`,
+                        text: `Jellyfin Desktop version ${version} is available.`,
                         cancelText: "Ignore",
                         confirmText: "Download"
                     });

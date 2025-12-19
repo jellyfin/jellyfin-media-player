@@ -22,7 +22,10 @@ add_subdirectory(system)
 add_subdirectory(settings)
 add_subdirectory(power)
 add_subdirectory(taskbar)
-add_subdirectory(mpris)
+
+if(LINUX_DBUS)
+  add_subdirectory(mpris)
+endif()
 
 get_property(ALL_SRCS GLOBAL PROPERTY SRCS_LIST)
 set(MAIN_SRCS main.cpp)
@@ -186,9 +189,12 @@ target_link_libraries(jmp_core
   Qt6::OpenGL
   Qt6::Xml
   Qt6::Gui
-  Qt6::DBus
   ${MPVQT_TARGET}
 )
+
+if(LINUX_DBUS)
+  target_link_libraries(jmp_core Qt6::DBus)
+endif()
 
 target_link_libraries(${MAIN_TARGET} jmp_core)
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})

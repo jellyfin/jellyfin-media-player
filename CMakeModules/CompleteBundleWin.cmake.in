@@ -13,9 +13,12 @@ endforeach()
 get_filename_component(CEC_DIR @CEC_LIBRARY@ DIRECTORY)
 list(APPEND SEARCHDIRS ${CEC_DIR})
 
-# fixup_bundle("${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe" "" "${SEARCHDIRS}") 
+# fixup_bundle("${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe" "" "${SEARCHDIRS}")
 #install(PROGRAMS ${VCREDIST_DIR}/vcredist_msvc2017_x64.exe DESTINATION .)
-file(INSTALL @MPV_LIBRARY@ DESTINATION "${CMAKE_INSTALL_PREFIX}")
+
+# Install MPV DLL (MPV_LIBRARY points to .lib, we need the .dll)
+get_filename_component(MPV_DIR "@MPV_LIBRARY@" DIRECTORY)
+file(INSTALL "${MPV_DIR}/libmpv-2.dll" DESTINATION "${CMAKE_INSTALL_PREFIX}")
 
 if(@DO_ENABLE_ANGLE_DEP@)
   message(STATUS "Deploying separate ANGLE deps")

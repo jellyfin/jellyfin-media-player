@@ -1,5 +1,8 @@
 #include "CodecsComponent.h"
 #include <clocale>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 #include <QDebug>
 #include <QString>
 #include <Qt>

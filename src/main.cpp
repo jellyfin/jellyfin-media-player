@@ -53,17 +53,9 @@ static void preinitQt()
   QCoreApplication::setOrganizationDomain("jellyfin.org");
 
 #ifdef Q_OS_WIN32
-  QVariant useOpengl = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "useOpenGL");
-
-  // Warning: this must be the same as the default value as declared in
-  // the settings_description.json file, or confusion will result.
-  if (useOpengl.type() != QMetaType::Bool)
-    useOpengl = false;
-
-  if (useOpengl.toBool())
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-  else
-    QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+  // Qt 6 uses desktop OpenGL by default on Windows
+  // AA_UseOpenGLES and AA_UseDesktopOpenGL are deprecated and ignored
+  // No need to set any attributes
 #endif
 }
 
@@ -115,7 +107,6 @@ int main(int argc, char *argv[])
                        {"windowed",                 "Start in windowed mode"},
                        {"fullscreen",               "Start in fullscreen"},
                        {"disable-gpu",              "Disable QtWebEngine gpu accel"},
-                       {"software-rendering",       "Use software rendering (compatibility mode)"},
                        {"ignore-certificate-errors", "Ignore certificate errors"}});
 
     auto scaleOption = QCommandLineOption("scale-factor", "Set to a integer or default auto which controls" \
@@ -491,16 +482,6 @@ int main(int argc, char *argv[])
 
     if (parser.isSet("ignore-certificate-errors"))
       chromiumFlags << "--ignore-certificate-errors";
-
-    // Software rendering mode for compatibility with problematic GPUs
-    if (parser.isSet("software-rendering"))
-    {
-      chromiumFlags << "--disable-gpu";
-      chromiumFlags << "--disable-gpu-compositing";
-      chromiumFlags << "--disable-accelerated-2d-canvas";
-      chromiumFlags << "--disable-accelerated-video-decode";
-      qInfo() << "Software rendering mode enabled (GPU disabled)";
-    }
 
     if (!chromiumFlags.isEmpty())
       qputenv("QTWEBENGINE_CHROMIUM_FLAGS", chromiumFlags.join(" ").toUtf8());

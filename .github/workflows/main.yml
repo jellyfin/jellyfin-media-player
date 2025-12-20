@@ -6,8 +6,24 @@ on:
       - release
       - prerelease
       - test
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Job to run (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - build-mac
+          - build-macarm64
+          - build-win64-legacy
+          - build-win64
+          - build-win32
+          - build-ubuntu
+          - build-debian
 jobs:
   build-mac:
+    if: inputs.job == '' || inputs.job == 'build-mac'
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
@@ -47,6 +63,7 @@ jobs:
         path: ${{ github.workspace }}/Jellyfin Desktop.dmg
 
   build-macarm64:
+    if: inputs.job == '' || inputs.job == 'build-macarm64'
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
@@ -75,6 +92,7 @@ jobs:
         path: ${{ github.workspace }}/Jellyfin Desktop.dmg
 
   build-win64-legacy:
+    if: inputs.job == '' || inputs.job == 'build-win64-legacy'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
@@ -121,6 +139,7 @@ jobs:
         path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
 
   build-win64:
+    if: inputs.job == '' || inputs.job == 'build-win64'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
@@ -167,6 +186,7 @@ jobs:
         path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
 
   build-win32:
+    if: inputs.job == '' || inputs.job == 'build-win32'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
@@ -213,6 +233,7 @@ jobs:
         path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
 
   build-ubuntu:
+    if: inputs.job == '' || inputs.job == 'build-ubuntu'
     strategy:
       fail-fast: false
       matrix:
@@ -286,6 +307,7 @@ jobs:
           sudo ln -sf ${BASEDIR}/stable/${{ github.ref_name }} ${BASEDIR}/latest || exit 1
 
   build-debian:
+    if: inputs.job == '' || inputs.job == 'build-debian'
     strategy:
       fail-fast: false
       matrix:

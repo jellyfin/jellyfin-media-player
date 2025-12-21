@@ -58,10 +58,51 @@ function(fix_lib_dependencies lib framework_libs_var)
       # Resolve the actual path
       if(dependency_str MATCHES "^@rpath/(.+)")
         set(dep_name "${CMAKE_MATCH_1}")
-        set(resolved_path "${rpath_str}/${dep_name}")
+        # Search multiple potential locations for @rpath dependencies
+        set(search_paths "${rpath_str}/${dep_name}")
+        # Add Cellar paths - some libs (like libjxl_cms) aren't symlinked to main lib dir
+        if(arch STREQUAL "arm64")
+          file(GLOB cellar_candidates "/opt/homebrew/Cellar/*/*/lib/${dep_name}")
+        else()
+          file(GLOB cellar_candidates "/usr/local/Cellar/*/*/lib/${dep_name}")
+        endif()
+        list(APPEND search_paths ${cellar_candidates})
+
+        set(resolved_path "")
+        foreach(candidate ${search_paths})
+          if(EXISTS "${candidate}")
+            set(resolved_path "${candidate}")
+            break()
+          endif()
+        endforeach()
+
+        if(NOT resolved_path)
+          message(WARNING "Could not resolve @rpath dependency: ${dep_name}")
+          continue()
+        endif()
       elseif(dependency_str MATCHES "^@loader_path/(.+)")
         get_filename_component(dep_name "${CMAKE_MATCH_1}" NAME)
-        set(resolved_path "${rpath_str}/${dep_name}")
+        # Same search logic for @loader_path
+        set(search_paths "${rpath_str}/${dep_name}")
+        if(arch STREQUAL "arm64")
+          file(GLOB cellar_candidates "/opt/homebrew/Cellar/*/*/lib/${dep_name}")
+        else()
+          file(GLOB cellar_candidates "/usr/local/Cellar/*/*/lib/${dep_name}")
+        endif()
+        list(APPEND search_paths ${cellar_candidates})
+
+        set(resolved_path "")
+        foreach(candidate ${search_paths})
+          if(EXISTS "${candidate}")
+            set(resolved_path "${candidate}")
+            break()
+          endif()
+        endforeach()
+
+        if(NOT resolved_path)
+          message(WARNING "Could not resolve @loader_path dependency: ${dep_name}")
+          continue()
+        endif()
       else()
         set(resolved_path "${dependency_str}")
       endif()
@@ -72,17 +113,25 @@ function(fix_lib_dependencies lib framework_libs_var)
       # Copy if not already in Frameworks
       list(FIND framework_libs "${dep_name}" idx)
       if(idx EQUAL -1 AND EXISTS "${resolved_path}")
-        message(STATUS "Copying ${resolved_path} to ${framework_path}/${dep_name}")
-        file(COPY "${resolved_path}" DESTINATION "${framework_path}")
+        # Resolve symlinks to get the actual file
+        get_filename_component(real_path "${resolved_path}" REALPATH)
+        message(STATUS "Copying ${real_path} to ${framework_path}/${dep_name}")
+        file(COPY "${real_path}" DESTINATION "${framework_path}")
+        # Rename if the real file has a different name
+        get_filename_component(real_name "${real_path}" NAME)
+        if(NOT "${real_name}" STREQUAL "${dep_name}")
+          file(RENAME "${framework_path}/${real_name}" "${framework_path}/${dep_name}")
+        endif()
+        # Set the ID of the newly copied library to its new location
+        execute_process(COMMAND install_name_tool -id "${target}" "${framework_path}/${dep_name}" ERROR_QUIET)
         list(APPEND framework_libs "${dep_name}")
         set(${framework_libs_var} "${framework_libs}" PARENT_SCOPE)
         # Queue newly added lib for processing
         set_property(GLOBAL APPEND PROPERTY LIBS_TO_FIX "${framework_path}/${dep_name}")
       endif()
 
-      # Fix the path
+      # Fix the reference in the current library
       message(STATUS "Fixing ${dependency_str} -> ${target} in ${lib}")
-      execute_process(COMMAND install_name_tool -id "${target}" "${lib}" ERROR_QUIET)
       execute_process(COMMAND install_name_tool -change "${dependency_str}" "${target}" "${lib}" ERROR_QUIET)
     endif()
   endforeach()
@@ -125,6 +174,15 @@ while(iteration LESS max_iterations)
 endwhile()
 
 message(STATUS "Library path fixing complete")
+
+# List all bundled libraries for verification
+file(GLOB final_dylibs "${framework_path}/*.dylib")
+message(STATUS "=== Bundled libraries in Frameworks ===")
+foreach(lib ${final_dylibs})
+  get_filename_component(libname "${lib}" NAME)
+  message(STATUS "  ${libname}")
+endforeach()
+message(STATUS "=== End bundled libraries ===")
 
 #
 # fix_webengine: Fix QtWebEngineProcess paths and create Frameworks symlink

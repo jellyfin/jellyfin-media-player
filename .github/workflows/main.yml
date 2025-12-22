@@ -130,6 +130,8 @@ jobs:
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt6_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:X64
         ninja
+        mkdir output 2>nul
+        copy ..\vc_redist.x64.exe output\
         ninja windows_package
       shell: cmd
     - name: Archive production artifacts
@@ -148,9 +150,9 @@ jobs:
     - name: Install Qt 6
       uses: jurplel/install-qt-action@v4
       with:
-        version: "6.8.0"
-        arch: "win64_msvc2019_64"
-        modules: "qtwebengine"
+        version: "6.10.*"
+        arch: "win64_msvc2022_64"
+        modules: "qtwebengine qtwebchannel qtpositioning"
     - name: Install dependencies
       run: |
         mkdir build
@@ -177,6 +179,8 @@ jobs:
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt6_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:X64
         ninja
+        mkdir output 2>nul
+        copy ..\vc_redist.x64.exe output\
         ninja windows_package
       shell: cmd
     - name: Archive production artifacts
@@ -195,9 +199,9 @@ jobs:
     - name: Install Qt 6
       uses: jurplel/install-qt-action@v4
       with:
-        version: "6.8.0"
-        arch: "win32_msvc2019"
-        modules: "qtwebengine"
+        version: "6.10.*"
+        arch: "win32_msvc2022"
+        modules: "qtwebengine qtwebchannel qtpositioning"
     - name: Install dependencies
       run: |
         mkdir build
@@ -224,6 +228,8 @@ jobs:
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt6_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:X86
         ninja
+        mkdir output 2>nul
+        copy ..\vc_redist.x86.exe output\
         ninja windows_package
       shell: cmd
     - name: Archive production artifacts

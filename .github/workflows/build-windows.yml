@@ -3,6 +3,7 @@ name: build-windows
 env:
   MPV_VERSION: "20251214-git-f7be2ee"
   NINJA_VERSION: "1.13.2"
+  QT_VERSION: "6.10.1"
 
 on:
   workflow_call:
@@ -18,7 +19,7 @@ jobs:
     - name: Install Qt 6
       uses: jurplel/install-qt-action@v3
       with:
-        version: "6.8.0"
+        version: "${{ env.QT_VERSION }}"
         arch: "win64_msvc2019_64"
         modules: "qtwebengine"
     - name: Install dependencies
@@ -66,7 +67,7 @@ jobs:
     - name: Install Qt 6
       uses: jurplel/install-qt-action@v4
       with:
-        version: "6.10.*"
+        version: "${{ env.QT_VERSION }}"
         arch: "win64_msvc2022_64"
         modules: "qtwebengine qtwebchannel qtpositioning"
     - name: Install dependencies
@@ -114,7 +115,7 @@ jobs:
     - name: Install Qt 6
       uses: jurplel/install-qt-action@v4
       with:
-        version: "6.10.*"
+        version: "${{ env.QT_VERSION }}"
         arch: "win32_msvc2022"
         modules: "qtwebengine qtwebchannel qtpositioning"
     - name: Install dependencies

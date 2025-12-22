@@ -27,7 +27,7 @@ jobs:
         brew install ninja mpv qt@6 || true
     - name: Release build
       run: |
-        cmake -B build -G Ninja -DQTROOT=${{ matrix.homebrew_prefix }}/opt/qt@6 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
+        cmake -B build -G Ninja -DQTROOT=${{ matrix.homebrew_prefix }}/opt/qt@6 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON
         cmake --build build --target install
     - name: Sign and create dmg
       run: |

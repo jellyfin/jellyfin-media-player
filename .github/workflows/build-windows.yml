@@ -1,0 +1,154 @@
+name: build-windows
+
+env:
+  MPV_VERSION: "20251214-git-f7be2ee"
+  NINJA_VERSION: "1.13.2"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-win64-legacy:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: "6.8.0"
+        arch: "win64_msvc2019_64"
+        modules: "qtwebengine"
+    - name: Install dependencies
+      run: |
+        mkdir build
+        curl -L https://aka.ms/vs/17/release/vc_redist.x64.exe > vc_redist.x64.exe
+        sed -i 's#C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(readlink -f vc_redist.x64.exe | sed 's#/\([a-z]\)/#\1:\\#g' | tr '/' '\\' | sed 's/\\/\\\\/g')#g" bundle/win/Bundle.wxs
+        curl -L https://github.com/ninja-build/ninja/releases/download/v${{ env.NINJA_VERSION }}/ninja-win.zip > ninja.zip
+        unzip ninja.zip
+        mv ninja.exe build/
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-v3-${{ env.MPV_VERSION }}.7z/download > mpv.7z
+        7z x mpv.7z
+        mkdir mpv
+        mv include mpv
+        gendef libmpv-2.dll
+        mv libmpv-2.dll mpv/libmpv-2.dll
+        mv libmpv-2.def mpv.def
+        mv mpv.def libmpv.dll.a mpv/
+        mv mpv build/
+      shell: bash
+    - name: Build
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        cd build
+        set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt6_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
+        lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:X64
+        ninja
+        mkdir output 2>nul
+        copy ..\vc_redist.x64.exe output\
+        ninja windows_package
+      shell: cmd
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-legacy64
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
+
+  build-win64:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: "6.10.*"
+        arch: "win64_msvc2022_64"
+        modules: "qtwebengine qtwebchannel qtpositioning"
+    - name: Install dependencies
+      run: |
+        mkdir build
+        curl -L https://aka.ms/vs/17/release/vc_redist.x64.exe > vc_redist.x64.exe
+        sed -i 's#C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(readlink -f vc_redist.x64.exe | sed 's#/\([a-z]\)/#\1:\\#g' | tr '/' '\\' | sed 's/\\/\\\\/g')#g" bundle/win/Bundle.wxs
+        curl -L https://github.com/ninja-build/ninja/releases/download/v${{ env.NINJA_VERSION }}/ninja-win.zip > ninja.zip
+        unzip ninja.zip
+        mv ninja.exe build/
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-x86_64-v3-${{ env.MPV_VERSION }}.7z/download > mpv.7z
+        7z x mpv.7z
+        mkdir mpv
+        mv include mpv
+        gendef libmpv-2.dll
+        mv libmpv-2.dll mpv/libmpv-2.dll
+        mv libmpv-2.def mpv.def
+        mv mpv.def libmpv.dll.a mpv/
+        mv mpv build/
+      shell: bash
+    - name: Build
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        cd build
+        set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt6_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
+        lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:X64
+        ninja
+        mkdir output 2>nul
+        copy ..\vc_redist.x64.exe output\
+        ninja windows_package
+      shell: cmd
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-x64
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
+
+  build-win32:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: "6.10.*"
+        arch: "win32_msvc2022"
+        modules: "qtwebengine qtwebchannel qtpositioning"
+    - name: Install dependencies
+      run: |
+        mkdir build
+        curl -L https://aka.ms/vs/17/release/vc_redist.x86.exe > vc_redist.x86.exe
+        sed -i 's#C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(readlink -f vc_redist.x86.exe | sed 's#/\([a-z]\)/#\1:\\#g' | tr '/' '\\' | sed 's/\\/\\\\/g')#g" bundle/win/Bundle.wxs
+        curl -L https://github.com/ninja-build/ninja/releases/download/v${{ env.NINJA_VERSION }}/ninja-win.zip > ninja.zip
+        unzip ninja.zip
+        mv ninja.exe build/
+        curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-i686-${{ env.MPV_VERSION }}.7z/download > mpv.7z
+        7z x mpv.7z
+        mkdir mpv
+        mv include mpv
+        gendef libmpv-2.dll
+        mv libmpv-2.dll mpv/libmpv-2.dll
+        mv libmpv-2.def mpv.def
+        mv mpv.def libmpv.dll.a mpv/
+        mv mpv build/
+      shell: bash
+    - name: Build
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        cd build
+        set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DCMAKE_MAKE_PROGRAM=ninja.exe -DQTROOT=%Qt6_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
+        lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:X86
+        ninja
+        mkdir output 2>nul
+        copy ..\vc_redist.x86.exe output\
+        ninja windows_package
+      shell: cmd
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-x86
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe

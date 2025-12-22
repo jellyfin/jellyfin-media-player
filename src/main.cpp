@@ -53,17 +53,9 @@ static void preinitQt()
   QCoreApplication::setOrganizationDomain("jellyfin.org");
 
 #ifdef Q_OS_WIN32
-  QVariant useOpengl = SettingsComponent::readPreinitValue(SETTINGS_SECTION_MAIN, "useOpenGL");
-
-  // Warning: this must be the same as the default value as declared in
-  // the settings_description.json file, or confusion will result.
-  if (useOpengl.type() != QMetaType::Bool)
-    useOpengl = false;
-
-  if (useOpengl.toBool())
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-  else
-    QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+  // Qt 6 uses desktop OpenGL by default on Windows
+  // AA_UseOpenGLES and AA_UseDesktopOpenGL are deprecated and ignored
+  // No need to set any attributes
 #endif
 }
 

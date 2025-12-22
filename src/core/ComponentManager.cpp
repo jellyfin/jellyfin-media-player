@@ -13,7 +13,9 @@
 #include "settings/SettingsComponent.h"
 #include "taskbar/TaskbarComponent.h"
 #include "ui/WindowManager.h"
+#ifdef LINUX_DBUS
 #include "mpris/MprisComponent.h"
+#endif
 #include "ProfileManager.h"
 
 #ifdef KONVERGO_OPENELEC
@@ -65,7 +67,9 @@ void ComponentManager::initialize()
   registerComponent(&PowerComponent::Get());
   registerComponent(&TaskbarComponent::Get());
   registerComponent(&WindowManager::Get());
+#ifdef LINUX_DBUS
   registerComponent(&MprisComponent::Get());
+#endif
 
 #ifdef KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());

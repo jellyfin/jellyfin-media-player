@@ -3,6 +3,8 @@ dependencies/*
 CMakeLists.txt.user
 CMakeLists.txt.user.*
 build/*
+build_deps/*
+build_vs_debug/*
 .idea
 .install_pkg
 .openelec-unpack

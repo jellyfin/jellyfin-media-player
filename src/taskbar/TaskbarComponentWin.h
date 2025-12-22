@@ -1,10 +1,7 @@
 #ifndef TASKBARCOMPONENTWIN_H
 #define TASKBARCOMPONENTWIN_H
 
-#include <QWinTaskbarButton>
-#include <QWinTaskbarProgress>
-#include <QWinThumbnailToolBar>
-#include <QWinThumbnailToolButton>
+#include "QWinTaskbarStubs.h"
 
 #include <wrl.h>
 #include <Windows.Media.h>

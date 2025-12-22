@@ -7,7 +7,7 @@ get_filename_component(WIX_BIN_DIR ${WIX_CANDLE} DIRECTORY)
 
 configure_file(${PROJECT_SOURCE_DIR}/bundle/win/Version.wxi.in Version.wxi)
 
-set(WIX_VARIABLES -dDeploymentPath="${CMAKE_INSTALL_PREFIX}" -dOutputPath="${CMAKE_BINARY_DIR}")
+set(WIX_VARIABLES -dDeploymentPath="${CMAKE_INSTALL_PREFIX}" -dOutputPath="${CMAKE_INSTALL_PREFIX}" -dBuildPath="${CMAKE_BINARY_DIR}")
 
 include(CMakeParseArguments)
 

@@ -80,30 +80,9 @@ void detectOpenGLEarly()
 /////////////////////////////////////////////////////////////////////////////////////////
 void detectOpenGLLate()
 {
-  if (!QCoreApplication::testAttribute(Qt::AA_UseOpenGLES))
-    return;
-
-  // Workaround for broken QSGDefaultDistanceFieldGlyphCache::resizeTexture in ES 3 mode
-  qputenv("QML_USE_GLYPHCACHE_WORKAROUND", "1");
-
-  QList<int> versions = { 3, 2 };
-  for (auto version : versions)
-  {
-    qInfo() << "Trying GLES version" << version;
-    QSurfaceFormat fmt = QSurfaceFormat::defaultFormat();
-    fmt.setMajorVersion(version);
-#ifdef HAVE_OPTIMALORIENTATION
-    fmt.setOption(QSurfaceFormat::UseOptimalOrientation);
-#endif
-    QOpenGLContext ctx;
-    ctx.setFormat(fmt);
-    if (ctx.create())
-    {
-      qInfo() << "Using GLES version" << version;
-      QSurfaceFormat::setDefaultFormat(fmt);
-      break;
-    }
-  }
+  // Qt 6 does not support AA_UseOpenGLES - it uses desktop OpenGL by default
+  // No need to force GLES version, let Qt use the native OpenGL
+  qInfo() << "Using native desktop OpenGL (Qt 6)";
 }
 
 #else

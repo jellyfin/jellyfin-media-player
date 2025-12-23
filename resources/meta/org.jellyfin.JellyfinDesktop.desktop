@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Name=Jellyfin Desktop
-Comment=Desktop client for Jellyfin
+Comment=Jellyfin desktop client
 Exec=jellyfin-desktop
 Icon=org.jellyfin.JellyfinDesktop
 Terminal=false

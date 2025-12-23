@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
-  <Property Id="ARPCOMMENTS" Value="Jellyfin for Windows" />
+  <Property Id="ARPCOMMENTS" Value="Jellyfin desktop client" />
   <Property Id="ARPCONTACT" Value="Jellyfin" />
   <Property Id="ARPPRODUCTICON" Value="JellyfinDesktopIcon" />
   <Property Id="ARPURLINFOABOUT" Value="$(var.JellyfinWebsiteUrl)" />

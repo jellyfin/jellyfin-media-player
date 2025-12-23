@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
-  <?define ProductName=Jellyfin ?>
+  <?define ProductName=Jellyfin Desktop ?>
   <?define ProductDesc=Jellyfin desktop client ?>
   <?define ProductUUID=abea6faf-13ea-465f-b2bd-a24b5524e98b ?>
   <?define JellyfinWebsiteUrl=https://jellyfin.org ?>
   <?define LanguageCode=1033 ?>
-  <?define LaunchCondition_PerUser=Jellyfin does not allow per-user installations. Setup will now exit ?>
-  <?define OldWindowsError=Jellyfin requires at least Windows 7 ?>
-  <?define NewerVersionError=A newer version of Jellyfin is already installed ?>
+  <?define LaunchCondition_PerUser=Jellyfin Desktop does not allow per-user installations. Setup will now exit ?>
+  <?define OldWindowsError=Jellyfin Desktop requires at least Windows 7 ?>
+  <?define NewerVersionError=A newer version of Jellyfin Desktop is already installed ?>
 </Include>

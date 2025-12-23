@@ -94,7 +94,7 @@
             <Condition>ADDDESKTOPSHORTCUT=1</Condition>
             <Shortcut Id="ApplicationDesktopShortcut"
                 Name="Jellyfin"
-                Description="Desktop client for Jellyfin"
+                Description="Jellyfin desktop client"
                 Target="[INSTALLLOCATION]Jellyfin Desktop.exe"
                 WorkingDirectory="INSTALLLOCATION"/>
             <RemoveFolder Id="DesktopFolder" On="uninstall"/>
@@ -115,7 +115,7 @@
 
         <Shortcut Id="JellyfinDesktopExeShortcut"
                   Name="Jellyfin"
-                  Description="Jellyfin for Windows"
+                  Description="Jellyfin desktop client"
                   Target="[INSTALLLOCATION]Jellyfin Desktop.exe"
                   WorkingDirectory="INSTALLLOCATION" />
                   
@@ -129,7 +129,7 @@
 
 
     <!-- Product Feature -->
-    <Feature Id="ProductFeature" Title="Jellyfin" Level="1">
+    <Feature Id="ProductFeature" Title="Jellyfin Desktop" Level="1">
       <ComponentGroupRef Id="ProgramFilesComponentGroup" />
       <ComponentRef Id="JellyfinDesktopShortcuts" />
       <ComponentRef Id="ApplicationShortcutDesktop" />

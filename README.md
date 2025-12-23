@@ -4,7 +4,7 @@ Desktop client using jellyfin-web with embedded MPV player. Supports Windows, Ma
 and Linux. Media plays within the same window using the jellyfin-web interface unlike
 Jellyfin Desktop. Supports audio passthrough.
 
-![Screenshot of Jellyfin Desktop](https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-player-win.png)
+![Screenshot of Jellyfin Desktop](screenshots/video_player.png)
 
 Downloads:
  - [Windows, Mac, and Linux Releases](https://github.com/jellyfin/jellyfin-desktop/releases)

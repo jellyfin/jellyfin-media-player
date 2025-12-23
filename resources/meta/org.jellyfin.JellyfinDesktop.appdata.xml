@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>org.jellyfin.JellyfinDesktop</id>
   <name>Jellyfin Desktop</name>
-  <summary>Desktop client for Jellyfin media server</summary>
+  <summary>Jellyfin desktop client</summary>
   <developer id="org.jellyfin">
     <name>Jellyfin</name>
   </developer>
@@ -18,22 +18,26 @@
   <launchable type="desktop-id">org.jellyfin.JellyfinDesktop.desktop</launchable>
 
   <screenshots>
+    <screenshot>
+      <caption>Video player</caption>
+      <image type="source">https://raw.githubusercontent.com/jellyfin/jellyfin-desktop/master/screenshots/video_player.png</image>
+    </screenshot>
     <screenshot type="default">
-      <caption>The desktop client</caption>
-      <image type="source" width="1080" height="632">https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-browse.png</image>
+      <caption>Library browser</caption>
+      <image type="source">https://raw.githubusercontent.com/jellyfin/jellyfin-desktop/master/screenshots/library_browser.png</image>
     </screenshot>
     <screenshot>
-      <caption>The application playing Big Buck Bunny</caption>
-      <image type="source" width="1080" height="632">https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-player.png</image>
+      <caption>Initial startup</caption>
+      <image type="source">https://raw.githubusercontent.com/jellyfin/jellyfin-desktop/master/screenshots/initial_startup.png</image>
     </screenshot>
     <screenshot>
-      <caption>The server dashboard</caption>
-      <image type="source" width="1080" height="632">https://raw.githubusercontent.com/iwalton3/mpv-shim-misc-docs/master/images/jmp-admin.png</image>
+      <caption>Plasma MPRIS integration</caption>
+      <image type="source">https://raw.githubusercontent.com/jellyfin/jellyfin-desktop/master/screenshots/plasma_mpris.png</image>
     </screenshot>
   </screenshots>
 
   <description>
-    <p>Jellyfin Desktop Client based on Plex Media Player. Play your Jellyfin media in the jellyfin-web application with significantly improved media support. The client also supports SyncPlay.</p>
+    <p>Jellyfin desktop client built with Qt WebEngine and libmpv. Supports audio passthrough, hardware decoding, and playback of more formats without transcoding.</p>
   </description>
   <categories>
     <category>AudioVideo</category>

@@ -351,7 +351,11 @@
         </description>
       </release>
   </releases>
-  <content_rating type="oars-1.0"/>
+  <content_rating type="oars-1.1"/>
+  <branding>
+    <color type="primary" scheme_preference="light">#c4d8f0</color>
+    <color type="primary" scheme_preference="dark">#000b25</color>
+  </branding>
   <keywords>
     <keyword>media player</keyword>
     <keyword>jellyfin server</keyword>

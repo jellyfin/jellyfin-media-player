@@ -1,6 +1,20 @@
 set(PROJECT_SOURCE_DIR @PROJECT_SOURCE_DIR@)
+set(QTROOT "@QTROOT@")
 
-execute_process(COMMAND @QTROOT@/bin/windeployqt.exe --verbose 9 --qmldir @SOURCE_ROOT@/src/ui "${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe")
+message(STATUS "Running windeployqt from: ${QTROOT}/bin/windeployqt.exe")
+message(STATUS "Target: ${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe")
+
+execute_process(
+  COMMAND "${QTROOT}/bin/windeployqt.exe" --verbose 9 --qmldir @SOURCE_ROOT@/src/ui "${CMAKE_INSTALL_PREFIX}/Jellyfin Desktop.exe"
+  RESULT_VARIABLE WINDEPLOYQT_RESULT
+)
+
+if(NOT WINDEPLOYQT_RESULT EQUAL 0)
+  message(FATAL_ERROR "windeployqt failed with exit code: ${WINDEPLOYQT_RESULT}")
+endif()
+
+# windeployqt may miss Qt6Xml.dll - copy explicitly
+file(INSTALL "${QTROOT}/bin/Qt6Xml.dll" DESTINATION "${CMAKE_INSTALL_PREFIX}")
 
 # on windows windeployqt doesnt install non qt libraries, let cmake do that
 # include(BundleUtilities)

@@ -2,23 +2,27 @@ set(app "${CMAKE_INSTALL_PREFIX}/@EXE@")
 set(framework_path "${app}/Contents/Frameworks")
 set(weprocess "${framework_path}/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app")
 
-# Determine rpath based on architecture
-cmake_host_system_information(RESULT arch QUERY OS_PLATFORM)
-if(arch STREQUAL "arm64")
-  set(rpath_str "/opt/homebrew/lib")
-else()
-  set(rpath_str "/usr/local/lib")
-endif()
+# Detect homebrew prefix
+execute_process(
+  COMMAND brew --prefix
+  OUTPUT_VARIABLE brew_prefix
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+set(brew_lib "${brew_prefix}/lib")
+set(brew_qt_lib "${brew_prefix}/opt/qt/lib")
 
 set(args ${app})
 list(APPEND args "-verbose=2")
 list(APPEND args "-qmldir=@SOURCE_ROOT@/src/ui")
+list(APPEND args "-libpath=@QTROOT@/lib")
+list(APPEND args "-libpath=${brew_qt_lib}")
+list(APPEND args "-libpath=${brew_lib}")
 foreach(BIN ${BINS})
   list(APPEND args "-executable=${app}/${BIN}")
 endforeach(BIN ${BINS})
 
-set(ENV{DYLD_LIBRARY_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
-set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:@DEPENDENCY_ROOT@/lib)
+set(ENV{DYLD_LIBRARY_PATH} @QTROOT@/lib:${brew_qt_lib}:${brew_lib}:@DEPENDENCY_ROOT@/lib)
+set(ENV{DYLD_FRAMEWORK_PATH} @QTROOT@/lib:${brew_qt_lib}:${brew_lib}:@DEPENDENCY_ROOT@/lib)
 
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E remove "${app}/Contents/Resources/qt.conf"
@@ -50,6 +54,16 @@ function(fix_lib_dependencies lib framework_libs_var)
       set(needs_fix TRUE)
     endif()
 
+    # Fix flat Qt refs like @executable_path/../Frameworks/QtCore -> framework path
+    if(line MATCHES "^@executable_path/../Frameworks/(Qt[^/ ]+) ")
+      set(qt_name "${CMAKE_MATCH_1}")
+      string(REGEX REPLACE " \\(compatibility.*$" "" old_ref "${line}")
+      set(new_ref "@executable_path/../Frameworks/${qt_name}.framework/Versions/A/${qt_name}")
+      message(STATUS "Fixing flat Qt ref ${old_ref} -> ${new_ref}")
+      execute_process(COMMAND install_name_tool -change "${old_ref}" "${new_ref}" "${lib}" ERROR_QUIET)
+      continue()
+    endif()
+
     if(needs_fix)
       # Extract dependency path (remove compatibility version suffix)
       string(REGEX REPLACE " \\(compatibility.*$" "" dependency_str "${line}")
@@ -59,13 +73,9 @@ function(fix_lib_dependencies lib framework_libs_var)
       if(dependency_str MATCHES "^@rpath/(.+)")
         set(dep_name "${CMAKE_MATCH_1}")
         # Search multiple potential locations for @rpath dependencies
-        set(search_paths "${rpath_str}/${dep_name}")
+        set(search_paths "${brew_lib}/${dep_name}")
         # Add Cellar paths - some libs (like libjxl_cms) aren't symlinked to main lib dir
-        if(arch STREQUAL "arm64")
-          file(GLOB cellar_candidates "/opt/homebrew/Cellar/*/*/lib/${dep_name}")
-        else()
-          file(GLOB cellar_candidates "/usr/local/Cellar/*/*/lib/${dep_name}")
-        endif()
+        file(GLOB cellar_candidates "${brew_prefix}/Cellar/*/*/lib/${dep_name}")
         list(APPEND search_paths ${cellar_candidates})
 
         set(resolved_path "")
@@ -83,12 +93,8 @@ function(fix_lib_dependencies lib framework_libs_var)
       elseif(dependency_str MATCHES "^@loader_path/(.+)")
         get_filename_component(dep_name "${CMAKE_MATCH_1}" NAME)
         # Same search logic for @loader_path
-        set(search_paths "${rpath_str}/${dep_name}")
-        if(arch STREQUAL "arm64")
-          file(GLOB cellar_candidates "/opt/homebrew/Cellar/*/*/lib/${dep_name}")
-        else()
-          file(GLOB cellar_candidates "/usr/local/Cellar/*/*/lib/${dep_name}")
-        endif()
+        set(search_paths "${brew_lib}/${dep_name}")
+        file(GLOB cellar_candidates "${brew_prefix}/Cellar/*/*/lib/${dep_name}")
         list(APPEND search_paths ${cellar_candidates})
 
         set(resolved_path "")
@@ -105,6 +111,51 @@ function(fix_lib_dependencies lib framework_libs_var)
         endif()
       else()
         set(resolved_path "${dependency_str}")
+      endif()
+
+      # Check if this is a framework reference (e.g., Python.framework/Versions/3.x/Python)
+      if(dependency_str MATCHES "\\.framework/")
+        get_filename_component(bin_name "${dependency_str}" NAME)
+
+        # Qt frameworks: macdeployqt handles them, just fix refs to use framework path
+        if(bin_name MATCHES "^Qt")
+          # Extract framework-relative path (e.g., QtCore.framework/Versions/A/QtCore)
+          string(REGEX MATCH "[^/]+\\.framework/.*" fw_rel_path "${dependency_str}")
+          set(target "@executable_path/../Frameworks/${fw_rel_path}")
+          message(STATUS "Fixing Qt framework ${dependency_str} -> ${target}")
+          execute_process(COMMAND install_name_tool -change "${dependency_str}" "${target}" "${lib}" ERROR_QUIET)
+          continue()
+        endif()
+
+        # Non-Qt frameworks (e.g., Python): copy as flat file
+        set(target "@executable_path/../Frameworks/${bin_name}")
+
+        list(FIND framework_libs "${bin_name}" idx)
+        if(idx EQUAL -1)
+          # Resolve the framework binary path
+          string(REGEX REPLACE "^@rpath" "${brew_lib}" resolved_fw "${dependency_str}")
+          string(REGEX REPLACE "^@loader_path" "${brew_lib}" resolved_fw "${resolved_fw}")
+
+          if(EXISTS "${resolved_fw}")
+            get_filename_component(real_path "${resolved_fw}" REALPATH)
+            message(STATUS "Copying framework binary ${real_path} -> ${framework_path}/${bin_name}")
+            file(COPY "${real_path}" DESTINATION "${framework_path}")
+            get_filename_component(real_name "${real_path}" NAME)
+            if(NOT "${real_name}" STREQUAL "${bin_name}")
+              file(RENAME "${framework_path}/${real_name}" "${framework_path}/${bin_name}")
+            endif()
+            execute_process(COMMAND install_name_tool -id "${target}" "${framework_path}/${bin_name}" ERROR_QUIET)
+            list(APPEND framework_libs "${bin_name}")
+            set_property(GLOBAL APPEND PROPERTY LIBS_TO_FIX "${framework_path}/${bin_name}")
+          else()
+            message(WARNING "Could not find framework binary: ${resolved_fw}")
+            continue()
+          endif()
+        endif()
+
+        message(STATUS "Fixing ${dependency_str} -> ${target}")
+        execute_process(COMMAND install_name_tool -change "${dependency_str}" "${target}" "${lib}" ERROR_QUIET)
+        continue()
       endif()
 
       get_filename_component(dep_name "${resolved_path}" NAME)
@@ -149,7 +200,11 @@ endforeach()
 # Collect all libs to fix
 file(GLOB_RECURSE all_dylibs "${app}/*.dylib")
 file(GLOB_RECURSE all_sos "${app}/*.so")
-set_property(GLOBAL PROPERTY LIBS_TO_FIX ${all_dylibs} ${all_sos})
+# Framework binaries have no extension - scan them for deps like QtDBus
+file(GLOB framework_bins "${framework_path}/*.framework/Versions/*/[A-Z]*")
+list(FILTER framework_bins EXCLUDE REGEX "\\.(plist|h|json|tbd)$")
+list(FILTER framework_bins EXCLUDE REGEX "/(Headers|Resources)/")
+set_property(GLOBAL PROPERTY LIBS_TO_FIX ${all_dylibs} ${all_sos} ${framework_bins})
 
 # Process libs iteratively (handles newly discovered deps)
 set(max_iterations 100)

@@ -10,30 +10,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: macos-15-intel
-            homebrew_prefix: /usr/local
-            artifact: macos-intel
           - runner: macos-15
-            homebrew_prefix: /opt/homebrew
             artifact: macos-arm64
+          - runner: macos-15-intel
+            artifact: macos-intel
     runs-on: ${{ matrix.runner }}
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.10.1'
+        arch: clang_64
+        modules: 'qtwebengine qtwebchannel qtpositioning'
     - name: Install dependencies
       run: |
         brew update
-        brew install ninja mpv qt@6 || true
+        brew install mpv
     - name: Release build
       run: |
-        cmake -B build -G Ninja -DQTROOT=${{ matrix.homebrew_prefix }}/opt/qt@6 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=output -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON
+        cmake -B build -G Ninja \
+          -DQTROOT=$QT_ROOT_DIR \
+          -DCMAKE_PREFIX_PATH=$QT_ROOT_DIR \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=output \
+          -DCHECK_FOR_UPDATES=ON \
+          -DUSE_STATIC_MPVQT=ON
         cmake --build build --target install
     - name: Sign and create dmg
       run: |
-        codesign --force --deep -s - "./build/output/Jellyfin Desktop.app/"
+        codesign --force --deep -s - "./output/Jellyfin Desktop.app/"
         brew install create-dmg
-        create-dmg --volname "Jellyfin Desktop" --no-internet-enable "Jellyfin Desktop.dmg" "./build/output/Jellyfin Desktop.app"
+        create-dmg --volname "Jellyfin Desktop" --no-internet-enable "Jellyfin Desktop.dmg" "./output/Jellyfin Desktop.app"
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:

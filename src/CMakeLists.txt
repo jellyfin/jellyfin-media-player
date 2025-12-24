@@ -128,9 +128,14 @@ get_property(BUNDLED_FILES GLOBAL PROPERTY CONFIG_BUNDLED_FILES)
 add_executable(${MAIN_TARGET} WIN32 MACOSX_BUNDLE ${MAIN_SRCS} ${BUNDLED_FILES} ${RESOURCE_FILES} ${XCODE_RESOURCES})
 add_dependencies(${MAIN_TARGET} generate_resources)
 std_target_properties(${MAIN_TARGET})
+if(APPLE)
+  set(_install_rpath "@executable_path/../Frameworks")
+else()
+  set(_install_rpath "${QTROOT}/lib")
+endif()
 set_target_properties(${MAIN_TARGET} PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/bundle/osx/Info.plist.in
-  INSTALL_RPATH "${QTROOT}/lib"
+  INSTALL_RPATH "${_install_rpath}"
   OUTPUT_NAME ${MAIN_NAME}
 )
 copy_resources(${MAIN_TARGET})

@@ -690,8 +690,9 @@ QRect WindowManager::loadGeometryRect()
         return QRect(parts[0].toInt(), parts[1].toInt(), parts[2].toInt(), parts[3].toInt());
       }
     }
-    qDebug() << "loadGeometryRect: using default WEBUI_SIZE";
-    return QRect(0, 0, WEBUI_SIZE.width(), WEBUI_SIZE.height());
+    // No saved geometry - return invalid rect to trigger centering
+    qDebug() << "loadGeometryRect: no saved geometry, returning invalid rect";
+    return QRect();
   }
 
   int x = 0, y = 0;

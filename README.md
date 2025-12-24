@@ -122,18 +122,27 @@ ninja windows_package
 
 ## Building for MacOS
 
-Install [Qt 6](https://www.qt.io/download-thank-you?hsLang=en), remember to check `Qt WebEngine`.
-
-Then run the following commands (replace <QT_DIR> with your QT installation location):
+Install Qt 6.10.1 using aqtinstall and mpv from Homebrew:
 
 ```bash
-brew install mpv ninja qt
+# Install dependencies
+brew install aqtinstall mpv ninja
 
+# Download Qt
+aqt install-qt mac desktop 6.10.1 -m qtwebengine qtwebchannel qtpositioning
+
+# Clone and build
 git clone --recursive https://github.com/jellyfin/jellyfin-desktop.git
 cd jellyfin-desktop
 
-cmake -B build -G Ninja -DUSE_STATIC_MPVQT=ON
-cmake --build build
+export QTROOT=$(pwd)/6.10.1/macos
+cmake -B build -G Ninja \
+  -DQTROOT=$QTROOT \
+  -DCMAKE_PREFIX_PATH=$QTROOT \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=output \
+  -DUSE_STATIC_MPVQT=ON
+cmake --build build --target install
 ```
 
 ## Log File Location

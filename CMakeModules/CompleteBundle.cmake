@@ -1,5 +1,5 @@
 if(APPLE)
-  set(SCRIPT CompleteBundleOSX)
+  set(SCRIPT CompleteBundleMac)
 elseif(WIN32)
   set(SCRIPT CompleteBundleWin)
 endif(APPLE)

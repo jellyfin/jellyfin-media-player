@@ -1,3 +1,5 @@
+!/.github/
+!/.github/**
 *.pro.user*
 dependencies/*
 CMakeLists.txt.user

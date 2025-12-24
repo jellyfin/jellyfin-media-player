@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Jellyfin Desktop</Name>
+    <Version>@VERSION_BASE@</Version>
+    <Title>Jellyfin Desktop</Title>
+    <Publisher>Jellyfin</Publisher>
+    <StartMenuDir>Jellyfin Desktop</StartMenuDir>
+    <TargetDir>@ApplicationsDir@/Jellyfin Desktop</TargetDir>
+    <InstallerApplicationIcon>jellyfin</InstallerApplicationIcon>
+    <InstallerWindowIcon>jellyfin</InstallerWindowIcon>
+    <ProductUrl>https://jellyfin.org/</ProductUrl>
+    <RunProgram>@TargetDir@/Jellyfin Desktop.exe</RunProgram>
+    <RunProgramArguments></RunProgramArguments>
+    <RunProgramDescription>Launch Jellyfin Desktop</RunProgramDescription>
+    <WizardStyle>Modern</WizardStyle>
+    <WizardShowPageList>false</WizardShowPageList>
+    <WizardDefaultWidth>600</WizardDefaultWidth>
+    <WizardDefaultHeight>450</WizardDefaultHeight>
+    <ControlScript>controlscript.qs</ControlScript>
+</Installer>

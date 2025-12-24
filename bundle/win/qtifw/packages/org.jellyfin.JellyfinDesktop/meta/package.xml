@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Jellyfin Desktop</DisplayName>
+    <Description>Jellyfin desktop client</Description>
+    <Version>@VERSION_BASE@</Version>
+    <ReleaseDate>@RELEASE_DATE@</ReleaseDate>
+    <Name>org.jellyfin.JellyfinDesktop</Name>
+    <Default>true</Default>
+    <Essential>true</Essential>
+    <ForcedInstallation>true</ForcedInstallation>
+    <Script>installscript.qs</Script>
+    <UserInterfaces>
+        <UserInterface>shortcutoptions.ui</UserInterface>
+        <UserInterface>uninstalloptions.ui</UserInterface>
+    </UserInterfaces>
+</Package>

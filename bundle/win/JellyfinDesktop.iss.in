@@ -1,0 +1,193 @@
+; Jellyfin Desktop Installer Script for Inno Setup
+; Based on WiX configuration from JMP.wxs and Bundle.wxs
+;
+; NOTE: Media Feature Pack downloads for Windows N editions are not included in this
+; Inno Setup version as they require MSU package handling that was specific to WiX Bundle.
+; Users on Windows N editions will need to install Media Feature Pack manually if needed.
+
+#define MyAppName "Jellyfin Desktop"
+#define MyAppVersion "@VERSION_STRING@"
+#define MyAppPublisher "jellyfin.org"
+#define MyAppURL "https://jellyfin.org"
+#define MyAppExeName "Jellyfin Desktop.exe"
+#define MyAppGUID "{{a78bea4a-5bd0-4aa3-bdf3-579b4f58a921}"
+#define DeployPath "@CMAKE_INSTALL_PREFIX@"
+#define VCRedistURL "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+
+[Setup]
+; NOTE: The value of AppId uniquely identifies this application.
+AppId={#MyAppGUID}
+AppName={#MyAppName}
+AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
+AppPublisher={#MyAppPublisher}
+AppPublisherURL={#MyAppURL}
+AppSupportURL={#MyAppURL}
+AppUpdatesURL={#MyAppURL}
+AppComments=Jellyfin desktop client
+AppContact={#MyAppPublisher}
+DefaultDirName={autopf}\Jellyfin Desktop
+DisableProgramGroupPage=yes
+; Require Windows 10 or newer
+MinVersion=10.0
+ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed=x64compatible
+PrivilegesRequired=admin
+OutputDir=.
+OutputBaseFilename=JellyfinDesktop-{#MyAppVersion}-windows-x64
+SetupIconFile=@PROJECT_SOURCE_DIR@/bundle/win/jellyfin.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
+Compression=lzma2/ultra64
+SolidCompression=yes
+WizardStyle=modern
+WizardImageFile=@PROJECT_SOURCE_DIR@/bundle/win/wizard-image.png
+WizardSmallImageFile=@PROJECT_SOURCE_DIR@/bundle/win/wizard-small-image.png
+DisableWelcomePage=no
+LicenseFile=
+DisableDirPage=no
+DisableReadyPage=no
+CloseApplications=yes
+RestartApplications=no
+
+[Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
+
+[Tasks]
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+
+[Files]
+Source: "{#DeployPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Icons]
+Name: "{autoprograms}\Jellyfin Desktop"; Filename: "{app}\{#MyAppExeName}"; Comment: "Jellyfin desktop client"; WorkingDir: "{app}"
+Name: "{autodesktop}\Jellyfin Desktop"; Filename: "{app}\{#MyAppExeName}"; Comment: "Jellyfin desktop client"; WorkingDir: "{app}"; Tasks: desktopicon
+
+[Run]
+; Install VCRedist - will be downloaded if needed
+Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/install /passive /norestart"; StatusMsg: "Installing Visual C++ Redistributable..."; Flags: waituntilterminated; Check: VCRedistNeedsInstall
+; Launch app after install
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch Jellyfin Desktop"; Flags: nowait postinstall skipifsilent
+
+[Code]
+const
+  PF_AVX2_INSTRUCTIONS_AVAILABLE = 40;
+
+var
+  VCRedistNeedsInstallFlag: Boolean;
+
+function IsProcessorFeaturePresent(ProcessorFeature: DWORD): BOOL;
+  external 'IsProcessorFeaturePresent@kernel32.dll stdcall';
+
+function VCRedistNeedsInstall: Boolean;
+begin
+  Result := VCRedistNeedsInstallFlag;
+end;
+
+function CheckVCRedist(): Boolean;
+var
+  UCRTBasePath: String;
+  MSVCPPath: String;
+begin
+  UCRTBasePath := ExpandConstant('{sys}\ucrtbase.dll');
+  MSVCPPath := ExpandConstant('{sys}\msvcp140.dll');
+
+  // Good if ucrtbase.dll exists
+  if FileExists(UCRTBasePath) then
+  begin
+    Result := True;
+    Log('VCRedist OK: ucrtbase.dll found');
+  end
+  // Bad if msvcp140.dll exists but ucrtbase.dll doesn't (corrupted install)
+  else if FileExists(MSVCPPath) then
+  begin
+    Result := False;
+    Log('Bad VCRedist: msvcp140.dll exists but ucrtbase.dll missing');
+  end
+  else
+  begin
+    Result := False;
+    Log('VCRedist not installed');
+  end;
+end;
+
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+
+  // Check for AVX2 support (required for x86_64-v3 build)
+  if not IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE) then
+  begin
+    MsgBox('Jellyfin Desktop requires a CPU with AVX2 support.' + #13#10 + #13#10 +
+           'Your processor does not support AVX2 instructions.', mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  // Check VCRedist and set flag for download
+  VCRedistNeedsInstallFlag := not CheckVCRedist();
+
+  if VCRedistNeedsInstallFlag then
+    Log('VCRedist will be installed during setup');
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  DownloadPage: TDownloadWizardPage;
+  VCRedistPath: String;
+begin
+  Result := '';
+  NeedsRestart := False;
+
+  // Download VCRedist if needed
+  if VCRedistNeedsInstallFlag then
+  begin
+    VCRedistPath := ExpandConstant('{tmp}\vcredist_x64.exe');
+
+    if not FileExists(VCRedistPath) then
+    begin
+      DownloadPage := CreateDownloadPage('Downloading Dependencies', 'Downloading required dependencies...', nil);
+      DownloadPage.Clear;
+      DownloadPage.Add('{#VCRedistURL}', 'vcredist_x64.exe', '');
+      DownloadPage.Show;
+      try
+        DownloadPage.Download;
+      except
+        Result := 'Failed to download Visual C++ Redistributable.' + #13#10 +
+                  'Please check your internet connection and try again.';
+        Exit;
+      finally
+        DownloadPage.Hide;
+      end;
+    end;
+  end;
+end;
+
+var
+  RemoveUserData: Boolean;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  DataDir: String;
+  CacheDir: String;
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    DataDir := ExpandConstant('{localappdata}\Jellyfin Desktop');
+    CacheDir := ExpandConstant('{localappdata}\cache\Jellyfin Desktop');
+
+    if DirExists(DataDir) or DirExists(CacheDir) then
+      RemoveUserData := MsgBox('Do you want to remove your Jellyfin Desktop user data?',
+                               mbConfirmation, MB_YESNO) = IDYES;
+  end
+  else if CurUninstallStep = usPostUninstall then
+  begin
+    if RemoveUserData then
+    begin
+      DataDir := ExpandConstant('{localappdata}\Jellyfin Desktop');
+      CacheDir := ExpandConstant('{localappdata}\cache\Jellyfin Desktop');
+      DelTree(DataDir, True, True, True);
+      DelTree(CacheDir, True, True, True);
+    end;
+  end;
+end;

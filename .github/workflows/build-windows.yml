@@ -20,7 +20,7 @@ jobs:
             vc_redist_arch: x64
             vcvars: vcvars64.bat
             machine: X64
-          # ARM64 disabled - requires WiX 4+ for installer support
+          # ARM64 disabled - requires qt webengine builds
           # - artifact: windows-arm64
           #   qt_arch: win64_msvc2022_arm64
           #   mpv_arch: aarch64
@@ -38,11 +38,13 @@ jobs:
         version: "${{ env.QT_VERSION }}"
         arch: "${{ matrix.qt_arch }}"
         modules: "qtwebengine qtwebchannel qtpositioning"
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
+      shell: powershell
     - name: Install dependencies
       run: |
         mkdir build
-        curl -L https://aka.ms/vs/17/release/vc_redist.${{ matrix.vc_redist_arch }}.exe > vc_redist.${{ matrix.vc_redist_arch }}.exe
-        sed -i 's#C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Redist\\MSVC\\v142\\vcredist_x64.exe#'"$(readlink -f vc_redist.${{ matrix.vc_redist_arch }}.exe | sed 's#/\([a-z]\)/#\1:\\#g' | tr '/' '\\' | sed 's/\\/\\\\/g')#g" bundle/win/Bundle.wxs
         curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-${{ matrix.mpv_arch }}-${{ env.MPV_VERSION }}.7z/download > mpv.7z
         7z x mpv.7z
         mkdir mpv
@@ -57,12 +59,10 @@ jobs:
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}"
         cd build
-        set PATH=%PATH%;C:\Program Files (x86)\WiX Toolset v3.11\bin;%CD%
+        set PATH=%PATH%;C:\Program Files (x86)\Inno Setup 6;%CD%
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DQTROOT=%QT_ROOT_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:${{ matrix.machine }}
         ninja
-        mkdir output 2>nul
-        copy ..\vc_redist.${{ matrix.vc_redist_arch }}.exe output\
         ninja windows_package
       shell: cmd
     - name: Archive production artifacts

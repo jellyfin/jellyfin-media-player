@@ -115,15 +115,6 @@ function InitializeSetup(): Boolean;
 begin
   Result := True;
 
-  // Check for AVX2 support (required for x86_64-v3 build)
-  if not IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE) then
-  begin
-    MsgBox('Jellyfin Desktop requires a CPU with AVX2 support.' + #13#10 + #13#10 +
-           'Your processor does not support AVX2 instructions.', mbError, MB_OK);
-    Result := False;
-    Exit;
-  end;
-
   // Check VCRedist and set flag for download
   VCRedistNeedsInstallFlag := not CheckVCRedist();
 
@@ -165,6 +156,40 @@ end;
 
 var
   RemoveUserData: Boolean;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  FallbackPath: String;
+  PrimaryPath: String;
+  HasAVX2: Boolean;
+begin
+  if CurStep = ssPostInstall then
+  begin
+    FallbackPath := ExpandConstant('{app}\libmpv-fallback.dll');
+    PrimaryPath := ExpandConstant('{app}\libmpv-2.dll');
+
+    // Select libmpv based on CPU capabilities (x64 only)
+    if FileExists(FallbackPath) then
+    begin
+      if IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE) then
+        HasAVX2 := True
+      else
+        HasAVX2 := False;
+
+      if IsX64OS and (not HasAVX2) then
+      begin
+        Log('x64 CPU without AVX2 - using fallback libmpv');
+        DeleteFile(PrimaryPath);
+        RenameFile(FallbackPath, PrimaryPath);
+      end
+      else
+      begin
+        Log('Using primary libmpv');
+        DeleteFile(FallbackPath);
+      end;
+    end;
+  end;
+end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var

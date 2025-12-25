@@ -17,6 +17,7 @@ jobs:
           - artifact: windows-x64
             qt_arch: win64_msvc2022_64
             mpv_arch: x86_64-v3
+            mpv_arch_fallback: x86_64
             vc_redist_arch: x64
             vcvars: vcvars64.bat
             machine: X64
@@ -24,6 +25,7 @@ jobs:
           # - artifact: windows-arm64
           #   qt_arch: win64_msvc2022_arm64
           #   mpv_arch: aarch64
+          #   mpv_arch_fallback: ""
           #   vc_redist_arch: arm64
           #   vcvars: vcvarsamd64_arm64.bat
           #   machine: ARM64
@@ -54,6 +56,12 @@ jobs:
         mv libmpv-2.def mpv.def
         mv mpv.def libmpv.dll.a mpv/
         mv mpv build/
+        if [ -n "${{ matrix.mpv_arch_fallback }}" ]; then
+          curl -L https://sourceforge.net/projects/mpv-player-windows/files/libmpv/mpv-dev-${{ matrix.mpv_arch_fallback }}-${{ env.MPV_VERSION }}.7z/download > mpv-fallback.7z
+          7z x mpv-fallback.7z -ompv-fallback-tmp
+          mkdir build/mpv-fallback
+          mv mpv-fallback-tmp/libmpv-2.dll build/mpv-fallback/
+        fi
       shell: bash
     - name: Build
       run: |

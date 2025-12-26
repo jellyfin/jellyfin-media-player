@@ -57,11 +57,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; Main application files (exclude redist folder - handled separately)
-Source: "{#DeployPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "redist,redist\*,vc_redist.x64.exe"
+Source: "{#DeployPath}/*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "redist,redist/*,vc_redist.x64.exe"
 ; Bundled VC runtime DLLs - only copied if needed (see Code section)
-Source: "{#DeployPath}\redist\*.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: NeedsBundledRuntime
+Source: "{#DeployPath}/redist/*.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: NeedsBundledRuntime
 ; Bundled VCRedist installer - extracted to temp for potential system-wide install
-Source: "{#DeployPath}\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall; Check: ShouldExtractVCRedist
+Source: "{#DeployPath}/vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall; Check: ShouldExtractVCRedist
 
 [Icons]
 Name: "{autoprograms}\Jellyfin Desktop"; Filename: "{app}\{#MyAppExeName}"; Comment: "Jellyfin desktop client"; WorkingDir: "{app}"

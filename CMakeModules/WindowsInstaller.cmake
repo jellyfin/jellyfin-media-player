@@ -1,6 +1,7 @@
 # Find Inno Setup Compiler
 find_program(ISCC iscc
   PATHS
+    "$ENV{LOCALAPPDATA}/Programs/Inno Setup 6"
     "$ENV{ProgramFiles\(x86\)}/Inno Setup 6"
     "$ENV{ProgramFiles}/Inno Setup 6"
     "C:/Program Files (x86)/Inno Setup 6"

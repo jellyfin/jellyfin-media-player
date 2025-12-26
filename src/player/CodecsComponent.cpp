@@ -1301,11 +1301,8 @@ QList<CodecDriver> Codecs::determineRequiredCodecs(const PlaybackInfo& info)
 
 void Codecs::Uninit()
 {
-  if (g_eaeProcess)
-  {
-    delete g_eaeProcess;
-    g_eaeProcess = nullptr;
-  }
+  delete g_eaeProcess;
+  g_eaeProcess = nullptr;
 
   if (!g_eaeWatchFolder.isEmpty())
   {

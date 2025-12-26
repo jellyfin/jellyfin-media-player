@@ -93,7 +93,7 @@ static void setupMpvFallback()
 /////////////////////////////////////////////////////////////////////////////////////////
 static void preinitQt()
 {
-  QCoreApplication::setApplicationName(Names::MainName());
+  QCoreApplication::setApplicationName(Names::DataName());
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
   QCoreApplication::setOrganizationDomain("jellyfin.org");
 

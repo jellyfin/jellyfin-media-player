@@ -1,10 +1,10 @@
 set(MAIN_TARGET JellyfinDesktop)
 
-# Display name (window title, application name)
-set(DISPLAY_NAME "Jellyfin Desktop")
-
-# Name of the output binary and data directories
+# Output binary name
 set(MAIN_NAME jellyfin-desktop)
+
+# Data directory name - also used for QCoreApplication::applicationName
+# which determines QStandardPaths (cache, config, data dirs)
 set(DATA_NAME jellyfin-desktop)
 
 if(APPLE)

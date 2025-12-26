@@ -4,11 +4,6 @@
 
 #include "Names.h"
 
-QString Names::MainName()
-{
-  return QString("@DISPLAY_NAME@");
-}
-
 QString Names::DataName()
 {
   return QString("@DATA_NAME@");

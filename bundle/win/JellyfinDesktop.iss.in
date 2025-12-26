@@ -27,8 +27,8 @@ AppComments=Jellyfin desktop client
 AppContact={#MyAppPublisher}
 DefaultDirName={autopf}\Jellyfin Desktop
 DisableProgramGroupPage=yes
-; Require Windows 10 or newer
-MinVersion=10.0
+; Require Windows 10 1903 or newer
+MinVersion=10.0.18362
 ArchitecturesInstallIn64BitMode=x64compatible
 ArchitecturesAllowed=x64compatible
 PrivilegesRequired=lowest

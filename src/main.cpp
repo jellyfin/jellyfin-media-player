@@ -45,18 +45,17 @@
 #include "SignalManager.h"
 #endif
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && defined(_M_X64)
 #include <windows.h>
 #include <cstdio>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Check AVX2 support and swap libmpv DLL if needed (before delay-load triggers)
+// Only relevant for x64 - ARM64 doesn't have AVX2
 static void setupMpvFallback()
 {
-  const DWORD PF_AVX2_INSTRUCTIONS_AVAILABLE = 40;
-
-  // Check if AVX2 is available
-  if (IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE))
+  // Check if AVX2 is available (PF_AVX2_INSTRUCTIONS_AVAILABLE = 40)
+  if (IsProcessorFeaturePresent(40))
   {
     fprintf(stderr, "AVX2 supported, using primary libmpv\n");
     return;
@@ -141,7 +140,7 @@ QStringList g_qtFlags = {
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && defined(_M_X64)
   // Must run before any mpv code triggers delay-load
   setupMpvFallback();
 #endif

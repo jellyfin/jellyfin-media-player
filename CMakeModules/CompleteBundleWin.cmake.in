@@ -48,6 +48,27 @@ else()
   message(STATUS "Not using separate ANGLE deps")
 endif()
 
+# Bundle MSVC runtime DLLs (pre-extracted by setup-windows.bat)
+set(VCRUNTIME_DIR "@PROJECT_SOURCE_DIR@/deps/vcruntime")
+set(VCREDIST_EXE "@PROJECT_SOURCE_DIR@/deps/vc_redist.x64.exe")
+
+if(EXISTS "${VCRUNTIME_DIR}" AND EXISTS "${VCREDIST_EXE}")
+  # Copy runtime DLLs to redist subfolder
+  file(MAKE_DIRECTORY "${CMAKE_INSTALL_PREFIX}/redist")
+  file(GLOB RUNTIME_DLLS "${VCRUNTIME_DIR}/*.dll")
+  foreach(dll_path ${RUNTIME_DLLS})
+    get_filename_component(dll_name "${dll_path}" NAME)
+    file(INSTALL "${dll_path}" DESTINATION "${CMAKE_INSTALL_PREFIX}/redist")
+    message(STATUS "Bundled runtime: ${dll_name}")
+  endforeach()
+
+  # Copy VCRedist installer for bundling
+  file(INSTALL "${VCREDIST_EXE}" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  message(STATUS "Bundled VCRedist installer: vc_redist.x64.exe")
+else()
+  message(WARNING "VCRuntime DLLs not found. Run setup-windows.bat first.")
+endif()
+
 if(@DO_SIGN@)
   file(GLOB_RECURSE EXES ${CMAKE_INSTALL_PREFIX}/*.exe ${CMAKE_INSTALL_PREFIX}/*.dll)
   set(ENV{errorlevel} 1)

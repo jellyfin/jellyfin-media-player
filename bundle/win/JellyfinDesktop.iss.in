@@ -12,7 +12,6 @@
 #define MyAppExeName "Jellyfin Desktop.exe"
 #define MyAppGUID "{{a78bea4a-5bd0-4aa3-bdf3-579b4f58a921}"
 #define DeployPath "@CMAKE_INSTALL_PREFIX@"
-#define VCRedistURL "https://aka.ms/vs/17/release/vc_redist.x64.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -32,7 +31,8 @@ DisableProgramGroupPage=yes
 MinVersion=10.0
 ArchitecturesInstallIn64BitMode=x64compatible
 ArchitecturesAllowed=x64compatible
-PrivilegesRequired=admin
+PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=.
 OutputBaseFilename=JellyfinDesktop-{#MyAppVersion}-windows-x64
 SetupIconFile=@PROJECT_SOURCE_DIR@/bundle/win/jellyfin.ico
@@ -56,15 +56,20 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "{#DeployPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Main application files (exclude redist folder - handled separately)
+Source: "{#DeployPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "redist,redist\*,vc_redist.x64.exe"
+; Bundled VC runtime DLLs - only copied if needed (see Code section)
+Source: "{#DeployPath}\redist\*.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: NeedsBundledRuntime
+; Bundled VCRedist installer - extracted to temp for potential system-wide install
+Source: "{#DeployPath}\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall; Check: ShouldExtractVCRedist
 
 [Icons]
 Name: "{autoprograms}\Jellyfin Desktop"; Filename: "{app}\{#MyAppExeName}"; Comment: "Jellyfin desktop client"; WorkingDir: "{app}"
 Name: "{autodesktop}\Jellyfin Desktop"; Filename: "{app}\{#MyAppExeName}"; Comment: "Jellyfin desktop client"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-; Install VCRedist - will be downloaded if needed
-Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/install /passive /norestart"; StatusMsg: "Installing Visual C++ Redistributable..."; Flags: waituntilterminated; Check: VCRedistNeedsInstall
+; Install VCRedist if downloaded
+Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; StatusMsg: "Installing Visual C++ Redistributable..."; Flags: waituntilterminated; Check: ShouldInstallVCRedist
 ; Launch app after install
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch Jellyfin Desktop"; Flags: nowait postinstall skipifsilent
 
@@ -72,90 +77,84 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch Jellyfin Desktop"; Flags
 const
   PF_AVX2_INSTRUCTIONS_AVAILABLE = 40;
 
-var
-  VCRedistNeedsInstallFlag: Boolean;
-
 function IsProcessorFeaturePresent(ProcessorFeature: DWORD): BOOL;
   external 'IsProcessorFeaturePresent@kernel32.dll stdcall';
 
-function VCRedistNeedsInstall: Boolean;
-begin
-  Result := VCRedistNeedsInstallFlag;
-end;
-
-function CheckVCRedist(): Boolean;
 var
-  UCRTBasePath: String;
-  MSVCPPath: String;
-begin
-  UCRTBasePath := ExpandConstant('{sys}\ucrtbase.dll');
-  MSVCPPath := ExpandConstant('{sys}\msvcp140.dll');
+  RemoveUserData: Boolean;
+  VCRedistNeeded: Boolean;
+  InstallVCRedist: Boolean;
+  UseBundledRuntime: Boolean;
 
-  // Good if ucrtbase.dll exists
-  if FileExists(UCRTBasePath) then
-  begin
-    Result := True;
-    Log('VCRedist OK: ucrtbase.dll found');
-  end
-  // Bad if msvcp140.dll exists but ucrtbase.dll doesn't (corrupted install)
-  else if FileExists(MSVCPPath) then
-  begin
-    Result := False;
-    Log('Bad VCRedist: msvcp140.dll exists but ucrtbase.dll missing');
-  end
-  else
-  begin
-    Result := False;
-    Log('VCRedist not installed');
-  end;
+function HasSystemVCRuntime: Boolean;
+begin
+  Result := FileExists(ExpandConstant('{sys}\vcruntime140.dll'));
 end;
 
+function NeedsBundledRuntime: Boolean;
+begin
+  // Use bundled DLLs if: system doesn't have VCRedist AND (user install OR user declined VCRedist install)
+  Result := UseBundledRuntime;
+end;
+
+function ShouldExtractVCRedist: Boolean;
+begin
+  // Extract bundled VCRedist to temp if: admin install AND system missing VCRedist AND user wants to install it
+  Result := InstallVCRedist;
+end;
+
+function ShouldInstallVCRedist: Boolean;
+begin
+  // Run VCRedist installer if user chose to install it
+  Result := InstallVCRedist;
+end;
 
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-
-  // Check VCRedist and set flag for download
-  VCRedistNeedsInstallFlag := not CheckVCRedist();
-
-  if VCRedistNeedsInstallFlag then
-    Log('VCRedist will be installed during setup');
+  VCRedistNeeded := not HasSystemVCRuntime;
+  InstallVCRedist := False;
+  UseBundledRuntime := False;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
-var
-  DownloadPage: TDownloadWizardPage;
-  VCRedistPath: String;
 begin
   Result := '';
   NeedsRestart := False;
 
-  // Download VCRedist if needed
-  if VCRedistNeedsInstallFlag then
+  if not VCRedistNeeded then
   begin
-    VCRedistPath := ExpandConstant('{tmp}\vcredist_x64.exe');
+    Log('VCRedist already installed on system');
+    Exit;
+  end;
 
-    if not FileExists(VCRedistPath) then
+  // Check if running as admin
+  if IsAdmin then
+  begin
+    // Offer to install VCRedist system-wide
+    if MsgBox('Visual C++ Redistributable is not installed.' + #13#10 + #13#10 +
+              'Would you like to install it system-wide?' + #13#10 +
+              '(Recommended - receives security updates via Windows Update)' + #13#10 + #13#10 +
+              'If you choose No, bundled runtime libraries will be used instead.',
+              mbConfirmation, MB_YESNO) = IDYES then
     begin
-      DownloadPage := CreateDownloadPage('Downloading Dependencies', 'Downloading required dependencies...', nil);
-      DownloadPage.Clear;
-      DownloadPage.Add('{#VCRedistURL}', 'vcredist_x64.exe', '');
-      DownloadPage.Show;
-      try
-        DownloadPage.Download;
-      except
-        Result := 'Failed to download Visual C++ Redistributable.' + #13#10 +
-                  'Please check your internet connection and try again.';
-        Exit;
-      finally
-        DownloadPage.Hide;
-      end;
+      InstallVCRedist := True;
+      Log('Will install VCRedist system-wide');
+    end
+    else
+    begin
+      // User declined, use bundled
+      Log('User declined VCRedist install, using bundled runtime');
+      UseBundledRuntime := True;
     end;
+  end
+  else
+  begin
+    // Non-admin install, use bundled
+    Log('Non-admin install, using bundled runtime');
+    UseBundledRuntime := True;
   end;
 end;
-
-var
-  RemoveUserData: Boolean;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var

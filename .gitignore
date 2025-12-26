@@ -6,6 +6,7 @@ CMakeLists.txt.user
 CMakeLists.txt.user.*
 build/*
 build_deps/*
+deps/*
 build_vs_debug/*
 .idea
 .install_pkg

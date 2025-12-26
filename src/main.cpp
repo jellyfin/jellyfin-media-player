@@ -45,6 +45,52 @@
 #include "SignalManager.h"
 #endif
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <cstdio>
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Check AVX2 support and swap libmpv DLL if needed (before delay-load triggers)
+static void setupMpvFallback()
+{
+  const DWORD PF_AVX2_INSTRUCTIONS_AVAILABLE = 40;
+
+  // Check if AVX2 is available
+  if (IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE))
+  {
+    fprintf(stderr, "AVX2 supported, using primary libmpv\n");
+    return;
+  }
+
+  fprintf(stderr, "AVX2 not supported, checking for fallback libmpv\n");
+
+  // Get application directory
+  wchar_t exePath[MAX_PATH];
+  GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+  std::wstring appDir(exePath);
+  size_t lastSlash = appDir.find_last_of(L"\\/");
+  if (lastSlash != std::wstring::npos)
+    appDir = appDir.substr(0, lastSlash + 1);
+
+  std::wstring fallbackPath = appDir + L"libmpv-fallback.dll";
+  std::wstring primaryPath = appDir + L"libmpv-2.dll";
+
+  // Check if fallback exists
+  if (GetFileAttributesW(fallbackPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+  {
+    fprintf(stderr, "No fallback libmpv available\n");
+    return;
+  }
+
+  // Delete primary and rename fallback
+  DeleteFileW(primaryPath.c_str());
+  if (MoveFileW(fallbackPath.c_str(), primaryPath.c_str()))
+    fprintf(stderr, "Switched to fallback libmpv (non-AVX2)\n");
+  else
+    fprintf(stderr, "Failed to switch to fallback libmpv\n");
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////
 static void preinitQt()
 {
@@ -95,6 +141,11 @@ QStringList g_qtFlags = {
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+  // Must run before any mpv code triggers delay-load
+  setupMpvFallback();
+#endif
+
   try
   {
     QCommandLineParser parser;

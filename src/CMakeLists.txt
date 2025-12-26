@@ -201,6 +201,12 @@ if(LINUX_DBUS)
   target_link_libraries(jmp_core Qt6::DBus)
 endif()
 
+# Delay-load libmpv on Windows for runtime AVX2 fallback
+if(WIN32)
+  target_link_libraries(jmp_core delayimp.lib)
+  target_link_options(jmp_core PRIVATE /DELAYLOAD:libmpv-2.dll)
+endif()
+
 target_link_libraries(${MAIN_TARGET} jmp_core)
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 

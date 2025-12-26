@@ -7,8 +7,8 @@
 
 #include <QDir>
 #include <QStandardPaths>
+#include <QCoreApplication>
 #include <QGuiApplication>
-#include <QtGui/qguiapplication.h>
 #include <QDebug>
 #include "Names.h"
 #include "Version.h"
@@ -41,7 +41,7 @@ bool Paths::isPortableMode()
 bool Paths::detectAndEnablePortableMode()
 {
 #ifdef Q_OS_WIN
-  QString appDir = QGuiApplication::applicationDirPath();
+  QString appDir = QCoreApplication::applicationDirPath();
 
   // Check for portable marker file
   if (QFile::exists(appDir + "/portable") || QFile::exists(appDir + "/portable.txt"))

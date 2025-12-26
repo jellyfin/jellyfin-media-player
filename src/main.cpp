@@ -226,6 +226,9 @@ int main(int argc, char *argv[])
 
       // Now parse the command line.
       parser.process(arguments);
+
+      // Detect portable mode while QCoreApplication exists (needed for applicationDirPath)
+      Paths::detectAndEnablePortableMode();
     }
 
     if (parser.isSet("help"))
@@ -243,10 +246,9 @@ int main(int argc, char *argv[])
       return EXIT_SUCCESS;
     }
 
-    // Check for portable mode (marker file next to exe)
-    if (Paths::detectAndEnablePortableMode())
+    // Set QSettings path for portable mode
+    if (Paths::isPortableMode())
     {
-      // Portable mode sets its own paths, skip config-dir
       QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope,
                          Paths::globalDataDir());
     }

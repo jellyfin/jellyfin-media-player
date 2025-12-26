@@ -63,6 +63,16 @@ jobs:
           mv mpv-fallback-tmp/libmpv-2.dll build/mpv-fallback/
         fi
       shell: bash
+    - name: Bundle VC runtime DLLs
+      run: |
+        mkdir deps
+        mkdir deps/vcruntime
+        # Copy from VS 2022 Enterprise installation on runner
+        $vsRedist = Get-ChildItem "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\*\x64\Microsoft.VC143.CRT" | Select-Object -First 1
+        Copy-Item "$vsRedist\*.dll" deps/vcruntime/
+        # Also grab VCRedist installer for optional system-wide install
+        Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile deps/vc_redist.x64.exe
+      shell: powershell
     - name: Build
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}"
@@ -71,10 +81,15 @@ jobs:
         cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=output -DQTROOT=%QT_ROOT_DIR% -DMPV_INCLUDE_DIR=mpv/include -DMPV_LIBRARY=mpv/libmpv-2.dll -DCHECK_FOR_UPDATES=ON -DUSE_STATIC_MPVQT=ON ..
         lib /def:mpv\mpv.def /out:mpv\libmpv-2.dll.lib /MACHINE:${{ matrix.machine }}
         ninja
-        ninja windows_package
+        ninja windows_all
       shell: cmd
-    - name: Archive production artifacts
+    - name: Archive installer
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.artifact }}
+        name: ${{ matrix.artifact }}-installer
         path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
+    - name: Archive portable ZIP
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}-portable
+        path: ${{ github.workspace }}/build/JellyfinDesktop-*.zip

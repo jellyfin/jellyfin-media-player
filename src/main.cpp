@@ -692,7 +692,7 @@ int main(int argc, char *argv[])
         WindowManager::Get().raiseWindow();
       });
     });
-    engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
+    engine->load(QUrl(QStringLiteral("qrc:/webview.qml")));
 
     // run our application
     int ret = app.exec();

@@ -12,7 +12,7 @@ foreach(_file ${_files})
   string(APPEND qrc "<qresource prefix=\"${_prefix}\"><file alias=\"${_alias}\">${_file}</file></qresource>\n")
 endforeach()
 
-string(APPEND qrc "<qresource prefix=\"/ui\"><file alias=\"webview.qml\">${WEBVIEW_QML}</file></qresource>\n")
+# webview.qml is now compiled via qt_add_qml_module (AOT)
 
 file(GLOB_RECURSE _files "${NATIVE_DIR}/*")
 list(SORT _files)

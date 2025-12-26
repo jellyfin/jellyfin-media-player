@@ -566,10 +566,9 @@ int main(int argc, char *argv[])
 
     // Configure default WebEngineProfile paths early (profile is already set)
     {
-      QString webEngineDir = Paths::dataDir("QtWebEngine");
       QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
-      defaultProfile->setCachePath(webEngineDir);
-      defaultProfile->setPersistentStoragePath(webEngineDir);
+      defaultProfile->setCachePath(Paths::cacheDir("QtWebEngine"));
+      defaultProfile->setPersistentStoragePath(Paths::dataDir("QtWebEngine"));
     }
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)

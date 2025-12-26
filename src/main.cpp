@@ -193,7 +193,15 @@ int main(int argc, char *argv[])
       return EXIT_SUCCESS;
     }
 
-    // Handle config-dir first (affects where profiles.json is located)
+    // Check for portable mode (marker file next to exe)
+    if (Paths::detectAndEnablePortableMode())
+    {
+      // Portable mode sets its own paths, skip config-dir
+      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope,
+                         Paths::globalDataDir());
+    }
+
+    // Handle config-dir (overrides portable mode if explicitly set)
     auto configDir = parser.value("config-dir");
     if (!configDir.isEmpty())
     {

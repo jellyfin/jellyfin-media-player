@@ -15,12 +15,50 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 static QString g_configDirOverride;
+static QString g_cacheDirOverride;
 static QString g_activeProfileId;
+static bool g_portableMode = false;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void Paths::setConfigDir(const QString& path)
 {
   g_configDirOverride = path;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void Paths::setCacheDir(const QString& path)
+{
+  g_cacheDirOverride = path;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool Paths::isPortableMode()
+{
+  return g_portableMode;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool Paths::detectAndEnablePortableMode()
+{
+#ifdef Q_OS_WIN
+  QString appDir = QGuiApplication::applicationDirPath();
+
+  // Check for portable marker file
+  if (QFile::exists(appDir + "/portable") || QFile::exists(appDir + "/portable.txt"))
+  {
+    QString dataPath = appDir + "/data";
+    QString cachePath = appDir + "/cache";
+
+    g_portableMode = true;
+    g_configDirOverride = dataPath;
+    g_cacheDirOverride = cachePath;
+
+    qInfo() << "Portable mode enabled, data:" << dataPath;
+    return true;
+  }
+#endif
+
+  return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +131,22 @@ QString Paths::globalDataDir(const QString& file)
 /////////////////////////////////////////////////////////////////////////////////////////
 QString Paths::globalCacheDir(const QString& file)
 {
-  QDir d = writableLocation(QStandardPaths::GenericCacheLocation);
+  QDir d;
+
+  if (!g_cacheDirOverride.isEmpty())
+  {
+    d = QDir(g_cacheDirOverride);
+    if (!d.mkpath(d.absolutePath()))
+    {
+      qWarning() << "Failed to create cache override directory:" << d.absolutePath();
+      d = writableLocation(QStandardPaths::GenericCacheLocation);
+    }
+  }
+  else
+  {
+    d = writableLocation(QStandardPaths::GenericCacheLocation);
+  }
+
   if (file.isEmpty())
     return d.absolutePath();
   return d.filePath(file);

@@ -206,9 +206,6 @@ int main(int argc, char *argv[])
     int newArgc = argc + g_qtFlags.size();
 
     preinitQt();
-    detectOpenGLEarly();
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -229,7 +226,19 @@ int main(int argc, char *argv[])
 
       // Detect portable mode while QCoreApplication exists (needed for applicationDirPath)
       Paths::detectAndEnablePortableMode();
+
+#ifdef Q_OS_WIN
+      // Override Qt's cache location for portable mode before any OpenGL/graphics init
+      if (Paths::isPortableMode())
+      {
+        qputenv("LOCALAPPDATA", Paths::globalCacheDir().toUtf8());
+      }
+#endif
     }
+
+    detectOpenGLEarly();
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     if (parser.isSet("help"))
     {

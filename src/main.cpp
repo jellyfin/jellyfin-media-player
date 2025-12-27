@@ -228,11 +228,9 @@ int main(int argc, char *argv[])
       Paths::detectAndEnablePortableMode();
 
 #ifdef Q_OS_WIN
-      // Override Qt's cache location for portable mode before any OpenGL/graphics init
+      // Disable pipeline cache in portable mode to avoid writing to user's AppData
       if (Paths::isPortableMode())
-      {
-        qputenv("LOCALAPPDATA", Paths::globalCacheDir().toUtf8());
-      }
+        qputenv("QSG_RHI_DISABLE_DISK_CACHE", "1");
 #endif
     }
 

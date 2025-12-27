@@ -17,6 +17,7 @@
 #include <mpv/client.h>
 
 class MpvController;
+class AlbumArtProvider;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class PlayerComponent : public ComponentBase
@@ -126,6 +127,8 @@ public:
   Q_INVOKABLE void setWebPlaylist(const QVariantList& playlist, const QString& currentItemId);
 
   QRect videoRectangle() { return m_videoRectangle; }
+
+  AlbumArtProvider* albumArtProvider() const { return m_albumArtProvider; }
 
   void setMpvController(MpvController* controller) {
     if (!m_mpv)
@@ -269,6 +272,8 @@ private:
   QString m_currentWebPlaylistItemId;
   QTimer* m_playlistTimer;
   QVariantList m_queuedItems;
+
+  AlbumArtProvider* m_albumArtProvider;
 };
 
 #endif // PLAYERCOMPONENT_H

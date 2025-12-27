@@ -21,6 +21,8 @@ private slots:
   void handlePositionUpdate(quint64 position);
   void handleUpdateDuration(qint64 duration);
   void handleUpdateMetaData(const QVariantMap& meta);
+  void handleAlbumArtReady(const QByteArray& imageData, const QString& mimeType);
+  void handleAlbumArtUnavailable();
 
 private:
   void* m_delegate;

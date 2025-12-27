@@ -14,6 +14,7 @@
 #include "settings/SettingsSection.h"
 
 #include "MpvVideoItem.h"
+#include "AlbumArtProvider.h"
 #include "input/InputComponent.h"
 #include <MpvController>
 
@@ -48,7 +49,8 @@ PlayerComponent::PlayerComponent(QObject* parent)
   m_window(nullptr), m_mediaFrameRate(0),
   m_restoreDisplayTimer(this), m_reloadAudioTimer(this),
   m_streamSwitchImminent(false), m_doAc3Transcoding(false),
-  m_videoRectangle(-1, 0, 0, 0)
+  m_videoRectangle(-1, 0, 0, 0),
+  m_albumArtProvider(new AlbumArtProvider(this))
 {
   qmlRegisterType<MpvVideoItem>("Konvergo", 1, 0, "MpvVideo"); // deprecated name
   qmlRegisterType<MpvVideoItem>("Konvergo", 1, 0, "KonvergoVideo");
@@ -334,7 +336,13 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   m_mpv->command( command);
 
-  emit onMetaData(metadata["metadata"].toMap(), qurl.adjusted(QUrl::RemovePath | QUrl::RemoveQuery));
+  QVariantMap jellyfinMetadata = metadata["metadata"].toMap();
+  QUrl jellyfinBaseUrl = qurl.adjusted(QUrl::RemovePath | QUrl::RemoveQuery);
+  emit onMetaData(jellyfinMetadata, jellyfinBaseUrl);
+
+  // Request album art from the provider
+  if (m_albumArtProvider)
+    m_albumArtProvider->requestArtwork(jellyfinMetadata, jellyfinBaseUrl);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

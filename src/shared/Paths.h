@@ -12,6 +12,9 @@
 namespace Paths
 {
   void setConfigDir(const QString& path);
+  void setCacheDir(const QString& path);
+  bool isPortableMode();
+  bool detectAndEnablePortableMode();
   QString resourceDir(const QString& file = QString());
   QString socketName(const QString& serverName);
   QString soundsPath(const QString& sound);

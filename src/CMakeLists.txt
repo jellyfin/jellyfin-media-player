@@ -60,13 +60,13 @@ file(GLOB_RECURSE RESOURCE_FILES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/resources
 file(GLOB_RECURSE NATIVE_FILES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/native/*)
 
 # Generate resources - runs rcc, only writes output if changed
+# Note: webview.qml is handled separately via qt_add_qml_module for AOT compilation
 add_custom_target(generate_resources ALL
   COMMAND ${CMAKE_COMMAND}
           -DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/qrc_resources.cpp
           -DRCC=${Qt6Core_RCC_EXECUTABLE}
           -DRESOURCES_DIR=${CMAKE_SOURCE_DIR}/resources
           -DNATIVE_DIR=${CMAKE_SOURCE_DIR}/native
-          -DWEBVIEW_QML=${CMAKE_SOURCE_DIR}/src/ui/webview.qml
           -P ${CMAKE_SOURCE_DIR}/CMakeModules/GenerateQtResources.cmake
   BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/qrc_resources.cpp
   VERBATIM
@@ -141,6 +141,17 @@ set_target_properties(${MAIN_TARGET} PROPERTIES
 copy_resources(${MAIN_TARGET})
 clang_tidy(${MAIN_TARGET})
 
+# QML module for AOT compilation (eliminates runtime qmlcache)
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/ui/webview.qml
+  PROPERTIES QT_RESOURCE_ALIAS webview.qml
+)
+qt_add_qml_module(${MAIN_TARGET}
+  URI Konvergo
+  VERSION 1.0
+  QML_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ui/webview.qml
+  NO_RESOURCE_TARGET_PATH
+)
+
 find_library(MINIZIP_LIBRARY minizip)
 if(WIN32)
   # FindZLIB doesn't find this. (It might be possible to fix the minizip build
@@ -201,7 +212,13 @@ if(LINUX_DBUS)
   target_link_libraries(jmp_core Qt6::DBus)
 endif()
 
-target_link_libraries(${MAIN_TARGET} jmp_core)
+# Delay-load libmpv on Windows for runtime AVX2 fallback
+if(WIN32)
+  target_link_libraries(jmp_core delayimp.lib)
+  target_link_options(jmp_core PRIVATE /DELAYLOAD:libmpv-2.dll)
+endif()
+
+target_link_libraries(${MAIN_TARGET} PRIVATE jmp_core)
 install(TARGETS ${MAIN_TARGET} DESTINATION ${INSTALL_BIN_DIR})
 
 set(EXE "${MAIN_NAME}.app")

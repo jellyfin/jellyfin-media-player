@@ -1,0 +1,41 @@
+# Prepare portable ZIP contents
+# Copies installed files to a separate directory with runtime DLLs in root
+
+set(SOURCE_DIR "@CMAKE_INSTALL_PREFIX@")
+set(ZIP_DIR "@CMAKE_CURRENT_BINARY_DIR@/portable")
+set(PROJECT_SOURCE_DIR "@PROJECT_SOURCE_DIR@")
+
+# Clean and create ZIP staging directory
+file(REMOVE_RECURSE "${ZIP_DIR}")
+file(MAKE_DIRECTORY "${ZIP_DIR}")
+
+# Copy all files except redist folder and vc_redist installer
+file(GLOB_RECURSE ALL_FILES RELATIVE "${SOURCE_DIR}" "${SOURCE_DIR}/*")
+foreach(f ${ALL_FILES})
+  # Skip redist folder and VCRedist installer
+  if(f MATCHES "^redist/" OR f STREQUAL "vc_redist.x64.exe")
+    continue()
+  endif()
+
+  get_filename_component(dir "${f}" DIRECTORY)
+  if(dir)
+    file(MAKE_DIRECTORY "${ZIP_DIR}/${dir}")
+  endif()
+  file(COPY "${SOURCE_DIR}/${f}" DESTINATION "${ZIP_DIR}/${dir}")
+endforeach()
+
+# Copy runtime DLLs to root (for portable use)
+set(VCRUNTIME_DIR "${PROJECT_SOURCE_DIR}/deps/vcruntime")
+if(EXISTS "${VCRUNTIME_DIR}")
+  file(GLOB RUNTIME_DLLS "${VCRUNTIME_DIR}/*.dll")
+  foreach(dll ${RUNTIME_DLLS})
+    file(COPY "${dll}" DESTINATION "${ZIP_DIR}")
+  endforeach()
+  message(STATUS "Bundled VC runtime DLLs for portable package")
+endif()
+
+# Create portable marker file
+file(WRITE "${ZIP_DIR}/portable" "")
+message(STATUS "Created portable marker file")
+
+message(STATUS "Portable package prepared in: ${ZIP_DIR}")

@@ -45,10 +45,55 @@
 #include "SignalManager.h"
 #endif
 
+#if defined(Q_OS_WIN) && defined(_M_X64)
+#include <windows.h>
+#include <cstdio>
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Check AVX2 support and swap libmpv DLL if needed (before delay-load triggers)
+// Only relevant for x64 - ARM64 doesn't have AVX2
+static void setupMpvFallback()
+{
+  // Check if AVX2 is available (PF_AVX2_INSTRUCTIONS_AVAILABLE = 40)
+  if (IsProcessorFeaturePresent(40))
+  {
+    fprintf(stderr, "AVX2 supported, using primary libmpv\n");
+    return;
+  }
+
+  fprintf(stderr, "AVX2 not supported, checking for fallback libmpv\n");
+
+  // Get application directory
+  wchar_t exePath[MAX_PATH];
+  GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+  std::wstring appDir(exePath);
+  size_t lastSlash = appDir.find_last_of(L"\\/");
+  if (lastSlash != std::wstring::npos)
+    appDir = appDir.substr(0, lastSlash + 1);
+
+  std::wstring fallbackPath = appDir + L"libmpv-fallback.dll";
+  std::wstring primaryPath = appDir + L"libmpv-2.dll";
+
+  // Check if fallback exists
+  if (GetFileAttributesW(fallbackPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+  {
+    fprintf(stderr, "No fallback libmpv available\n");
+    return;
+  }
+
+  // Delete primary and rename fallback
+  DeleteFileW(primaryPath.c_str());
+  if (MoveFileW(fallbackPath.c_str(), primaryPath.c_str()))
+    fprintf(stderr, "Switched to fallback libmpv (non-AVX2)\n");
+  else
+    fprintf(stderr, "Failed to switch to fallback libmpv\n");
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////
 static void preinitQt()
 {
-  QCoreApplication::setApplicationName(Names::MainName());
+  QCoreApplication::setApplicationName(Names::DataName());
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
   QCoreApplication::setOrganizationDomain("jellyfin.org");
 
@@ -95,6 +140,11 @@ QStringList g_qtFlags = {
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_WIN) && defined(_M_X64)
+  // Must run before any mpv code triggers delay-load
+  setupMpvFallback();
+#endif
+
   try
   {
     QCommandLineParser parser;
@@ -156,9 +206,6 @@ int main(int argc, char *argv[])
     int newArgc = argc + g_qtFlags.size();
 
     preinitQt();
-    detectOpenGLEarly();
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QStringList arguments;
     for (int i = 0; i < argc; i++)
@@ -176,7 +223,20 @@ int main(int argc, char *argv[])
 
       // Now parse the command line.
       parser.process(arguments);
+
+      // Detect portable mode while QCoreApplication exists (needed for applicationDirPath)
+      Paths::detectAndEnablePortableMode();
+
+#ifdef Q_OS_WIN
+      // Disable pipeline cache in portable mode to avoid writing to user's AppData
+      if (Paths::isPortableMode())
+        qputenv("QSG_RHI_DISABLE_DISK_CACHE", "1");
+#endif
     }
+
+    detectOpenGLEarly();
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     if (parser.isSet("help"))
     {
@@ -193,7 +253,14 @@ int main(int argc, char *argv[])
       return EXIT_SUCCESS;
     }
 
-    // Handle config-dir first (affects where profiles.json is located)
+    // Set QSettings path for portable mode
+    if (Paths::isPortableMode())
+    {
+      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope,
+                         Paths::globalDataDir());
+    }
+
+    // Handle config-dir (overrides portable mode if explicitly set)
     auto configDir = parser.value("config-dir");
     if (!configDir.isEmpty())
     {
@@ -506,10 +573,9 @@ int main(int argc, char *argv[])
 
     // Configure default WebEngineProfile paths early (profile is already set)
     {
-      QString webEngineDir = Paths::dataDir("QtWebEngine");
       QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
-      defaultProfile->setCachePath(webEngineDir);
-      defaultProfile->setPersistentStoragePath(webEngineDir);
+      defaultProfile->setCachePath(Paths::cacheDir("QtWebEngine"));
+      defaultProfile->setPersistentStoragePath(Paths::dataDir("QtWebEngine"));
     }
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)
@@ -632,7 +698,7 @@ int main(int argc, char *argv[])
         WindowManager::Get().raiseWindow();
       });
     });
-    engine->load(QUrl(QStringLiteral("qrc:/ui/webview.qml")));
+    engine->load(QUrl(QStringLiteral("qrc:/webview.qml")));
 
     // run our application
     int ret = app.exec();

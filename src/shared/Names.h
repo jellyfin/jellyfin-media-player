@@ -9,7 +9,6 @@
 
 namespace Names
 {
-  QString MainName();
   QString DataName();
   QString HelperName();
 };

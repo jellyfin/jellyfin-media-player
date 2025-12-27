@@ -41,11 +41,21 @@ jobs:
         cmake --build build --target install
     - name: Sign and create dmg
       run: |
-        codesign --force --deep -s - "./output/Jellyfin Desktop.app/"
+        codesign --force --deep -s - "./build/output/Jellyfin Desktop.app/"
         brew install create-dmg
-        create-dmg --volname "Jellyfin Desktop" --no-internet-enable "Jellyfin Desktop.dmg" "./output/Jellyfin Desktop.app"
+        VERSION=$(cat VERSION)
+        ARCH=$(uname -m)
+        DMG_NAME="JellyfinDesktop-${VERSION}-${ARCH}.dmg"
+        create-dmg \
+          --volname "Jellyfin Desktop v${VERSION}" \
+          --no-internet-enable \
+          --window-size 500 300 \
+          --icon-size 100 \
+          --icon "Jellyfin Desktop.app" 125 150 \
+          --app-drop-link 375 150 \
+          "${DMG_NAME}" "./build/output/Jellyfin Desktop.app"
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
-        path: ${{ github.workspace }}/Jellyfin Desktop.dmg
+        path: ${{ github.workspace }}/JellyfinDesktop-*.dmg

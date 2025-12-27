@@ -32,9 +32,9 @@ add_custom_target(innosetup_install
 
 # Determine architecture string for output filename
 if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-  set(INSTALLER_ARCH_STR windows-x64)
+  set(INSTALLER_ARCH_STR x64)
 else()
-  set(INSTALLER_ARCH_STR windows-x86)
+  set(INSTALLER_ARCH_STR x86)
 endif()
 
 set(INSTALLER_BASE_NAME "JellyfinDesktop-${VERSION_STRING}-${INSTALLER_ARCH_STR}")

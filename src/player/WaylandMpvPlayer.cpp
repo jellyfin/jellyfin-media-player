@@ -788,11 +788,16 @@ void WaylandMpvPlayer::loadFile(const QString &path)
         return;
     }
     qInfo() << "loadFile:" << path;
-    const char *cmd[] = {"loadfile", path.toUtf8().constData(), nullptr};
-    int err = mpv_command(m_mpv, cmd);
-    if (err < 0) {
-        qCritical() << "mpv_command loadfile failed:" << mpv_error_string(err);
-    }
+
+    // Use command with options to set pause=no (autoplay)
+    // Without this, mpv keeps the previous pause state which causes
+    // subsequent files to stay paused after the first file ends
+    QVariantList cmd;
+    cmd << "loadfile" << path << "replace" << -1;
+    QVariantMap options;
+    options["pause"] = "no";
+    cmd << options;
+    mpv::qt::command(m_mpv, cmd);
 }
 
 void WaylandMpvPlayer::command(const QVariant &args)

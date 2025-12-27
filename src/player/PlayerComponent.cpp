@@ -216,23 +216,6 @@ void PlayerComponent::initializeMpv()
   if (auto* s = SettingsComponent::Get().getSection(SETTINGS_SECTION_OTHER))
     connect(s, &SettingsSection::valuesUpdated, this, &PlayerComponent::updateConfiguration);
 
-  initializeCodecSupport();
-  Codecs::initCodecs();
-
-  QString codecInfo;
-  for (auto codec : Codecs::getCachedCodecList())
-  {
-    if (codec.present)
-    {
-      if (codecInfo.size())
-        codecInfo += " ";
-      codecInfo += codec.driver;
-      if (codec.type == CodecType::Encoder)
-        codecInfo += "(enc)";
-    }
-  }
-  qInfo() << "Present codecs:" << qPrintable(codecInfo);
-
   connect(this, &PlayerComponent::onMpvEvents, this, &PlayerComponent::handleMpvEvents, Qt::QueuedConnection);
   emit onMpvEvents();
 }
@@ -617,11 +600,8 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
-          qInfo() << "checking codecs";
-          startCodecsLoading([=] {
-            qInfo() << "resuming loading";
-            m_mpv->command( QStringList() << "hook-ack" << resumeId);
-          });
+          qInfo() << "resuming loading";
+          m_mpv->command( QStringList() << "hook-ack" << resumeId);
         };
         if (switchDisplayFrameRate())
         {
@@ -640,14 +620,12 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
         break;
       }
       // Start "on_preloaded" hook.
-      // Used initialize stream selections and to probe codecs.
+      // Used to initialize stream selections.
       if (!strcmp(msg->args[1], "2"))
       {
         reselectStream(m_currentSubtitleStream, MediaType::Subtitle);
         reselectStream(m_currentAudioStream, MediaType::Audio);
-        startCodecsLoading([=] {
-          m_mpv->command( QStringList() << "hook-ack" << resumeId);
-        });
+        m_mpv->command( QStringList() << "hook-ack" << resumeId);
         break;
       }
       break;
@@ -662,11 +640,8 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
-          qInfo() << "checking codecs";
-          startCodecsLoading([=] {
-            qInfo() << "resuming loading";
-            mpv_hook_continue(m_mpv->mpv(), id);
-          });
+          qInfo() << "resuming loading";
+          mpv_hook_continue(m_mpv->mpv(), id);
         };
         if (switchDisplayFrameRate())
         {
@@ -688,9 +663,7 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       {
         reselectStream(m_currentSubtitleStream, MediaType::Subtitle);
         reselectStream(m_currentAudioStream, MediaType::Audio);
-        startCodecsLoading([=] {
-          mpv_hook_continue(m_mpv->mpv(), id);
-        });
+        mpv_hook_continue(m_mpv->mpv(), id);
         break;
       }
       break;
@@ -1511,215 +1484,6 @@ void PlayerComponent::userCommand(QString command)
 {
   QByteArray cmdUtf8 = command.toUtf8();
   mpv_command_string(m_mpv->mpv(), cmdUtf8.data());
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::initializeCodecSupport()
-{
-  QMap<QString, QString> all = { {"vc1", "WVC1"}, {"mpeg2video", "MPG2"} };
-  for (auto name : all.keys())
-  {
-    bool ok = true;
-#ifdef TARGET_RPI
-    char res[100] = "";
-    bcm_host_init();
-    if (vc_gencmd(res, sizeof(res), "codec_enabled %s", all[name].toUtf8().data()))
-      res[0] = '\0'; // error
-    ok = !!strstr(res, "=enabled");
-#endif
-    m_codecSupport[name] = ok;
-    qInfo() << "Codec" << name << (ok ? "present" : "disabled");
-  }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-bool PlayerComponent::checkCodecSupport(const QString& codec)
-{
-  if (m_codecSupport.contains(codec))
-    return m_codecSupport[codec];
-  return true; // doesn't matter if unknown codecs are reported as "ok"
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-QList<CodecDriver> convertCodecList(QVariant list, CodecType type)
-{
-  QList<CodecDriver> codecs;
-
-  foreach (const QVariant& e, list.toList())
-  {
-    QVariantMap map = e.toMap();
-
-    QString family = map["family"].toString();
-    QString codec = map["codec"].toString();
-    QString driver = map["driver"].toString();
-
-    // Only include FFmpeg codecs; exclude pseudo-codecs like spdif (on mpv versions where those were exposed).
-    if (family != "" && family != "lavc")
-      continue;
-
-    CodecDriver ncodec = {};
-    ncodec.type = type;
-    ncodec.format = codec;
-    ncodec.driver = driver;
-    ncodec.present = true;
-
-    codecs.append(ncodec);
-  }
-
-  return codecs;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-QList<CodecDriver> PlayerComponent::installedCodecDrivers()
-{
-  QList<CodecDriver> codecs;
-
-  codecs.append(convertCodecList(m_mpv->getProperty( "decoder-list"), CodecType::Decoder));
-  codecs.append(convertCodecList(m_mpv->getProperty( "encoder-list"), CodecType::Encoder));
-
-  return codecs;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-QStringList PlayerComponent::installedDecoderCodecs()
-{
-  QStringList formats;
-  bool hasPcm = false;
-
-  for (auto driver : installedCodecDrivers())
-  {
-    if (driver.type == CodecType::Decoder && checkCodecSupport(driver.format))
-    {
-      QString name = Codecs::plexNameFromFF(driver.format);
-      if (name.startsWith("pcm_") && name != "pcm_bluray" && name != "pcm_dvd")
-      {
-        if (hasPcm)
-          continue;
-        hasPcm = true;
-        name = "pcm";
-      }
-      formats.append(name);
-    }
-  }
-
-  return formats;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-PlaybackInfo PlayerComponent::getPlaybackInfo()
-{
-  PlaybackInfo info = {};
-
-  for (auto codec : m_passthroughCodecs)
-  {
-    // Normalize back to canonical codec names.
-    if (codec == "dts-hd")
-      codec = "dts";
-    info.audioPassthroughCodecs.insert(codec);
-  }
-
-  info.enableAC3Transcoding = m_doAc3Transcoding;
-
-  auto tracks = m_mpv->getProperty( "track-list");
-  for (auto track : tracks.toList())
-  {
-    QVariantMap map = track.toMap();
-    QString type = map["type"].toString();
-
-    StreamInfo stream = {};
-    stream.isVideo = type == "video";
-    stream.isAudio = type == "audio";
-    stream.codec = map["codec"].toString();
-    stream.audioChannels = map["demux-channel-count"].toInt();
-    stream.audioSampleRate = map["demux-samplerate"].toInt();
-    stream.videoResolution = QSize(map["demux-w"].toInt(), map["demux-h"].toInt());
-
-    // Get the profile from the server, because mpv can't determine it yet.
-    if (stream.isVideo)
-    {
-      int index = map["ff-index"].toInt();
-      for (auto partInfo : m_serverMediaInfo["Part"].toList())
-      {
-        for (auto streamInfo : partInfo.toMap()["Stream"].toList())
-        {
-          auto streamInfoMap = streamInfo.toMap();
-          bool ok = false;
-          if (streamInfoMap["index"].toInt(&ok) == index && ok)
-          {
-            stream.profile = streamInfoMap["profile"].toString();
-            qDebug() << "h264profile:" << stream.profile;
-          }
-        }
-      }
-    }
-
-    info.streams.append(stream);
-  }
-
-  // If we're in an early stage where we don't have streams yet, try to get the
-  // info from the PMS metadata.
-  if (!info.streams.size())
-  {
-    for (auto partInfo : m_serverMediaInfo["Part"].toList())
-    {
-      for (auto streamInfo : partInfo.toMap()["Stream"].toList())
-      {
-        auto streamInfoMap = streamInfo.toMap();
-
-        StreamInfo stream = {};
-        stream.isVideo = streamInfoMap["width"].isValid();
-        stream.isAudio = streamInfoMap["channels"].isValid();
-        stream.codec = Codecs::plexNameToFF(streamInfoMap["codec"].toString());
-        stream.audioChannels = streamInfoMap["channels"].toInt();
-        stream.videoResolution = QSize(streamInfoMap["width"].toInt(), streamInfoMap["height"].toInt());
-        stream.profile = streamInfoMap["profile"].toString();
-
-        info.streams.append(stream);
-      }
-    }
-  }
-
-  return info;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setPreferredCodecs(const QList<CodecDriver>& codecs)
-{
-  QStringList items;
-  for (auto codec : codecs)
-  {
-    if (codec.type == CodecType::Decoder)
-    {
-      items << codec.driver;
-    }
-  }
-  QString opt = items.join(",");
-  // For simplicity, we don't distinguish between audio and video. The player
-  // will ignore entries with mismatching media type.
-  m_mpv->setProperty( "ad", opt);
-  m_mpv->setProperty( "vd", opt);
-}
-
-// For QVariant.
-Q_DECLARE_METATYPE(std::function<void()>);
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::startCodecsLoading(std::function<void()> resume)
-{
-  auto fetcher = new CodecsFetcher();
-  fetcher->userData = QVariant::fromValue(resume);
-  connect(fetcher, &CodecsFetcher::done, this, &PlayerComponent::onCodecsLoadingDone);
-  Codecs::updateCachedCodecList();
-  QList<CodecDriver> codecs = Codecs::determineRequiredCodecs(getPlaybackInfo());
-  setPreferredCodecs(codecs);
-  fetcher->installCodecs(codecs);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::onCodecsLoadingDone(CodecsFetcher* sender)
-{
-  sender->deleteLater();
-  sender->userData.value<std::function<void()>>()();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

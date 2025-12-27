@@ -12,7 +12,6 @@
 #include <functional>
 
 #include "ComponentManager.h"
-#include "CodecsComponent.h"
 #include "QtHelper.h"
 
 #include <mpv/client.h>
@@ -107,21 +106,6 @@ public:
   // only. If no video is running, render a black background only.
   Q_INVOKABLE virtual void setVideoOnlyMode(bool enable);
 
-  // Currently is meant to check for "vc1" and "mpeg2video". Will return whether
-  // it can be natively decoded. Will return true for all other codecs,
-  // including unknown codec names.
-  Q_INVOKABLE virtual bool checkCodecSupport(const QString& codec);
-
-  // Return list of currently installed codecs. Includes builtin codecs.
-  // Downloadable, but not yet installed codecs are excluded.
-  // May include codecs that do not work, like vc1_mmal on RPIs with no license.
-  // (checkCodecSupport() handles this specific case to a degree.)
-  Q_INVOKABLE virtual QList<CodecDriver> installedCodecDrivers();
-
-  // Return list of codecs supported for decoding. This specifically returns
-  // the format and not decoder implementation (e.g. "h264" not "h264_mmal").
-  Q_INVOKABLE virtual QStringList installedDecoderCodecs();
-
   Q_INVOKABLE void userCommand(QString command);
 
   // Set the region in which video should be rendered. This uses Qt pixel
@@ -185,7 +169,6 @@ private Q_SLOTS:
   void handleMpvEvents();
   void onRestoreDisplay();
   void onRefreshRateChange();
-  void onCodecsLoadingDone(CodecsFetcher* sender);
   void updateAudioDevice();
 
 Q_SIGNALS:
@@ -251,13 +234,6 @@ private:
   bool switchDisplayFrameRate();
   void checkCurrentAudioDevice(const QSet<QString>& old_devs, const QSet<QString>& new_devs);
   void appendAudioFormat(QTextStream& info, const QString& property) const;
-  void initializeCodecSupport();
-  PlaybackInfo getPlaybackInfo();
-  // Make the player prefer certain codecs over others.
-  void setPreferredCodecs(const QList<CodecDriver>& codecs);
-  // Determine the required codecs and possibly download them.
-  // Call resume() when done.
-  void startCodecsLoading(std::function<void()> resume);
   void updateVideoAspectSettings();
   QVariantList findStreamsForURL(const QString &url);
   void reselectStream(const QVariant &streamSelection, MediaType target);
@@ -282,7 +258,6 @@ private:
   QTimer m_reloadAudioTimer;
   QSet<QString> m_audioDevices;
   bool m_streamSwitchImminent;
-  QMap<QString, bool> m_codecSupport;
   bool m_doAc3Transcoding;
   QStringList m_passthroughCodecs;
   QVariantMap m_serverMediaInfo;

@@ -133,6 +133,9 @@ void PlayerComponent::initializeMpv()
   // Disable ytdl
   m_mpv->setProperty( "ytdl", false);
 
+  // Enable gapless audio prefetching (default in mpv 0.40+, explicit for safety)
+  m_mpv->setProperty( "prefetch-playlist", true);
+
   if (SettingsComponent::Get().ignoreSSLErrors()) {
     m_mpv->setProperty( "tls-ca-file", "");
     m_mpv->setProperty( "tls-verify", "no");
@@ -349,6 +352,12 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
 
   command << extraArgs;
 
+  // For gapless audio: track the queued item ID for auto-transition detection
+  // Only set when queueing (not first play) and it's music
+  if (m_inPlayback && metadata["type"] == "music") {
+    m_queuedItemId = metadata["itemId"].toString();
+  }
+
   m_mpv->command( command);
 
   emit onMetaData(metadata["metadata"].toMap(), qurl.adjusted(QUrl::RemovePath | QUrl::RemoveQuery));
@@ -505,13 +514,26 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
     case MPV_EVENT_START_FILE:
     {
       m_inPlayback = true;
+
+      // Gapless audio: if we have a queued item ID, this is an auto-transition
+      if (!m_queuedItemId.isEmpty()) {
+        QString transitionedId = m_queuedItemId;
+        m_queuedItemId.clear();
+        m_currentWebPlaylistItemId = transitionedId;
+        emit trackTransitioned(transitionedId);
+        // Queue the next track for continued gapless playback
+        queueNextFromPlaylist();
+      }
       break;
     }
     case MPV_EVENT_END_FILE:
     {
       auto *endFile = static_cast<mpv_event_end_file*>(event->data);
 
-      m_inPlayback = false;
+      // Gapless: don't end playback if transitioning to queued track
+      if (m_queuedItemId.isEmpty()) {
+        m_inPlayback = false;
+      }
       m_playbackCanceled = false;
       m_playbackError = "";
 
@@ -828,6 +850,7 @@ void PlayerComponent::clearQueue()
     qWarning() << "PlayerComponent::clearQueue: mpv not initialized yet";
     return;
   }
+  m_queuedItemId.clear();  // Clear gapless tracking
   QStringList args("playlist_clear");
   m_mpv->command( args);
 }
@@ -841,6 +864,39 @@ void PlayerComponent::pause()
   }
   QStringList args = (QStringList() << "set" << "pause" << "yes");
   m_mpv->command( args);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::playPause()
+{
+  if (m_paused)
+    play();
+  else
+    pause();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::playlistNext()
+{
+  if (!m_mpv) {
+    qWarning() << "PlayerComponent::playlistNext: mpv not initialized yet";
+    return;
+  }
+  qDebug() << "[Gapless] playlistNext called";
+  QStringList args = (QStringList() << "playlist-next" << "weak");
+  m_mpv->command(args);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::playlistPrev()
+{
+  if (!m_mpv) {
+    qWarning() << "PlayerComponent::playlistPrev: mpv not initialized yet";
+    return;
+  }
+  qDebug() << "[Gapless] playlistPrev called";
+  QStringList args = (QStringList() << "playlist-prev" << "weak");
+  m_mpv->command(args);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1846,6 +1902,57 @@ void PlayerComponent::setWebPlaylist(const QVariantList& playlist, const QString
   m_webPlaylist = playlist;
   m_currentWebPlaylistItemId = currentItemId;
   emit webPlaylistChanged(playlist, currentItemId);
+
+  // Gapless: queue next track if we're currently playing
+  if (m_inPlayback) {
+    queueNextFromPlaylist();
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::queueNextFromPlaylist()
+{
+  if (m_webPlaylist.isEmpty() || m_currentWebPlaylistItemId.isEmpty()) {
+    return;
+  }
+
+  // Find current position in playlist
+  int currentIndex = -1;
+  for (int i = 0; i < m_webPlaylist.size(); i++) {
+    QVariantMap item = m_webPlaylist[i].toMap();
+    if (item["itemId"].toString() == m_currentWebPlaylistItemId) {
+      currentIndex = i;
+      break;
+    }
+  }
+
+  if (currentIndex < 0 || currentIndex >= m_webPlaylist.size() - 1) {
+    return; // No next track
+  }
+
+  // Get next track
+  QVariantMap nextItem = m_webPlaylist[currentIndex + 1].toMap();
+  QString url = nextItem["url"].toString();
+  QString itemId = nextItem["itemId"].toString();
+
+  if (url.isEmpty() || itemId.isEmpty()) {
+    return;
+  }
+
+  // Clear any previously queued track and queue the new one
+  clearQueue();
+
+  QVariantMap options;
+  options["startMilliseconds"] = 0;
+  options["autoplay"] = true;
+
+  QVariantMap metadata;
+  metadata["type"] = "music";
+  metadata["itemId"] = itemId;
+
+  qDebug() << "[Gapless] Queueing next track:" << itemId;
+  // Pass "#1" to select first audio stream (empty QVariant would disable audio)
+  queueMedia(url, options, metadata, QVariant("#1"), QVariant());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

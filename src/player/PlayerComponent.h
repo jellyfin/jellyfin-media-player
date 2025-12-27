@@ -61,6 +61,11 @@ public:
 
   Q_INVOKABLE virtual void pause();
   Q_INVOKABLE virtual void play();
+  Q_INVOKABLE void playPause();
+
+  // Playlist navigation for gapless audio
+  Q_INVOKABLE void playlistNext();
+  Q_INVOKABLE void playlistPrev();
 
   // OS media integration notifications (called from JavaScript)
   Q_INVOKABLE void notifyShuffleChange(bool enabled);
@@ -233,6 +238,10 @@ Q_SIGNALS:
   void seekPerformed(qint64 positionMs);
   void metadataChanged(const QVariantMap& metadata, const QString& baseUrl);
   void volumeChanged(double volume);
+
+  // Gapless audio: emitted when mpv auto-transitions to a queued track
+  void trackTransitioned(const QString& itemId);
+
 private:
   // this is the function actually implemented in the backends. the variantmap contains
   // a few known keys:
@@ -261,6 +270,7 @@ private:
   void updateVideoAspectSettings();
   QVariantList findStreamsForURL(const QString &url);
   void reselectStream(const QVariant &streamSelection, MediaType target);
+  void queueNextFromPlaylist();
 
   MpvController* m_mpv = nullptr;
 
@@ -294,6 +304,9 @@ private:
   QString m_currentWebPlaylistItemId;
   QTimer* m_playlistTimer;
   QVariantList m_queuedItems;
+
+  // Gapless audio: ID of the track queued for seamless transition
+  QString m_queuedItemId;
 };
 
 #endif // PLAYERCOMPONENT_H

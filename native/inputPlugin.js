@@ -32,6 +32,16 @@ class inputPlugin {
                         playbackManager.setQueueShuffleMode('Shuffle');
                     } else if (action === 'sorted') {
                         playbackManager.setQueueShuffleMode('Sorted');
+                    } else if (action === 'next') {
+                        const currentPlayer = playbackManager._currentPlayer;
+                        // For audio: use native MPV playlist navigation for gapless
+                        // MPV will emit trackTransitioned → gaplessTransition → UI updates
+                        if (currentPlayer && playbackManager.isPlayingAudio(currentPlayer) && currentPlayer.nextTrack) {
+                            console.debug('[Gapless inputPlugin] next: calling player.nextTrack()');
+                            currentPlayer.nextTrack();
+                        } else {
+                            inputManager.handleCommand('next', {});
+                        }
                     } else if (action === 'previous') {
                         const currentPlayer = playbackManager._currentPlayer;
                         if (currentPlayer && playbackManager.isPlayingAudio(currentPlayer)) {
@@ -40,6 +50,10 @@ class inputPlugin {
 
                             if (currentTime >= 5 * 1000 || currentIndex <= 0) {
                                 playbackManager.seekPercent(0, currentPlayer);
+                            } else if (currentPlayer.previousTrack) {
+                                // Use native MPV playlist navigation for gapless
+                                console.debug('[Gapless inputPlugin] previous: calling player.previousTrack()');
+                                currentPlayer.previousTrack();
                             } else {
                                 playbackManager.previousTrack(currentPlayer);
                             }
@@ -85,6 +99,12 @@ class inputPlugin {
 
             let globalListenersAttached = false;
             let lastReportedPosition = 0;
+
+            // Helper: check if currently playing audio (for gapless, MPV is source of truth)
+            function isPlayingAudio() {
+                const state = playbackManager.getPlayerState();
+                return state?.NowPlayingItem?.MediaType === 'Audio';
+            }
 
             if (!globalListenersAttached) {
                 let lastFullscreenState = window.jmpInfo.settings.main.fullscreen;
@@ -137,25 +157,43 @@ class inputPlugin {
                     // auto-incrementing position. Once buffering completes, we restore Rate to 1.0.
 
                     window.api.input.positionSeek.connect(function(positionMs) {
-                        const currentPlayer = playbackManager._currentPlayer;
-                        if (currentPlayer) {
-                            const duration = playbackManager.duration();
-                            if (duration) {
-                                const percent = (positionMs * 10000) / duration * 100;
-                                playbackManager.seekPercent(percent, currentPlayer);
+                        // For audio: seek directly via MPV (MPV owns position)
+                        // For video: go through playbackManager
+                        if (isPlayingAudio()) {
+                            api.player.seekTo(positionMs);
+                        } else {
+                            const currentPlayer = playbackManager._currentPlayer;
+                            if (currentPlayer) {
+                                const duration = playbackManager.duration();
+                                if (duration) {
+                                    const percent = (positionMs * 10000) / duration * 100;
+                                    playbackManager.seekPercent(percent, currentPlayer);
+                                }
                             }
+                            // For video, set rate=0 during seek buffering
+                            api.player.notifyRateChange(0.0);
                         }
 
                         api.player.notifyPosition(Math.floor(positionMs));
                         lastReportedPosition = positionMs;
-
-                        api.player.notifyRateChange(0.0);
                     });
                 }
 
-                window.Events.on(playbackManager, 'playlistitemremove', updateQueueState);
-                window.Events.on(playbackManager, 'playlistitemadd', updateQueueState);
-                window.Events.on(playbackManager, 'playlistitemchange', updateQueueState);
+                window.Events.on(playbackManager, 'playlistitemremove', () => {
+                    updateQueueState();
+                    // Gapless: re-sync playlist to native
+                    syncAudioPlaylist();
+                });
+                window.Events.on(playbackManager, 'playlistitemadd', () => {
+                    updateQueueState();
+                    // Gapless: re-sync playlist to native
+                    syncAudioPlaylist();
+                });
+                window.Events.on(playbackManager, 'playlistitemchange', () => {
+                    updateQueueState();
+                    // Gapless: re-sync playlist to native
+                    syncAudioPlaylist();
+                });
 
                 window.Events.on(playbackManager, 'playbackstop', function(e, playbackStopInfo) {
                     updateQueueState();
@@ -167,11 +205,63 @@ class inputPlugin {
                 globalListenersAttached = true;
             }
 
+            // Gapless audio: build URL for a playlist item
+            function buildAudioUrl(item) {
+                if (!item || !window.ApiClient) return null;
+                return window.ApiClient.getUrl('Audio/' + item.Id + '/universal', {
+                    UserId: window.ApiClient.getCurrentUserId(),
+                    DeviceId: window.ApiClient.deviceId(),
+                    MaxStreamingBitrate: 140000000,
+                    Container: 'opus,webm|opus,mp3,aac,m4a|aac,m4b|aac,flac,webma,webm|webma,wav,ogg',
+                    TranscodingContainer: 'aac',
+                    TranscodingProtocol: 'hls',
+                    AudioCodec: 'aac',
+                    api_key: window.ApiClient.accessToken(),
+                    StartTimeTicks: 0,
+                    EnableRedirection: true,
+                    EnableRemoteMedia: true
+                });
+            }
+
+            // Gapless audio: send playlist batch to native
+            function syncAudioPlaylist() {
+                const queueManager = playbackManager._playQueueManager;
+                if (!queueManager) return;
+
+                const playlist = queueManager.getPlaylist();
+                const currentIndex = queueManager.getCurrentPlaylistIndex();
+                if (!playlist || currentIndex < 0) return;
+
+                // Send current + next 5 tracks
+                const batchSize = 6;
+                const batch = [];
+                for (let i = currentIndex; i < Math.min(currentIndex + batchSize, playlist.length); i++) {
+                    const item = playlist[i];
+                    const url = buildAudioUrl(item);
+                    if (url) {
+                        batch.push({
+                            itemId: item.Id,
+                            url: url,
+                            metadata: item
+                        });
+                    }
+                }
+
+                if (batch.length > 0) {
+                    const currentItemId = playlist[currentIndex]?.Id || '';
+                    api.player.setWebPlaylist(batch, currentItemId);
+                }
+            }
+
             window.Events.on(playbackManager, 'playbackstart', (e, player) => {
                 if (!player) return;
 
                 const state = playbackManager.getPlayerState();
                 if (state && state.NowPlayingItem) {
+                    // Gapless: sync audio playlist to native
+                    if (state.NowPlayingItem.MediaType === 'Audio') {
+                        syncAudioPlaylist();
+                    }
                     let serverAddress = '';
                     if (window.ApiClient && typeof window.ApiClient.serverAddress === 'function') {
                         serverAddress = window.ApiClient.serverAddress();
@@ -211,6 +301,8 @@ class inputPlugin {
                         window.Events.off(this.attachedPlayer, 'volumechange');
                         window.Events.off(this.attachedPlayer, 'ratechange');
                         window.Events.off(this.attachedPlayer, 'timeupdate');
+                        window.Events.off(this.attachedPlayer, 'itemstarted');
+                        window.Events.off(this.attachedPlayer, 'gaplessTransition');
                     }
 
                     this.attachedPlayer = player;
@@ -224,6 +316,61 @@ class inputPlugin {
                 window.Events.on(player, 'repeatmodechange', () => {
                     const mode = playbackManager.getRepeatMode();
                     api.player.notifyRepeatChange(mode);
+                });
+
+                // Gapless: handle track transition from mpvAudioPlayer
+                window.Events.on(player, 'gaplessTransition', (e, data) => {
+                    const itemId = data?.itemId;
+                    if (!itemId) return;
+
+                    console.debug('[Gapless inputPlugin] Transition to:', itemId);
+
+                    const queueManager = playbackManager._playQueueManager;
+                    if (!queueManager) return;
+
+                    const playlist = queueManager.getPlaylist();
+                    const newIndex = playlist?.findIndex(item => item.Id === itemId);
+
+                    if (newIndex >= 0) {
+                        const newItem = playlist[newIndex];
+
+                        // Update queue position
+                        queueManager.setPlaylistIndex(newIndex);
+
+                        // Update player's internal state (preserve other properties)
+                        if (player._currentPlayOptions) {
+                            player._currentPlayOptions.item = newItem;
+                        } else {
+                            player._currentPlayOptions = { item: newItem };
+                        }
+
+                        // Update MPRIS metadata
+                        let serverAddress = '';
+                        if (window.ApiClient && typeof window.ApiClient.serverAddress === 'function') {
+                            serverAddress = window.ApiClient.serverAddress();
+                        }
+                        api.player.notifyMetadata(newItem, serverAddress);
+                        api.player.notifyPosition(0);
+                        api.player.notifyRateChange(1.0);
+                        lastReportedPosition = 0;
+
+                        // Build state and trigger UI update
+                        const state = playbackManager.getPlayerState(player);
+                        window.Events.trigger(player, 'playbackstart', [state]);
+
+                        // Re-sync playlist batch
+                        syncAudioPlaylist();
+                        updateQueueState();
+                    }
+                });
+
+                // Gapless: re-sync playlist batch after track transition (legacy)
+                window.Events.on(player, 'itemstarted', () => {
+                    if (isPlayingAudio()) {
+                        syncAudioPlaylist();
+                        updateQueueState();
+                        lastReportedPosition = 0;
+                    }
                 });
 
                 window.Events.on(player, 'playing', () => {
@@ -251,7 +398,9 @@ class inputPlugin {
                         const positionMs = playbackManager.currentTime();
                         if (positionMs !== undefined && positionMs !== null) {
                             const positionDiff = Math.abs(positionMs - lastReportedPosition);
-                            if (lastReportedPosition > 0 && positionDiff > 2000) {
+                            // For audio, MPV is source of truth - don't trigger rate=0 on position jumps
+                            // (gapless transitions cause position jumps that aren't seeks)
+                            if (!isPlayingAudio() && lastReportedPosition > 0 && positionDiff > 2000) {
                                 api.player.notifyRateChange(0.0);
                                 api.player.notifySeek(Math.floor(positionMs));
                             } else {
@@ -310,7 +459,8 @@ class inputPlugin {
                         const positionMs = playbackManager.currentTime();
                         if (positionMs !== undefined && positionMs !== null) {
                             const positionDiff = Math.abs(positionMs - lastReportedPosition);
-                            if (lastReportedPosition > 0 && positionDiff > 2000) {
+                            // For audio, MPV is source of truth - don't trigger rate=0 on position jumps
+                            if (!isPlayingAudio() && lastReportedPosition > 0 && positionDiff > 2000) {
                                 // Player-initiated seek - set rate to 0 during buffering
                                 api.player.notifyRateChange(0.0);
                                 api.player.notifySeek(Math.floor(positionMs));
@@ -346,6 +496,8 @@ class inputPlugin {
             window.Events.off(this.attachedPlayer, 'playbackstop');
             window.Events.off(this.attachedPlayer, 'volumechange');
             window.Events.off(this.attachedPlayer, 'timeupdate');
+            window.Events.off(this.attachedPlayer, 'itemstarted');
+            window.Events.off(this.attachedPlayer, 'gaplessTransition');
             this.attachedPlayer = null;
         }
 

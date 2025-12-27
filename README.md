@@ -17,16 +17,20 @@ Data is stored per-profile in a `profiles/<profile-id>/` subdirectory. The main 
 
 **Windows:**
 - Config: `%LOCALAPPDATA%\Jellyfin Desktop\profiles\<profile-id>\`
+- Cache: `%LOCALAPPDATA%\Jellyfin Desktop\profiles\<profile-id>\`
 - Logs: `%LOCALAPPDATA%\Jellyfin Desktop\profiles\<profile-id>\logs\`
 
 **Linux:**
 - Config: `~/.local/share/jellyfin-desktop/profiles/<profile-id>/`
+- Cache: `~/.cache/jellyfin-desktop/profiles/<profile-id>/`
 - Logs: `~/.local/share/jellyfin-desktop/profiles/<profile-id>/logs/`
 
 **Linux (Flatpak):**
 - Config: `~/.var/app/org.jellyfin.JellyfinDesktop/data/jellyfin-desktop/profiles/<profile-id>/`
+- Cache: `~/.var/app/org.jellyfin.JellyfinDesktop/cache/jellyfin-desktop/profiles/<profile-id>/`
 - Logs: `~/.var/app/org.jellyfin.JellyfinDesktop/data/jellyfin-desktop/profiles/<profile-id>/logs/`
 
 **macOS:**
 - Config: `~/Library/Application Support/Jellyfin Desktop/profiles/<profile-id>/`
+- Cache: `~/Library/Caches/Jellyfin Desktop/profiles/<profile-id>/`
 - Logs: `~/Library/Logs/Jellyfin Desktop/<profile-id>/`

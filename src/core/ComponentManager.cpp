@@ -16,7 +16,6 @@
 #ifdef LINUX_DBUS
 #include "mpris/MprisComponent.h"
 #endif
-#include "ProfileManager.h"
 
 #ifdef KONVERGO_OPENELEC
 #include "system/openelec/OESystemComponent.h"
@@ -53,9 +52,6 @@ void ComponentManager::registerComponent(ComponentBase* comp)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void ComponentManager::initialize()
 {
-  // ProfileManager first - it sets up profile-aware paths before other components
-  registerComponent(&ProfileManager::Get());
-
   // then settings, since all other components
   // might have some settings
   //

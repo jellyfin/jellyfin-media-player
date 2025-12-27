@@ -656,6 +656,17 @@
     ]
   },
   {
+    "section": "mpris",
+    "hidden": true,
+    "platforms": [ "linux" ],
+    "values": [
+      {
+        "value": "albumArtCacheSize",
+        "default": 52428800
+      }
+    ]
+  },
+  {
     "section": "system",
     "hidden": true,
     "values": [

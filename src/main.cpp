@@ -3,11 +3,8 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QIcon>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QUuid>
 #include <QtQml>
+#include <optional>
 #include <Qt>
 #include <QtWebEngineQuick>
 #include <qtwebenginecoreglobal.h>
@@ -16,13 +13,13 @@
 #include <QtWebEngineCore/QWebEngineScript>
 #include <QCommandLineOption>
 #include <QDebug>
-#include <QRegularExpression>
 #include <QSettings>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
 #include <QDebug>
 #include "Paths.h"
+#include "core/ProfileManager.h"
 #include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
 #include "player/OpenGLDetect.h"
@@ -278,106 +275,21 @@ int main(int argc, char *argv[])
       QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, absPath);
     }
 
-    // Helper lambdas for profile operations
-    auto profileExists = [](const QString& id) {
-      return QDir(Paths::globalDataDir("profiles/" + id)).exists();
-    };
-
-    auto getProfilesList = []() {
-      QStringList profiles;
-      QDir profilesDir(Paths::globalDataDir("profiles"));
-      if (profilesDir.exists())
-      {
-        for (const QString& dir : profilesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
-        {
-          if (dir.length() == 32 && dir.contains(QRegularExpression("^[0-9a-f]+$")))
-            profiles << dir;
-        }
-      }
-      return profiles;
-    };
-
-    auto getProfileName = [](const QString& id) {
-      QFile meta(Paths::globalDataDir("profiles/" + id + "/profile.json"));
-      if (meta.open(QIODevice::ReadOnly))
-      {
-        QJsonDocument doc = QJsonDocument::fromJson(meta.readAll());
-        meta.close();
-        return doc.object()["name"].toString();
-      }
-      return QString();
-    };
-
-    auto findProfileByName = [&getProfilesList, &getProfileName](const QString& name) {
-      for (const QString& id : getProfilesList())
-      {
-        if (getProfileName(id) == name)
-          return id;
-      }
-      return QString();
-    };
-
-    auto readDefaultProfile = []() {
-      QString profilesFile = Paths::globalDataDir("profiles.json");
-      QFile file(profilesFile);
-      if (file.open(QIODevice::ReadOnly))
-      {
-        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-        file.close();
-        return doc.object()["defaultProfile"].toString();
-      }
-      return QString();
-    };
-
-    auto writeDefaultProfile = [](const QString& id) {
-      QString profilesFile = Paths::globalDataDir("profiles.json");
-      QJsonObject root;
-      root["defaultProfile"] = id;
-      QFile out(profilesFile);
-      if (out.open(QIODevice::WriteOnly))
-      {
-        out.write(QJsonDocument(root).toJson());
-        out.close();
-        return true;
-      }
-      return false;
-    };
-
-    auto createNewProfile = [](const QString& name) {
-      QString id = QUuid::createUuid().toString(QUuid::Id128);
-      QDir().mkpath(Paths::globalDataDir("profiles/" + id));
-      QDir().mkpath(Paths::globalDataDir("profiles/" + id + "/logs"));
-      // Always write profile.json with name
-      QFile meta(Paths::globalDataDir("profiles/" + id + "/profile.json"));
-      if (meta.open(QIODevice::WriteOnly))
-      {
-        QJsonObject obj;
-        obj["name"] = name;
-        meta.write(QJsonDocument(obj).toJson());
-        meta.close();
-      }
-      return id;
-    };
-
     // Handle --list-profiles
     if (parser.isSet("list-profiles"))
     {
-      QStringList profiles = getProfilesList();
-      QString defaultId = readDefaultProfile();
-      if (profiles.isEmpty())
+      auto allProfiles = ProfileManager::profiles();
+      auto defaultProf = ProfileManager::defaultProfile();
+      if (allProfiles.isEmpty())
       {
         printf("No profiles found.\n");
       }
       else
       {
-        for (const QString& id : profiles)
+        for (const Profile& p : allProfiles)
         {
-          QString marker = (id == defaultId) ? " *" : "";
-          QString name = getProfileName(id);
-          if (name.isEmpty())
-            printf("%s%s\n", qPrintable(id), qPrintable(marker));
-          else
-            printf("%s%s\n", qPrintable(name), qPrintable(marker));
+          QString marker = (defaultProf && p.name() == defaultProf->name()) ? " *" : "";
+          printf("%s%s\n", qPrintable(p.name()), qPrintable(marker));
         }
       }
       return EXIT_SUCCESS;
@@ -392,12 +304,12 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Profile name is required\n");
         return EXIT_FAILURE;
       }
-      if (!findProfileByName(name).isEmpty())
+      if (ProfileManager::profileByName(name))
       {
         fprintf(stderr, "Profile already exists: %s\n", qPrintable(name));
         return EXIT_FAILURE;
       }
-      createNewProfile(name);
+      ProfileManager::createProfile(name);
       printf("Created profile: %s\n", qPrintable(name));
       return EXIT_SUCCESS;
     }
@@ -406,24 +318,16 @@ int main(int argc, char *argv[])
     if (parser.isSet("delete-profile"))
     {
       QString name = parser.value("delete-profile");
-      QString id = findProfileByName(name);
-      if (id.isEmpty())
+      auto profile = ProfileManager::profileByName(name);
+      if (!profile)
       {
         fprintf(stderr, "Profile not found: %s\n", qPrintable(name));
         return EXIT_FAILURE;
       }
-      QString profilePath = Paths::globalDataDir("profiles/" + id);
-      QDir dir(profilePath);
-      if (!dir.removeRecursively())
+      if (!ProfileManager::deleteProfile(*profile))
       {
         fprintf(stderr, "Failed to delete profile: %s\n", qPrintable(name));
         return EXIT_FAILURE;
-      }
-      // Update default if we deleted it
-      if (readDefaultProfile() == id)
-      {
-        QStringList remaining = getProfilesList();
-        writeDefaultProfile(remaining.isEmpty() ? QString() : remaining.first());
       }
       printf("Deleted profile: %s\n", qPrintable(name));
       return EXIT_SUCCESS;
@@ -433,30 +337,26 @@ int main(int argc, char *argv[])
     if (parser.isSet("set-default-profile"))
     {
       QString name = parser.value("set-default-profile");
-      QString id = findProfileByName(name);
-      if (id.isEmpty())
+      auto profile = ProfileManager::profileByName(name);
+      if (!profile)
       {
         fprintf(stderr, "Profile not found: %s\n", qPrintable(name));
         return EXIT_FAILURE;
       }
-      if (!writeDefaultProfile(id))
-      {
-        fprintf(stderr, "Failed to write profiles.json\n");
-        return EXIT_FAILURE;
-      }
+      ProfileManager::setDefaultProfile(*profile);
       printf("Default profile set to: %s\n", qPrintable(name));
       return EXIT_SUCCESS;
     }
 
     // Determine which profile to use for this session
-    QString profileId;
+    std::optional<Profile> activeProfile;
 
     // --profile overrides everything
     if (parser.isSet("profile"))
     {
       QString name = parser.value("profile");
-      profileId = findProfileByName(name);
-      if (profileId.isEmpty())
+      activeProfile = ProfileManager::profileByName(name);
+      if (!activeProfile)
       {
         fprintf(stderr, "Profile not found: %s\n", qPrintable(name));
         return EXIT_FAILURE;
@@ -464,40 +364,26 @@ int main(int argc, char *argv[])
     }
     else
     {
-      // Use default profile
-      profileId = readDefaultProfile();
-      bool needsWrite = false;
+      // Try default profile
+      activeProfile = ProfileManager::defaultProfile();
 
-      // Validate default exists
-      if (!profileId.isEmpty() && !profileExists(profileId))
+      // Try first available profile
+      if (!activeProfile)
       {
-        profileId.clear();
-        needsWrite = true;
+        auto allProfiles = ProfileManager::profiles();
+        if (!allProfiles.isEmpty())
+          activeProfile = allProfiles.first();
       }
 
-      // Find first profile
-      if (profileId.isEmpty())
-      {
-        QStringList profiles = getProfilesList();
-        if (!profiles.isEmpty())
-        {
-          profileId = profiles.first();
-          needsWrite = true;
-        }
-      }
+      // Create new profile if none exist
+      if (!activeProfile)
+        activeProfile = ProfileManager::createProfile("Default");
 
-      // Create new profile
-      if (profileId.isEmpty())
-      {
-        profileId = createNewProfile("Default");
-        needsWrite = true;
-      }
-
-      if (needsWrite)
-        writeDefaultProfile(profileId);
+      // Update default
+      ProfileManager::setDefaultProfile(*activeProfile);
     }
 
-    Paths::setActiveProfileId(profileId);
+    ProfileManager::Get().setActiveProfile(*activeProfile);
 
     // Now everything else - all paths are profile-specific from here on
     QString logLevel = parser.value("log-level");
@@ -574,8 +460,8 @@ int main(int argc, char *argv[])
     // Configure default WebEngineProfile paths early (profile is already set)
     {
       QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
-      defaultProfile->setCachePath(Paths::cacheDir("QtWebEngine"));
-      defaultProfile->setPersistentStoragePath(Paths::dataDir("QtWebEngine"));
+      defaultProfile->setCachePath(ProfileManager::activeProfile().cacheDir("QtWebEngine"));
+      defaultProfile->setPersistentStoragePath(ProfileManager::activeProfile().dataDir("QtWebEngine"));
     }
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)
@@ -605,7 +491,7 @@ int main(int argc, char *argv[])
     // Rotate temp log to main log file and rotate old logs
     Log::RotateLog();
 
-    qInfo() << "Config directory:" << qPrintable(Paths::dataDir());
+    qInfo() << "Config directory:" << qPrintable(ProfileManager::activeProfile().dataDir());
 
     Codecs::preinitCodecs();
 

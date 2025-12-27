@@ -29,6 +29,7 @@
 
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
+#include "core/ProfileManager.h"
 #include "utils/Utils.h"
 #include "shared/Paths.h"
 #include "PlayerComponent.h"
@@ -146,7 +147,7 @@ QString Codecs::plexNameFromFF(QString ffname)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static QString codecsRootPath()
 {
-  return Paths::dataDir("Codecs") + QDir::separator();
+  return ProfileManager::activeProfile().dataDir("Codecs") + QDir::separator();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,7 +505,7 @@ static void updateCodecs()
 {
   QStringList candidates = {
     codecsRootPath(),
-    Paths::dataDir() + "/codecs/",
+    ProfileManager::activeProfile().dataDir("codecs"),
   };
 
   QSet<QString> codecFiles;

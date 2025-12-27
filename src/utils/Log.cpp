@@ -10,6 +10,7 @@
 
 #include "shared/Names.h"
 #include "shared/Paths.h"
+#include "core/ProfileManager.h"
 #include "settings/SettingsComponent.h"
 #include "Version.h"
 
@@ -87,8 +88,7 @@ void Log::CensorAuthTokens(QString& msg)
 /////////////////////////////////////////////////////////////////////////////////////////
 static QString getLogDir()
 {
-  // Paths::logDir() returns profile-specific path when profile is active
-  return Paths::logDir("");
+  return ProfileManager::activeProfile().logDir();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

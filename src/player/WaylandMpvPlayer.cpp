@@ -584,6 +584,8 @@ void WaylandMpvPlayer::renderLoop()
     VkFence acquireFence = VK_NULL_HANDLE;
     vkCreateFence(m_vulkan->device(), &fenceInfo, nullptr, &acquireFence);
 
+    bool forceRender = false;
+
     while (m_running) {
         // Handle resize
         if (m_needsResize) {
@@ -592,6 +594,7 @@ void WaylandMpvPlayer::renderLoop()
             if (w > 0 && h > 0) {
                 vkDeviceWaitIdle(m_vulkan->device());
                 m_vulkan->recreateSwapchain(w, h);
+                forceRender = true;  // Force render to update surface with new size
             }
             m_needsResize = false;
         }
@@ -603,17 +606,18 @@ void WaylandMpvPlayer::renderLoop()
             break;
 
         // Wait for update callback to signal new frame available
-        if (!m_needsUpdate.load(std::memory_order_acquire)) {
+        if (!forceRender && !m_needsUpdate.load(std::memory_order_acquire)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             continue;
         }
         m_needsUpdate.store(false, std::memory_order_release);
 
-        // Check what mpv needs
+        // Check what mpv needs (skip check if forcing render after resize)
         uint64_t flags = mpv_render_context_update(m_renderCtx);
-        if (!(flags & MPV_RENDER_UPDATE_FRAME)) {
+        if (!forceRender && !(flags & MPV_RENDER_UPDATE_FRAME)) {
             continue;
         }
+        forceRender = false;
 
         // Acquire swapchain image with fence
         uint32_t imageIdx;

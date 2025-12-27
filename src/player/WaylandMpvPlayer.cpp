@@ -297,36 +297,26 @@ void WaylandMpvPlayer::updateSurfaceColorspace(const QString &gamma, const QStri
     if (gamma.isEmpty() || primaries.isEmpty())
         return;
 
-    // Skip if already signaled this exact colorspace
+    // Skip if already signaled
     if (m_signaledGamma == gamma && m_signaledPrimaries == primaries)
         return;
 
     qInfo() << "Updating surface colorspace: gamma=" << gamma << "primaries=" << primaries;
 
-    // Only signal for HDR content (PQ/HLG) - SDR uses compositor default
-    // Compositor may not support sRGB/bt.1886 transfer functions
-    if (gamma != "pq" && gamma != "hlg") {
-        qInfo() << "SDR content, using compositor default";
+    // mpv is configured to ALWAYS output PQ/BT.2020 when HDR swapchain is active
+    // (target-prim=bt.2020, target-trc=pq). So regardless of source content,
+    // we must signal PQ/BT.2020 to Wayland for correct display.
+    // The source colorspace only tells us what mpv is converting FROM, not what it outputs.
+    if (!m_vulkan->isHdr()) {
+        qInfo() << "SDR swapchain, no color signaling needed";
         m_signaledGamma = gamma;
         m_signaledPrimaries = primaries;
         return;
     }
 
-    // Map gamma/primaries to Wayland color management protocol values
-    uint32_t waylandTf;
-    uint32_t waylandPrimaries;
-
-    if (gamma == "pq") {
-        waylandTf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ;
-    } else {
-        waylandTf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG;
-    }
-
-    if (primaries == "bt.2020") {
-        waylandPrimaries = WP_COLOR_MANAGER_V1_PRIMARIES_BT2020;
-    } else {
-        waylandPrimaries = WP_COLOR_MANAGER_V1_PRIMARIES_SRGB;
-    }
+    // Always signal PQ/BT.2020 since that's what mpv outputs
+    uint32_t waylandTf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ;
+    uint32_t waylandPrimaries = WP_COLOR_MANAGER_V1_PRIMARIES_BT2020;
 
     // Update image description on EXISTING color surface (created in createSubsurface)
     // Never recreate swapchain or color surface - that causes protocol errors
@@ -343,22 +333,14 @@ void WaylandMpvPlayer::updateSurfaceColorspace(const QString &gamma, const QStri
             wp_image_description_creator_params_v1_set_primaries_named(creator, waylandPrimaries);
             wp_image_description_creator_params_v1_set_tf_named(creator, waylandTf);
 
-            // For HDR content (PQ/HLG), set luminance metadata
-            // This tells compositor about content's luminance range
-            if (gamma == "pq" || gamma == "hlg") {
-                // HDR10 typical values: min 0.0001 cd/m², max 1000+ cd/m², ref 203 cd/m²
-                // min_lum is in 0.0001 cd/m² units, max/ref in cd/m²
-                uint32_t minLum = 1;      // 0.0001 cd/m²
-                uint32_t maxLum = 1000;   // 1000 cd/m² (typical HDR10)
-                uint32_t refLum = 203;    // Reference white per ITU-R BT.2408
-                wp_image_description_creator_params_v1_set_luminances(creator, minLum, maxLum, refLum);
-
-                // Also set mastering display luminance if we have it
-                // min in 0.0001 cd/m², max in cd/m²
-                wp_image_description_creator_params_v1_set_mastering_luminance(creator, 1, 1000);
-
-                qInfo() << "Set HDR luminances: min=0.0001 max=1000 ref=203";
-            }
+            // Set luminance metadata for HDR output
+            // HDR10 typical values: min 0.0001 cd/m², max 1000+ cd/m², ref 203 cd/m²
+            // min_lum is in 0.0001 cd/m² units, max/ref in cd/m²
+            uint32_t minLum = 1;      // 0.0001 cd/m²
+            uint32_t maxLum = 1000;   // 1000 cd/m² (typical HDR10)
+            uint32_t refLum = 203;    // Reference white per ITU-R BT.2408
+            wp_image_description_creator_params_v1_set_luminances(creator, minLum, maxLum, refLum);
+            wp_image_description_creator_params_v1_set_mastering_luminance(creator, 1, 1000);
 
             m_hdrImageDesc = wp_image_description_creator_params_v1_create(creator);
             if (m_hdrImageDesc) {

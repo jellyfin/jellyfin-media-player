@@ -18,6 +18,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QNetworkAccessManager>
+#include <QNetworkDiskCache>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QEventLoop>
@@ -94,6 +95,18 @@ bool MprisComponent::componentInitialize()
 
   m_enabled = true;
   qDebug() << "MPRIS interface registered successfully";
+
+  // Set up disk cache for album art
+  qint64 cacheSize = SettingsComponent::Get().value(SETTINGS_SECTION_MPRIS, "albumArtCacheSize").toLongLong();
+  if (cacheSize > 0)
+  {
+    auto* cache = new QNetworkDiskCache(this);
+    QString cacheDir = Paths::cacheDir("mpris-albumart");
+    cache->setCacheDirectory(cacheDir);
+    cache->setMaximumCacheSize(cacheSize);
+    m_albumArtManager->setCache(cache);
+    qDebug() << "MPRIS: Album art cache enabled, max size:" << cacheSize << "bytes, dir:" << cacheDir;
+  }
 
   return true;
 }
@@ -1062,6 +1075,8 @@ void MprisComponent::onAlbumArtDownloaded()
 
   reply->deleteLater();
 
+  bool fromCache = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
+
   if (reply->error() != QNetworkReply::NoError)
   {
     if (reply->error() != QNetworkReply::OperationCanceledError)
@@ -1078,7 +1093,8 @@ void MprisComponent::onAlbumArtDownloaded()
 
   static QMimeDatabase mimeDb;
   QString mimeType = mimeDb.mimeTypeForData(imageData).name();
-  qDebug() << "MPRIS: Album art mime type:" << mimeType;
+  qDebug() << "MPRIS: Album art" << (fromCache ? "cache hit" : "cache miss")
+           << "-" << reply->url().toString() << "-" << imageData.size() << "bytes";
   if (mimeType.startsWith("image/"))
   {
     // Create data URI
@@ -1093,8 +1109,6 @@ void MprisComponent::onAlbumArtDownloaded()
       m_metadata["mpris:artUrl"] = dataUri;
       emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
     }
-
-    qDebug() << "MPRIS: Album art downloaded successfully, data URI length:" << dataUri.length();
   }
   else
   {

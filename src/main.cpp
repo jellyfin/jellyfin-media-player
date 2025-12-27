@@ -9,7 +9,7 @@
 #include <Qt>
 #include <QtWebEngineQuick>
 #ifdef USE_WAYLAND_SUBSURFACE
-#include <QVulkanInstance>
+#include <QSurfaceFormat>
 #endif
 #include <qtwebenginecoreglobal.h>
 #include <QtWebEngineCore/QWebEngineProfile>
@@ -197,12 +197,12 @@ int main(int argc, char *argv[])
     parser.addOption(createProfileOption);
 
 #ifdef USE_WAYLAND_SUBSURFACE
-    // Check if we'll use Wayland Vulkan mode - needs to be early for Qt flags
+    // Check if running on Wayland - enables mpv Vulkan subsurface for HDR
     static bool isWayland = qEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" ||
                             qEnvironmentVariable("QT_QPA_PLATFORM").contains("wayland");
 #endif
 
-    // Qt flags for WebEngine - skip on Wayland Vulkan to avoid conflicts
+    // Qt flags for WebEngine - skip on Wayland to avoid conflicts with subsurface
     QStringList g_qtFlags;
 #ifdef USE_WAYLAND_SUBSURFACE
     if (!isWayland) {
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
     QStringList chromiumFlags;
 #ifdef USE_WAYLAND_SUBSURFACE
     if (isWayland) {
-      // Disable GPU compositing in Chromium - jellyfin-web triggers Vulkan crash with radeon
+      // Disable GPU compositing in WebEngine to avoid crashes on some GPUs
       chromiumFlags << "--disable-gpu-compositing";
     } else {
 #endif
@@ -475,9 +475,12 @@ int main(int argc, char *argv[])
     QtWebEngineQuick::initialize();
 
 #ifdef USE_WAYLAND_SUBSURFACE
-    // Set Vulkan graphics API for Wayland (must be after QtWebEngineQuick::initialize, before QApplication)
+    // Keep Qt on OpenGL - only mpv subsurface uses Vulkan for HDR
+    // Enable alpha for proper blending with mpv subsurface below
     if (isWayland) {
-      QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
+      QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+      format.setAlphaBufferSize(8);
+      QSurfaceFormat::setDefaultFormat(format);
     }
 #endif
 
@@ -494,18 +497,6 @@ int main(int argc, char *argv[])
     QApplication app(newArgc, newArgv);
 #endif
 
-#ifdef USE_WAYLAND_SUBSURFACE
-    // Create Vulkan instance for Qt (must be after QApplication, before QML engine)
-    static QVulkanInstance vulkanInstance;
-    if (isWayland) {
-      vulkanInstance.setApiVersion(QVersionNumber(1, 2));
-      if (!vulkanInstance.create()) {
-        qCritical() << "Failed to create Qt Vulkan instance";
-        return EXIT_FAILURE;
-      }
-    }
-#endif
-
 #if defined(Q_OS_WIN)
     // Setting window icon on OSX will break user ability to change it
     qobject_cast<QGuiApplication*>(&app)->setWindowIcon(QIcon(":/images/icon.png"));
@@ -519,8 +510,8 @@ int main(int argc, char *argv[])
 #endif
 
     // Configure default WebEngineProfile paths early (profile is already set)
-    // Skip early access on Wayland Vulkan - accessing defaultProfile() here triggers
-    // Chromium GPU init which crashes. Will be set later after QML engine loads.
+    // Skip early access on Wayland - accessing defaultProfile() here triggers
+    // Chromium GPU init which can crash. Will be set later after QML engine loads.
 #ifdef USE_WAYLAND_SUBSURFACE
     if (!isWayland) {
 #endif
@@ -565,7 +556,7 @@ int main(int argc, char *argv[])
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
     // Set user agent now that SystemComponent is available
-    // Skip early access on Wayland Vulkan - will be set in objectCreated callback
+    // Skip early access on Wayland - will be set in objectCreated callback
 #ifdef USE_WAYLAND_SUBSURFACE
     if (!isWayland) {
 #endif
@@ -593,11 +584,7 @@ int main(int argc, char *argv[])
       QQuickWindow* window = Globals::MainWindow();
 
 #ifdef USE_WAYLAND_SUBSURFACE
-      // Set Vulkan instance on window when using Vulkan
-      if (isWayland && vulkanInstance.isValid()) {
-        window->setVulkanInstance(&vulkanInstance);
-      }
-      // Deferred WebEngineProfile setup for Wayland Vulkan
+      // Deferred WebEngineProfile setup for Wayland
       if (isWayland) {
         QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
         defaultProfile->setCachePath(ProfileManager::activeProfile().cacheDir("QtWebEngine"));

@@ -15,7 +15,7 @@ Window
   minimumWidth: 213
   minimumHeight: 120
   visible: true
-  color: PlatformInfo.isWaylandMpv ? "transparent" : "#000000"
+  color: "transparent"
 
   // Properties previously from KonvergoWindow
   property bool webDesktopMode: true

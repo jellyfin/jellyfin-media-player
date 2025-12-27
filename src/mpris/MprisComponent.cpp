@@ -6,14 +6,15 @@
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
 #include "core/Globals.h"
+#include "core/ProfileManager.h"
 #include "ui/WindowManager.h"
-#include "shared/Paths.h"
 
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusError>
 #include <QApplication>
 #include <QDebug>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -70,8 +71,9 @@ bool MprisComponent::componentInitialize()
     return true;
   }
 
-  // Generate profile-specific service name
-  m_serviceName = QString("org.mpris.MediaPlayer2.JellyfinDesktop.profile_%1").arg(Paths::activeProfileId());
+  // Generate profile-specific service name using cache dir basename (profile ID)
+  QString profileCacheDir = ProfileManager::activeProfile().cacheDir();
+  m_serviceName = QString("org.mpris.MediaPlayer2.JellyfinDesktop.profile_%1").arg(QFileInfo(profileCacheDir).fileName());
 
   qDebug() << "Attempting to register MPRIS service:" << m_serviceName;
   if (!QDBusConnection::sessionBus().registerService(m_serviceName))
@@ -101,7 +103,7 @@ bool MprisComponent::componentInitialize()
   if (cacheSize > 0)
   {
     auto* cache = new QNetworkDiskCache(this);
-    QString cacheDir = Paths::cacheDir("mpris-albumart");
+    QString cacheDir = ProfileManager::activeProfile().cacheDir("mpris-albumart");
     cache->setCacheDirectory(cacheDir);
     cache->setMaximumCacheSize(cacheSize);
     m_albumArtManager->setCache(cache);

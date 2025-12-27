@@ -4,6 +4,7 @@
 #include "SettingsComponent.h"
 #include "SettingsSection.h"
 #include "Paths.h"
+#include "core/ProfileManager.h"
 #include "utils/Utils.h"
 #include "AudioSettingsController.h"
 #include "Names.h"
@@ -217,7 +218,7 @@ static void writeJson(const QString& filename, const QJsonObject& data, bool pre
 /////////////////////////////////////////////////////////////////////////////////////////
 QVariant SettingsComponent::readPreinitValue(const QString& sectionID, const QString& key)
 {
-  QString path = Paths::dataDir("jellyfin-desktop.conf");
+  QString path = ProfileManager::activeProfile().dataDir("jellyfin-desktop.conf");
   if (path.isEmpty())
     return QVariant();
   QJsonObject json = loadJson(path);
@@ -227,15 +228,15 @@ QVariant SettingsComponent::readPreinitValue(const QString& sectionID, const QSt
 /////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::load()
 {
-  QString profileDir = Paths::dataDir();
+  QString profileDir = ProfileManager::activeProfile().dataDir();
   if (profileDir.isEmpty())
   {
     qInfo() << "No active profile, skipping settings load (using defaults)";
     return;
   }
 
-  loadConf(Paths::dataDir("jellyfin-desktop.conf"), false);
-  loadConf(Paths::dataDir("storage.json"), true);
+  loadConf(ProfileManager::activeProfile().dataDir("jellyfin-desktop.conf"), false);
+  loadConf(ProfileManager::activeProfile().dataDir("storage.json"), true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +296,7 @@ void SettingsComponent::loadConf(const QString& path, bool storage)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::saveSettings()
 {
-  QString path = Paths::dataDir("jellyfin-desktop.conf");
+  QString path = ProfileManager::activeProfile().dataDir("jellyfin-desktop.conf");
   if (path.isEmpty())
   {
     qWarning() << "No active profile, cannot save settings";
@@ -319,7 +320,7 @@ void SettingsComponent::saveSettings()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::saveStorage()
 {
-  QString path = Paths::dataDir("storage.json");
+  QString path = ProfileManager::activeProfile().dataDir("storage.json");
   if (path.isEmpty())
   {
     qWarning() << "No active profile, cannot save storage";
@@ -716,11 +717,11 @@ bool SettingsComponent::componentInitialize()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SettingsComponent::resetAndSaveOldConfiguration()
 {
-  QString path = Paths::dataDir("jellyfin-desktop.conf");
+  QString path = ProfileManager::activeProfile().dataDir("jellyfin-desktop.conf");
   if (path.isEmpty())
     return false;
   QFile settingsFile(path);
-  return settingsFile.rename(Paths::dataDir("jellyfin-desktop.conf.old"));
+  return settingsFile.rename(ProfileManager::activeProfile().dataDir("jellyfin-desktop.conf.old"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -2,70 +2,65 @@
 #define PROFILEMANAGER_H
 
 #include <QObject>
-#include <QVariantList>
-#include <QVariantMap>
-#include <QDateTime>
-#include "ComponentManager.h"
+#include <QList>
+#include <optional>
 #include "utils/Utils.h"
+
+class ProfileManager;
 
 struct Profile
 {
-    QString id;
-    QString name;
-    QString url;
-    QDateTime created;
+    // Paths
+    QString dataDir(const QString& subpath = QString()) const;
+    QString cacheDir(const QString& subpath = QString()) const;
+    QString logDir() const;
 
-    QVariantMap toVariantMap() const;
-    static Profile fromVariantMap(const QVariantMap& map);
+    // Metadata
+    QString name() const;
+
+    // Directory management
+    void ensureDirectories() const;
+
+private:
+    QString id;
+    friend class ProfileManager;
 };
 
-class ProfileManager : public ComponentBase
+class ProfileManager : public QObject
 {
     Q_OBJECT
     DEFINE_SINGLETON(ProfileManager);
 
-    Q_PROPERTY(QString activeProfileId READ activeProfileId NOTIFY activeProfileChanged)
-    Q_PROPERTY(QString profileDataDir READ profileDataDir NOTIFY activeProfileChanged)
-    Q_PROPERTY(QString profileCacheDir READ profileCacheDir NOTIFY activeProfileChanged)
     Q_PROPERTY(bool hasActiveProfile READ hasActiveProfile NOTIFY activeProfileChanged)
 
 public:
-    bool componentExport() override { return true; }
-    const char* componentName() override { return "profiles"; }
-    bool componentInitialize() override;
+    // Active profile
+    static Profile& activeProfile() { return Get().m_activeProfile; }
+    void setActiveProfile(const Profile& profile);
+    bool hasActiveProfile() const { return !m_activeProfile.id.isEmpty(); }
+
+    // Profile lookup
+    static std::optional<Profile> profileByName(const QString& name);
+    static QList<Profile> profiles();
 
     // Profile management
-    Q_INVOKABLE QString createProfile(const QString& name, const QString& url);
-    Q_INVOKABLE bool deleteProfile(const QString& id);
-    Q_INVOKABLE bool renameProfile(const QString& id, const QString& newName);
-    Q_INVOKABLE QVariantList listProfiles();
-    Q_INVOKABLE QVariantMap getProfile(const QString& id);
+    static Profile createProfile(const QString& name);
+    static bool deleteProfile(const Profile& profile);
 
-    // Active profile
-    Q_INVOKABLE bool setActiveProfile(const QString& id);
-    QString activeProfileId() const { return m_activeProfileId; }
-    bool hasActiveProfile() const { return !m_activeProfileId.isEmpty(); }
-
-    // Path accessors for QML
-    QString profileDataDir() const;
-    QString profileCacheDir() const;
+    // Default profile
+    static std::optional<Profile> defaultProfile();
+    static void setDefaultProfile(const Profile& profile);
 
 Q_SIGNALS:
     void activeProfileChanged();
-    void profilesChanged();
 
 private:
     explicit ProfileManager(QObject* parent = nullptr);
 
-    void loadProfiles();
-    void saveProfiles();
-    void ensureActiveProfile();
-    void scanProfilesDirectory();
-    QString generateProfileId();
-    void ensureProfileDirectories(const QString& id);
+    static Profile profileById(const QString& id);
+    static QString profilesDir();
 
-    QMap<QString, Profile> m_profiles;
-    QString m_activeProfileId;
+    Profile m_activeProfile;
 };
 
 #endif // PROFILEMANAGER_H

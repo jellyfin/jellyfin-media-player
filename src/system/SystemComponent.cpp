@@ -29,6 +29,7 @@
 #include "settings/SettingsComponent.h"
 #include "settings/SettingsSection.h"
 #include "Paths.h"
+#include "core/ProfileManager.h"
 #include "Names.h"
 #include "utils/Utils.h"
 #include "utils/Log.h"
@@ -102,8 +103,8 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SystemComponent::componentInitialize()
 {
-  QDir().mkpath(Paths::dataDir("scripts"));
-  QDir().mkpath(Paths::dataDir("sounds"));
+  QDir().mkpath(ProfileManager::activeProfile().dataDir("scripts"));
+  QDir().mkpath(ProfileManager::activeProfile().dataDir("sounds"));
 
   return true;
 }
@@ -457,8 +458,8 @@ QString SystemComponent::debugInformation()
   stream << "\n";
 
   stream << "Files\n";
-  stream << "  Log file: " << Paths::logDir(Names::DataName() + ".log") << "\n";
-  stream << "  Config file: " << Paths::dataDir(Names::DataName() + ".conf") << "\n";
+  stream << "  Log file: " << ProfileManager::activeProfile().logDir() + "/" + Names::DataName() + ".log" << "\n";
+  stream << "  Config file: " << ProfileManager::activeProfile().dataDir(Names::DataName() + ".conf") << "\n";
   stream << "\n";
 
   stream << "Network Addresses\n";
@@ -506,7 +507,7 @@ void SystemComponent::runUserScript(QString script)
   // to be careful with their keymaps.
   //
   QFileInfo fi(script);
-  QString scriptPath = Paths::dataDir("scripts/" + fi.fileName());
+  QString scriptPath = ProfileManager::activeProfile().dataDir("scripts/" + fi.fileName());
 
   QFile scriptFile(scriptPath);
   if (scriptFile.exists())

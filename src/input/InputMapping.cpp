@@ -9,6 +9,7 @@
 #include <QDebug>
 
 #include "Paths.h"
+#include "core/ProfileManager.h"
 #include "utils/Utils.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +35,7 @@ bool InputMapping::loadMappings()
 
   // don't watch the path while we potentially copy files to the directory
   if (m_watcher->directories().size() > 0)
-    m_watcher->removePath(Paths::dataDir("inputmaps"));
+    m_watcher->removePath(ProfileManager::activeProfile().dataDir("inputmaps"));
 
   // first we load the bundled mappings
   loadMappingDirectory(":/inputmaps", true);
@@ -42,10 +43,10 @@ bool InputMapping::loadMappings()
   // now we load the user ones, if there are any
   // they will now overload the built-in ones.
   //
-  loadMappingDirectory(Paths::dataDir("inputmaps"), false);
+  loadMappingDirectory(ProfileManager::activeProfile().dataDir("inputmaps"), false);
 
   // we want to watch this dir for new files and changed files
-  m_watcher->addPath(Paths::dataDir("inputmaps"));
+  m_watcher->addPath(ProfileManager::activeProfile().dataDir("inputmaps"));
 
   emit mappingChanged();
   return true;
@@ -120,7 +121,7 @@ bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
       // make a copy of the original file to the example directory
       if (copy)
       {
-        QDir userdir(Paths::dataDir());
+        QDir userdir(ProfileManager::activeProfile().dataDir());
         userdir.mkpath("inputmaps/examples/");
         QString examplePath(userdir.filePath("inputmaps/examples/" + finfo.fileName()));
 

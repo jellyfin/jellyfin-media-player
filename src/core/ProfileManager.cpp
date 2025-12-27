@@ -1,360 +1,194 @@
 #include "ProfileManager.h"
 #include "Paths.h"
+#include "Names.h"
 
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QRegularExpression>
+#include <QStandardPaths>
 #include <QUuid>
 #include <QDebug>
-#include <QRegularExpression>
 
-static const QString PROFILES_FILE = "profiles.json";
 static const QString PROFILES_DIR = "profiles";
 
-QVariantMap Profile::toVariantMap() const
+QString Profile::dataDir(const QString& subpath) const
 {
-    QVariantMap map;
-    map["id"] = id;
-    map["name"] = name;
-    map["url"] = url;
-    map["created"] = created.toString(Qt::ISODate);
-    return map;
+    QString path = Paths::globalDataDir(PROFILES_DIR + "/" + id);
+    if (!subpath.isEmpty())
+        path += "/" + subpath;
+    return path;
 }
 
-Profile Profile::fromVariantMap(const QVariantMap& map)
+QString Profile::cacheDir(const QString& subpath) const
 {
-    Profile p;
-    p.id = map["id"].toString();
-    p.name = map["name"].toString();
-    p.url = map["url"].toString();
-    p.created = QDateTime::fromString(map["created"].toString(), Qt::ISODate);
-    return p;
+    QString path = Paths::globalCacheDir(PROFILES_DIR + "/" + id);
+    if (!subpath.isEmpty())
+        path += "/" + subpath;
+    return path;
+}
+
+QString Profile::logDir() const
+{
+#ifdef Q_OS_MAC
+    // macOS: ~/Library/Logs/<AppName>/profiles/<id>/
+    QString home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    return home + "/Library/Logs/" + Names::DataName() + "/profiles/" + id;
+#else
+    // Other platforms: profiles/<id>/logs/
+    return dataDir("logs");
+#endif
+}
+
+QString Profile::name() const
+{
+    QFile meta(dataDir("profile.json"));
+    if (meta.open(QIODevice::ReadOnly))
+    {
+        QJsonDocument doc = QJsonDocument::fromJson(meta.readAll());
+        meta.close();
+        return doc.object()["name"].toString();
+    }
+    return QString();
+}
+
+void Profile::ensureDirectories() const
+{
+    QDir().mkpath(dataDir());
+    QDir().mkpath(logDir());
+    QDir().mkpath(cacheDir());
 }
 
 ProfileManager::ProfileManager(QObject* parent)
-    : ComponentBase(parent)
+    : QObject(parent)
 {
 }
 
-bool ProfileManager::componentInitialize()
+void ProfileManager::setActiveProfile(const Profile& profile)
 {
-    loadProfiles();
-    ensureActiveProfile();
-    return true;
-}
-
-void ProfileManager::ensureActiveProfile()
-{
-    // CLI --profile flag takes precedence (already set in Paths before ComponentManager)
-    QString cliProfileId = Paths::activeProfileId();
-    if (!cliProfileId.isEmpty())
-    {
-        m_activeProfileId = cliProfileId;
-        // Ensure profile is in our list
-        if (!m_profiles.contains(cliProfileId))
-        {
-            scanProfilesDirectory();
-        }
-        return;
-    }
-
-    // Already have valid active profile from profiles.json
-    if (!m_activeProfileId.isEmpty() && m_profiles.contains(m_activeProfileId))
-    {
-        Paths::setActiveProfileId(m_activeProfileId);
-        return;
-    }
-
-    // Try to find first existing profile from profiles directory
-    if (m_profiles.isEmpty())
-    {
-        scanProfilesDirectory();
-    }
-
-    // Use first available profile
-    if (!m_profiles.isEmpty())
-    {
-        QString firstId = m_profiles.keys().first();
-        qInfo() << "Activating first available profile:" << firstId;
-        m_activeProfileId = firstId;
-        Paths::setActiveProfileId(firstId);
-        saveProfiles();
-        return;
-    }
-
-    // No profiles exist - create one
-    qInfo() << "No profiles found, creating new profile";
-    QString id = generateProfileId();
-
-    Profile p;
-    p.id = id;
-    p.name = "Default";
-    p.url = "";
-    p.created = QDateTime::currentDateTime();
-
-    ensureProfileDirectories(id);
-    m_profiles[id] = p;
-    m_activeProfileId = id;
-    Paths::setActiveProfileId(id);
-    saveProfiles();
-}
-
-void ProfileManager::scanProfilesDirectory()
-{
-    QString profilesPath = Paths::globalDataDir(PROFILES_DIR);
-    QDir profilesDir(profilesPath);
-
-    if (!profilesDir.exists())
+    if (m_activeProfile.id == profile.id)
         return;
 
-    for (const QString& dirName : profilesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
-    {
-        // Check if it looks like a UUID
-        if (dirName.length() == 32 && dirName.contains(QRegularExpression("^[0-9a-f]+$")))
-        {
-            Profile p;
-            p.id = dirName;
-            p.name = "Recovered Profile";
-            p.url = "";
-            p.created = QDateTime::currentDateTime();
-            m_profiles[dirName] = p;
-            qInfo() << "Found orphan profile directory:" << dirName;
-        }
-    }
-}
+    m_activeProfile = profile;
+    m_activeProfile.ensureDirectories();
 
-void ProfileManager::loadProfiles()
-{
-    QString filePath = Paths::globalDataDir(PROFILES_FILE);
-    QFile file(filePath);
-
-    if (!file.exists())
-    {
-        qInfo() << "No profiles.json found, starting fresh";
-        return;
-    }
-
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        qWarning() << "Failed to open profiles.json for reading";
-        return;
-    }
-
-    QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &error);
-    file.close();
-
-    if (error.error != QJsonParseError::NoError)
-    {
-        qWarning() << "Failed to parse profiles.json:" << error.errorString();
-        return;
-    }
-
-    QJsonObject root = doc.object();
-
-    // Load default profile ID
-    m_activeProfileId = root["defaultProfile"].toString();
-
-    // Load profiles array
-    QJsonArray profilesArray = root["profiles"].toArray();
-    for (const QJsonValue& val : profilesArray)
-    {
-        QJsonObject obj = val.toObject();
-        Profile p;
-        p.id = obj["id"].toString();
-        p.name = obj["name"].toString();
-        p.url = obj["url"].toString();
-        p.created = QDateTime::fromString(obj["created"].toString(), Qt::ISODate);
-
-        if (!p.id.isEmpty())
-        {
-            m_profiles[p.id] = p;
-        }
-    }
-
-    // Validate active profile exists
-    if (!m_activeProfileId.isEmpty() && !m_profiles.contains(m_activeProfileId))
-    {
-        qWarning() << "Active profile" << m_activeProfileId << "not found in profiles list";
-        m_activeProfileId.clear();
-    }
-
-    qInfo() << "Loaded" << m_profiles.size() << "profiles from profiles.json";
-}
-
-void ProfileManager::saveProfiles()
-{
-    QJsonObject root;
-    root["defaultProfile"] = m_activeProfileId;
-
-    QJsonDocument doc(root);
-    QByteArray data = doc.toJson(QJsonDocument::Indented);
-
-    QString filePath = Paths::globalDataDir(PROFILES_FILE);
-    if (!Utils::safelyWriteFile(filePath, data))
-    {
-        qCritical() << "Failed to save profiles.json";
-    }
-}
-
-QString ProfileManager::generateProfileId()
-{
-    return QUuid::createUuid().toString(QUuid::Id128);
-}
-
-void ProfileManager::ensureProfileDirectories(const QString& id)
-{
-    // Data directory (use global since profile may not be active yet)
-    QString dataPath = Paths::globalDataDir(PROFILES_DIR + "/" + id);
-    QDir dataDir(dataPath);
-    if (!dataDir.exists())
-    {
-        dataDir.mkpath(dataPath);
-    }
-
-    // Logs subdirectory
-    QString logsPath = dataPath + "/logs";
-    QDir logsDir(logsPath);
-    if (!logsDir.exists())
-    {
-        logsDir.mkpath(logsPath);
-    }
-
-    // Cache directory (use global since profile may not be active yet)
-    QString cachePath = Paths::globalCacheDir(PROFILES_DIR + "/" + id);
-    QDir cacheDir(cachePath);
-    if (!cacheDir.exists())
-    {
-        cacheDir.mkpath(cachePath);
-    }
-}
-
-QString ProfileManager::createProfile(const QString& name, const QString& url)
-{
-    QString id = generateProfileId();
-
-    Profile p;
-    p.id = id;
-    p.name = name;
-    p.url = url;
-    p.created = QDateTime::currentDateTime();
-
-    ensureProfileDirectories(id);
-
-    m_profiles[id] = p;
-    saveProfiles();
-
-    emit profilesChanged();
-
-    qInfo() << "Created profile" << id << ":" << name << "for" << url;
-    return id;
-}
-
-bool ProfileManager::deleteProfile(const QString& id)
-{
-    if (!m_profiles.contains(id))
-    {
-        qWarning() << "Cannot delete profile" << id << "- not found";
-        return false;
-    }
-
-    // Clear active if deleting current
-    if (m_activeProfileId == id)
-    {
-        m_activeProfileId.clear();
-        emit activeProfileChanged();
-    }
-
-    m_profiles.remove(id);
-    saveProfiles();
-
-    // Optionally delete profile directories (leave for now, user can clean manually)
-    // This avoids accidental data loss
-
-    emit profilesChanged();
-
-    qInfo() << "Deleted profile" << id;
-    return true;
-}
-
-bool ProfileManager::renameProfile(const QString& id, const QString& newName)
-{
-    if (!m_profiles.contains(id))
-    {
-        qWarning() << "Cannot rename profile" << id << "- not found";
-        return false;
-    }
-
-    m_profiles[id].name = newName;
-    saveProfiles();
-
-    emit profilesChanged();
-
-    qInfo() << "Renamed profile" << id << "to" << newName;
-    return true;
-}
-
-QVariantList ProfileManager::listProfiles()
-{
-    QVariantList list;
-    for (const Profile& p : m_profiles)
-    {
-        list.append(p.toVariantMap());
-    }
-    return list;
-}
-
-QVariantMap ProfileManager::getProfile(const QString& id)
-{
-    if (m_profiles.contains(id))
-    {
-        return m_profiles[id].toVariantMap();
-    }
-    return QVariantMap();
-}
-
-bool ProfileManager::setActiveProfile(const QString& id)
-{
-    if (id.isEmpty())
-    {
-        m_activeProfileId.clear();
-        Paths::setActiveProfileId(QString());
-        saveProfiles();
-        emit activeProfileChanged();
-        return true;
-    }
-
-    if (!m_profiles.contains(id))
-    {
-        qWarning() << "Cannot activate profile" << id << "- not found";
-        return false;
-    }
-
-    m_activeProfileId = id;
-    Paths::setActiveProfileId(id);
-    ensureProfileDirectories(id);
-    saveProfiles();
-
+    qInfo() << "Activated profile:" << profile.name();
     emit activeProfileChanged();
+}
 
-    qInfo() << "Activated profile" << id << ":" << m_profiles[id].name;
+Profile ProfileManager::profileById(const QString& id)
+{
+    Profile p;
+    p.id = id;
+    return p;
+}
+
+std::optional<Profile> ProfileManager::profileByName(const QString& name)
+{
+    QDir dir(profilesDir());
+    if (!dir.exists())
+        return std::nullopt;
+
+    for (const QString& id : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+    {
+        if (id.length() != 32 || !id.contains(QRegularExpression("^[0-9a-f]+$")))
+            continue;
+
+        Profile p = profileById(id);
+        if (p.name() == name)
+            return p;
+    }
+    return std::nullopt;
+}
+
+QList<Profile> ProfileManager::profiles()
+{
+    QList<Profile> result;
+    QDir dir(profilesDir());
+    if (!dir.exists())
+        return result;
+
+    for (const QString& id : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
+    {
+        if (id.length() != 32 || !id.contains(QRegularExpression("^[0-9a-f]+$")))
+            continue;
+
+        result.append(profileById(id));
+    }
+    return result;
+}
+
+Profile ProfileManager::createProfile(const QString& name)
+{
+    QString id = QUuid::createUuid().toString(QUuid::Id128);
+    Profile profile = profileById(id);
+    profile.ensureDirectories();
+
+    // Write profile.json with name
+    QFile meta(profile.dataDir("profile.json"));
+    if (meta.open(QIODevice::WriteOnly))
+    {
+        QJsonObject obj;
+        obj["name"] = name;
+        meta.write(QJsonDocument(obj).toJson());
+        meta.close();
+    }
+
+    return profile;
+}
+
+bool ProfileManager::deleteProfile(const Profile& profile)
+{
+    QDir dir(profile.dataDir());
+    if (!dir.removeRecursively())
+        return false;
+
+    // Update default if we deleted it
+    auto current = defaultProfile();
+    if (current && current->id == profile.id)
+    {
+        auto remaining = profiles();
+        if (!remaining.isEmpty())
+            setDefaultProfile(remaining.first());
+    }
+
     return true;
 }
 
-QString ProfileManager::profileDataDir() const
+std::optional<Profile> ProfileManager::defaultProfile()
 {
-    if (m_activeProfileId.isEmpty())
-        return QString();
-
-    return Paths::dataDir();
+    QString profilesFile = Paths::globalDataDir("profiles.json");
+    QFile file(profilesFile);
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        file.close();
+        QString id = doc.object()["defaultProfile"].toString();
+        if (!id.isEmpty())
+        {
+            Profile p = profileById(id);
+            if (QDir(p.dataDir()).exists())
+                return p;
+        }
+    }
+    return std::nullopt;
 }
 
-QString ProfileManager::profileCacheDir() const
+void ProfileManager::setDefaultProfile(const Profile& profile)
 {
-    if (m_activeProfileId.isEmpty())
-        return QString();
+    QString profilesFile = Paths::globalDataDir("profiles.json");
+    QJsonObject root;
+    root["defaultProfile"] = profile.id;
+    QFile out(profilesFile);
+    if (out.open(QIODevice::WriteOnly))
+    {
+        out.write(QJsonDocument(root).toJson());
+        out.close();
+    }
+}
 
-    return Paths::cacheDir();
+QString ProfileManager::profilesDir()
+{
+    return Paths::globalDataDir(PROFILES_DIR);
 }

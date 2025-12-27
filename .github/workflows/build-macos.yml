@@ -13,7 +13,7 @@ jobs:
           - runner: macos-15
             artifact: macos-arm64
           - runner: macos-15-intel
-            artifact: macos-intel
+            artifact: macos-x86_64
     runs-on: ${{ matrix.runner }}
     steps:
     - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           -DQTROOT=$QT_ROOT_DIR \
           -DCMAKE_PREFIX_PATH=$QT_ROOT_DIR \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=output \
+          -DCMAKE_INSTALL_PREFIX=build/output \
           -DCHECK_FOR_UPDATES=ON \
           -DUSE_STATIC_MPVQT=ON
         cmake --build build --target install

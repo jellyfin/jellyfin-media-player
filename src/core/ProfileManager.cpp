@@ -140,9 +140,10 @@ Profile ProfileManager::createProfile(const QString& name)
 
 bool ProfileManager::deleteProfile(const Profile& profile)
 {
-    QDir dir(profile.dataDir());
-    if (!dir.removeRecursively())
-        return false;
+    // Delete data, cache, and log directories
+    QDir(profile.dataDir()).removeRecursively();
+    QDir(profile.cacheDir()).removeRecursively();
+    QDir(profile.logDir()).removeRecursively();
 
     // Update default if we deleted it
     auto current = defaultProfile();

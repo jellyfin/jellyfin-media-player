@@ -11,9 +11,6 @@
 #include "ComponentManager.h"
 #include "player/PlayerComponent.h"
 
-class QNetworkAccessManager;
-class QNetworkReply;
-
 #include "MprisRootAdaptor.h"
 #include "MprisPlayerAdaptor.h"
 
@@ -105,7 +102,8 @@ private Q_SLOTS:
   void onShuffleModeChanged(bool shuffleEnabled);
   void onRepeatModeChanged(const QString& repeatMode);
 
-  void onAlbumArtDownloaded();
+  void onAlbumArtReady(const QByteArray& imageData, const QString& mimeType);
+  void onAlbumArtUnavailable();
 
 Q_SIGNALS:
   void propertiesChanged(const QString& interface,
@@ -120,9 +118,6 @@ private:
   void connectPlayerSignals();
   void disconnectPlayerSignals();
   QString generateTrackId() const;
-  QString handleAlbumArt(const QString& artUrl);
-  void cleanupAlbumArt();
-  QString extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl);
   void updateNavigationCapabilities();
 
   bool m_enabled;
@@ -153,11 +148,7 @@ private:
   bool m_isNavigating;
 
   QString m_currentArtDataUri;
-  QString m_pendingArtUrl;
   PlayerComponent::State m_playerState;
-
-  QNetworkAccessManager* m_albumArtManager;
-  QNetworkReply* m_pendingArtReply;
 };
 
 #endif // MPRISCOMPONENT_H

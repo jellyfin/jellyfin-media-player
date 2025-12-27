@@ -20,7 +20,6 @@
 #include <QDebug>
 #include "Paths.h"
 #include "core/ProfileManager.h"
-#include "player/CodecsComponent.h"
 #include "player/PlayerComponent.h"
 #include "player/OpenGLDetect.h"
 #include "display/DisplayComponent.h"
@@ -493,8 +492,6 @@ int main(int argc, char *argv[])
 
     qInfo() << "Config directory:" << qPrintable(ProfileManager::activeProfile().dataDir());
 
-    Codecs::preinitCodecs();
-
     Log::ApplyConfigLogLevel();
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
@@ -592,7 +589,6 @@ int main(int argc, char *argv[])
     delete uniqueApp;
     Globals::EngineDestroy();
 
-    Codecs::Uninit();
     return ret;
   }
   catch (FatalException& e)
@@ -605,7 +601,6 @@ int main(int argc, char *argv[])
 
     errApp.exec();
 
-    Codecs::Uninit();
     return 1;
   }
 }

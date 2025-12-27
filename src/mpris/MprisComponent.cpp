@@ -2,6 +2,7 @@
 #include "MprisRootAdaptor.h"
 #include "MprisPlayerAdaptor.h"
 #include "player/PlayerComponent.h"
+#include "player/AlbumArtProvider.h"
 #include "input/InputComponent.h"
 #include "system/SystemComponent.h"
 #include "settings/SettingsComponent.h"
@@ -15,17 +16,6 @@
 #include <QApplication>
 #include <QDebug>
 #include <QFileInfo>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QNetworkAccessManager>
-#include <QNetworkDiskCache>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QEventLoop>
-#include <QTimer>
-#include <QUrlQuery>
-#include <QMimeDatabase>
 
 #define MPRIS_OBJECT_PATH "/org/mpris/MediaPlayer2"
 
@@ -47,8 +37,6 @@ MprisComponent::MprisComponent(QObject* parent)
   , m_expectedPosition(0)
   , m_isNavigating(false)
   , m_playerState(PlayerComponent::State::finished)
-  , m_albumArtManager(new QNetworkAccessManager(this))
-  , m_pendingArtReply(nullptr)
 {
 }
 
@@ -57,7 +45,6 @@ MprisComponent::~MprisComponent()
   if (m_enabled)
   {
     disconnectPlayerSignals();
-    cleanupAlbumArt();
     QDBusConnection::sessionBus().unregisterService(m_serviceName);
     QDBusConnection::sessionBus().unregisterObject(MPRIS_OBJECT_PATH);
   }
@@ -98,18 +85,6 @@ bool MprisComponent::componentInitialize()
   m_enabled = true;
   qDebug() << "MPRIS interface registered successfully";
 
-  // Set up disk cache for album art
-  qint64 cacheSize = SettingsComponent::Get().value(SETTINGS_SECTION_MPRIS, "albumArtCacheSize").toLongLong();
-  if (cacheSize > 0)
-  {
-    auto* cache = new QNetworkDiskCache(this);
-    QString cacheDir = ProfileManager::activeProfile().cacheDir("mpris-albumart");
-    cache->setCacheDirectory(cacheDir);
-    cache->setMaximumCacheSize(cacheSize);
-    m_albumArtManager->setCache(cache);
-    qDebug() << "MPRIS: Album art cache enabled, max size:" << cacheSize << "bytes, dir:" << cacheDir;
-  }
-
   return true;
 }
 
@@ -134,6 +109,15 @@ void MprisComponent::componentPostInitialize()
   connect(m_player, &PlayerComponent::seekPerformed, this, &MprisComponent::notifySeek);
   connect(m_player, &PlayerComponent::metadataChanged, this, &MprisComponent::notifyMetadata);
   connect(m_player, &PlayerComponent::volumeChanged, this, &MprisComponent::notifyVolumeChange);
+
+  // Connect to AlbumArtProvider signals
+  if (m_player->albumArtProvider())
+  {
+    connect(m_player->albumArtProvider(), &AlbumArtProvider::artworkReady,
+            this, &MprisComponent::onAlbumArtReady);
+    connect(m_player->albumArtProvider(), &AlbumArtProvider::artworkUnavailable,
+            this, &MprisComponent::onAlbumArtUnavailable);
+  }
 
   m_positionTimer = new QTimer(this);
   m_positionTimer->setInterval(500);
@@ -487,7 +471,7 @@ void MprisComponent::notifyQueueChange(bool canNext, bool canPrevious)
       qDebug() << "MPRIS: Queue empty and stopped, clearing metadata";
       m_metadata.clear();
       m_currentTrackId.clear();
-      cleanupAlbumArt();
+      m_currentArtDataUri.clear();
       properties["Metadata"] = m_metadata;
       properties["Position"] = static_cast<qint64>(0);
     }
@@ -552,7 +536,7 @@ void MprisComponent::notifyPlaybackState(const QString& state)
       qDebug() << "MPRIS: Stopped without navigation, clearing metadata";
       m_metadata.clear();
       m_currentTrackId.clear();
-      cleanupAlbumArt();
+      m_currentArtDataUri.clear();
     }
     else
     {
@@ -681,8 +665,7 @@ void MprisComponent::onPlayerFinished()
   m_currentTrackId.clear();
   m_canGoNext = false;
   m_canGoPrevious = false;
-
-  cleanupAlbumArt();
+  m_currentArtDataUri.clear();
 
   QVariantMap properties;
   properties["Metadata"] = m_metadata;
@@ -705,7 +688,7 @@ void MprisComponent::onPlayerStateChanged(PlayerComponent::State newState, Playe
       qDebug() << "MPRIS: Finished with no next item, clearing metadata";
       m_metadata.clear();
       m_currentTrackId.clear();
-      cleanupAlbumArt();
+      m_currentArtDataUri.clear();
 
       QVariantMap properties;
       properties["Metadata"] = m_metadata;
@@ -725,7 +708,7 @@ void MprisComponent::onPlayerStateChanged(PlayerComponent::State newState, Playe
       m_currentTrackId.clear();
       m_canGoNext = false;
       m_canGoPrevious = false;
-      cleanupAlbumArt();
+      m_currentArtDataUri.clear();
 
       QVariantMap properties;
       properties["Metadata"] = m_metadata;
@@ -745,7 +728,7 @@ void MprisComponent::onPlayerStateChanged(PlayerComponent::State newState, Playe
     qDebug() << "MPRIS: Clearing metadata due to error state";
     m_metadata.clear();
     m_currentTrackId.clear();
-    cleanupAlbumArt();
+    m_currentArtDataUri.clear();
 
     QVariantMap properties;
     properties["Metadata"] = m_metadata;
@@ -921,15 +904,10 @@ void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl&
       mprisMeta["xesam:contentCreated"] = jellyfinMeta["ProductionYear"].toString();
   }
 
-  QString artUrl = extractArtworkUrl(jellyfinMeta, baseUrl);
-  if (!artUrl.isEmpty())
-  {
-    QString localArtUrl = handleAlbumArt(artUrl);
-    if (!localArtUrl.isEmpty())
-    {
-      mprisMeta["mpris:artUrl"] = localArtUrl;
-    }
-  }
+  // Album art will be set asynchronously via onAlbumArtReady signal
+  // Keep existing data URI if available
+  if (!m_currentArtDataUri.isEmpty())
+    mprisMeta["mpris:artUrl"] = m_currentArtDataUri;
 
   mprisMeta["mpris:length"] = QVariant::fromValue(m_duration);
 
@@ -1009,260 +987,25 @@ QString MprisComponent::generateTrackId() const
   return QString("/org/mpris/MediaPlayer2/Track/%1").arg(++trackCounter);
 }
 
-QString MprisComponent::handleAlbumArt(const QString& artUrl)
+void MprisComponent::onAlbumArtReady(const QByteArray& imageData, const QString& mimeType)
 {
-  if (artUrl.isEmpty())
-    return QString();
+  // Create data URI from the downloaded image
+  QString dataUri = QString("data:%1;base64,%2")
+                      .arg(mimeType)
+                      .arg(QString::fromLatin1(imageData.toBase64()));
 
-  // For file:// URLs, return as-is
-  if (artUrl.startsWith("file://"))
+  m_currentArtDataUri = dataUri;
+
+  if (!m_metadata.isEmpty())
   {
-    cleanupAlbumArt();
-    return artUrl;
-  }
-
-  // For http/https URLs, download and convert to data URI
-  if (artUrl.startsWith("http://") || artUrl.startsWith("https://"))
-  {
-    // If already downloading this URL, wait for it
-    if (m_pendingArtReply && m_pendingArtUrl == artUrl)
-      return m_currentArtDataUri;
-
-    // If URL hasn't changed and we have a cached data URI, return it
-    if (m_pendingArtUrl == artUrl && !m_currentArtDataUri.isEmpty())
-      return m_currentArtDataUri;
-
-    cleanupAlbumArt();
-    m_pendingArtUrl = artUrl;
-
-    QNetworkRequest request;
-    request.setUrl(QUrl(artUrl));
-    request.setRawHeader("User-Agent", SystemComponent::Get().getUserAgent().toUtf8());
-    request.setSslConfiguration(SystemComponent::Get().getSSLConfiguration());
-
-    m_pendingArtReply = m_albumArtManager->get(request);
-    if (SettingsComponent::Get().ignoreSSLErrors()) {
-      connect(m_pendingArtReply, QOverload<const QList<QSslError>&>::of(&QNetworkReply::sslErrors),
-              m_pendingArtReply, QOverload<>::of(&QNetworkReply::ignoreSslErrors));
-    }
-    connect(m_pendingArtReply, &QNetworkReply::finished, this, &MprisComponent::onAlbumArtDownloaded);
-
-    return QString();
-  }
-
-  return QString();
-}
-
-void MprisComponent::cleanupAlbumArt()
-{
-  if (m_pendingArtReply)
-  {
-    m_pendingArtReply->abort();
-    m_pendingArtReply->deleteLater();
-    m_pendingArtReply = nullptr;
-    m_pendingArtUrl.clear();
-  }
-
-  m_currentArtDataUri.clear();
-}
-
-void MprisComponent::onAlbumArtDownloaded()
-{
-  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-  if (!reply)
-    return;
-
-  if (reply == m_pendingArtReply)
-    m_pendingArtReply = nullptr;
-
-  reply->deleteLater();
-
-  bool fromCache = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
-
-  if (reply->error() != QNetworkReply::NoError)
-  {
-    if (reply->error() != QNetworkReply::OperationCanceledError)
-      qDebug() << "MPRIS: Album art download failed:" << reply->errorString();
-    return;
-  }
-
-  QByteArray imageData = reply->readAll();
-  if (imageData.isEmpty())
-  {
-    qDebug() << "MPRIS: Album art download returned empty data";
-    return;
-  }
-
-  static QMimeDatabase mimeDb;
-  QString mimeType = mimeDb.mimeTypeForData(imageData).name();
-  qDebug() << "MPRIS: Album art" << (fromCache ? "cache hit" : "cache miss")
-           << "-" << reply->url().toString() << "-" << imageData.size() << "bytes";
-  if (mimeType.startsWith("image/"))
-  {
-    // Create data URI
-    QString dataUri = QString("data:%1;base64,%2")
-                        .arg(mimeType)
-                        .arg(QString::fromLatin1(imageData.toBase64()));
-
-    m_currentArtDataUri = dataUri;
-
-    if (!m_metadata.isEmpty())
-    {
-      m_metadata["mpris:artUrl"] = dataUri;
-      emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
-    }
-  }
-  else
-  {
-    qDebug() << "MPRIS: Album art not an image type:" << mimeType;
+    m_metadata["mpris:artUrl"] = dataUri;
+    emitPropertyChange("org.mpris.MediaPlayer2.Player", "Metadata", m_metadata);
   }
 }
 
-QString MprisComponent::extractArtworkUrl(const QVariantMap& metadata, const QUrl& baseUrl)
+void MprisComponent::onAlbumArtUnavailable()
 {
-  if (baseUrl.isEmpty())
-    return QString();
-
-  QString mediaType = metadata.value("MediaType").toString();
-  QString itemType = metadata.value("Type").toString();
-
-  QUrl artUrl = baseUrl;
-  QUrlQuery query;
-
-  if (mediaType == "Audio" || itemType == "Audio")
-  {
-    if (metadata.contains("AlbumId") && metadata.contains("AlbumPrimaryImageTag"))
-    {
-      QString albumId = metadata["AlbumId"].toString();
-      QString imageTag = metadata["AlbumPrimaryImageTag"].toString();
-
-      if (!albumId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(albumId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-
-    auto imageTags = metadata["ImageTags"].toMap();
-    if (imageTags.contains("Primary") && metadata.contains("Id"))
-    {
-      QString itemId = metadata["Id"].toString();
-      QString imageTag = imageTags["Primary"].toString();
-
-      if (!itemId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-  }
-  else if (itemType == "Episode")
-  {
-    if (metadata.contains("SeriesId") && metadata.contains("SeriesPrimaryImageTag"))
-    {
-      QString seriesId = metadata["SeriesId"].toString();
-      QString imageTag = metadata["SeriesPrimaryImageTag"].toString();
-
-      if (!seriesId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(seriesId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-
-    if (metadata.contains("SeasonId") && metadata.contains("SeasonPrimaryImageTag"))
-    {
-      QString seasonId = metadata["SeasonId"].toString();
-      QString imageTag = metadata["SeasonPrimaryImageTag"].toString();
-
-      if (!seasonId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(seasonId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-
-    auto imageTags = metadata["ImageTags"].toMap();
-    if (imageTags.contains("Primary") && metadata.contains("Id"))
-    {
-      QString itemId = metadata["Id"].toString();
-      QString imageTag = imageTags["Primary"].toString();
-
-      if (!itemId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-  }
-  else if (itemType == "Movie")
-  {
-    auto imageTags = metadata["ImageTags"].toMap();
-    if (imageTags.contains("Primary") && metadata.contains("Id"))
-    {
-      QString itemId = metadata["Id"].toString();
-      QString imageTag = imageTags["Primary"].toString();
-
-      if (!itemId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-
-    if (imageTags.contains("Backdrop") && metadata.contains("Id"))
-    {
-      QString itemId = metadata["Id"].toString();
-      QString imageTag = imageTags["Backdrop"].toString();
-
-      if (!itemId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Backdrop/0").arg(itemId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-  }
-  else
-  {
-    auto imageTags = metadata["ImageTags"].toMap();
-    if (imageTags.contains("Primary") && metadata.contains("Id"))
-    {
-      QString itemId = metadata["Id"].toString();
-      QString imageTag = imageTags["Primary"].toString();
-
-      if (!itemId.isEmpty() && !imageTag.isEmpty())
-      {
-        artUrl.setPath(QString("/Items/%1/Images/Primary").arg(itemId));
-        query.addQueryItem("tag", imageTag);
-        query.addQueryItem("maxWidth", "512");
-        artUrl.setQuery(query);
-        return artUrl.toString();
-      }
-    }
-  }
-
-  return QString();
+  // No action needed - metadata remains without artwork
 }
 
 void MprisComponent::updateNavigationCapabilities()

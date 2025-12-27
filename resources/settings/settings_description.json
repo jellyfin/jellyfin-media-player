@@ -656,13 +656,12 @@
     ]
   },
   {
-    "section": "mpris",
+    "section": "albumart",
     "hidden": true,
-    "platforms": [ "linux" ],
     "values": [
       {
-        "value": "albumArtCacheSize",
-        "default": 52428800
+        "value": "cacheSize",
+        "default": 10485760
       }
     ]
   },

@@ -3,10 +3,12 @@
 //
 
 #include "InputAppleMediaKeys.h"
+#include "player/AlbumArtProvider.h"
 #include <QDebug>
 
 #import <dlfcn.h>
 
+#import <AppKit/AppKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
 @interface MediaKeysDelegate : NSObject
@@ -97,6 +99,15 @@ bool InputAppleMediaKeys::initInput()
           &InputAppleMediaKeys::handleUpdateDuration);
   connect(&PlayerComponent::Get(), &PlayerComponent::onMetaData, this,
           &InputAppleMediaKeys::handleUpdateMetaData);
+
+  // Connect to AlbumArtProvider signals
+  if (PlayerComponent::Get().albumArtProvider())
+  {
+    connect(PlayerComponent::Get().albumArtProvider(), &AlbumArtProvider::artworkReady,
+            this, &InputAppleMediaKeys::handleAlbumArtReady);
+    connect(PlayerComponent::Get().albumArtProvider(), &AlbumArtProvider::artworkUnavailable,
+            this, &InputAppleMediaKeys::handleAlbumArtUnavailable);
+  }
 
   if (auto lib =
       dlopen("/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote", RTLD_NOW))
@@ -206,4 +217,37 @@ void InputAppleMediaKeys::handleUpdateMetaData(const QVariantMap& meta)
   }
 
   MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo = info;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void InputAppleMediaKeys::handleAlbumArtReady(const QByteArray& imageData, const QString& mimeType)
+{
+  // Convert QByteArray to NSData
+  NSData *nsImageData = [NSData dataWithBytes:imageData.constData() length:imageData.size()];
+
+  // Create NSImage from the data
+  NSImage *nsImage = [[NSImage alloc] initWithData:nsImageData];
+  if (!nsImage)
+  {
+    qDebug() << "AppleMediaKeys: Failed to create NSImage from album art data";
+    return;
+  }
+
+  // Create MPMediaItemArtwork from NSImage
+  MPMediaItemArtwork *artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:nsImage.size
+                                                                 requestHandler:^NSImage * _Nonnull(CGSize size) {
+    return nsImage;
+  }];
+
+  // Update now playing info with artwork
+  auto info = [NSMutableDictionary
+  dictionaryWithDictionary:MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo];
+  info[MPMediaItemPropertyArtwork] = artwork;
+  MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo = info;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void InputAppleMediaKeys::handleAlbumArtUnavailable()
+{
+  // No action needed - metadata remains without artwork
 }

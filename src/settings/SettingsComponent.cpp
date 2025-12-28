@@ -682,8 +682,6 @@ Platform SettingsComponent::platformFromString(const QString& platformString)
     return PLATFORM_FREEBSD;
   else if (platformString == "oe")
     return PLATFORM_OE;
-  else if (platformString == "oe_rpi")
-    return PLATFORM_OE_RPI;
   else if (platformString == "oe_x86")
     return PLATFORM_OE_X86;
   else if (platformString == "any")

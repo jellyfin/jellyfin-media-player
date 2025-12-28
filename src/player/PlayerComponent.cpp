@@ -27,11 +27,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef TARGET_RPI
-#include <bcm_host.h>
-#include <interface/vmcs_host/vcgencmd.h>
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void wakeup_cb(void *context)
 {
@@ -157,23 +152,6 @@ void PlayerComponent::initializeMpv()
 #endif
   }
 
-  // Apply some low-memory settings on RPI, which is relatively memory-constrained.
-#ifdef TARGET_RPI
-  // The backbuffer makes seeking back faster (without having to do a HTTP-level seek)
-  m_mpv->setProperty( "cache-backbuffer", 10 * 1024); // KB
-  // The demuxer queue is used for the readahead, and also for dealing with badly
-  // interlaved audio/video. Setting it too low increases sensitivity to network
-  // issues, and could cause playback failure with "bad" files.
-  m_mpv->setProperty( "demuxer-max-bytes", 50 * 1024 * 1024); // bytes
-  // Specifically for enabling mpeg4.
-  m_mpv->setProperty( "hwdec-codecs", "all");
-  // Do not use exact seeks by default. (This affects the start position in the "loadfile"
-  // command in particular. We override the seek mode for normal "seek" commands.)
-  m_mpv->setProperty( "hr-seek", "no");
-  // Force vo_rpi to fullscreen.
-  m_mpv->setProperty( "fullscreen", true);
-#endif
-
   // MpvQt already called mpv_initialize() - don't call it again
   // if (mpv_initialize(m_mpv) < 0)
   //   throw FatalException(tr("Failed to initialize mpv."));
@@ -251,11 +229,6 @@ void PlayerComponent::setQtQuickWindow(QQuickWindow* window)
 void PlayerComponent::setWindow(QQuickWindow* window)
 {
   QString vo = "libmpv";
-
-#ifdef TARGET_RPI
-  window->setFlags(Qt::FramelessWindowHint);
-  vo = "rpi";
-#endif
 
   m_window = window;
   if (!window)
@@ -1441,10 +1414,8 @@ void PlayerComponent::setVideoConfiguration()
   QVariant deinterlace = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "deinterlace");
   m_mpv->setProperty( "deinterlace", deinterlace.toBool() ? "yes" : "no");
 
-#ifndef TARGET_RPI
   double displayFps = DisplayComponent::Get().currentRefreshRate();
   m_mpv->setProperty( "display-fps-override", displayFps);
-#endif
 
   setAudioDelay(m_playbackAudioDelay);
 

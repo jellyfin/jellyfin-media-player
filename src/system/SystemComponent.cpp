@@ -52,7 +52,6 @@ QMap<SystemComponent::PlatformType, QString> g_platformTypeNames = { \
 QMap<SystemComponent::PlatformArch, QString> g_platformArchNames = {
   { SystemComponent::platformArchX86_32, "i386" },
   { SystemComponent::platformArchX86_64, "x86_64" },
-  { SystemComponent::platformArchRpi2, "rpi2" },
   { SystemComponent::platformArchUnknown, "unknown" }
 };
 
@@ -83,9 +82,7 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 #endif
 
 // define target type
-#ifdef TARGET_RPI
-  m_platformArch = platformArchRpi2;
-#elif defined(Q_PROCESSOR_X86_32)
+#if defined(Q_PROCESSOR_X86_32)
   m_platformArch = platformArchX86_32;
 #elif defined(Q_PROCESSOR_X86_64)
   m_platformArch = platformArchX86_64;
@@ -155,15 +152,7 @@ QVariantMap SystemComponent::systemInformation() const
 #if defined(KONVERGO_OPENELEC)
   productid = KONVERGO_PRODUCTID_OPENELEC;
   dist = "openelec";
-
-  if (m_platformArch == platformArchRpi2)
-  {
-    build = "rpi2";
-  }
-  else
-  {
-    build = "generic";
-  }
+  build = "generic";
 #endif
 
   

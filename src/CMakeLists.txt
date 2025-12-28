@@ -195,7 +195,6 @@ target_link_libraries(jmp_core
   ${X11_LIBRARIES}
   ${X11_Xrandr_LIB}
   ${CMAKE_THREAD_LIBS_INIT}
-  ${RPI_LIBS}
   ${MINIZIP_LIBS}
   Qt6::Core
   Qt6::Quick

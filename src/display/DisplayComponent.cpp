@@ -9,8 +9,6 @@
 
 #ifdef Q_OS_MAC
 #include "osx/DisplayManagerOSX.h"
-#elif defined(TARGET_RPI)
-#include "rpi/DisplayManagerRPI.h"
 #elif defined(USE_X11XRANDR)
 #include "x11/DisplayManagerX11.h"
 #elif defined(Q_OS_WIN)
@@ -55,8 +53,6 @@ bool DisplayComponent::componentInitialize()
   m_displayManager = new DisplayManagerDummy(this);
 #elif defined(Q_OS_MAC)
   m_displayManager = new DisplayManagerOSX(this);
-#elif defined(TARGET_RPI)
-  m_displayManager = new DisplayManagerRPI(this);
 #elif defined(USE_X11XRANDR)
   m_displayManager = new DisplayManagerX11(this);
 #elif defined(Q_OS_WIN)
@@ -75,12 +71,6 @@ bool DisplayComponent::componentInitialize()
       connect(screen, SIGNAL(refreshRateChanged(qreal)), this, SLOT(monitorChange()));
       connect(screen, SIGNAL(geometryChanged(QRect)), this, SLOT(monitorChange()));
     }
-
-#ifdef TARGET_RPI
-    // The firmware doesn't always make the best decision. Hope we do better.
-    qInfo() << "Trying to switch to best display mode.";
-    switchToBestOverallVideoMode(0);
-#endif
 
     return true;
   }
@@ -445,9 +435,4 @@ void DisplayComponent::switchCommand(QString command)
 void DisplayComponent::componentPostInitialize()
 {
   InputComponent::Get().registerHostCommand("switch", this, "switchCommand");
-
-#ifdef TARGET_RPI
-  if (m_displayManager)
-    InputComponent::Get().registerHostCommand("recreateRpiUI", m_displayManager, "resetRendering");
-#endif
 }

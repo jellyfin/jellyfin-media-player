@@ -57,12 +57,6 @@
         "default": false
       },
       {
-        "value": "hdmi_poweron",
-        "default": false,
-        "hidden": true,
-        "platforms": [ "oe_rpi" ]
-      },
-      {
         "value": "disablemouse",
         "default": false,
         "hidden": true
@@ -248,21 +242,21 @@
         "display_name": "E-AC3 Passthrough",
         "help": "Enables E-AC3 passthrough. Requires \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false,
-        "platforms_excluded": [ "osx", "oe_rpi" ]
+        "platforms_excluded": [ "osx" ]
       },
       {
         "value": "passthrough.dts-hd",
         "display_name": "DTS-HD Passthrough",
         "help": "Enables DTS-HD passthrough. Requires \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false,
-        "platforms_excluded": [ "osx", "oe_rpi" ]
+        "platforms_excluded": [ "osx" ]
       },
       {
         "value": "passthrough.truehd",
         "display_name": "TrueHD Passthrough",
         "help": "Enables TrueHD passthrough. Requires \"HDMI\" device type and all video transcoding to be off. The default is disabled.",
         "default": false,
-        "platforms_excluded": [ "osx", "oe_rpi" ]
+        "platforms_excluded": [ "osx" ]
       }
     ]
   },
@@ -302,15 +296,13 @@
           [ "osx_compat", "Enabled (Old)", { "platforms": "osx" } ],
           [ "copy", "Copy" ],
           [ "disabled", "Disabled" ]
-        ],
-        "platforms_excluded": "oe_rpi"
+        ]
       },
       {
         "value": "deinterlace",
         "display_name": "Deinterlace",
         "help": "Enables deinterlacing. The default is disabled.",
-        "default": false,
-        "platforms_excluded": "oe_rpi"
+        "default": false
       },
       {
         "value": "prefer_transcode_to_h265",
@@ -418,8 +410,8 @@
         "possible_values": [
           [ 10, "Tiny (10 MB)" ],
           [ 75, "Default (75 MB)" ],
-          [ 150, "Large (150 MB)", { "platforms_excluded": "oe_rpi" } ],
-          [ 500, "Very Large (500 MB)", { "platforms_excluded": "oe_rpi" } ]
+          [ 150, "Large (150 MB)" ],
+          [ 500, "Very Large (500 MB)" ]
         ]
       },
       {

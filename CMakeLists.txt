@@ -28,12 +28,6 @@ if(OPENELEC)
   Message(STATUS "Making an OpenELEC build")
 endif(OPENELEC)
 
-if(BUILD_TARGET STREQUAL "RPI")
-  add_definitions(-DTARGET_RPI=1)
-  set(RPI_LIBS bcm_host)
-  Message(STATUS "Build for Raspberry PI target")
-endif(BUILD_TARGET STREQUAL "RPI")
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME Core)

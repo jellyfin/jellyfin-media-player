@@ -92,12 +92,6 @@ static void preinitQt()
   QCoreApplication::setApplicationName(Names::DataName());
   QCoreApplication::setApplicationVersion(Version::GetVersionString());
   QCoreApplication::setOrganizationDomain("jellyfin.org");
-
-#ifdef Q_OS_WIN32
-  // Qt 6 uses desktop OpenGL by default on Windows
-  // AA_UseOpenGLES and AA_UseDesktopOpenGL are deprecated and ignored
-  // No need to set any attributes
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

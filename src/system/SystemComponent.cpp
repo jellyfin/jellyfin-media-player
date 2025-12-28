@@ -36,14 +36,12 @@
 
 
 #define KONVERGO_PRODUCTID_DEFAULT  3
-#define KONVERGO_PRODUCTID_OPENELEC 4
 
 // Platform types map
 QMap<SystemComponent::PlatformType, QString> g_platformTypeNames = { \
   { SystemComponent::platformTypeOsx, "macosx" }, \
   { SystemComponent::platformTypeWindows, "windows" },
   { SystemComponent::platformTypeLinux, "linux" },
-  { SystemComponent::platformTypeOpenELEC, "openelec" },
   { SystemComponent::platformTypeFreeBSD, "freebsd" },
   { SystemComponent::platformTypeUnknown, "unknown" },
 };
@@ -73,8 +71,6 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
   m_platformType = platformTypeOsx;
 #elif defined(Q_OS_WIN)
   m_platformType = platformTypeWindows;
-#elif defined(KONVERGO_OPENELEC)
-  m_platformType = platformTypeOpenELEC;
 #elif defined(Q_OS_LINUX)
   m_platformType = platformTypeLinux;
 #elif defined(Q_OS_FREEBSD)
@@ -149,13 +145,6 @@ QVariantMap SystemComponent::systemInformation() const
   build = getPlatformTypeString();
   dist = getPlatformTypeString();
 
-#if defined(KONVERGO_OPENELEC)
-  productid = KONVERGO_PRODUCTID_OPENELEC;
-  dist = "openelec";
-  build = "generic";
-#endif
-
-  
   info["build"] = build + "-" + arch;
   info["dist"] = dist;
   info["version"] = Version::GetVersionString();

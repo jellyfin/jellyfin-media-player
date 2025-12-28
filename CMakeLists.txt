@@ -11,7 +11,6 @@ project(JellyfinDesktop CXX C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 
 option(CHECK_FOR_UPDATES "Enable checking for new versions of Jellyfin" OFF)
-option(OPENELEC "Make an OpenELEC build" OFF)
 option(LINUX_X11POWER "Enable non D-Bus screensaver management" OFF)
 option(USE_STATIC_MPVQT "Build MpvQt from bundled submodule instead of using system library" OFF)
 
@@ -22,11 +21,6 @@ endif()
 if((NOT LINUX_X11POWER) AND (UNIX AND (NOT APPLE)))
   set(LINUX_DBUS ON)
 endif()
-
-if(OPENELEC)
-  add_definitions(-DKONVERGO_OPENELEC=1)
-  Message(STATUS "Making an OpenELEC build")
-endif(OPENELEC)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")

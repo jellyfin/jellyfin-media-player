@@ -10,9 +10,6 @@
 #include "Paths.h"
 #include "Names.h"
 
-// System modifiers
-#define SYSTEM_MODIFIER_OPENELEC "OpenELEC"
-
 // Network timeouts (milliseconds)
 constexpr int NETWORK_REQUEST_TIMEOUT_MS = 30000;
 constexpr int CONNECTIVITY_RETRY_INTERVAL_MS = 5000;
@@ -80,7 +77,6 @@ public:
     platformTypeOsx,
     platformTypeWindows,
     platformTypeLinux,
-    platformTypeOpenELEC,
     platformTypeFreeBSD
   };
 
@@ -98,7 +94,6 @@ public:
   QString getPlatformTypeString() const;
   QString getPlatformArchString() const;
 
-  inline bool isOpenELEC() const { return m_platformType == platformTypeOpenELEC; }
   bool isWebClientConnected() const { return !m_webClientVersion.isEmpty(); }
 
   inline QString authenticationToken() { return m_authenticationToken; }

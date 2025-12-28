@@ -17,10 +17,6 @@
 #include "mpris/MprisComponent.h"
 #endif
 
-#ifdef KONVERGO_OPENELEC
-#include "system/openelec/OESystemComponent.h"
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ComponentManager::ComponentManager() : QObject(nullptr)
 {
@@ -65,10 +61,6 @@ void ComponentManager::initialize()
   registerComponent(&WindowManager::Get());
 #ifdef LINUX_DBUS
   registerComponent(&MprisComponent::Get());
-#endif
-
-#ifdef KONVERGO_OPENELEC
-  registerComponent(&OESystemComponent::Get());
 #endif
 
   for(ComponentBase* component : m_components.values())

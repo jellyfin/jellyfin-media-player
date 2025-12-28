@@ -36,11 +36,7 @@ public Q_SLOTS:
   bool canSuspend() { return checkCap(CAP_SUSPEND); }
   bool canRelaunch()
   {
-#ifdef OPENELEC
-      return true;
-#else
       return false;
-#endif
   }
 
   virtual int getPowerCapabilities() { return 0; }

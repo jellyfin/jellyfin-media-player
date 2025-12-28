@@ -680,10 +680,6 @@ Platform SettingsComponent::platformFromString(const QString& platformString)
     return PLATFORM_LINUX;
   else if (platformString == "freebsd")
     return PLATFORM_FREEBSD;
-  else if (platformString == "oe")
-    return PLATFORM_OE;
-  else if (platformString == "oe_x86")
-    return PLATFORM_OE_X86;
   else if (platformString == "any")
     return PLATFORM_ANY;
 

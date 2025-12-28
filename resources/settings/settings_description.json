@@ -41,8 +41,7 @@
         "value": "fullscreen",
         "display_name": "Full Screen",
         "help": "Forces the application into fullscreen mode.\nNote: Regular HTML5 fullscreen does still work.",
-        "default": false,
-        "platforms_excluded": "oe"
+        "default": false
       },
       {
         "value": "minimizeOnDefocus",
@@ -88,22 +87,13 @@
       },
       {
         "value": "useSystemVideoCodecs",
-        "default": [
-          {
-            "value": true,
-            "platforms": [ "oe" ]
-          },
-          {
-            "value": false
-          }
-        ],
+        "default": false,
         "hidden": true
       },
       {
         "value": "forceFSScreen",
         "display_name": "Force Full Screen Display",
         "help": "Forces fullscreen to use a specific display.",
-        "platforms_excluded": [ "oe" ],
         "default": ""
       },
       {
@@ -655,33 +645,6 @@
         "value": "cacheSize",
         "default": 10485760
       }
-    ]
-  },
-  {
-    "section": "system",
-    "hidden": true,
-    "values": [
-        {
-          "value": "systemname",
-          "default": "JellyfinDesktop",
-          "hidden": true,
-          "platforms": [ "oe" ]
-        },
-        {
-          "value": "lircd_enabled",
-          "default": false,
-          "platforms": [ "oe" ]
-        },
-        {
-          "value": "smbd_enabled",
-          "default": false,
-          "platforms": [ "oe" ]
-        },
-        {
-          "value": "sshd_enabled",
-          "default": false,
-          "platforms": [ "oe" ]
-        }
     ]
   },
   {

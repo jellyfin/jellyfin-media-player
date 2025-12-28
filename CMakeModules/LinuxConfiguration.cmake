@@ -21,6 +21,4 @@ endif()
 set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR})
 set(INSTALL_RESOURCE_DIR ${CMAKE_INSTALL_DATADIR}/jellyfin-desktop)
 
-if(NOT OPENELEC)
-  include(InstallLinuxDesktopFile)
-endif()
+include(InstallLinuxDesktopFile)

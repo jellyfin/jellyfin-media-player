@@ -336,9 +336,6 @@ bool PlayerComponent::switchDisplayFrameRate()
   }
 
   bool fs = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
-#ifdef KONVERGO_OPENELEC
-  fs = true;
-#endif
   if (!fs)
   {
     qDebug() << "Not switching refresh-rate (not in fullscreen mode).";

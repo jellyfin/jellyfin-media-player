@@ -44,9 +44,6 @@ foreach(COMP ${components})
   find_package(Qt6 REQUIRED COMPONENTS ${COMP})
 
 	include_directories(${${mod}_INCLUDE_DIRS})
-	if(OPENELEC)
-		include_directories(${${mod}_PRIVATE_INCLUDE_DIRS})
-	endif(OPENELEC)
 
 	# Need private interfaces for qpa/qplatformnativeinterface.h:
 	if(${mod} STREQUAL Qt6Gui)

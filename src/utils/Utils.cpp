@@ -87,8 +87,6 @@ Platform Utils::CurrentPlatform()
 {
 #if defined(Q_OS_MAC)
   return PLATFORM_OSX;
-#elif defined(KONVERGO_OPENELEC)
-  return PLATFORM_OE_X86;
 #elif defined(Q_OS_LINUX)
   return PLATFORM_LINUX;
 #elif defined(Q_OS_WIN32)

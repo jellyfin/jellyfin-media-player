@@ -172,12 +172,7 @@ class inputPlugin {
 
                 const state = playbackManager.getPlayerState();
                 if (state && state.NowPlayingItem) {
-                    let serverAddress = '';
-                    if (window.ApiClient && typeof window.ApiClient.serverAddress === 'function') {
-                        serverAddress = window.ApiClient.serverAddress();
-                    }
-
-                    api.player.notifyMetadata(state.NowPlayingItem, serverAddress || '');
+                    api.player.notifyMetadata(state.NowPlayingItem);
 
                     const initialPos = playbackManager.currentTime();
                     if (initialPos !== undefined && initialPos !== null) {

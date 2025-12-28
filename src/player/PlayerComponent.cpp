@@ -780,9 +780,9 @@ void PlayerComponent::notifySeek(qint64 positionMs)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::notifyMetadata(const QVariantMap& metadata, const QString& baseUrl)
+void PlayerComponent::notifyMetadata(const QVariantMap& metadata)
 {
-  emit metadataChanged(metadata, baseUrl);
+  emit metadataChanged(metadata);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

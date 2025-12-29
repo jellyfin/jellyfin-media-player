@@ -3,14 +3,24 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QIcon>
+#include <QThread>
+#include <QTimer>
 #include <QtQml>
+#include <iostream>
 #include <optional>
 #include <Qt>
+#ifndef USE_CEF
 #include <QtWebEngineQuick>
 #include <qtwebenginecoreglobal.h>
 #include <QtWebEngineCore/QWebEngineProfile>
-#include <QErrorMessage>
 #include <QtWebEngineCore/QWebEngineScript>
+#else
+#include "cef/CefApp.h"
+#include "cef/CefView.h"
+#include "cef/QrcSchemeHandler.h"
+#include "include/cef_app.h"
+#endif
+#include <QErrorMessage>
 #include <QCommandLineOption>
 #include <QDebug>
 #include <QSettings>
@@ -136,6 +146,19 @@ QStringList g_qtFlags = {
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
+#ifdef USE_CEF
+  // CEF subprocess detection - must happen before anything else
+  CefMainArgs main_args(argc, argv);
+  CefRefPtr<JellyfinCefApp> app = new JellyfinCefApp();
+
+  int exit_code = CefExecuteProcess(main_args, app, nullptr);
+  if (exit_code >= 0) {
+    // This was a CEF subprocess, exit now
+    return exit_code;
+  }
+  // Main process continues...
+#endif
+
 #if defined(Q_OS_WIN) && defined(_M_X64)
   // Must run before any mpv code triggers delay-load
   setupMpvFallback();
@@ -422,6 +445,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
+#ifndef USE_CEF
     QStringList chromiumFlags;
 #ifdef Q_OS_LINUX
     // Disable QtWebEngine's automatic MPRIS registration - we handle it ourselves
@@ -442,7 +466,49 @@ int main(int argc, char *argv[])
       qputenv("QTWEBENGINE_REMOTE_DEBUGGING", parser.value("remote-debugging-port").toUtf8());
 
     QtWebEngineQuick::initialize();
+#else
+    // QApplication must be created before CefInitialize so the message pump callback works
     QApplication app(newArgc, newArgv);
+
+    // Initialize CEF
+    CefMainArgs main_args(newArgc, newArgv);
+    CefRefPtr<JellyfinCefApp> cef_app(new JellyfinCefApp);
+    CefSettings cef_settings;
+
+    // Set data paths (profile-specific)
+    // CEF stores cookies, localStorage, and cache together in cache_path
+    // Use dataDir since this contains session data that shouldn't be cleared
+    QString cefDataDir = ProfileManager::activeProfile().dataDir("CEF");
+    QString cefRootDir = ProfileManager::activeProfile().dataDir();
+    CefString(&cef_settings.cache_path) = cefDataDir.toStdString();
+    CefString(&cef_settings.root_cache_path) = cefRootDir.toStdString();
+
+    // Persist session cookies across app restarts
+    cef_settings.persist_session_cookies = true;
+
+    // Enable off-screen rendering
+    cef_settings.windowless_rendering_enabled = true;
+
+    // Let CEF run its own message loop on a separate thread
+    cef_settings.multi_threaded_message_loop = true;
+
+    // Enable remote debugging if requested
+    if (parser.isSet("remote-debugging-port"))
+      cef_settings.remote_debugging_port = parser.value("remote-debugging-port").toInt();
+
+    // Disable GPU if requested
+    if (parser.isSet("disable-gpu"))
+      cef_settings.command_line_args_disabled = false;
+
+    CefInitialize(main_args, cef_settings, cef_app.get(), nullptr);
+
+    // Register qrc:// scheme handler for Qt resources
+    CefRegisterSchemeHandlerFactory("qrc", "", new QrcSchemeHandlerFactory());
+#endif
+
+#ifndef USE_CEF
+    QApplication app(newArgc, newArgv);
+#endif
 
 #if defined(Q_OS_WIN) 
     // Setting window icon on OSX will break user ability to change it
@@ -456,12 +522,14 @@ int main(int argc, char *argv[])
     app.setDesktopFileName("org.jellyfin.JellyfinDesktop");
 #endif
 
+#ifndef USE_CEF
     // Configure default WebEngineProfile paths early (profile is already set)
     {
       QWebEngineProfile* defaultProfile = QWebEngineProfile::defaultProfile();
       defaultProfile->setCachePath(ProfileManager::activeProfile().cacheDir("QtWebEngine"));
       defaultProfile->setPersistentStoragePath(ProfileManager::activeProfile().dataDir("QtWebEngine"));
     }
+#endif
 
 #if defined(Q_OS_MAC) && defined(NDEBUG)
     PFMoveToApplicationsFolderIfNecessary();
@@ -496,11 +564,18 @@ int main(int argc, char *argv[])
 
     SettingsComponent::Get().setCommandLineValues(parser.optionNames());
 
+#ifndef USE_CEF
     // Set user agent now that SystemComponent is available
     QWebEngineProfile::defaultProfile()->setHttpUserAgent(SystemComponent::Get().getUserAgent());
+#endif
 
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
+
+#ifdef USE_CEF
+    // Register CefView for QML
+    qmlRegisterType<CefView>("Jellyfin.Cef", 1, 0, "CefView");
+#endif
 
     Globals::SetContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
 
@@ -523,7 +598,10 @@ int main(int argc, char *argv[])
       // Install event filter for proper event handling
       window->installEventFilter(new EventFilter(window));
 
+#ifndef USE_CEF
       // Install application event filter to catch popup window creation early
+      // This fixes WebEngineView dropdown/popup focus issues - not needed for CEF
+      // which handles popups via offscreen rendering
       class PopupFixer : public QObject {
         QQuickWindow* m_mainWindow;
       public:
@@ -568,6 +646,7 @@ int main(int argc, char *argv[])
         }
       };
       app.installEventFilter(new PopupFixer(window));
+#endif
 
       QObject* webChannel = qvariant_cast<QObject*>(window->property("webChannel"));
       Q_ASSERT(webChannel);
@@ -581,13 +660,21 @@ int main(int argc, char *argv[])
         WindowManager::Get().raiseWindow();
       });
     });
+#ifdef USE_CEF
+    engine->load(QUrl(QStringLiteral("qrc:/webview-cef.qml")));
+#else
     engine->load(QUrl(QStringLiteral("qrc:/webview.qml")));
+#endif
 
     // run our application
     int ret = app.exec();
 
     delete uniqueApp;
     Globals::EngineDestroy();
+
+#ifdef USE_CEF
+    CefShutdown();
+#endif
 
     return ret;
   }

@@ -58,6 +58,8 @@ public:
   Q_INVOKABLE void runUserScript(QString script);
 
   Q_INVOKABLE QString getNativeShellScript();
+  Q_INVOKABLE QString getSettingsJson();
+  Q_INVOKABLE QString getNativeShellScriptBase64();
 
   Q_INVOKABLE void fetchPageForCSPWorkaround(QString url);
   Q_SIGNAL void pageContentReady(QString html, QString finalUrl, bool hadCSP);

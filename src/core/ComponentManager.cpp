@@ -1,6 +1,5 @@
 #include <QObject>
 #include <QtQml>
-#include <qqmlwebchannel.h>
 #include <QDebug>
 
 #include "ComponentManager.h"

@@ -17,6 +17,14 @@ MpvVideoItem::MpvVideoItem(QQuickItem *parent)
 #endif
 }
 
+MpvVideoItem::~MpvVideoItem()
+{
+    // Clear PlayerComponent's reference before mpv is destroyed
+    if (m_player) {
+        m_player->setMpvController(nullptr);
+    }
+}
+
 void MpvVideoItem::setPlayerComponent(PlayerComponent* player)
 {
     qDebug() << "MpvVideoItem::setPlayerComponent called, mpvController():" << mpvController();

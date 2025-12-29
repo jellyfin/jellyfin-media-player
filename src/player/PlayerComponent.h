@@ -131,8 +131,7 @@ public:
   AlbumArtProvider* albumArtProvider() const { return m_albumArtProvider; }
 
   void setMpvController(MpvController* controller) {
-    if (!m_mpv)
-      m_mpv = controller;
+    m_mpv = controller;
   }
   void initializeMpv();
 

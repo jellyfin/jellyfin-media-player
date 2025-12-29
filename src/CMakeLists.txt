@@ -27,7 +27,22 @@ if(LINUX_DBUS)
   add_subdirectory(mpris)
 endif()
 
+# Add CEF sources when using CEF
+if(USE_CEF)
+  set(CEF_SRCS
+    ${CMAKE_SOURCE_DIR}/src/cef/CefView.cpp
+    ${CMAKE_SOURCE_DIR}/src/cef/CefWebChannelTransport.cpp
+    ${CMAKE_SOURCE_DIR}/src/cef/CefApp.cpp
+    ${CMAKE_SOURCE_DIR}/src/cef/CefHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/cef/QrcSchemeHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/cef/EglDmaBufImporter.cpp
+  )
+endif()
+
 get_property(ALL_SRCS GLOBAL PROPERTY SRCS_LIST)
+if(USE_CEF)
+  list(APPEND ALL_SRCS ${CEF_SRCS})
+endif()
 set(MAIN_SRCS main.cpp)
 
 source_group("Source Files" FILES ${MAIN_SRCS})
@@ -55,6 +70,11 @@ endforeach(sfile in ${ALL_SRCS})
 
 # Build core sources as static library for reuse by tests
 add_library(jmp_core STATIC ${ALL_SRCS})
+
+# CEF configuration (setup but don't find_package yet to avoid macro conflicts)
+if(USE_CEF)
+  target_compile_definitions(jmp_core PUBLIC USE_CEF)
+endif()
 
 file(GLOB_RECURSE RESOURCE_FILES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/resources/*)
 file(GLOB_RECURSE NATIVE_FILES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/native/*)
@@ -108,7 +128,8 @@ if(WIN32)
 endif()
 
 set(RESOURCE_ROOT .)
-if(NOT APPLE)
+# CEF builds exclude qtwebengine_devtools_resources.pak since CEF provides its own devtools
+if(NOT APPLE AND NOT USE_CEF)
   set(rsrc_locations
     ${QTROOT}/resources
     /usr/share/qt/resources
@@ -128,29 +149,91 @@ get_property(BUNDLED_FILES GLOBAL PROPERTY CONFIG_BUNDLED_FILES)
 add_executable(${MAIN_TARGET} WIN32 MACOSX_BUNDLE ${MAIN_SRCS} ${BUNDLED_FILES} ${RESOURCE_FILES} ${XCODE_RESOURCES})
 add_dependencies(${MAIN_TARGET} generate_resources)
 std_target_properties(${MAIN_TARGET})
-if(APPLE)
+
+# Set RPATH
+if(USE_CEF AND UNIX AND NOT APPLE)
+  set(_install_rpath "$ORIGIN")
+  set(_build_with_install_rpath TRUE)
+elseif(APPLE)
   set(_install_rpath "@executable_path/../Frameworks")
 else()
   set(_install_rpath "${QTROOT}/lib")
 endif()
+
 set_target_properties(${MAIN_TARGET} PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/bundle/osx/Info.plist.in
   INSTALL_RPATH "${_install_rpath}"
   OUTPUT_NAME ${MAIN_NAME}
 )
+
+if(_build_with_install_rpath)
+  set_target_properties(${MAIN_TARGET} PROPERTIES
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
 copy_resources(${MAIN_TARGET})
 clang_tidy(${MAIN_TARGET})
 
+# CEF package and library configuration (after copy_resources to avoid macro conflicts)
+if(USE_CEF)
+  # Set up CEF cmake module path and find CEF
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
+  find_package(CEF REQUIRED)
+
+  # Add CEF include directories
+  target_include_directories(jmp_core PUBLIC ${CEF_INCLUDE_PATH})
+
+  # Build libcef_dll_wrapper from CEF distribution
+  add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
+
+  # Disable warnings for libcef_dll_wrapper to avoid errors in CEF code
+  if(TARGET libcef_dll_wrapper)
+    target_compile_options(libcef_dll_wrapper PRIVATE -Wno-extra -Wno-shadow -Wno-old-style-cast)
+  endif()
+
+  # Match CEF's compile flags for ABI compatibility (Linux only)
+  # These flags must match CEF's build configuration to ensure binary compatibility
+  # and prevent crashes due to ABI mismatches (e.g., stack protector, visibility).
+  if(UNIX AND NOT APPLE)
+    target_compile_options(jmp_core PRIVATE
+      -fno-strict-aliasing
+      -fstack-protector
+      -funwind-tables
+      -fvisibility=hidden
+      --param=ssp-buffer-size=4
+      -pipe
+      -pthread
+    )
+  endif()
+endif()
+
 # QML module for AOT compilation (eliminates runtime qmlcache)
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/ui/webview.qml
-  PROPERTIES QT_RESOURCE_ALIAS webview.qml
+if(USE_CEF)
+  set(WEBVIEW_QML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/ui/webview-cef.qml)
+  set(WEBVIEW_QML_ALIAS webview-cef.qml)
+else()
+  set(WEBVIEW_QML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/ui/webview.qml)
+  set(WEBVIEW_QML_ALIAS webview.qml)
+endif()
+
+set_source_files_properties(${WEBVIEW_QML_FILE}
+  PROPERTIES QT_RESOURCE_ALIAS ${WEBVIEW_QML_ALIAS}
 )
 qt_add_qml_module(${MAIN_TARGET}
   URI Konvergo
   VERSION 1.0
-  QML_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ui/webview.qml
+  QML_FILES ${WEBVIEW_QML_FILE}
   NO_RESOURCE_TARGET_PATH
 )
+
+# Copy CEF binaries and resources
+if(USE_CEF)
+  add_custom_command(TARGET ${MAIN_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CEF_BINARY_DIR_RELEASE}" "$<TARGET_FILE_DIR:${MAIN_TARGET}>"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CEF_RESOURCE_DIR}" "$<TARGET_FILE_DIR:${MAIN_TARGET}>"
+    COMMENT "Copying CEF binaries and resources"
+  )
+endif()
 
 find_library(MINIZIP_LIBRARY minizip)
 if(WIN32)
@@ -200,13 +283,32 @@ target_link_libraries(jmp_core
   Qt6::Core
   Qt6::Quick
   Qt6::Widgets
-  Qt6::WebEngineQuick
-  Qt6::WebEngineCore
   Qt6::OpenGL
   Qt6::Xml
   Qt6::Gui
   ${MPVQT_TARGET}
 )
+
+# Link CEF or Qt WebEngine
+if(USE_CEF)
+  target_link_libraries(jmp_core
+    libcef_dll_wrapper
+    ${CEF_LIB_RELEASE}
+  )
+  # CEF requires X11 for windowing on Linux, EGL/libdrm for DMA-BUF
+  if(UNIX AND NOT APPLE)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(EGL REQUIRED egl)
+    pkg_check_modules(LIBDRM REQUIRED libdrm)
+    target_link_libraries(jmp_core X11 ${EGL_LIBRARIES} ${LIBDRM_LIBRARIES})
+    target_include_directories(jmp_core PRIVATE ${EGL_INCLUDE_DIRS} ${LIBDRM_INCLUDE_DIRS})
+  endif()
+else()
+  target_link_libraries(jmp_core
+    Qt6::WebEngineQuick
+    Qt6::WebEngineCore
+  )
+endif()
 
 if(LINUX_DBUS)
   target_link_libraries(jmp_core Qt6::DBus)

@@ -1,2 +1,6 @@
 find_all_sources(. UI_SRCS)
-add_sources(${UI_SRCS} webview.qml)
+if(USE_CEF)
+  add_sources(${UI_SRCS} webview-cef.qml)
+else()
+  add_sources(${UI_SRCS} webview.qml)
+endif()

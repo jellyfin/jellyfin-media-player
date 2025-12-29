@@ -12,6 +12,7 @@ class MpvVideoItem : public MpvAbstractItem
 
 public:
     explicit MpvVideoItem(QQuickItem *parent = nullptr);
+    ~MpvVideoItem() override;
     void setPlayerComponent(PlayerComponent* player);
 
     MpvController* controller() { return mpvController(); }

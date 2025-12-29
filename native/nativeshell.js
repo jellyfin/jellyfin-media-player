@@ -213,10 +213,12 @@ function getDeviceProfile() {
 }
 
 async function createApi() {
-    // Can't append script until document exists
-    await new Promise(resolve => {
-        document.addEventListener('DOMContentLoaded', resolve);
-    });
+    // Wait for document to be ready (handle case where DOMContentLoaded already fired)
+    if (document.readyState === 'loading') {
+        await new Promise(resolve => {
+            document.addEventListener('DOMContentLoaded', resolve);
+        });
+    }
 
     const channel = await new Promise((resolve) => {
         /*global QWebChannel */

@@ -685,6 +685,9 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::handleMpvEvents()
 {
+  if (!m_mpv)
+    return;
+
   // Process all events, until the event queue is empty.
   while (1)
   {

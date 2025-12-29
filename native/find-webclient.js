@@ -1,3 +1,15 @@
+// Wait for nativeshell scripts to be injected (CEF injects after page load)
+async function waitForNativeShell() {
+    let attempts = 0;
+    while (!window.jmpCheckServerConnectivity && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+    }
+    if (!window.jmpCheckServerConnectivity) {
+        throw new Error('NativeShell scripts not loaded');
+    }
+}
+
 async function tryConnect(server) {
     try {
         if (!server.startsWith("http")) {
@@ -6,6 +18,7 @@ async function tryConnect(server) {
 
         console.log("Checking connectivity to:", server);
 
+        await waitForNativeShell();
         const resolvedUrl = await window.jmpCheckServerConnectivity(server);
         console.log("Server connectivity check passed");
         console.log("Resolved URL:", resolvedUrl);

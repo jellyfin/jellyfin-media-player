@@ -21,7 +21,11 @@
 #include <QPointer>
 #include <functional>
 
+#ifndef USE_CEF
 #include <QtWebEngineCore/qtwebenginecoreglobal.h>
+#else
+#include "include/cef_version.h"
+#endif
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
@@ -432,7 +436,11 @@ QString SystemComponent::getUserAgent()
 {
   QString kernel = QSysInfo::kernelType();
   kernel[0] = kernel[0].toUpper();
+#ifndef USE_CEF
   QString chromeVersion = QString(qWebEngineChromiumVersion()).split('.').first() + ".0.0.0";
+#else
+  QString chromeVersion = QString::number(CEF_VERSION_MAJOR) + ".0.0.0";
+#endif
   QString userAgent = QString("JellyfinDesktop/%1 (%2; %3) Chrome/%4")
     .arg(Version::GetVersionString())
     .arg(kernel)
@@ -539,15 +547,9 @@ void SystemComponent::hello(const QString& version)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString SystemComponent::getNativeShellScript()
+QString SystemComponent::getSettingsJson()
 {
-  static QString cachedScript;
-  if (!cachedScript.isEmpty()) {
-    return cachedScript;
-  }
-
   auto path = SettingsComponent::Get().getExtensionPath();
-  qDebug() << QString("Using path for extension: %1").arg(path);
 
   QJsonObject clientData;
   clientData.insert("deviceName", QJsonValue::fromVariant(SettingsComponent::Get().getClientName()));
@@ -558,11 +560,9 @@ QString SystemComponent::getNativeShellScript()
 
   QFile flatpakOsFile {"/run/host/os-release"};
   if (flatpakOsFile.exists()) {
-    qDebug() << "Found flatpak os-release file";
     if (flatpakOsFile.open(QIODevice::ReadOnly)) {
       QString flatpakOsFileString = QTextStream(&flatpakOsFile).readAll();
       if (flatpakOsFileString.contains("NAME=\"SteamOS\"")) {
-        qDebug() << "Detected SteamOS";
         defaultMode = "tv";
       }
     }
@@ -579,8 +579,22 @@ QString SystemComponent::getNativeShellScript()
   clientData.insert("settingsDescriptions", QJsonValue::fromVariant(settingsDescriptions));
   clientData.insert("settings", QJsonValue::fromVariant(SettingsComponent::Get().allValues()));
 
+  return QString::fromLatin1(QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SystemComponent::getNativeShellScript()
+{
+  static QString cachedScript;
+  if (!cachedScript.isEmpty()) {
+    return cachedScript;
+  }
+
+  auto path = SettingsComponent::Get().getExtensionPath();
+  qDebug() << QString("Using path for extension: %1").arg(path);
+
   QString jmpInfoDeclaration = "const jmpInfo = JSON.parse(window.atob(\"" +
-                                QJsonDocument(clientData).toJson(QJsonDocument::Compact).toBase64() +
+                                getSettingsJson() +
                                 "\"));\nwindow.jmpInfo = jmpInfo;\n";
 
   auto loadScript = [](const QString& scriptPath) -> QString {
@@ -608,6 +622,12 @@ QString SystemComponent::getNativeShellScript()
   }
 
   return cachedScript;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QString SystemComponent::getNativeShellScriptBase64()
+{
+  return QString::fromLatin1(getNativeShellScript().toUtf8().toBase64());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,12 @@ endif()
 set(REQUIRED_QT_VERSION "6.0.0")
 
 set(QTCONFIGROOT ${QTROOT}/lib/cmake/Qt6)
-set(components Core Network WebChannel Qml Quick Xml WebEngineQuick WebEngineCore Widgets OpenGL)
+
+if(USE_CEF)
+  set(components Core Network WebChannel Qml Quick Xml Widgets OpenGL)
+else()
+  set(components Core Network WebChannel Qml Quick Xml WebEngineQuick WebEngineCore Widgets OpenGL)
+endif()
 
 if(UNIX AND (NOT APPLE) AND ((NOT BUILD_TARGET STREQUAL "RPI")))
   set(components ${components} Gui)
@@ -67,22 +72,24 @@ endif(QT6_CFLAGS)
 message(STATUS "Qt version: ${Qt6Core_VERSION}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${QT6_CFLAGS}")
 
-set(CMAKE_REQUIRED_INCLUDES ${Qt6WebEngineCore_INCLUDE_DIRS};${Qt6WebEngineCore_PRIVATE_INCLUDE_DIRS})
-set(CMAKE_REQUIRED_LIBRARIES ${QT6_LIBRARIES})
+if(NOT USE_CEF)
+  set(CMAKE_REQUIRED_INCLUDES ${Qt6WebEngineCore_INCLUDE_DIRS};${Qt6WebEngineCore_PRIVATE_INCLUDE_DIRS})
+  set(CMAKE_REQUIRED_LIBRARIES ${QT6_LIBRARIES})
 
-include(CheckCXXSourceCompiles)
+  include(CheckCXXSourceCompiles)
 
-CHECK_CXX_SOURCE_COMPILES(
-"
-  #include <QSurfaceFormat>
+  CHECK_CXX_SOURCE_COMPILES(
+  "
+    #include <QSurfaceFormat>
 
-  int main(int argc, char** argv) {
-    QSurfaceFormat::FormatOption o = QSurfaceFormat::UseOptimalOrientation;
-    return 0;
-  }
-" QT6_HAVE_OPTIMALORIENTATION)
+    int main(int argc, char** argv) {
+      QSurfaceFormat::FormatOption o = QSurfaceFormat::UseOptimalOrientation;
+      return 0;
+    }
+  " QT6_HAVE_OPTIMALORIENTATION)
 
-if(QT6_HAVE_OPTIMALORIENTATION)
-  message(STATUS "QSurfaceFormat::UseOptimalOrientation found")
-  add_definitions(-DHAVE_OPTIMALORIENTATION)
+  if(QT6_HAVE_OPTIMALORIENTATION)
+    message(STATUS "QSurfaceFormat::UseOptimalOrientation found")
+    add_definitions(-DHAVE_OPTIMALORIENTATION)
+  endif()
 endif()

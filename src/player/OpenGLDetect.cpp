@@ -1,4 +1,5 @@
 #include <QtGlobal>
+#include <QColorSpace>
 #include <QSurfaceFormat>
 #include <QCoreApplication>
 #include <QOpenGLContext>
@@ -23,7 +24,7 @@ void detectOpenGLEarly()
   format.setMinorVersion(2);
   format.setProfile(QSurfaceFormat::CoreProfile);
   // Fix oversaturated colors on HDR displays
-  format.setColorSpace(QSurfaceFormat::sRGBColorSpace);
+  format.setColorSpace(QColorSpace::SRgb);
   QSurfaceFormat::setDefaultFormat(format);
 }
 

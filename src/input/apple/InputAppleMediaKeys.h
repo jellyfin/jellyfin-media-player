@@ -17,11 +17,11 @@ public:
   const char* inputName() override { return "AppleMediaKeys"; }
 
 private slots:
-  void handleStateChanged(PlayerComponent::State newState, PlayerComponent::State oldState);
+  void handleStateChanged(PlayerComponent::State newState);
   void handlePositionUpdate(quint64 position);
   void handleUpdateDuration(qint64 duration);
   void handleUpdateMetaData(const QVariantMap& meta);
-  void handleAlbumArtReady(const QByteArray& imageData, const QString& mimeType);
+  void handleAlbumArtReady(const QByteArray& imageData);
   void handleAlbumArtUnavailable();
 
 private:

@@ -18,10 +18,10 @@ bool DisplayManagerOSX::initialize()
 
   m_displays.clear();
 
-  for (int i = 0; i < m_osxDisplayModes.size(); i++)
+  for (size_t i = 0; i < m_osxDisplayModes.size(); i++)
   {
-    if (m_osxDisplayModes[i])
-      CFRelease(m_osxDisplayModes[i]);
+    if (m_osxDisplayModes[static_cast<int>(i)])
+      CFRelease(m_osxDisplayModes[static_cast<int>(i)]);
   }
   m_osxDisplayModes.clear();
 
@@ -33,7 +33,7 @@ bool DisplayManagerOSX::initialize()
     return false;
   }
 
-  for (int displayid = 0; displayid < m_osxnumDisplays; displayid++)
+  for (uint32_t displayid = 0; displayid < m_osxnumDisplays; displayid++)
   {
     // add the display to the list
     DMDisplayPtr display = DMDisplayPtr(new DMDisplay);
@@ -45,35 +45,27 @@ bool DisplayManagerOSX::initialize()
     if (!m_osxDisplayModes[displayid])
       continue;
 
-    int numModes = (int)CFArrayGetCount(m_osxDisplayModes[displayid]);
+    CFIndex numModes = CFArrayGetCount(m_osxDisplayModes[displayid]);
 
-    for (int modeid = 0; modeid < numModes; modeid++)
+    for (CFIndex modeid = 0; modeid < numModes; modeid++)
     {
       totalModes++;
-      
+
       // add the videomode to the display
       DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode);
-      mode->m_id = modeid;
-      display->m_videoModes[modeid] = mode;
+      mode->m_id = static_cast<int>(modeid);
+      display->m_videoModes[static_cast<int>(modeid)] = mode;
 
       // grab videomode info
       CGDisplayModeRef displayMode =
-      (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[displayid], modeid);
+      static_cast<CGDisplayModeRef>(const_cast<void*>(CFArrayGetValueAtIndex(m_osxDisplayModes[displayid], modeid)));
 
-      mode->m_height = (int)CGDisplayModeGetHeight(displayMode);
-      mode->m_width = (int)CGDisplayModeGetWidth(displayMode);
-      mode->m_refreshRate = (float)CGDisplayModeGetRefreshRate(displayMode);
+      mode->m_height = static_cast<int>(CGDisplayModeGetHeight(displayMode));
+      mode->m_width = static_cast<int>(CGDisplayModeGetWidth(displayMode));
+      mode->m_refreshRate = static_cast<float>(CGDisplayModeGetRefreshRate(displayMode));
 
-      CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(displayMode);
-
-      if (CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
-        mode->m_bitsPerPixel = 32;
-      else if (CFStringCompare(pixEnc, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
-        mode->m_bitsPerPixel = 16;
-      else if (CFStringCompare(pixEnc, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
-        mode->m_bitsPerPixel = 8;
-
-      CFRelease(pixEnc);
+      // Assume 32-bit color depth (CGDisplayModeCopyPixelEncoding deprecated in 10.11)
+      mode->m_bitsPerPixel = 32;
 
       mode->m_interlaced = (CGDisplayModeGetIOFlags(displayMode) & kDisplayModeInterlacedFlag) > 0;
 
@@ -95,7 +87,7 @@ bool DisplayManagerOSX::setDisplayMode(int display, int mode)
     return false;
   
   CGDisplayModeRef displayMode =
-  (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode);
+  static_cast<CGDisplayModeRef>(const_cast<void*>(CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode)));
 
   CGError err = CGDisplaySetDisplayMode(m_osxDisplays[display], displayMode, nullptr);
   if (err)
@@ -116,59 +108,59 @@ int DisplayManagerOSX::getCurrentDisplayMode(int display)
   CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(m_osxDisplays[display]);
   uint32_t currentIOKitID = CGDisplayModeGetIODisplayModeID(currentMode);
 
-  for (int mode = 0; mode < CFArrayGetCount(m_osxDisplayModes[display]); mode++)
+  for (CFIndex mode = 0; mode < CFArrayGetCount(m_osxDisplayModes[display]); mode++)
   {
-    CGDisplayModeRef checkMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode);
+    CGDisplayModeRef checkMode = static_cast<CGDisplayModeRef>(const_cast<void*>(CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode)));
     uint32_t checkIOKitID = CGDisplayModeGetIODisplayModeID(checkMode);
 
     if (currentIOKitID == checkIOKitID)
     {
       CFRelease(currentMode);
-      return mode;
+      return static_cast<int>(mode);
     }
   }
   CFRelease(currentMode);
 
   return -1;
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerOSX::getMainDisplay()
 {
   CGDirectDisplayID mainID = CGMainDisplayID();
 
-  for (int i = 0; i < m_osxnumDisplays; i++)
+  for (uint32_t i = 0; i < m_osxnumDisplays; i++)
   {
     if (m_osxDisplays[i] == mainID)
-      return i;
+      return static_cast<int>(i);
   }
 
   return -1;
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DisplayManagerOSX::~DisplayManagerOSX()
 {
-  for (int i = 0; i < m_osxDisplayModes.size(); i++)
+  for (size_t i = 0; i < m_osxDisplayModes.size(); i++)
   {
-    if (m_osxDisplayModes[i])
-      CFRelease(m_osxDisplayModes[i]);
+    if (m_osxDisplayModes[static_cast<int>(i)])
+      CFRelease(m_osxDisplayModes[static_cast<int>(i)]);
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int DisplayManagerOSX::getDisplayFromPoint(int x, int y)
 {
-  CGPoint point = { (double)x, (double)y };
+  CGPoint point = { static_cast<CGFloat>(x), static_cast<CGFloat>(y) };
   CGDirectDisplayID foundDisplay;
   uint32_t numFound;
 
   CGGetDisplaysWithPoint(point, 1, &foundDisplay, &numFound);
 
-  for (int i=0; i<m_osxnumDisplays; i++)
+  for (uint32_t i = 0; i < m_osxnumDisplays; i++)
   {
     if (foundDisplay == m_osxDisplays[i])
-      return i;
+      return static_cast<int>(i);
   }
 
   return -1;

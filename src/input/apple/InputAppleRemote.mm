@@ -33,7 +33,7 @@ void InputAppleRemote::removeRemote(const QString &name)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputAppleRemote::remoteButtonEvent(quint8 code, bool pressed, const QString &name)
+void InputAppleRemote::remoteButtonEvent(quint8 code, bool pressed)
 {
   // This following code emulates the harmony remotes input to PHT. The Apple API is actually
   // limited to just the number of keys that are on Apple specific remotes so we had to work

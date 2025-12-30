@@ -780,9 +780,9 @@ void PlayerComponent::notifySeek(qint64 positionMs)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::notifyMetadata(const QVariantMap& metadata, const QString& baseUrl)
+void PlayerComponent::notifyMetadata(const QVariantMap& metadata)
 {
-  emit metadataChanged(metadata, baseUrl);
+  emit metadataChanged(metadata);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -977,7 +977,7 @@ void PlayerComponent::reselectStream(const QVariant &streamSelection, MediaType 
 
   if (streamSelectionStr.startsWith("#"))
   {
-    int splitPos = streamSelectionStr.indexOf(",");
+    qsizetype splitPos = streamSelectionStr.indexOf(",");
     if (splitPos < 0)
     {
       // Stream from the main file
@@ -1467,8 +1467,8 @@ void PlayerComponent::setOtherConfiguration()
 
   for(const QString& configuration : configurationList)
   {
-    int splitIndex = configuration.indexOf("=");
-    int configurationLength = configuration.length();
+    qsizetype splitIndex = configuration.indexOf("=");
+    qsizetype configurationLength = configuration.length();
     if (splitIndex > 0 && splitIndex < configurationLength - 1)
     {
       QString configurationKey = configuration.left(splitIndex).remove(QRegularExpression("^([\"]+)")).remove(QRegularExpression("([\"]+)$"));

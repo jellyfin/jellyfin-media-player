@@ -159,19 +159,21 @@ private:
             dst->u.double_ = src.toDouble();
         } else if (src.canConvert<QVariantList>()) {
             QVariantList qlist = src.toList();
-            mpv_node_list *list = create_list(dst, false, qlist.size());
+            int size = static_cast<int>(qlist.size());
+            mpv_node_list *list = create_list(dst, false, size);
             if (!list)
                 goto fail;
-            list->num = qlist.size();
-            for (int n = 0; n < qlist.size(); n++)
+            list->num = size;
+            for (int n = 0; n < size; n++)
                 set(&list->values[n], qlist[n]);
         } else if (src.canConvert<QVariantMap>()) {
             QVariantMap qmap = src.toMap();
-            mpv_node_list *list = create_list(dst, true, qmap.size());
+            int size = static_cast<int>(qmap.size());
+            mpv_node_list *list = create_list(dst, true, size);
             if (!list)
                 goto fail;
-            list->num = qmap.size();
-            for (int n = 0; n < qmap.size(); n++) {
+            list->num = size;
+            for (int n = 0; n < size; n++) {
                 list->keys[n] = dup_qstring(qmap.keys()[n]);
                 if (!list->keys[n]) {
                     free_node(dst);

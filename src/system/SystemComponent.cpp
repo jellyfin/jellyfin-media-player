@@ -221,7 +221,7 @@ QString SystemComponent::extractBaseUrl(const QString& url)
   QString path = parsedUrl.path();
 
   // Find last occurrence of "/web" in path only (case-insensitive)
-  int webIndex = path.toLower().lastIndexOf("/web");
+  qsizetype webIndex = path.toLower().lastIndexOf("/web");
 
   if (webIndex >= 0) {
     // Truncate path at /web

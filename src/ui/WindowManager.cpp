@@ -87,7 +87,7 @@ void WindowManager::initializeWindow(QQuickWindow* window)
   m_geometrySaveTimer = new QTimer(this);
   m_geometrySaveTimer->setSingleShot(true);
   m_geometrySaveTimer->setInterval(30000);
-  connect(m_geometrySaveTimer, &QTimer::timeout, this, [this]() {
+  connect(m_geometrySaveTimer, &QTimer::timeout, this, []() {
     // STATE section is storage, so use saveStorage()
     SettingsComponent::Get().saveStorage();
   });
@@ -571,7 +571,7 @@ void WindowManager::loadGeometry()
 // Config key helpers (per-screen-configuration)
 QString WindowManager::configKeyPrefix() const
 {
-  int screenCount = QGuiApplication::screens().size();
+  auto screenCount = QGuiApplication::screens().size();
   if (screenCount == 1)
   {
     QScreen* primary = QGuiApplication::primaryScreen();

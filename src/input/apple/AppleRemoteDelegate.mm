@@ -44,7 +44,7 @@
         isPressed:(BOOL)isPressed
 fromHardwareWithAttributes:(NSMutableDictionary *)attributes
 {
-  m_remoteHandler->remoteButtonEvent(buttonCode, isPressed, [self remoteNameFromAttributes:attributes]);
+  m_remoteHandler->remoteButtonEvent(buttonCode, isPressed);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

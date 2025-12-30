@@ -34,6 +34,10 @@ if(LINUX_DBUS)
   set(components ${components} DBus)
 endif(LINUX_DBUS)
 
+if(USE_WAYLAND_SUBSURFACE)
+  # We use raw Wayland protocol for color management, not Qt's private classes
+endif()
+
 foreach(COMP ${components})
 	set(mod Qt6${COMP})
 

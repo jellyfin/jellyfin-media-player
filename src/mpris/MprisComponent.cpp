@@ -831,7 +831,7 @@ void MprisComponent::updatePlaybackStatus(const QString& status)
   }
 }
 
-void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl& baseUrl)
+void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, [[maybe_unused]] const QUrl& baseUrl)
 {
   QVariantMap mprisMeta;
 

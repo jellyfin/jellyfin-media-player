@@ -583,10 +583,10 @@ void MprisComponent::notifySeek(qint64 positionMs)
   m_seekPending = false;
 }
 
-void MprisComponent::notifyMetadata(const QVariantMap& metadata, const QString& baseUrl)
+void MprisComponent::notifyMetadata(const QVariantMap& metadata)
 {
   qDebug() << "MPRIS: Metadata update from JS";
-  updateMetadata(metadata, QUrl(baseUrl));
+  updateMetadata(metadata);
 }
 
 void MprisComponent::notifyVolumeChange(double volume)
@@ -767,10 +767,10 @@ void MprisComponent::onPlayerDurationChanged(qint64 duration)
   }
 }
 
-void MprisComponent::onPlayerMetaData(const QVariantMap& metadata, const QUrl& baseUrl)
+void MprisComponent::onPlayerMetaData(const QVariantMap& metadata)
 {
   qDebug() << "MPRIS: Received metadata from PlayerComponent:" << metadata.value("Name").toString();
-  updateMetadata(metadata, baseUrl);
+  updateMetadata(metadata);
 }
 
 void MprisComponent::onPlayerVolumeChanged()
@@ -831,7 +831,7 @@ void MprisComponent::updatePlaybackStatus(const QString& status)
   }
 }
 
-void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta, const QUrl& baseUrl)
+void MprisComponent::updateMetadata(const QVariantMap& jellyfinMeta)
 {
   QVariantMap mprisMeta;
 

@@ -91,7 +91,7 @@ void SettingsComponent::cycleSettingCommand(const QString& args)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SettingsComponent::setSettingCommand(const QString& args)
 {
-  int spaceIndex = args.indexOf(" ");
+  qsizetype spaceIndex = args.indexOf(" ");
   if (spaceIndex < 0)
   {
     qCritical() << "No value provided to settings set command.";
@@ -99,7 +99,7 @@ void SettingsComponent::setSettingCommand(const QString& args)
   }
   QString settingName = args.mid(0, spaceIndex);
   QString settingValue = args.mid(spaceIndex + 1);
-  int subIndex = settingName.indexOf(".");
+  qsizetype subIndex = settingName.indexOf(".");
   if (subIndex < 0 || subIndex == args.size() - 1)
   {
     qCritical() << "Setting must be in the form section.name but got:" << settingName;

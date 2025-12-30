@@ -9,7 +9,7 @@ void DisplayManagerDummy::addMode(float rate)
     return;
 
   DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode());
-  mode->m_id = m_displays[0]->m_videoModes.size();
+  mode->m_id = static_cast<int>(m_displays[0]->m_videoModes.size());
   mode->m_interlaced = false;
   mode->m_refreshRate = rate;
   mode->m_width = 1280;
@@ -24,7 +24,7 @@ bool DisplayManagerDummy::initialize()
   m_displays.clear();
 
   DMDisplayPtr display = DMDisplayPtr(new DMDisplay());
-  display->m_id = m_displays.size();
+  display->m_id = static_cast<int>(m_displays.size());
   display->m_name = "Dummy display";
   m_displays[display->m_id] = display;
 

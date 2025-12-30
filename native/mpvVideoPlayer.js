@@ -546,7 +546,7 @@
                     player.videoPlaybackActive.connect((active) => console.log(`[MPV Signal] videoPlaybackActive: ${active}`));
                     player.windowVisible.connect((visible) => console.log(`[MPV Signal] windowVisible: ${visible}`));
                     player.onVideoRecangleChanged.connect(() => console.log('[MPV Signal] onVideoRecangleChanged'));
-                    player.onMetaData.connect((meta, baseUrl) => console.log(`[MPV Signal] onMetaData: ${JSON.stringify(meta)}`));
+                    player.onMetaData.connect((meta) => console.log(`[MPV Signal] onMetaData: ${JSON.stringify(meta)}`));
                 }
 
                 if (options.fullscreen) {

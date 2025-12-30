@@ -20,7 +20,7 @@ public:
   const char* inputName() override { return "AppleRemote"; }
   bool initInput() override;
   
-  void remoteButtonEvent(quint8 code, bool pressed, const QString& name);
+  void remoteButtonEvent(quint8 code, bool pressed);
   
   void addRemote(const QString& name);
   void removeRemote(const QString& name);

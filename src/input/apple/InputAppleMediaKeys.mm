@@ -113,7 +113,7 @@ bool InputAppleMediaKeys::initInput()
       dlopen("/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote", RTLD_NOW))
   {
 #define LOAD_FUNC(name) \
-  name = (name ## Func)dlsym(lib, "MRMediaRemote" #name)
+  name = reinterpret_cast<name ## Func>(dlsym(lib, "MRMediaRemote" #name))
       LOAD_FUNC(SetNowPlayingVisibility);
       LOAD_FUNC(GetLocalOrigin);
       LOAD_FUNC(SetCanBeNowPlayingApplication);
@@ -143,12 +143,12 @@ static MPNowPlayingPlaybackState convertState(PlayerComponent::State newState)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputAppleMediaKeys::handleStateChanged(PlayerComponent::State newState, PlayerComponent::State oldState)
+void InputAppleMediaKeys::handleStateChanged(PlayerComponent::State newState)
 {
   MPNowPlayingPlaybackState newMPState = convertState(newState);
   MPNowPlayingInfoCenter *center = [MPNowPlayingInfoCenter defaultCenter];
   NSMutableDictionary *playingInfo = [NSMutableDictionary dictionaryWithDictionary:center.nowPlayingInfo];
-  [playingInfo setObject:[NSNumber numberWithDouble:(double)m_currentTime / 1000] forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+  [playingInfo setObject:[NSNumber numberWithDouble:static_cast<double>(m_currentTime) / 1000] forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
   center.nowPlayingInfo = playingInfo;
   [MPNowPlayingInfoCenter defaultCenter].playbackState = newMPState;
   if (SetNowPlayingVisibility && GetLocalOrigin) {
@@ -169,7 +169,7 @@ void InputAppleMediaKeys::handlePositionUpdate(quint64 position)
   if (m_pendingUpdate) {
     MPNowPlayingInfoCenter *center = [MPNowPlayingInfoCenter defaultCenter];
     NSMutableDictionary *playingInfo = [NSMutableDictionary dictionaryWithDictionary:center.nowPlayingInfo];
-    [playingInfo setObject:[NSNumber numberWithDouble:(double)position / 1000] forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+    [playingInfo setObject:[NSNumber numberWithDouble:static_cast<double>(position) / 1000] forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
     center.nowPlayingInfo = playingInfo;
     m_pendingUpdate = false;
   }
@@ -180,7 +180,7 @@ void InputAppleMediaKeys::handleUpdateDuration(qint64 duration)
 {
   MPNowPlayingInfoCenter *center = [MPNowPlayingInfoCenter defaultCenter];
   NSMutableDictionary *playingInfo = [NSMutableDictionary dictionaryWithDictionary:center.nowPlayingInfo];
-  [playingInfo setObject:[NSNumber numberWithDouble:(double)duration / 1000] forKey:MPMediaItemPropertyPlaybackDuration];
+  [playingInfo setObject:[NSNumber numberWithDouble:static_cast<double>(duration) / 1000] forKey:MPMediaItemPropertyPlaybackDuration];
   center.nowPlayingInfo = playingInfo;
   m_pendingUpdate = true;
 }
@@ -220,7 +220,7 @@ void InputAppleMediaKeys::handleUpdateMetaData(const QVariantMap& meta)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void InputAppleMediaKeys::handleAlbumArtReady(const QByteArray& imageData, const QString& mimeType)
+void InputAppleMediaKeys::handleAlbumArtReady(const QByteArray& imageData)
 {
   // Convert QByteArray to NSData
   NSData *nsImageData = [NSData dataWithBytes:imageData.constData() length:imageData.size()];
@@ -235,7 +235,7 @@ void InputAppleMediaKeys::handleAlbumArtReady(const QByteArray& imageData, const
 
   // Create MPMediaItemArtwork from NSImage
   MPMediaItemArtwork *artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:nsImage.size
-                                                                 requestHandler:^NSImage * _Nonnull(CGSize size) {
+                                                                 requestHandler:^NSImage * _Nonnull(__unused CGSize size) {
     return nsImage;
   }];
 

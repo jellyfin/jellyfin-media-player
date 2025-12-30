@@ -47,6 +47,9 @@ public:
   // Cursor visibility
   Q_INVOKABLE void setCursorVisibility(bool visible);
 
+  // Event filter for cursor enter/leave tracking
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
   // Window activation
   Q_INVOKABLE void raiseWindow();
 
@@ -104,6 +107,7 @@ private:
   QString m_currentScreenName;
   int m_ignoreFullscreenSettingsChange;
   bool m_cursorVisible;
+  bool m_cursorInsideWindow;
 
   // Window state
   QWindow::Visibility m_previousVisibility;  // State before fullscreen

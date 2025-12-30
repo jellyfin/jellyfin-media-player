@@ -10,6 +10,8 @@ if(NOT MSVC)
   enable_if_supported(COMPILER_FLAGS "-Wmissing-include-dirs")
   enable_if_supported(COMPILER_FLAGS "-Woverloaded-virtual")
   enable_if_supported(COMPILER_FLAGS "-Wold-style-cast")
+  enable_if_supported(COMPILER_FLAGS "-Wsign-compare")
+  enable_if_supported(COMPILER_FLAGS "-Wdeprecated-declarations")
 endif()
 
 enable_if_supported(COMPILER_FLAGS "-Wshorten-64-to-32")

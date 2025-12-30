@@ -73,7 +73,7 @@ public:
   Q_INVOKABLE void notifyPlaybackState(const QString& state);
   Q_INVOKABLE void notifyPosition(qint64 positionMs);
   Q_INVOKABLE void notifySeek(qint64 positionMs);
-  Q_INVOKABLE void notifyMetadata(const QVariantMap& metadata, const QString& baseUrl);
+  Q_INVOKABLE void notifyMetadata(const QVariantMap& metadata);
   Q_INVOKABLE void notifyVolumeChange(double volume);
 
   // 0-100 volume 0=mute and 100=normal
@@ -217,7 +217,7 @@ Q_SIGNALS:
   void playbackStateChanged(const QString& state);
   void positionChanged(qint64 positionMs);
   void seekPerformed(qint64 positionMs);
-  void metadataChanged(const QVariantMap& metadata, const QString& baseUrl);
+  void metadataChanged(const QVariantMap& metadata);
   void volumeChanged(double volume);
 private:
   // this is the function actually implemented in the backends. the variantmap contains

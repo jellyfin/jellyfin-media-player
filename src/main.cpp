@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     parser.addOption(createProfileOption);
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
-    int newArgc = argc + g_qtFlags.size();
+    int newArgc = argc + static_cast<int>(g_qtFlags.size());
 
     preinitQt();
 

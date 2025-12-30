@@ -9,6 +9,7 @@
 #include "utils/Utils.h"
 
 #include <QCursor>
+#include <QEvent>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QDebug>
@@ -28,6 +29,7 @@ WindowManager::WindowManager(QObject* parent)
     m_enforcingZoom(false),
     m_ignoreFullscreenSettingsChange(0),
     m_cursorVisible(true),
+    m_cursorInsideWindow(true),
     m_previousVisibility(QWindow::Windowed),
     m_geometrySaveTimer(nullptr),
     m_initialSize(),
@@ -62,6 +64,9 @@ void WindowManager::initializeWindow(QQuickWindow* window)
   DisplayComponent::Get().setApplicationWindow(m_window);
   TaskbarComponent::Get().setWindow(m_window);
 
+  // Install event filter to track cursor enter/leave
+  m_window->installEventFilter(this);
+
   // Register host command for fullscreen toggle
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
 
@@ -82,7 +87,7 @@ void WindowManager::initializeWindow(QQuickWindow* window)
   m_geometrySaveTimer = new QTimer(this);
   m_geometrySaveTimer->setSingleShot(true);
   m_geometrySaveTimer->setInterval(30000);
-  connect(m_geometrySaveTimer, &QTimer::timeout, this, [this]() {
+  connect(m_geometrySaveTimer, &QTimer::timeout, this, []() {
     // STATE section is storage, so use saveStorage()
     SettingsComponent::Get().saveStorage();
   });
@@ -249,10 +254,37 @@ void WindowManager::setCursorVisibility(bool visible)
     qApp->setOverrideCursor(QCursor(Qt::BlankCursor));
 
 #ifdef Q_OS_MAC
-  OSXUtils::SetCursorVisible(visible);
+  // Only apply macOS global cursor hiding when cursor is inside window
+  if (m_cursorInsideWindow)
+    OSXUtils::SetCursorVisible(visible);
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool WindowManager::eventFilter(QObject* watched, QEvent* event)
+{
+  if (watched == m_window)
+  {
+    if (event->type() == QEvent::Enter)
+    {
+      m_cursorInsideWindow = true;
+#ifdef Q_OS_MAC
+      // Re-hide cursor if it should be hidden
+      if (!m_cursorVisible)
+        OSXUtils::SetCursorVisible(false);
+#endif
+    }
+    else if (event->type() == QEvent::Leave)
+    {
+      m_cursorInsideWindow = false;
+#ifdef Q_OS_MAC
+      // Always show cursor when leaving window
+      OSXUtils::SetCursorVisible(true);
+#endif
+    }
+  }
+  return ComponentBase::eventFilter(watched, event);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowManager::raiseWindow()
@@ -539,7 +571,7 @@ void WindowManager::loadGeometry()
 // Config key helpers (per-screen-configuration)
 QString WindowManager::configKeyPrefix() const
 {
-  int screenCount = QGuiApplication::screens().size();
+  auto screenCount = QGuiApplication::screens().size();
   if (screenCount == 1)
   {
     QScreen* primary = QGuiApplication::primaryScreen();

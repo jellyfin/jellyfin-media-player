@@ -86,12 +86,12 @@ jobs:
         ninja windows_all
       shell: cmd
     - name: Archive installer
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}-installer
         path: ${{ github.workspace }}/build/JellyfinDesktop-*.exe
     - name: Archive portable ZIP
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}-portable
         path: ${{ github.workspace }}/build/JellyfinDesktop-*.zip

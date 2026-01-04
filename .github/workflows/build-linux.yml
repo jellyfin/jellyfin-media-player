@@ -41,7 +41,7 @@ jobs:
       run: |
         gpg --batch --yes --delete-secret-keys ${{ secrets.DEBIAN_SIGNING_KEY_ID }}
     - name: Upload artifacts to repository server
-      uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
+      uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
       with:
         host: "${{ secrets.REPO_HOST }}"
         username: "${{ secrets.REPO_USER }}"
@@ -114,7 +114,7 @@ jobs:
       run: |
         gpg --batch --yes --delete-secret-keys ${{ secrets.DEBIAN_SIGNING_KEY_ID }}
     - name: Upload artifacts to repository server
-      uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
+      uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
       with:
         host: "${{ secrets.REPO_HOST }}"
         username: "${{ secrets.REPO_USER }}"

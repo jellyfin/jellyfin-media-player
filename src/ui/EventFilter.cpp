@@ -101,7 +101,7 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
       }
     }
 
-    if (event->type() == QEvent::MouseButtonPress)
+    if (event->type() == QEvent::MouseButtonRelease)
     {
       QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
 
@@ -109,10 +109,16 @@ bool EventFilter::eventFilter(QObject* watched, QEvent* event)
         QQuickItem* webView = window->findChild<QQuickItem*>("web");
 
         if (mouseEvent->button() == Qt::BackButton)
+        {
           QMetaObject::invokeMethod(webView, "goBack");
+          return true;
+        }
 
         if (mouseEvent->button() == Qt::ForwardButton)
+        {
           QMetaObject::invokeMethod(webView, "goForward");
+          return true;
+        }
       }
     }
 

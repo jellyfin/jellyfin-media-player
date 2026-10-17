@@ -122,6 +122,10 @@ QStringList g_chromiumFlags = {
 #else
   "--disable-features=MediaSessionService",
 #endif
+  // Let V8 run full garbage collections earlier. Without a limit V8 sizes the heap from the
+  // physical memory, and the web client's garbage grows to several hundred MB before the
+  // first full collection.
+  "--js-flags=--max-old-space-size=256",
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
